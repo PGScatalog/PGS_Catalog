@@ -1,0 +1,120 @@
+{% load django_tables2 %}
+{% load i18n %}
+    {% block table %}
+        <table
+          data-toggle="table"
+          data-search="true"
+          data-sortable="true"
+          data-custom-sort="customSort"
+          data-show-export="true"
+          data-filter-control="true"
+          data-minimum-count-columns="1"
+          data-pagination="true"
+          data-page-size="15"
+          data-page-list="[15, 25, 50, 100, All]"
+          data-export-data-type="all"
+          data-export-types="['json', 'xml', 'csv', 'txt', 'excel']"
+          {% render_attrs table.attrs %}>
+            {% block table.thead %}
+            {% if table.show_header %}
+                <thead class="thead-light">
+                    <tr>
+                    {% for column in table.columns %}
+                        <th
+                          data-field="{{ column.accessor }}"
+                          data-sortable="true"
+                          data-filter-control="input">
+                          {{ column.header }}
+                        </th>
+                    {% endfor %}
+                    </tr>
+                </thead>
+            {% endif %}
+            {% endblock table.thead %}
+            {% block table.tbody %}
+                <tbody>
+                {% for row in table.paginated_rows %}
+                    {% block table.tbody.row %}
+                    <tr>
+                        {% for column, cell in row.items %}
+                            <td>{% if column.localize == None %}{{ cell }}{% else %}{% if column.localize %}{{ cell|localize }}{% else %}{{ cell|unlocalize }}{% endif %}{% endif %}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endblock table.tbody.row %}
+                {% empty %}
+                    {% if table.empty_text %}
+                    {% block table.tbody.empty_text %}
+                        <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+                    {% endblock table.tbody.empty_text %}
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            {% endblock table.tbody %}
+            {% block table.tfoot %}
+            {% if table.has_footer %}
+                <tfoot {{ table.attrs.tfoot.as_html }}>
+                    <tr>
+                    {% for column in table.columns %}
+                        <td {{ column.attrs.tf.as_html }}>{{ column.footer }}</td>
+                    {% endfor %}
+                    </tr>
+                </tfoot>
+            {% endif %}
+            {% endblock table.tfoot %}
+        </table>
+        <script>
+          function customSort(sortName, sortOrder, data) {
+            var order = sortOrder === 'desc' ? -1 : 1;
+            data.sort(function (a, b) {
+
+              // Remove HTML tags
+              var aa = a[sortName].replace(/<\/?[^>]+(>|$)/g, "");
+              var bb = b[sortName].replace(/<\/?[^>]+(>|$)/g, "");
+
+              // Numeric sort with or without strings after it
+              if (aa.match(/^\d+/)) {
+                aa_num = aa.replace(/,/g, '').match(/(^\d+)(\D+|$)/);
+                bb_num = bb.replace(/,/g, '').match(/(^\d+)(\D+|$)/);
+
+                if (aa_num && aa_num.length > 1) {
+                  aa = parseInt(aa_num[1]);
+                }
+                if (bb_num && bb_num.length > 1) {
+                  bb = parseInt(bb_num[1]);
+                }
+              }
+              // Numeric value with strings before it (e.g. OR:, HR:, ...)
+              else if (aa.match(/^\w+\:\s*\d+/)) {
+                console.log("before: "+aa);
+
+                console.log("middle: "+aa);
+                aa_num = aa.match(/^\w+\:\s*(\d+\.?\d*)(\D|$)/);
+                bb_num = bb.match(/^\w+\:\s*(\d+\.?\d*)(\D|$)/);
+
+                if (aa_num && aa_num.length > 1) {
+                  aa = parseFloat(aa_num[1]);
+                  console.log("end: "+aa);
+                }
+                if (bb_num && bb_num.length > 1) {
+                  bb = parseFloat(bb_num[1]);
+                }
+              }
+              // String sort
+              else {
+                // Change all to lowercase
+                aa = aa.toLowerCase();
+                bb = bb.toLowerCase();
+              }
+
+              // Final sort
+              if (aa < bb) {
+                return order * -1;
+              }
+              if (aa > bb) {
+                return order
+              }
+              return 0;
+            })
+          }
+        </script>
+    {% endblock table %}

@@ -1,0 +1,12 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+  <div class="error_msg_container">
+    <div>
+      <i class="icon icon-common" data-icon="&#xf188;"></i>
+    </div>
+    <h2>Internal error [error 500]</h2>
+    <div><b>Sorry, something went wrong on our end</b></div>
+    <div>{{ exception }}</div>
+  </div>
+{% endblock %}
