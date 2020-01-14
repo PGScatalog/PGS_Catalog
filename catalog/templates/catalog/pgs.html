@@ -1,0 +1,75 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+
+{% block title %}{{ pgs_id }} / {{ score.trait_reported }} (Polygenic Score){% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:" role="navigation">
+    <ul class="breadcrumbs columns">
+        <li><a href="../../">PGS Catalog</a></li>
+        <li><a href="../../browse/all/">Scores</a></li>
+        <li>
+            <span class="show-for-sr">Current: </span> {{ pgs_id }}
+        </li>
+    </ul>
+    </nav>
+
+    <a class="button medium primary button float-right hide-for-print" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/{{ score.id }}.txt.gz" download><b>Download PGS</b> <i class="icon icon-common" data-icon="&#xf019;"></i> <br>(Variants and weights)</a>
+
+    <h2>Polygenic Score (PGS) ID: {{score.id}}</h2>
+    <section>
+        <h3>Predicted Trait</h3>
+        <p>Reported Trait:&#9;<b>{{ score.trait_reported }}</b><br />
+        Mapped Trait(s) (Experimental Factor Ontology (EFO) IDs):&#9;<b>
+            {% for trait in efos  %}
+                <a href="../../trait/{{ trait.id }}">{{ trait.label }}</a>
+            {% endfor %}</b>
+        {% if score.trait_additional != '' %}
+            <br /><b>Additional Trait Information:</b>&#9;{{ score.trait_additional }}<br />
+        {% endif %}
+        </p>
+    </section>
+
+    <section>
+        <h3>Score Details</h3>
+
+        <p>Name:&#9;<b>{{ score.name }}</b></p>
+
+        <p>Original Genome Build:&#9;<b>{{ score.variants_genomebuild }}</b></br>
+           Number of Variants:&#9;<b>{{ num_variants_pretty }}</b></p>
+
+        <p>PGS Development Method:&#9;<b>{{ score.method_name }}</b><br />
+           PGS Development Details/Relevant Parameters:&#9;<b>{{ score.method_params }}</b></p>
+            {% if  score.variants_interactions > 0 %}
+                Number of Variant Interaction Terms:&#9;<b>{{ score.variants_interactions }}</b></p>
+            {% endif %}
+
+        <p>Citation:&#9;{{ citation }}&#9;&#9;&#9;|&#9;&#9;&#9;PGS Catalog Publication ID:&#9;<a href=../../publication/{{ score.publication.id }}>{{ score.publication.id }}</a></p>
+
+
+        <h4>Contributing Samples</h4>
+        {% if table_sample_variants or table_sample_training %}
+            {% if table_sample_variants %}
+                <h5>Source of Variant Associations (GWAS)</h5>
+                {% render_table table_sample_variants %}
+            {% endif %}
+            {% if table_sample_training %}
+                <h5>Score Development/Training</h5>
+                {% render_table table_sample_training %}
+            {% endif %}
+        {% else %}
+            No sample information available.
+        {% endif %}
+    </section>
+        <h3>Performance Metrics</h3>
+        <i><b style="color:#FF0000">Disclaimer: </b></i>The performance metrics are displayed as reported by the source studies.
+            It is important to note that metrics are not necessarily comparable with each other.
+            For example, metrics depend on the sample characteristics (described by the PGS Catalog Sample Set [PSS] ID),
+            phenotyping, and statistical modelling. Please refer to the source publication for additional guidance on performance.
+        {% render_table table_performance %}
+        <h4>Evaluated Samples</h4>
+        {% render_table table_performance_samples %}
+    </section>
+{% endblock %}

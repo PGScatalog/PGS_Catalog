@@ -1,0 +1,55 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+
+{% block title %}{{publication.firstauthor}}, {{publication.journal}} ({{publication.pub_year}}) (Publication){% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:" role="navigation">
+    <ul class="breadcrumbs columns">
+        <li><a href="../../">PGS Catalog</a></li>
+        <li><a href="../../browse/studies/">Publications</a></li>
+        <li>
+            <span class="show-for-sr">Current: </span> {{ publication.id }}
+        </li>
+    </ul>
+    </nav>
+
+    <h2>Publication: {{ publication.title }}</h2>
+    <section>
+    <h3>Information</h3>
+    <p>PGS Catalog Publication (PGP) ID: <b>{{ publication.id }}</b> <br>
+        PubMed ID: <a href=https://www.ncbi.nlm.nih.gov/pubmed/{{ publication.PMID }}>{{ publication.PMID }}</a><br>
+        doi: <a href=https://doi.org/{{ publication.doi }}>{{ publication.doi }}</a></p>
+    <p>Publication Date: <b>{{ publication.date_publication }}</b></p>
+    <p>Journal: <b><i>{{ publication.journal }}</i></b>
+    <p>Authors: <span class="more">{{ publication.authors }}</span></p>
+    </section>
+
+    <section>
+    {% if table_scores or table_evaluated %}
+        <h3>PGS Associated with {{ publication.id }}</h3>
+        {% if table_scores %}
+            <h4>PGS Developed By This Study</h4>
+            {% render_table table_scores %}
+        {% endif %}
+        {% if table_evaluated %}
+            <h4>External PGS Evaluated By This Study</h4>
+            {% render_table table_evaluated %}
+        {% endif %}
+    {% endif %}
+    </section>
+
+    <section>
+    <h3>PGS Performance Metrics</h3>
+    <i><b style="color:#FF0000">Disclaimer: </b></i>The performance metrics are displayed as reported by the source studies.
+        It is important to note that metrics are not necessarily comparable with each other.
+        For example, metrics depend on the sample characteristics (described by the PGS Catalog Sample Set [PSS] ID),
+        phenotyping, and statistical modelling. Please refer to the source publication for additional guidance on performance.
+    {% render_table table_performance %}
+    <h4>Evaluated Samples</h4>
+    {% render_table table_performance_samples %}
+    </section>
+{% endblock %}

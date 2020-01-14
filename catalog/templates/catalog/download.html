@@ -1,0 +1,57 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Download Information{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:" role="navigation">
+        <ul class="breadcrumbs columns">
+            <li><a href="">PGS Catalog</a></li>
+            <li><span class="show-for-sr">Current: </span> Downloads</li>
+        </ul>
+    </nav>
+
+    <h2>PGS Catalog Downloads</h2>
+    <p>
+        This page contains information about the PGS Catalog downloads and ftp.
+    </p>
+    <div class="callout table-of-contents"><nav role="navigation">
+    <h4>Table of Contents</h4>
+    <ul>
+        <li><a href="#dl_ftp">PGS Scoring File Downloads</a></li>
+        <li><a href="#dl_bulk">Bulk Catalog Downloads</a></li>
+    </ul>
+    </nav>
+    </div>
+
+    <section>
+    <h3 id="dl_ftp">PGS Scoring File Downloads</h3>
+        <p>The PGS are held on a ftp server (<a href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/">ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/</a>)
+            for download. Each score file is formatted to be a gzipped tab-delimited text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
+            In the current catalog the scores have been extracted from the relevant publication and only been reformatted to have a consistent header (lines starting with <code>#</code>)
+            listing relevant PGS Catalog information (e.g. <i>PGS ID, genome build (if known), number of variants present, reported trait, the original publication's doi</i>),
+            and edited to have consistent column headings based on the following schema:</p>
+    <table>
+        <tr><th><i>Column Header</i></th><th>Field Name</th><th>Field Description</th></tr>
+        <tr><td><i>rsID</i></td><td>dbSNP Accession ID (rsID) </td><td>The SNP’s rs ID</td></tr>
+        <tr><td><i>chr_name</i></td><td>Location - Chromosome </td><td>Chromosome name/number associated with the variant</td></tr>
+        <tr><td><i>chr_position</i></td><td>Location - Position within the Chromosome</td><td>Chromosomal position associated with the variant</td></tr>
+        <tr><td><i>effect_allele</i></td><td>Effect Allele</td><td>The allele that is counted (e.g. dosage {0, 1, 2}) and multiplied by the weight </td></tr>
+        <tr><td><i>reference_allele</i></td><td>Reference Allele</td><td>The other allele(s) at the loci</td></tr>
+        <tr><td><i>effect_weight</i></td><td>Variant Weight</td><td>Value of the effect that is multiplied with the dosage.</td></tr>
+        <tr><td><i>weight_type</i></td><td>Type of Weight</td><td>Whether the author supplied Variant Weight is a: beta (effect size), or something like an OR/HR (odds/hazard ratio)</td></tr>
+        <tr><td><i>allelefrequency_effect</i></td><td>Effect Allele Frequency</td><td>Reported effect allele frequency, if the associated locus is a haplotype then haplotype frequency will be extracted.</td></tr>
+        <tr><td><i>is_interaction</i></td><td>FLAG: Interaction</td><td>This is a TRUE/FALSE variable that flags whether the weight should be multiplied with the dosage of more than one variant. Interactions are demarcated with a <i>_x_</i> between entries for each of the variants present in the interaction. </td></tr>
+        <tr><td><i>is_recessive</i></td><td>FLAG: Recessive Inheritance Model</td><td>This is a TRUE/FALSE variable that flags whether the weight should be added to the PGS sum only if there are 2 copies of the effect allele (e.g. it is a recessive allele).</td></tr>
+        <tr><td><i>is_haplotype</i><br><i>is_diplotype</i></td><td>FLAG: Haplotype or Diplotype</td><td>This is a TRUE/FALSE variable that flags whether the effect allele is a haplotype/diplotype rather than a single SNP. Constituent SNPs in the haplotype are semi-colon separated. </td></tr>
+        <tr><td><i>imputation_method</i></td><td>Imputation Method</td><td>This described whether the variant was specifically called with a specific imputation or variant calling method. This is mostly kept to describe HLA-genotyping methods (e.g. flag SNP2HLA, HLA*IMP) that gives alleles that are not referenced by genomic position.</td></tr>
+        <tr><td><i>locus_name</i></td><td>Locus Name</td><td>This is kept in for loci where the variant may be referenced by the gene (APOE e4). It is also common (usually in smaller PGS) to see the variants named according to the genes they impact.</td></tr>
+        <tr><td><i>variant_description</i></td><td>Variant Description</td><td>This field describes any extra information about the variant (e.g. how it is genotyped or scored) that cannot be captured by the other fields.</td></tr>
+        <tr><td><i>inclusion_criteria</i></td><td>Score Inclusion Criteria</td><td>Explanation of when this variant gets included into the PGS (e.g. if it depends on the results from other variants).</td></tr>
+    </table>
+    </section>
+
+    <section>
+    <h3 id="dl_bulk">Bulk Catalog Downloads</h3>
+    <p><i>Downloads of the full PGS Catalog and annotations are currently under development.</i></p>
+    </section>
+{% endblock %}
