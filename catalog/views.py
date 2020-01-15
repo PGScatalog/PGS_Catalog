@@ -1,12 +1,16 @@
 from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import TemplateView
+import re
 
-from django_tables2 import RequestConfig
 from .tables import *
 
+
 def index(request):
+    current_release = Release.objects.order_by('-date').first()
+
     context = {
+        'release' : current_release,
         'num_pgs' : Score.objects.count(),
         'num_traits' : EFOTrait.objects.count(),
         'num_pubs' : Publication.objects.count()
@@ -17,23 +21,24 @@ def browseby(request, view_selection):
     context = {}
 
     if view_selection == 'traits':
-        context['view_name'] = 'Polygenic Traits'
+        context['view_name'] = 'Traits'
         r = Score.objects.all().values('trait_efo').distinct()
         l = []
         for x in r:
             l.append(x['trait_efo'])
-        table = Browse_TraitTable(EFOTrait.objects.filter(id__in=l))
-        RequestConfig(request, paginate={"per_page": 100}).configure(table)
+        table = Browse_TraitTable(EFOTrait.objects.filter(id__in=l), order_by="label")
         context['table'] = table
     elif view_selection == 'studies':
         context['view_name'] = 'Publications'
         table = Browse_PublicationTable(Publication.objects.all())
-        RequestConfig(request, paginate={"per_page": 100}).configure(table)
+        context['table'] = table
+    elif view_selection == 'sample_set':
+        context['view_name'] = 'Sample Sets'
+        table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False))
         context['table'] = table
     else:
         context['view_name'] = 'Polygenic Scores'
         table = Browse_ScoreTable(Score.objects.all())
-        RequestConfig(request, paginate={"per_page": 100}).configure(table)
         context['table'] = table
 
     return render(request, 'catalog/browseby.html', context)
@@ -46,7 +51,7 @@ def pgs(request, pgs_id):
 
     pub = score.publication
     citation = format_html(' '.join([pub.firstauthor, '<i>et al. %s</i>'%pub.journal, '(%s)' % pub.date_publication.strftime('%Y')]))
-    citation = format_html('<a href=../../publication/{}>{}</a>', pub.id, citation)
+    citation = format_html('<a target="_blank" href=https://doi.org/{}>{}</a>', pub.doi, citation)
     context = {
         'pgs_id' : pgs_id,
         'score' : score,
@@ -58,17 +63,14 @@ def pgs(request, pgs_id):
     # Extract and display Sample Tables
     if score.samples_variants.count() > 0:
         table = SampleTable_variants(score.samples_variants.all())
-        RequestConfig(request).configure(table)
         context['table_sample_variants'] = table
     if score.samples_training.count() > 0:
         table = SampleTable_training(score.samples_training.all())
-        RequestConfig(request).configure(table)
         context['table_sample_training'] = table
 
     # Extract + display Performance + associated samples
     pquery = Performance.objects.filter(score=score)
     table = PerformanceTable(pquery)
-    RequestConfig(request).configure(table)
     context['table_performance'] = table
 
     pquery_samples = []
@@ -76,7 +78,6 @@ def pgs(request, pgs_id):
         pquery_samples = pquery_samples + q.samples()
 
     table = SampleTable_performance(pquery_samples)
-    RequestConfig(request).configure(table)
     context['table_performance_samples'] = table
 
     return render(request, 'catalog/pgs.html', context)
@@ -87,14 +88,13 @@ def pgp(request, pub_id):
     except Publication.DoesNotExist:
         raise Http404("Publication: \"{}\" does not exist".format(pub_id))
     context = {
-        'publication': pub
+        'publication' : pub
     }
 
     #Display scores that were developed by this publication
     related_scores = Score.objects.filter(publication=pub)
     if related_scores.count() > 0:
         table = Browse_ScoreTable(related_scores)
-        RequestConfig(request).configure(table)
         context['table_scores'] = table
 
     #Get PGS evaluated by the PGP
@@ -107,12 +107,10 @@ def pgp(request, pub_id):
             external_scores.add(perf.score)
     if len(external_scores) > 0:
         table = Browse_ScoreTable(external_scores)
-        RequestConfig(request).configure(table)
         context['table_evaluated'] = table
 
     #Find + table the evaluations
     table = PerformanceTable_PubTrait(pquery)
-    RequestConfig(request).configure(table)
     context['table_performance'] = table
 
     pquery_samples = []
@@ -120,7 +118,6 @@ def pgp(request, pub_id):
         pquery_samples = pquery_samples + q.samples()
 
     table = SampleTable_performance(pquery_samples)
-    RequestConfig(request).configure(table)
     context['table_performance_samples'] = table
 
     return render(request, 'catalog/pgp.html', context)
@@ -137,7 +134,7 @@ def efo(request, efo_id):
         'table_scores' : Browse_ScoreTable(related_scores)
     }
 
-    #Check if there are multiple descriptions
+    # Check if there are multiple descriptions
     try:
         desc_list = eval(trait.description)
         if type(desc_list) == list:
@@ -148,7 +145,6 @@ def efo(request, efo_id):
     #Find the evaluations of these scores
     pquery = Performance.objects.filter(score__in=related_scores)
     table = PerformanceTable_PubTrait(pquery)
-    RequestConfig(request).configure(table)
     context['table_performance'] =table
 
     pquery_samples = []
@@ -156,10 +152,38 @@ def efo(request, efo_id):
         pquery_samples = pquery_samples + q.samples()
 
     table = SampleTable_performance(pquery_samples)
-    RequestConfig(request).configure(table)
     context['table_performance_samples'] = table
 
     return render(request, 'catalog/efo.html', context)
+
+
+def pss(request, pss_id):
+    try:
+        sample_set = SampleSet.objects.get(id__exact=pss_id)
+    except SampleSet.DoesNotExist:
+        raise Http404("Sample Set: \"{}\" does not exist".format(pss_id))
+
+    table_cohorts = []
+    samples_list = sample_set.samples.all()
+    for sample in samples_list:
+        # Cohort
+        if sample.cohorts.count() > 0:
+            table = CohortTable(sample.cohorts.all(), order_by="name_short")
+            table_cohorts.append(table)
+        else:
+            table_cohorts.append('')
+
+    sample_set_data = zip(samples_list, table_cohorts)
+    context = {
+        'pss_id': pss_id,
+        'sample_count': range(len(samples_list)),
+        'sample_set_data': sample_set_data
+    }
+    return render(request, 'catalog/pss.html', context)
+
+
+class AboutView(TemplateView):
+    template_name = "catalog/about.html"
 
 class DocsView(TemplateView):
     template_name = "catalog/docs.html"

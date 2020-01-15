@@ -1,0 +1,214 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Polygenic Score Sample Set{% endblock %}
+
+{% block content %}
+    <script type="text/javascript">
+      function ready(callback){
+          // in case the document is already rendered
+          if (document.readyState!='loading') callback();
+          // modern browsers
+          else if (document.addEventListener) document.addEventListener('DOMContentLoaded', callback);
+          // IE <= 8
+          else document.attachEvent('onreadystatechange', function(){
+              if (document.readyState=='complete') callback();
+          });
+      }
+    </script>
+
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="../../browse/sample_set/">Sample Set</a></li>
+        <li class="breadcrumb-item"> {{ pss_id }} </li>
+      </ol>
+    </nav>
+
+    <h2 style="margin-bottom:1rem">PGS Sample Set (PSS): <b>{{ pss_id }}</b></h2>
+
+    {% if sample_count|length > 1 %}
+      <div class="content_container">
+        <div class="table-of-contents">
+          <nav role="navigation">
+            <h5>Sample count: {{ sample_count|length }}</h5>
+            <ul>
+              {% for i in sample_count %}
+                <li><a href="#sample_{{ forloop.counter }}">Sample #{{ forloop.counter }}</a></li>
+              {% endfor %}
+            </ul>
+          </nav>
+        </div>
+      </div>
+    {% endif %}
+
+    {% for sample, table_cohort in sample_set_data %}
+      {% if sample_count|length > 1 %}
+        <h3 class="sample_sub_section" id="sample_{{ forloop.counter }}">Sample #{{ forloop.counter }}</h3>
+      {% endif %}
+      <section>
+        <table class="table table-bordered table_pgs_h">
+          <tbody>
+            <tr>
+              <td>Phenotype</td>
+              <td><b>{{ sample.phenotyping_free }}</b></td>
+            </tr>
+            <tr>
+              <td>Sample Ancestry</td>
+              <td><b>{{ sample.display_ancestry_inline }}</b></td>
+            </tr>
+            {% if sample.ancestry_additional %}
+              <tr>
+                <td>Additional Ancestry Description</td>
+                <td>{{ sample.ancestry_additional }}</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+
+        <!-- Sample Numbers -->
+        {% if sample_count|length > 1 %}
+          <h4 style="margin-bottom:1rem">Sample Numbers</h4>
+        {% else %}
+          <h3 style="margin-bottom:1rem">Sample Numbers</h3>
+        {% endif %}
+        <div class="clearfix">
+          <div style="float:left;margin-right:40px">
+            <table class="table table-bordered table_pgs_h">
+              <tbody>
+                <tr>
+                  <td>Total number</td>
+                  <td><b> {{ sample.display_sample_number_total }}</b></td>
+                </tr>
+                {% if sample.display_sample_number_detail|length > 0 %}
+                  <tr>
+                    <td>Detailed numbers</td>
+                    <td>
+                      <ul>
+                        {% for numbers in sample.display_sample_number_detail %}
+                          <li>{{ numbers }}</li>
+                        {% endfor %}
+                      </ul>
+                    </td>
+                  </tr>
+                {% endif %}
+                {% if sample.list_cohortids|length > 0 %}
+                  <tr>
+                    <td>Number of Cohort(s)</td>
+                    <td>
+                      <b>{{ sample.list_cohortids|length }}</b>
+                      {% if sample_count|length > 1 %}
+                        <a class="toggle_btn pgs_no_icon_link" data-toggle="tooltip" data-placement="bottom" id="cohort_{{ forloop.counter }}" title="Click to show/hide the cohort table"><i class="icon icon-common icon-plus-square"></i></a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          {% if sample.display_sample_category_number.0|length > 0 %}
+            <div style="float:left;margin-right:40px;border:1px solid #ccc">
+              <div style="width:200px;height:150px">
+                <canvas id="sample_piechart_{{ forloop.counter }}" width="200" height="150"></canvas>
+                <script type="text/javascript">
+
+                    ready(function(){
+                      var labels_list = {{ sample.display_sample_category_number.0|safe }}
+
+                      new Chart(document.getElementById("sample_piechart_{{ forloop.counter }}"), {
+                        type: 'doughnut',
+                        data: {
+                          labels: {{ sample.display_sample_category_number.0|safe }},
+                          datasets: [{
+                            label: "Sample numbers",
+                            backgroundColor: ["#3e95cd", "#8e5ea2"],
+                            data: {{ sample.display_sample_category_number.1 }}
+                          }]
+                        },
+                        options: {
+                          title: {
+                            display: true,
+                            text: 'Sample distribution'
+                          },
+                          legend: {
+                            position: 'bottom',
+                            reverse: true,
+                            labels: {
+                              boxWidth: 20
+                            }
+                          }
+                        }
+                      });
+                    });
+                </script>
+              </div>
+            </div>
+          {% endif %}
+          {% if sample.display_sample_gender_percentage.0|length > 0 %}
+            <div style="float:left;">
+              <div style="width:200px;height:150px;border:1px solid #ccc">
+                <canvas id="sample_piechart_gender_{{ forloop.counter }}" width="200" height="150"></canvas>
+                <script type="text/javascript">
+
+                    ready(function(){
+
+                      new Chart(document.getElementById("sample_piechart_gender_{{ forloop.counter }}"), {
+                        type: 'doughnut',
+                        data: {
+                          labels: {{ sample.display_sample_gender_percentage.0|safe }},
+                          datasets: [{
+                            label: "Sample gender",
+                            backgroundColor: ["#F18F2B", "#4F78A7"],
+                            data: {{ sample.display_sample_gender_percentage.1 }}
+                          }]
+                        },
+                        options: {
+                          title: {
+                            display: true,
+                            text: 'Sample gender distribution'
+                          },
+                          legend: {
+                            position: 'bottom',
+                            reverse: true,
+                            labels: {
+                              boxWidth: 20
+                            }
+                          }
+                        }
+                      });
+                    });
+                </script>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+
+      </section>
+      <section>
+        {% if table_cohort != '' %}
+          {% if sample_count|length > 1 %}
+            <div class="toggle_list" id="list_cohort_{{ forloop.counter }}">
+              <h4>Cohort(s)</h4>
+              <div>
+                {% render_table table_cohort %}
+              </div>
+            </div>
+          {% else %}
+            <h3>Cohort(s)</h3>
+            <div>
+              {% render_table table_cohort %}
+            </div>
+          {% endif %}
+        {% endif %}
+        {% if sample.cohorts_additional %}
+          {% if sample_count|length > 1 %}
+            <h4>Additional information</h4>
+          {% else %}
+            <h3>Additional information</h3>
+          {% endif %}
+          <p>{{ sample.cohorts_additional }}</p>
+        {% endif %}
+      </section>
+    {% endfor %}
+{% endblock %}

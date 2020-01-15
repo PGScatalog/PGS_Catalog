@@ -14,12 +14,18 @@ urlpatterns = [
     # ex: /trait/EFO_0000305/
     path('trait/<str:efo_id>/', views.efo, name='Polygenic Trait'),
 
-    # ex: /browse/{traits, studies}/
+    # ex: /sampleset/PSS000001/
+    path('sampleset/<str:pss_id>/', views.pss, name='Sample Set'),
+
+    # ex: /browse/{scores, traits, studies}/
     path('browse/<str:view_selection>/', views.browseby, name='Browse Scores'),
+
+    # ex: /about/
+    path('about/', views.AboutView.as_view(), name='About'),
 
     # ex: /docs/
     path('docs/', views.DocsView.as_view(), name='Documentation'),
 
     # ex: /downloads/
-    path('downloads/', views.DownloadView.as_view(), name='Downloads'),
+    path('downloads/', views.DownloadView.as_view(), name='Downloads')
 ]

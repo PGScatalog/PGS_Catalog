@@ -1,53 +1,135 @@
 {% extends 'catalog/base.html' %}
 {% load render_table from django_tables2 %}
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-
 {% block title %}{{ pgs_id }} / {{ score.trait_reported }} (Polygenic Score){% endblock %}
 
 {% block content %}
-    <nav aria-label="You are here:" role="navigation">
-    <ul class="breadcrumbs columns">
-        <li><a href="../../">PGS Catalog</a></li>
-        <li><a href="../../browse/all/">Scores</a></li>
-        <li>
-            <span class="show-for-sr">Current: </span> {{ pgs_id }}
-        </li>
-    </ul>
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="../../browse/all/">Scores</a></li>
+        <li class="breadcrumb-item">{{ pgs_id }}</li>
+      </ol>
     </nav>
 
-    <a class="button medium primary button float-right hide-for-print" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/{{ score.id }}.txt.gz" download><b>Download PGS</b> <i class="icon icon-common" data-icon="&#xf019;"></i> <br>(Variants and weights)</a>
 
-    <h2>Polygenic Score (PGS) ID: {{score.id}}</h2>
+
+    <div class="clearfix">
+      <h2 style="float:left">Polygenic Score (PGS) ID: <b>{{score.id}}</b></h2>
+      <div style="float:right">
+        <a class="btn btn-pgs pgs_no_icon_link" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/{{ score.id }}.txt.gz" download>
+          <span class="icon icon-common" data-icon="&#xf019;"></span> <b>Download PGS</b><div class="btn-sub-text">Variants and weights data file</div>
+        </a>
+      </div>
+    </div>
     <section>
-        <h3>Predicted Trait</h3>
-        <p>Reported Trait:&#9;<b>{{ score.trait_reported }}</b><br />
-        Mapped Trait(s) (Experimental Factor Ontology (EFO) IDs):&#9;<b>
-            {% for trait in efos  %}
-                <a href="../../trait/{{ trait.id }}">{{ trait.label }}</a>
-            {% endfor %}</b>
-        {% if score.trait_additional != '' %}
-            <br /><b>Additional Trait Information:</b>&#9;{{ score.trait_additional }}<br />
-        {% endif %}
-        </p>
-    </section>
+      <div class="row">
+        <div class="col">
+          <h3>Score Details</h3>
 
-    <section>
-        <h3>Score Details</h3>
+          <table class="table table-bordered table_pgs_h">
+            <tbody>
+              <tr>
+                <td>Name</td>
+                <td><b>{{ score.name }}</b></td>
+              </tr>
+              <tr>
+                <td>Original Genome Build</td>
+                <td><b>{{ score.variants_genomebuild }}</b></td>
+              </tr>
+              <tr>
+                <td>Number of Variants</td>
+                <td><span class="badge badge-pill badge-pgs">{{ num_variants_pretty }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-        <p>Name:&#9;<b>{{ score.name }}</b></p>
+        <div class="col">
+          <h3>Development Method</h3>
+          <table class="table table-bordered table_pgs_h">
+            <tbody>
+              <tr>
+                <td>Name</td>
+                <td><b>{{ score.method_name }}</b></td>
+              </tr>
 
-        <p>Original Genome Build:&#9;<b>{{ score.variants_genomebuild }}</b></br>
-           Number of Variants:&#9;<b>{{ num_variants_pretty }}</b></p>
+                <tr>
+                  <td>Parameters</td>
 
-        <p>PGS Development Method:&#9;<b>{{ score.method_name }}</b><br />
-           PGS Development Details/Relevant Parameters:&#9;<b>{{ score.method_params }}</b></p>
-            {% if  score.variants_interactions > 0 %}
-                Number of Variant Interaction Terms:&#9;<b>{{ score.variants_interactions }}</b></p>
+                  <td id="pgs_params">
+                    {% if score.method_params %}
+                      {{ score.method_params }}
+                    {% else %}
+                      NR
+                    {% endif %}
+                  </td>
+                </tr>
+              {% if score.variants_interactions > 0 %}
+                <tr>
+                  <td>Number of Variant Interaction Terms</td>
+                  <td>{{ score.variants_interactions }}</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <h3>Predicted Trait</h3>
+          <table class="table table-bordered table_pgs_h">
+            <tbody>
+              <tr>
+                <td>Reported Trait</td>
+                <td><b>{{ score.trait_reported }}</b></td>
+              </tr>
+              <tr>
+                <td>Mapped Trait(s)</td>
+                <td>
+                    {% if efos|length == 1 %}
+                      <a class="margin_right_half" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
+                      (<a href="https://www.ebi.ac.uk/efo/{{ efos.0.id }}">{{ efos.0.id }}</a>)
+                    {% else %}
+                      <ul style="margin-bottom:0px">
+                      {% for trait in efos  %}
+                        <li>
+                          <a class="margin_right_half" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
+                          (<a href="https://www.ebi.ac.uk/efo/{{ trait.id }}">{{ trait.id }}</a>)
+                        </li>
+                      {% endfor %}
+                      </ul>
+                    {% endif %}
+                </td>
+              </tr>
+            {% if score.trait_additional != '' and score.trait_additional != None %}
+              <tr>
+                <td>Additional Trait Information</td>
+                <td>{{ score.trait_additional }}</td>
+              </tr>
             {% endif %}
+            </tbody>
+          </table>
+        </div>
 
-        <p>Citation:&#9;{{ citation }}&#9;&#9;&#9;|&#9;&#9;&#9;PGS Catalog Publication ID:&#9;<a href=../../publication/{{ score.publication.id }}>{{ score.publication.id }}</a></p>
-
+        <div class="col">
+          <h3>Citation</h3>
+          <table class="table table-bordered table_pgs_h">
+            <tbody>
+              <tr>
+                <td>Publication</td>
+                <td>{{ citation }}</td>
+              </tr>
+              <tr>
+                <td>PGS Catalog Publication ID</td>
+                <td><a href=../../publication/{{ score.publication.id }}>{{ score.publication.id }}</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
         <h4>Contributing Samples</h4>
         {% if table_sample_variants or table_sample_training %}
@@ -64,10 +146,12 @@
         {% endif %}
     </section>
         <h3>Performance Metrics</h3>
-        <i><b style="color:#FF0000">Disclaimer: </b></i>The performance metrics are displayed as reported by the source studies.
-            It is important to note that metrics are not necessarily comparable with each other.
-            For example, metrics depend on the sample characteristics (described by the PGS Catalog Sample Set [PSS] ID),
-            phenotyping, and statistical modelling. Please refer to the source publication for additional guidance on performance.
+        <p>
+          <span class="pgs_note_title">Disclaimer: </span>The performance metrics are displayed as reported by the source studies.
+          It is important to note that metrics are not necessarily comparable with each other.
+          For example, metrics depend on the sample characteristics (described by the PGS Catalog Sample Set [PSS] ID),
+          phenotyping, and statistical modelling. Please refer to the source publication for additional guidance on performance.
+        </p>
         {% render_table table_performance %}
         <h4>Evaluated Samples</h4>
         {% render_table table_performance_samples %}

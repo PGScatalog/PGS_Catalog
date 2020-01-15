@@ -1,5 +1,11 @@
 {% extends 'catalog/base.html' %}
 
 {% block content %}
-    <h2>{{ exception }}</h2>
+  <div class="error_msg_container">
+    <div>
+      <i class="icon icon-common" data-icon="&#xf071;"></i>
+    </div>
+    <h2>Page not found [error 404]</h2>
+    <div><b>Sorry, the requested page couldn't be found</b></div>
+  </div>
 {% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item">About</li>
+      </ol>
+    </nav>
+
+    <h2>About the PGS Catalog</h2>
+    <p>
+      This page contains information regarding the PGS Catalog Project.
+    </p>
+    <div class="content_container">
+      <div class="table-of-contents">
+        <nav role="navigation">
+          <h5>Table of Contents</h5>
+          <ul>
+            <li><a href="#project">PGS Catalog Project</a></li>
+            <li><a href="#score">Polygenic Score</a></li>
+            <li><a href="#submission">Data submission</a></li>
+            <li><a href="#under_dev">Features Under Development</a></li>
+            <li><a href="#contact">Feedback & Contact Information</a></li>
+            <li><a href="#acknowledgements">Acknowledgements</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+
+    <section>
+      <h3 id="project">PGS Catalog Project</h3>
+      <p>&lt;<i> Description of the project </i>&gt;</p>
+    </section>
+
+
+    <section>
+      <h3 id="score">Polygenic Score</h3>
+      <p>&lt;<i> Definition of the polygenic score </i>&gt;</p>
+    </section>
+
+
+    <section>
+      <h3 id="submission">Data submission</h3>
+      <p>&lt;<i> Description about the submission form and process </i>&gt;</p>
+    </section>
+
+    <section>
+      <h3 id="under_dev">Features Under Development</h3>
+      <ul>
+          <li><b>Including more PGS & developing a deposition interface.</b><br />In its current pilot stage the catalog includes a smaller exemplar set of traits and PGS (see <a href="../../docs/#eligibility">catalog inclusion criteria</a>).
+              The PGS Catalog is not limited to these traits - we plan to actively curate PGS for inclusion while also developing an interface in which authors can deposit PGS or PGS evaluations using a standard template.</li>
+          <li style="margin-top:6px"><b>Search functionality and better integration of the trait ontology.</b><br />The catalog will be fully searchable, and use the trait ontology to provide PGS for related traits.</li>
+          <li style="margin-top:6px"><b>Better download & programmatic access to the catalog.</b><br />The main goal of the catalog is to distribute the scores and their annotations in a consistent and easy to use format.
+              We will customize our download formats, and functionality (mostly likely a cart/checkout model, and API) based on user feedback.</li>
+          <li style="margin-top:6px"><b>PGS Harmonized to Current Genome Builds.</b><br />Currently PGS provided through the database are described
+              by standard column names & descriptions, along with the genome build it was developed with (<i>if known</i>).
+              In the future we plan to harmonize all PGS across genome builds to reduce ambiguity.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3 id="contact">Feedback & Contact Information</h3>
+      <p>To submit a PGS to the catalog, provide feedback, or ask questions please contact the PGS Catalog team at <a href="mailto:pgs-info@ebi.ac.uk">pgs-info@ebi.ac.uk</a>.</p>
+    </section>
+
+    <section>
+      <h3 id="acknowledgements">Acknowledgements</h3>
+      <p>We wish to acknowledge the help of the following people & teams for their support of the PGS Catalog:
+        <ul>
+          <li><a href="https://www.ebi.ac.uk/about/spot-team">EMBL-EBI Samples Phenotypes and Ontologies Team</a> - Helen Parkinson, Simon Jupp</li>
+          <li>NHGRI-EBI GWAS Catalog Team - Aoife McMahon</li>
+          <li>Inouye Lab Members - Jonathan Marten, Petar Scepanovic, Gad Abraham</li>
+        </ul>
+      </p>
+      <p>The development of the PGS Catalog is funded by:</p>
+      <div class="row justify-content-center" style="margin-bottom:25px">
+        <div class="col">
+          <a class="pgs_no_icon_link" href="https://www.phpc.cam.ac.uk/"><img class="img-fluid" src="{% static 'catalog/imgs/UofCambridge.png' %}" alt="University of Cambridge" style="max-height:70px"></a>
+        </div>
+        <div class="col">
+          <a class="pgs_no_icon_link" href="https://www.ebi.ac.uk/" style="link:none"><img class="img-fluid" src="{% static 'catalog/imgs/EMBL_EBI.png' %}" alt="EMBL-EBI" style="max-height:70px"></a>
+        </div>
+        <div class="col">
+          <a class="pgs_no_icon_link" href="https://www.hdruk.ac.uk/about/structure/hdr-uk-cambridge/"><img class="img-fluid" src="{% static 'catalog/imgs/HDR-UK.png' %}" alt="HDR-UK (Cambridge)" style="max-height:70px"></a>
+        </div>
+        <div class="col">
+          <a class="pgs_no_icon_link" href="https://baker.edu.au/"><img class="img-fluid" src="{% static 'catalog/imgs/Baker_Logo.png' %}" alt="Baker Heart and Diabetes Institute" style="max-height:70px"></a>
+        </div>
+      </div>
+    </section>
+{% endblock %}
