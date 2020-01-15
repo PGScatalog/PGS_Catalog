@@ -91,7 +91,8 @@ class Browse_PublicationTable(tables.Table):
     class Meta:
         model = Publication
         attrs = {
-            "data-show-columns" : "true"
+            "data-show-columns" : "true",
+            "data-sort-name" : "id"
         }
         fields  = [
             'id',
@@ -128,7 +129,8 @@ class Browse_TraitTable(tables.Table):
     class Meta:
         model = EFOTrait
         attrs = {
-            "data-show-columns" : "true"
+            "data-show-columns" : "true",
+            "data-sort-name" : "display_label"
         }
         fields = [
             'label_link',
@@ -147,7 +149,8 @@ class Browse_ScoreTable(tables.Table):
     class Meta:
         model = Score
         attrs = {
-            "data-show-columns" : "true"
+            "data-show-columns" : "true",
+            "data-sort-name" : "id"
         }
         fields = [
             'id',
