@@ -89,13 +89,13 @@
                 <td>Mapped Trait(s)</td>
                 <td>
                     {% if efos|length == 1 %}
-                      <a class="margin_right_half" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
+                      <a class="mr-2" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
                       (<a href="https://www.ebi.ac.uk/efo/{{ efos.0.id }}">{{ efos.0.id }}</a>)
                     {% else %}
                       <ul style="margin-bottom:0px">
                       {% for trait in efos  %}
                         <li>
-                          <a class="margin_right_half" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
+                          <a class="mr-2" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
                           (<a href="https://www.ebi.ac.uk/efo/{{ trait.id }}">{{ trait.id }}</a>)
                         </li>
                       {% endfor %}
