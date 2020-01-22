@@ -13,6 +13,7 @@ $pgs_dark0: #000;
 $pgs_dark2: #222; // Main font-color
 $pgs_dark3: #333; // Header & footer background-color
 $pgs_dark5: #555;
+$pgs_darkB: #BBB;
 $pgs_light_grey: #e9ecef;
 $pgs_light_grey2: #FAFAFA;
 $pgs_note_title: #F00;
@@ -680,6 +681,27 @@ a {
   margin-top:2rem;
   background-color: $pgs_dark2;
 }
+
+pre.pgs_scoring_header {
+  width:auto;
+  padding: 5px;
+  border:1px solid $pgs_light_grey;
+  span {
+    font-weight: bold;
+    color: $pgs_darkB;
+  }
+  i {
+    &::before {
+      content: '<';
+      color:$pgs_colour_2;
+    }
+    &::after {
+      content: '>';
+      color:$pgs_colour_2;
+    }
+  }
+}
+
 
 .margin_right_half {
   margin-right:0.5rem;
