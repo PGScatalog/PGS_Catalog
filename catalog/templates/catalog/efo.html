@@ -1,48 +1,62 @@
 {% extends 'catalog/base.html' %}
 {% load render_table from django_tables2 %}
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-
 {% block title %}{{ trait.label }} (Polygenic Trait){% endblock %}
 
 {% block content %}
-    <nav aria-label="You are here:" role="navigation">
-    <ul class="breadcrumbs columns">
-        <li><a href="../../">PGS Catalog</a></li>
-        <li><a href="../../browse/traits/">Traits</a></li>
-        <li>
-            <span class="show-for-sr">Current: </span> {{ trait.id }}
-        </li>
-    </ul>
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="../../browse/traits/">Traits</a></li>
+        <li class="breadcrumb-item">{{ trait.id }}</li>
+      </ol>
     </nav>
 
-    <h2>Trait: {{ trait.label }}</h2>
+    <h2>Trait: <b>{{ trait.label }}</b></h2>
+
     <section>
-    <h3>Information</h3>
-    <p>Experimental Factor Ontology ID: <a href="{{ trait.url }}"><b>{{ trait.id }}</b> <i class="icon icon-common icon-external-link-alt"></i> </a></p>
-    <p>EFO Trait Description:
-    {% if desc_list %}
-        <br /><ul>
-         {% for desc in desc_list %}
-             <li>{{ desc }}</li>
-         {% endfor %}
-         </ul>
+    {% if 'EFO' in trait.id %}
+      <h3>Experimental Factor Ontology (EFO) Information</h3>
     {% else %}
-         <b>{{ trait.description }}</b>
-    {% endif %}</p>
+      <h3>Trait Information</h3>
+    {% endif %}
+      <table class="table table-bordered table_pgs_h">
+        <tbody>
+          <tr>
+            <td>Identifier</td>
+            <td><b><a href="{{ trait.url }}">{{ trait.id }}</a></b></td>
+          </tr>
+          <tr>
+            <td>Description</td>
+            <td>
+              {% if desc_list %}
+                <ul>
+                  {% for desc in desc_list %}
+                    <li>{{ desc }}</li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <b>{{ trait.description }}</b>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <section>
-    <h3>Associated PGS</h3>
+    <h3>Associated Polygenic Score(s)</h3>
     {% render_table table_scores %}
     </section>
 
     <section>
     <h3>PGS Performance Metrics</h3>
-    <i><b style="color:#FF0000">Disclaimer: </b></i>The performance metrics are displayed as reported by the source studies.
-        It is important to note that metrics are not necessarily comparable with each other.
-        For example, metrics depend on the sample characteristics (described by the PGS Catalog Sample Set [PSS] ID),
-        phenotyping, and statistical modelling. Please refer to the source publication for additional guidance on performance.
+    <p>
+      <span class="pgs_note_title">Disclaimer: </span>The performance metrics are displayed as reported by the source studies.
+      It is important to note that metrics are not necessarily comparable with each other.
+      For example, metrics depend on the sample characteristics (described by the PGS Catalog Sample Set [PSS] ID),
+      phenotyping, and statistical modelling. Please refer to the source publication for additional guidance on performance.
+    </p>
     {% render_table table_performance %}
     <h4>Evaluated Samples</h4>
     {% render_table table_performance_samples %}
