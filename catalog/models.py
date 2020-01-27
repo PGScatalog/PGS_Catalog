@@ -537,7 +537,6 @@ class Metric(models.Model):
 
 class Release(models.Model):
     """Class to store and manipulate the releases information"""
-    id = models.IntegerField('Internal release ID', primary_key=True)
     date = models.DateField("Release date", null=False)
     score_count =  models.IntegerField('Number of new PGS scores released', default=0)
     performance_count = models.IntegerField('Number of new PGS Performance metrics released', default=0)
