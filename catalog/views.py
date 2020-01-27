@@ -5,6 +5,15 @@ import re
 
 from .tables import *
 
+def performance_disclaimer():
+    return """<span class="pgs_note_title">Disclaimer: </span>
+        The performance metrics are displayed as reported by the source studies.
+        It is important to note that metrics are not necessarily comparable with
+        each other.For example, metrics depend on the sample characteristics
+        (described by the PGS Catalog Sample Set [PSS] ID), phenotyping, and
+        statistical modelling. Please refer to the source publication for additional
+        guidance on performance."""
+
 
 def index(request):
     current_release = Release.objects.order_by('-date').first()
@@ -56,6 +65,7 @@ def pgs(request, pgs_id):
         'pgs_id' : pgs_id,
         'score' : score,
         'citation' : citation,
+        'performance_disclaimer': performance_disclaimer(),
         'efos' : score.trait_efo.all(),
         'num_variants_pretty' : '{:,}'.format(score.variants_number)
     }
@@ -88,7 +98,8 @@ def pgp(request, pub_id):
     except Publication.DoesNotExist:
         raise Http404("Publication: \"{}\" does not exist".format(pub_id))
     context = {
-        'publication' : pub
+        'publication' : pub,
+        'performance_disclaimer': performance_disclaimer(),
     }
 
     #Display scores that were developed by this publication
@@ -131,6 +142,7 @@ def efo(request, efo_id):
     related_scores = Score.objects.filter(trait_efo=efo_id)
     context = {
         'trait': trait,
+        'performance_disclaimer': performance_disclaimer(),
         'table_scores' : Browse_ScoreTable(related_scores)
     }
 
