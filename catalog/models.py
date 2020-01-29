@@ -6,8 +6,8 @@ from django.contrib.postgres.fields import DecimalRangeField
 class Publication(models.Model):
     """Class for publications with PGS"""
     # Stable identifiers
-    num = models.IntegerField('PGS Publication/Study (PGP) Number', primary_key=True)
-    id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30)
+    num = models.IntegerField('PGS Publication (PGP) Number', primary_key=True)
+    id = models.CharField('PGS Publication (PGP) ID', max_length=30)
 
     date_released = models.DateField('PGS Catalog Release Date', null=True)
 
