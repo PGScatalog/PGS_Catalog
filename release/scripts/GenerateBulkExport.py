@@ -14,14 +14,14 @@ def create_readme_spreadsheet(excel_writer):
     readme_data = {}
 
     version_date = '2019-11-04'
-    readme_data['PGS Catalog version'] = [version_date]
+    readme_data['PGS Catalog Release (date)'] = [version_date]
     readme_data['Number of Polygenic Scores'] = [Score.objects.all().count()]
     readme_data['Number of Traits'] = [EFOTrait.objects.all().count()]
     readme_data['Number of Publications'] = [Publication.objects.all().count()]
 
     df = pd.DataFrame(readme_data)
     df = df.transpose()
-    df.to_excel(excel_writer, sheet_name="Readme", header=False)
+    df.to_excel(excel_writer, sheet_name="README", header=False)
 
 
 #---------------------#
