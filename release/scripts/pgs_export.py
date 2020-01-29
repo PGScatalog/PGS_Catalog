@@ -19,33 +19,23 @@ class PGSExport:
             ]],
         'Sample':
             [
-                [
-                    'sample_number',
-                    'sample_cases',
-                    'sample_controls',
-                    'sample_percent_male',
-                    'sample_age',
-                    'phenotyping_free',
-                    'ancestry_broad',
-                    'ancestry_free',
-                    'source_GWAS_catalog',
-                    'source_PMID',
-                    'cohorts_list'
-                ],
-                [
-                    'sample_number',
-                    'sample_cases',
-                    'sample_controls',
-                    'sample_percent_male',
-                    'sample_age',
-                    'phenotyping_free',
-                    'ancestry_broad',
-                    'ancestry_free',
-                    'associated_scores',
-                    'source_GWAS_catalog',
-                    'source_PMID',
-                    'cohorts_list'
-                ]
+                'associated_score',
+                'study_stage',
+                'sample_number',
+                'sample_cases',
+                'sample_controls',
+                'sample_percent_male',
+                'sample_age',
+                'ancestry_broad',
+                'ancestry_free',
+                'ancestry_country',
+                'ancestry_additional',
+                'phenotyping_free',
+                'followup_time',
+                'source_GWAS_catalog',
+                'source_PMID',
+                'cohorts_list',
+                'cohorts_additional'
             ],
         'SampleSet':
             [[
@@ -56,46 +46,51 @@ class PGSExport:
                 'id',
                 'name',
                 'trait_reported',
-                'method_name',
-                'method_params',
                 'trait_label',
                 'trait_id',
-                'pub_pmid_label',
-                'pub_doi_label',
+                'method_name',
+                'method_params',
+                'variants_genomebuild',
                 'variants_number',
-                'variants_genomebuild'
+                'variants_interactions',
+                'pub_id',
+                'pub_pmid_label',
+                'pub_doi_label'
             ]],
         'Performance':
             [[
                 'id',
                 'score',
                 'sampleset',
-                'pheotyping_reported',
-                'pub_pmid_label',
-                'pub_doi_label',
+                'pub_id',
+                'phenotyping_reported',
                 'covariates',
                 'performance_comments'
+                'pub_pmid_label',
+                'pub_doi_label'
             ]],
             'Publication':
                 [[
                     'id',
-                    'doi',
-                    'PMID',
-                    'journal',
                     'firstauthor',
-                    'authors',
                     'title',
-                    'date_publication'
+                    'journal',
+                    'date_publication',
+                    'authors',
+                    'doi',
+                    'PMID'
                 ]]
     }
 
     extra_fields_to_include = {
         'trait_label': 'Mapped Trait(s) (EFO label)',
         'trait_id'   : 'Mapped Trait(s) (EFO ID)',
+        'pub_id': 'PGS Publication (PGP) ID',
         'pub_pmid_label' : 'Publication (PMID)',
         'pub_doi_label'  : 'Publication (doi)',
         'cohorts_list' : 'Cohort(s)',
-        'associated_scores' : 'Associated scores'
+        'associated_score' : 'Polygenic Score (PGS) ID',
+        'study_stage' : 'Stage of PGS Development'
     }
 
     # Metrics
@@ -229,6 +224,7 @@ class PGSExport:
 
         for score in scores:
             # Publication
+            scores_data[score_labels['pub_id']].append(score.publication.id)
             scores_data[score_labels['pub_pmid_label']].append(score.publication.PMID)
             scores_data[score_labels['pub_doi_label']].append(score.publication.doi)
             # Mapped Traits
@@ -314,7 +310,7 @@ class PGSExport:
             othermetrics_list = perf.othermetrics_list
             if othermetrics_list:
                 for metric in othermetrics_list:
-                    m_data = metric[0][1]+": "+metric[1]
+                    m_data = metric[0][1]+" = "+metric[1]
                     if metrics_data[other_metric_label] == '':
                         metrics_data[other_metric_label] = m_data
                     else:
@@ -384,77 +380,44 @@ class PGSExport:
         return object_data
 
 
-    def create_sample_training_spreadsheet(self, pgs_list=[]):
-        """ Sample training spreadsheet """
+
+    def create_samples_development_spreadsheet(self, pgs_list=[]):
+        """ Samples used for score development (GWAS and/or training) spreadsheet """
 
         # Fetch column labels an initialise data dictionary
-        object_labels = self.get_column_labels(Sample,index=1)
+        object_labels = self.get_column_labels(Sample)
         object_data = {}
         for label in list(object_labels.values()):
             object_data[label] = []
 
-        samples = []
+        # Get the relevant scores
         if len(pgs_list) == 0:
-            samples = Sample.objects.all()
+            scores = Score.objects.all()
         else:
             scores = Score.objects.filter(id__in=pgs_list)
-            for score in scores:
-                for score_sample in score.samples_training.all():
-                    samples.append(score_sample)
 
-        for sample in samples:
+        #Loop through Scores to output their samples:
+        for score in scores:
+            for study_stage, stage_name in [('samples_variants', 'Source of Variant Associations (GWAS)'),
+                                            ('samples_training','Score Development/Training')]:
+                if study_stage == 'samples_variants':
+                    samples = score.samples_variants.all()
+                elif study_stage == 'samples_training':
+                    samples = score.samples_training.all()
 
-            scores = Score.objects.filter(samples_training__id=sample.id)
-            if len(scores) == 0:
-                continue
+                if len(samples) > 0:
+                    for sample in samples:
+                        object_data[object_labels['associated_score']].append(score.id)
+                        object_data[object_labels['study_stage']].append(score.id)
 
-            object_data[object_labels['associated_scores']].append(', '.join([s.id for s in scores]))
+                        for column in object_labels.keys():
+                            if self.not_in_extra_fields_to_include(column):
+                                object_method_name = getattr(sample, column)
+                                object_data[object_labels[column]].append(object_method_name)
 
-            object_data[object_labels['cohorts_list']].append(', '.join([c.name_short for c in sample.cohorts.all()]))
-
-            for column in object_labels.keys():
-                if self.not_in_extra_fields_to_include(column):
-                    object_method_name = getattr(sample, column)
-                    object_data[object_labels[column]].append(object_method_name)
-
-        return object_data
-
-
-    def create_sample_variants_spreadsheet(self, pgs_list=[]):
-        """ Source of Variant Associations spreadsheet """
-
-        # Fetch column labels an initialise data dictionary
-        object_labels = self.get_column_labels(Sample,index=1)
-        object_data = {}
-        for label in list(object_labels.values()):
-            object_data[label] = []
-
-        samples = []
-        if len(pgs_list) == 0:
-            samples = Sample.objects.all()
-        else:
-            scores = Score.objects.filter(id__in=pgs_list)
-            for score in scores:
-                for score_sample in score.samples_variants.all():
-                    samples.append(score_sample)
-
-        for sample in samples:
-
-            scores = Score.objects.filter(samples_variants__id=sample.id)
-            if len(scores) == 0:
-                continue
-
-            object_data[object_labels['associated_scores']].append(', '.join([s.id for s in scores]))
-
-            object_data[object_labels['cohorts_list']].append(', '.join([c.name_short for c in sample.cohorts.all()]))
-
-            for column in object_labels.keys():
-                if self.not_in_extra_fields_to_include(column):
-                    object_method_name = getattr(sample, column)
-                    object_data[object_labels[column]].append(object_method_name)
+                        object_data[object_labels['cohorts_list']].append(', '.join([c.name_short for c in sample.cohorts.all()]))
 
         return object_data
-
 
     def create_publications_spreadsheet(self, pgs_list=[]):
         """ Publications spreadsheet """

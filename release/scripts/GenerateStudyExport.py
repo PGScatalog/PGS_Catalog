@@ -40,13 +40,12 @@ def run():
         spreadsheets = {
             'scores'     : ('Scores', pgs_export.create_scores_spreadsheet),
             'perf'       : ('Perfomance Metrics', pgs_export.create_performance_metrics_spreadsheet),
-            'samplesets' : ('Sample Sets', pgs_export.create_samplesets_spreadsheet),
-            'sample_training': ('Sample Training', pgs_export.create_sample_training_spreadsheet),
-            'sample_variants': ('Source of Variant Associations', pgs_export.create_sample_variants_spreadsheet),
+            'samplesets' : ('Evaluation Sample Sets', pgs_export.create_samplesets_spreadsheet),
+            'samples_development': ('Score Development Samples', pgs_export.create_samples_development_spreadsheet),
             'publications': ('Publications', pgs_export.create_publications_spreadsheet),
             'efo_traits': ('EFO Traits', pgs_export.create_efo_traits_spreadsheet)
         }
-        spreadsheets_ordering = ['scores', 'perf', 'samplesets', 'sample_training', 'sample_variants', 'publications', 'efo_traits']
+        spreadsheets_ordering = ['publications', 'scores', 'samples_development', 'perf', 'samplesets', 'efo_traits']
 
 
         # Create a Pandas Excel writer using XlsxWriter as the engine.
