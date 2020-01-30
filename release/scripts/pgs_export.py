@@ -11,12 +11,12 @@ class PGSExport:
 
     fields_to_include = {
         'EFOTrait':
-            [[
+            [
                 'id',
                 'label',
                 'description',
                 'url'
-            ]],
+            ],
         'Sample':
             [
                 'associated_score',
@@ -38,11 +38,11 @@ class PGSExport:
                 'cohorts_additional'
             ],
         'SampleSet':
-            [[
+            [
                 'id'
-            ]],
+            ],
         'Score':
-            [[
+            [
                 'id',
                 'name',
                 'trait_reported',
@@ -56,36 +56,36 @@ class PGSExport:
                 'pub_id',
                 'pub_pmid_label',
                 'pub_doi_label'
-            ]],
+            ],
         'Performance':
-            [[
+            [
                 'id',
                 'score',
                 'sampleset',
                 'pub_id',
                 'phenotyping_reported',
                 'covariates',
-                'performance_comments'
+                'performance_comments',
                 'pub_pmid_label',
                 'pub_doi_label'
-            ]],
-            'Publication':
-                [[
-                    'id',
-                    'firstauthor',
-                    'title',
-                    'journal',
-                    'date_publication',
-                    'authors',
-                    'doi',
-                    'PMID'
-                ]]
+            ],
+        'Publication':
+            [
+                'id',
+                'firstauthor',
+                'title',
+                'journal',
+                'date_publication',
+                'authors',
+                'doi',
+                'PMID'
+            ]
     }
 
     extra_fields_to_include = {
         'trait_label': 'Mapped Trait(s) (EFO label)',
         'trait_id'   : 'Mapped Trait(s) (EFO ID)',
-        'pub_id': 'PGS Publication (PGP) ID',
+        'pub_id'         : 'PGS Publication (PGP) ID',
         'pub_pmid_label' : 'Publication (PMID)',
         'pub_doi_label'  : 'Publication (doi)',
         'cohorts_list' : 'Cohort(s)',
@@ -109,10 +109,44 @@ class PGSExport:
     def __init__(self,filename):
         self.filename = filename
         self.writer   = pd.ExcelWriter(filename, engine='xlsxwriter')
+        self.spreadsheets_conf = {
+            'scores'     : ('Scores', self.create_scores_spreadsheet),
+            'perf'       : ('Performance Metrics', self.create_performance_metrics_spreadsheet),
+            'samplesets' : ('Evaluation Sample Sets', self.create_samplesets_spreadsheet),
+            'samples_development': ('Score Development Samples', self.create_samples_development_spreadsheet),
+            'publications': ('Publications', self.create_publications_spreadsheet),
+            'efo_traits': ('EFO Traits', self.create_efo_traits_spreadsheet)
+        }
+        self.spreadsheets_list = [
+            'scores', 'perf', 'samplesets', 'samples_development', 'publications', 'efo_traits'
+        ]
 
     def save(self):
         """ Close the Pandas Excel writer and output the Excel file """
         self.writer.save()
+
+
+    def generate_sheets(self, csv_prefix):
+        """ Generate the differents sheets """
+
+        if (len(self.spreadsheets_conf.keys()) != len(self.spreadsheets_list)):
+            print("Size discrepancies between the dictionary 'spreadsheets' and the list 'spreadsheets_ordering'.")
+            exit()
+        if (csv_prefix == ''):
+            print("CSV prefix, for the individual CSV spreadsheet is empty. Please, provide a prefix!")
+            exit()
+
+        for spreadsheet_name in self.spreadsheets_list:
+            spreadsheet_label = self.spreadsheets_conf[spreadsheet_name][0]
+            try:
+                data = self.spreadsheets_conf[spreadsheet_name][1]()
+                self.generate_sheet(data, spreadsheet_label)
+                print("Spreadsheet '"+spreadsheet_label+"' done")
+                self.generate_csv(data, csv_prefix, spreadsheet_label)
+                print("CSV '"+spreadsheet_label+"' done")
+            except:
+                print("Issue to generate the spreadsheet '"+spreadsheet_label+"'")
+                exit()
 
 
     def generate_sheet(self, data, sheet_name):
@@ -149,14 +183,14 @@ class PGSExport:
             tar.add(source_dir, arcname=os.path.basename(source_dir))
 
 
-    def get_column_labels(self, classname, index=0, exception_field=None, exception_classname=None):
+    def get_column_labels(self, classname, exception_field=None, exception_classname=None):
         """ Fetch the column labels from the Models """
         model_fields = [f.name for f in classname._meta.fields]
         model_labels = {}
 
         classname_string = classname.__name__
 
-        for field_name in self.fields_to_include[classname_string][index]:
+        for field_name in self.fields_to_include[classname_string]:
             label = None
             if field_name in model_fields:
                 label = classname._meta.get_field(field_name).verbose_name
@@ -284,6 +318,7 @@ class PGSExport:
 
         for perf in performances:
             # Publication
+            perf_data[perf_labels['pub_id']].append(perf.publication.id)
             perf_data[perf_labels['pub_pmid_label']].append(perf.publication.PMID)
             perf_data[perf_labels['pub_doi_label']].append(perf.publication.doi)
 
@@ -333,7 +368,6 @@ class PGSExport:
                         object_method_name = getattr(perf, column)
 
                     perf_data[perf_labels[column]].append(object_method_name)
-
         return perf_data
 
 
@@ -364,7 +398,14 @@ class PGSExport:
                         samplesets.append(sampleset)
 
         for pss in samplesets:
+            performances = Performance.objects.filter(sampleset=pss)
+            scores_ids = {}
+            for performance in performances:
+                scores_ids[performance.score.id] = 1
+            scores = ', '.join(scores_ids.keys())
             for sample in pss.samples.all():
+                object_data[sample_object_labels['associated_score']].append(scores)
+                object_data[sample_object_labels['study_stage']].append('Score Evaluation')
                 object_data[sample_object_labels['cohorts_list']].append(', '.join([c.name_short for c in sample.cohorts.all()]))
 
                 for sample_column in sample_object_labels.keys():
@@ -376,7 +417,6 @@ class PGSExport:
                     if self.not_in_extra_fields_to_include(column):
                         object_method_name = getattr(pss, column)
                         object_data[object_labels[column]].append(object_method_name)
-
         return object_data
 
 
