@@ -408,7 +408,7 @@ class PGSExport:
                 if len(samples) > 0:
                     for sample in samples:
                         object_data[object_labels['associated_score']].append(score.id)
-                        object_data[object_labels['study_stage']].append(score.id)
+                        object_data[object_labels['study_stage']].append(stage_name)
 
                         for column in object_labels.keys():
                             if self.not_in_extra_fields_to_include(column):
