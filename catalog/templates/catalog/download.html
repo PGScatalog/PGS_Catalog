@@ -14,7 +14,7 @@
       <h2 class="float_left">PGS Catalog Downloads</h2>
       <div class="float_right">
         <a class="btn btn-pgs pgs_no_icon_link" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs" target="_blank">
-          <span class="icon icon-common" data-icon="&#xf0c1;"></span> PGS Catalog FTP site
+          <span class="icon icon-common" data-icon="&#xf07b;"></span> PGS Catalog FTP site
         </a>
       </div>
     </div>
@@ -28,7 +28,7 @@
         <tbody>
           <tr>
             <td><span class="pgs_h_big_header">Scoring Files</span> <a class="pgs_no_icon_link info-icon" href="#dl_ftp" data-toggle="tooltip" data-placement="bottom" title="Click to see Scoring files details"><i class="icon icon-common" data-icon="&#xf129;"></i></a></td>
-            <td><a class="btn btn-pgs pgs_no_icon_link" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/" target="_blank"><span class="icon icon-common" data-icon="&#xf0c1;"></span> Scoring File FTP directory</a></td>
+            <td><a class="btn btn-pgs pgs_no_icon_link" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/" target="_blank"><span class="icon icon-common" data-icon="&#xf07b;"></span> Scoring File FTP directory</a></td>
           </tr>
           <!--<tr>
             <td><span class="pgs_h_big_header">Metadata Files</span> <a class="pgs_no_icon_link info-icon" href="#dl_bulk" data-toggle="tooltip" data-placement="bottom" title="Click to see Metadata file details"><i class="icon icon-common" data-icon="&#xf129;"></i></a></td>
@@ -40,10 +40,12 @@
 
     <section>
       <h3 id="dl_ftp">PGS Catalog Scoring Files</h3>
-        <p>Each score file is formatted to be a gzipped tab-delimited text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
+        <p>Each score file is formatted to be a gzipped <b>tab-delimited</b> text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
         <p>In the current catalog the scores have been extracted from the relevant publication and only been reformatted to have a consistent header (lines starting with <code>#</code>)
-           listing relevant PGS Catalog information, e.g.:</p>
-<pre class="pgs_scoring_header">
+           listing relevant PGS Catalog information, e.g.:
+        </p>
+        <div class="pgs_scoring_header">
+          <pre >
 <span>### PGS CATALOG SCORING FILE - see www.pgscatalog.org/downloads/#dl_ftp for additional information</span>
 <span>## POLYGENIC SCORE (PGS) INFORMATION</span>
 <b># PGS ID</b> = <i>PGS idenfier, e.g. 'PGS000001'</i>
@@ -52,9 +54,11 @@
 <b># Number of Variants</b> = <i>Number of variants listed in the PGS</i>
 <span>## SOURCE INFORMATION</span>
 <b># PGP ID</b> = <i>PGS publication idenfier, e.g. 'PGP000001'</i>
-<b># Citation</b> = <i>Information about the publication</i></pre>
+<b># Citation</b> = <i>Information about the publication</i>
+<span class="scoring_col">rsID</span><span class="scoring_col">chr_name</span><span class="scoring_col">chr_position</span><span class="scoring_col">effect_allele</span><span class="scoring_col">reference_allele</span><span class="pgs_colour_2">...</span></pre>
+      </div>
 
-     <p>It also has been edited to have consistent column headings based on the following schema:</p>
+      <p>It also has been edited to have consistent column headings based on the following schema:</p>
       <table class="table table-striped table_pgs_auto">
         <thead class="thead-light">
           <tr><th>Column Header</th><th>Field Name</th><th>Field Description</th></tr>
@@ -63,9 +67,9 @@
           <tr><td><i>rsID</i></td><td>dbSNP Accession ID (rsID) </td><td>The SNP’s rs ID</td></tr>
           <tr><td><i>chr_name</i></td><td>Location - Chromosome </td><td>Chromosome name/number associated with the variant</td></tr>
           <tr><td><i>chr_position</i></td><td>Location - Position within the Chromosome</td><td>Chromosomal position associated with the variant</td></tr>
-          <tr><td><i>effect_allele</i></td><td>Effect Allele</td><td>The allele that is counted (e.g. dosage {0, 1, 2}) and multiplied by the weight </td></tr>
+          <tr><td><i>effect_allele</i></td><td>Effect Allele</td><td>The allele that's dosage is counted (e.g. {0, 1, 2}) and multiplied by the variant's weight ('effect_weight') when calculating score. The effect allele is also known as the 'risk allele'.</td></tr>
           <tr><td><i>reference_allele</i></td><td>Reference Allele</td><td>The other allele(s) at the loci</td></tr>
-          <tr><td><i>effect_weight</i></td><td>Variant Weight</td><td>Value of the effect that is multiplied with the dosage.</td></tr>
+          <tr><td><i>effect_weight</i></td><td>Variant Weight</td><td>Value of the effect that is multiplied by the dosage of the effect allele ('effect_allele') when calculating the score.</td></tr>
           <tr><td><i>locus_name</i></td><td>Locus Name</td><td>This is kept in for loci where the variant may be referenced by the gene (APOE e4). It is also common (usually in smaller PGS) to see the variants named according to the genes they impact.</td></tr>
           <tr><td><i>weight_type</i></td><td>Type of Weight</td><td>Whether the author supplied Variant Weight is a: <b>beta</b> (effect size), or something like an <b>OR/HR</b> (odds/hazard ratio)</td></tr>
           <tr><td><i>allelefrequency_effect</i></td><td>Effect Allele Frequency</td><td>Reported effect allele frequency, if the associated locus is a haplotype then haplotype frequency will be extracted.</td></tr>
