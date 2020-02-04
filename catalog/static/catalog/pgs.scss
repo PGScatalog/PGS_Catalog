@@ -229,6 +229,9 @@ u {
   background-color: $pgs_colour_1;
   color: white;
   outline: none;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.2);
   &:hover {
     background-color: $pgs_colour_1_lighter;
   }
@@ -254,6 +257,11 @@ u {
 }
 .page-link {
   color:$pgs_colour_1;
+}
+.dropdown-menu-right {
+  .dropdown-item  {
+    font-size: 14px;
+  }
 }
 .dropdown-item:hover {
   background-color:$pgs_colour_1;
@@ -327,8 +335,9 @@ th .th-inner {
       background-color: #F9F9FA;
       transition: background-color .1s;
     }
+
     > div:first-child {
-      color: $pgs_dark2;
+        color: $pgs_dark2;
       font-weight: 200;
       font-size: 30px;
       text-align: center;
@@ -386,7 +395,7 @@ th .th-inner {
   }
 }
 
-@media screen and (max-width: 770px) {
+@media screen and (max-width: 765px) {
   .pgs_browse {
     > div {
       border-right:none;
@@ -412,7 +421,7 @@ th .th-inner {
   }
 }
 
-@media screen and (min-width: 771px) {
+@media screen and (min-width: 766px) {
   .pgs_browse {
     > div {
       border-bottom: none;
@@ -440,15 +449,51 @@ th .th-inner {
     }
   }
 }
+@media screen and (min-width: 766px) and (max-width: 879px) {
+  .pgs_browse {
+    a {
+      padding: 20px !important;
+    }
+  }
+}
+@media screen and (min-width: 880px) {
+  .pgs_browse {
+    margin-left: 2vw;
+    margin-right: 2vw;
+  }
+}
+@media screen and (min-width: 1000px) {
+  .pgs_browse {
+    margin-left: 5vw;
+    margin-right: 5vw;
+  }
+}
+
+.pgs_small_icons {
+  max-height:30px !important;
+}
+.pgs_big_icons {
+  max-height:70px !important;
+}
 
 
 /* Toggle button */
 .toggle_btn, .toggle_table_btn {
   cursor:pointer;
   white-space: nowrap;
+  i {
+    color: $pgs_colour_1;
+    &:hover {
+      color: $pgs_colour_1_lighter;
+    }
+  }
 }
 .toggle_list {
   display:none;
+  ul {
+    padding-inline-start: 20px;
+    margin-bottom: 0.5em;
+  }
 }
 
 
@@ -526,6 +571,9 @@ a {
 }
 .float_right {
   float:right;
+}
+.margin-right_1 {
+  margin-right: 1rem;
 }
 
 .release_label {
@@ -676,10 +724,34 @@ a {
   padding-top:1rem;
   border-top:4px solid $pgs_dark2;
 }
+.sample_piechart_container {
+  float:left;
+  border:1px solid #ccc;
+  > div {
+    width:200px;
+    height:150px;
+  }
+}
 .pgs_h_separator {
   height:2px;
   margin-top:2rem;
   background-color: $pgs_dark2;
+}
+
+.pgs_h_list {
+  background-color: #FAFAFA;
+  padding: 5px 5px 5px 0px;
+  span:first-child {
+    font-weight: bold;
+    padding: 5px;
+    background-color: #e9ecef;
+  }
+  .pgs_h_item {
+    padding: 0px 8px;
+    &:not(:last-child) {
+      border-right: 1px solid $pgs_colour_2;
+    }
+  }
 }
 
 .pgs_scoring_header {
@@ -712,9 +784,71 @@ a {
   color: $pgs_colour_2 !important;
 }
 
+.smaller_90 {
+  font-size: 90%;
+}
+
+/* Trait CSS */
+.trait_graph_container {
+  display:flex;
+  margin-bottom:2rem;
+}
+
+.trait_piechart_container {
+  float:left;
+  padding:5px;
+  margin-right:1rem;
+}
+
+.trait_piechart{
+  float:left;
+  margin-right:0px;
+  width:300px;
+  height:250px;
+}
+
+
+@media screen and (max-width: 740px) {
+  #trait_cat {
+    display: none !important;
+  }
+  .trait_subcat_left, .trait_subcat_right {
+    margin-top: 0px !important;
+  }
+  #reset_cat {
+    margin-left:50px !important;
+  }
+}
+@media screen and (max-width: 800px) {
+  .trait_item span:nth-child(3) {
+    span {
+      display:none;
+    }
+  }
+}
+@media screen and (max-width: 1100px) {
+  .trait_graph_container {
+    flex-direction:column;
+  }
+  .trait_piechart {
+    margin-bottom: 1rem;
+  }
+}
+
+
+
+.trait_cat_container {
+  float:left;
+}
 
 .trait_colour {
-  padding: 4px 5px;
+  padding: 3px 5px;
+  border-radius: 8px;
+  margin-right: 5px;
+}
+.trait_colour_border {
+  border:1px solid #EEE;
+  padding: 2px 4px !important;
 }
 
 .trait_subcat_left {
@@ -726,12 +860,21 @@ a {
   margin-left: 20px;
   margin-right: 20px;
 }
+.trait_subcat_border {
+  i {
+    text-shadow: -1px 1px  0 #EEE,
+				          1px 1px  0 #EEE,
+				          1px -1px 0 #EEE;
+  }
+}
 
 .trait_subcat_right {
   float:left;
 }
 
 .trait_item {
+  display:block;
+  white-space: nowrap;
   padding: 4px 6px;
   border-radius:8px;
   border: 1px solid #EEE;
@@ -739,21 +882,30 @@ a {
   cursor:pointer;
   &:hover {
     color: $pgs_colour_1_lighter;
-    border-color: $pgs_colour_1_lighter;
+    border: 1px solid $pgs_colour_1_lighter;
   }
   span:nth-child(2) {
-    margin-left: 5px;
     margin-right: 8px;
   }
 }
+.trait_link {
+  padding-right: 8px;
+  color: $pgs_colour_1_lighter !important;
+}
 
+#dc_LoadTime:hover {
+  cursor: pointer;
+}
 #trait_cat {
   float:left;
-  padding:5px;
+  padding:5px 0px 5px 5px;
+  &:hover {
+    cursor: pointer;
+  }
 }
 #trait_subcat {
   float:left;
-  padding:5px;
+  padding:5px 5px 5px 0px;
   min-width:200px;
   vertical-align: top;
 }
@@ -764,6 +916,7 @@ a {
   vertical-align: baseline;
   margin-left:100px;
 }
+
 
 /* Footer CSS */
 footer {

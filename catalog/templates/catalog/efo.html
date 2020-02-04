@@ -14,6 +14,23 @@
 
     <h2>Trait: <b>{{ trait.label }}</b></h2>
 
+    <table class="table table-bordered table_pgs_h">
+      <tbody>
+        <tr>
+          <td>Trait category</td>
+          <td>
+            {% for category in trait.category_list %}
+              <div>
+                <span class="trait_colour" style="background-color:{{ category.colour }}"></span>
+                <b>{{ category.label }}</b>
+              </div>
+            {% endfor %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
     <section>
     {% if 'EFO' in trait.id %}
       <h3>Experimental Factor Ontology (EFO) Information</h3>

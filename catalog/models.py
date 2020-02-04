@@ -106,10 +106,10 @@ class Cohort(models.Model):
 class EFOTrait(models.Model):
     '''Class to hold information related to controlled trait vocabulary
     (mainly to link multiple EFO to a single score)'''
-    id = models.CharField('Experimental Factor Ontology ID (EFO_ID)', max_length=30, primary_key=True)
-    label = models.CharField('EFO Label', max_length=500)
-    description = models.TextField('EFO Description', null=True)
-    url = models.CharField('EFO URL', max_length=500)
+    id = models.CharField('Ontology Trait ID', max_length=30, primary_key=True)
+    label = models.CharField('Ontology Trait Label', max_length=500)
+    description = models.TextField('Ontology Trait Description')
+    url = models.CharField('Ontology URL', max_length=500)
 
     def parse_api(self):
         import requests
@@ -134,6 +134,21 @@ class EFOTrait(models.Model):
             except:
                 self.description = response['description']
 
+
+    def get_category(self):
+        """ Test to fetch the GWAS trait category from an EFO ID """
+        import requests
+
+        response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%self.id)
+        response_json = response.json()
+        print("Response JSON:")
+        print(response_json)
+        if response_json and response_json['trait'] != 'None':
+            print(response_json['parent'])
+            print(response_json['colourLabel'])
+            print(response_json['colour'])
+
+
     def __str__(self):
         return '%s | %s '%(self.id, self.label)
 
@@ -147,6 +162,46 @@ class EFOTrait(models.Model):
     @property
     def scores_count(self):
         return Score.objects.filter(trait_efo=self).count()
+
+    @property
+    def category_labels(self):
+        categories = TraitCategory.objects.filter(efotraits__id__exact=self.id)
+
+        categories_data = ''
+        if len(categories) > 0:
+            category_labels = [x.label for x in categories]
+            categories_data = ', '.join(category_labels)
+
+        return categories_data
+
+    @property
+    def category_list(self):
+        return TraitCategory.objects.filter(efotraits__id__exact=self.id)
+
+
+class TraitCategory(models.Model):
+    # Stable identifiers for declaring a set of traits
+    label = models.CharField('Trait category', max_length=50)
+    colour = models.CharField('Trait category colour', max_length=30)
+    parent = models.CharField('Trait category (parent term)', max_length=50)
+
+    # Link to the description of the sample(s) in the other table
+    efotraits = models.ManyToManyField(EFOTrait, verbose_name='Traits', related_name='efotrait')
+
+
+    class Meta:
+        verbose_name_plural = "Trait categories"
+
+    def __str__(self):
+        return self.label
+
+    @property
+    def count_scores(self):
+        scores_count = 0
+        for trait in self.efotraits.all():
+            scores_count += trait.scores_count
+
+        return scores_count
 
 
 class Demographic(models.Model):

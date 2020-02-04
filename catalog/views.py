@@ -15,6 +15,36 @@ def performance_disclaimer():
         guidance on performance."""
 
 
+def traits_chart_data():
+    data = []
+
+    for category in TraitCategory.objects.all():
+        cat_name   = category.label
+        cat_colour = category.colour
+        cat_scores_count = category.count_scores
+        cat_id = category.parent.replace(' ', '_')
+
+        cat_traits = []
+
+        for trait in category.efotraits.all():
+            trait_id = trait.id
+            trait_name = trait.label
+            trait_scores_count = trait.scores_count
+            trait_entry = {"name": trait_name, "size": trait_scores_count, "id": trait_id}
+            cat_traits.append(trait_entry)
+
+        cat_data = {
+          "name": cat_name,
+          "colour" : cat_colour,
+          "id" : cat_id,
+          "size_g": cat_scores_count,
+          "children": cat_traits
+        }
+        data.append(cat_data)
+
+    return data
+
+
 def index(request):
     current_release = Release.objects.order_by('-date').first()
 
@@ -25,6 +55,7 @@ def index(request):
         'num_pubs' : Publication.objects.count()
     }
     return render(request, 'catalog/index.html', context)
+
 
 def browseby(request, view_selection):
     context = {}
@@ -37,9 +68,10 @@ def browseby(request, view_selection):
             l.append(x['trait_efo'])
         table = Browse_TraitTable(EFOTrait.objects.filter(id__in=l), order_by="label")
         context['table'] = table
+        context['data_chart'] = traits_chart_data()
     elif view_selection == 'studies':
         context['view_name'] = 'Publications'
-        table = Browse_PublicationTable(Publication.objects.all())
+        table = Browse_PublicationTable(Publication.objects.all(), order_by="num")
         context['table'] = table
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
@@ -47,10 +79,11 @@ def browseby(request, view_selection):
         context['table'] = table
     else:
         context['view_name'] = 'Polygenic Scores'
-        table = Browse_ScoreTable(Score.objects.all())
+        table = Browse_ScoreTable(Score.objects.all(), order_by="num")
         context['table'] = table
 
     return render(request, 'catalog/browseby.html', context)
+
 
 def pgs(request, pgs_id):
     try:
@@ -132,6 +165,7 @@ def pgp(request, pub_id):
     context['table_performance_samples'] = table
 
     return render(request, 'catalog/pgp.html', context)
+
 
 def efo(request, efo_id):
     try:
