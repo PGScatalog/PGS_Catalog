@@ -1,6 +1,6 @@
 import sys, os.path
 import pandas as pd
-from release.scripts.pgs_export import PGSExport
+from release.scripts.PGSExport import PGSExport
 from catalog.models import *
 
 
