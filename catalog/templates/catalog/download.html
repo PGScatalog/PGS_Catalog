@@ -13,7 +13,7 @@
     <div class="clearfix">
       <h2 class="float_left">PGS Catalog Downloads</h2>
       <div class="float_right">
-        <a class="btn btn-pgs pgs_no_icon_link" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs" target="_blank">
+        <a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_root }}" target="_blank">
           <span class="icon icon-common" data-icon="&#xf07b;"></span> PGS Catalog FTP site
         </a>
       </div>
@@ -27,19 +27,25 @@
       <table class="table table-bordered table_pgs_h">
         <tbody>
           <tr>
-            <td><span class="pgs_h_big_header">Scoring Files</span> <a class="pgs_no_icon_link info-icon" href="#dl_ftp" data-toggle="tooltip" data-placement="bottom" title="Click to see Scoring files details"><i class="icon icon-common" data-icon="&#xf129;"></i></a></td>
-            <td><a class="btn btn-pgs pgs_no_icon_link" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/" target="_blank"><span class="icon icon-common" data-icon="&#xf07b;"></span> Scoring File FTP directory</a></td>
+            <td>
+              <span class="pgs_h_big_header">PGS variants scoring</span>
+              <a class="pgs_no_icon_link info-icon" href="#dl_ftp_score" data-toggle="tooltip" data-placement="bottom" title="Individual PGS variants scoring and metadata files. Click on this icon to see information about the PGS Scoring File format"><i class="icon icon-common" data-icon="&#xf129;"></i></a>
+            </td>
+            <td><a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_root }}/scores/" target="_blank"><span class="icon icon-common" data-icon="&#xf07b;"></span> PGS Score FTP directories</a></td>
           </tr>
-          <!--<tr>
-            <td><span class="pgs_h_big_header">Metadata Files</span> <a class="pgs_no_icon_link info-icon" href="#dl_bulk" data-toggle="tooltip" data-placement="bottom" title="Click to see Metadata file details"><i class="icon icon-common" data-icon="&#xf129;"></i></a></td>
-            <td><span style="padding:6px 12px;color:#888"><i class="icon icon-common" data-icon="&#xf127;"></i> Not yet available</span></td>
-          </tr>-->
+          <tr>
+            <td>
+              <span class="pgs_h_big_header">All PGS metadata</span>
+              <a class="pgs_no_icon_link info-icon" href="#dl_ftp_metadata" data-toggle="tooltip" data-placement="bottom" title="Available PGS global metadata files. Click on this icon to see information about the PGS Metadata File format"><i class="icon icon-common" data-icon="&#xf129;"></i></a>
+            </td>
+            <td><a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_root }}/metadata/" target="_blank"><span class="icon icon-common" data-icon="&#xf07b;"></span> PGS Metadata FTP directory</a></td>
+          </tr>
         </tbody>
       </table>
     </section>
 
     <section>
-      <h3 id="dl_ftp">PGS Catalog Scoring Files</h3>
+      <h3 id="dl_ftp_score">PGS Catalog Scoring Files</h3>
         <p>Each score file is formatted to be a gzipped <b>tab-delimited</b> text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
         <p>In the current catalog the scores have been extracted from the relevant publication and only been reformatted to have a consistent header (lines starting with <code>#</code>)
            listing relevant PGS Catalog information, e.g.:
@@ -83,8 +89,8 @@
       </table>
     </section>
 
-    <!--<section>
-      <h3 id="dl_bulk">PGS Catalog Metadata File</h3>
+    <section>
+      <h3 id="dl_ftp_metadata">PGS Metadata File</h3>
       <p>Downloads of the full PGS Catalog and annotations.</p>
       <p>It consists on an Excel file containing several worksheets:</p>
       <table class="table table-striped table_pgs_auto">
@@ -95,12 +101,11 @@
           <tr><td><i>Readme</i></td><td>Summary stats</td></tr>
           <tr><td><i>Scores</i></td><td>Lists the PGS scores and associated metadata</td></tr>
           <tr><td><i>Performance Metrics</i></td><td>Lists the performance metrics and the associated PGS Scores and Publications</td></tr>
-          <tr><td><i>Sample Sets</i></td><td>Describes the samples used in the different sample sets</td></tr>
-          <tr><td><i>Sample Training</i></td><td>Lists the samples used to train the PGS Scores</td></tr>
-          <tr><td><i>Source of Variant Associations</i></td><td>Lists the samples used to collect the variants used to calculate the PGS Scores</td></tr>
-          <tr><td><i>Pubications</i></td><td>Lists the publications</td></tr>
+          <tr><td><i>Evaluation Sample Sets</i></td><td>Describes the samples used in the different sample sets</td></tr>
+          <tr><td><i>Score Development Samples</i></td><td>Lists the samples used to collect the variants used to calculate the PGS Scores and the sample used to train the PGS Scores</td></tr>
+          <tr><td><i>Publications</i></td><td>Lists the publications</td></tr>
           <tr><td><i>EFO Traits</i></td><td>Lists the EFO Traits used in the PGS Catalog</td></tr>
         </tbody>
       </table>
-    </section>-->
+    </section>
 {% endblock %}

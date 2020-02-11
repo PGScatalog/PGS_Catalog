@@ -26,7 +26,7 @@
       </ol>
     </nav>
 
-    <h2 style="margin-bottom:1rem">PGS Sample Set (PSS): <b>{{ pss_id }}</b></h2>
+    <h2 class="mb-3">PGS Sample Set (PSS): <b>{{ pss_id }}</b></h2>
 
     {% if sample_count|length > 1 %}
       <div class="content_container">
@@ -68,13 +68,13 @@
         </table>
 
         <!-- Sample Numbers -->
-        {% if sample_count|length > 1 %}
-          <h4 style="margin-bottom:1rem">Sample Numbers</h4>
-        {% else %}
-          <h3 style="margin-bottom:1rem">Sample Numbers</h3>
-        {% endif %}
+      {% if sample_count|length > 1 %}
+        <h4 class="mb-3">Sample Numbers</h4>
+      {% else %}
+        <h3 class="mb-3">Sample Numbers</h3>
+      {% endif %}
         <div class="clearfix">
-          <div style="float:left;margin-right:40px">
+          <div class="float_left mr-5">
             <table class="table table-bordered table_pgs_h">
               <tbody>
                 <tr>
@@ -99,7 +99,7 @@
                     <td>
                       <b>{{ sample.list_cohortids|length }}</b>
                       {% if sample_count|length > 1 %}
-                        <a class="toggle_btn pgs_no_icon_link" data-toggle="tooltip" data-placement="bottom" id="cohort_{{ forloop.counter }}" title="Click to show/hide the cohort table"><i class="icon icon-common icon-plus-square"></i></a>
+                        <a class="toggle_btn pgs_no_icon_link" data-toggle="tooltip" data-placement="bottom" id="cohort_{{ forloop.counter }}" title="Click to show/hide the cohort table"><i class="fa fa-plus-circle"></i></a>
                       {% endif %}
                     </td>
                   </tr>
@@ -107,84 +107,37 @@
               </tbody>
             </table>
           </div>
-          {% if sample.display_sample_category_number.0|length > 0 %}
-            <div style="float:left;margin-right:40px;border:1px solid #ccc">
-              <div style="width:200px;height:150px">
-                <canvas id="sample_piechart_{{ forloop.counter }}" width="200" height="150"></canvas>
-                <script type="text/javascript">
-
-                    ready(function(){
-                      var labels_list = {{ sample.display_sample_category_number.0|safe }}
-
-                      new Chart(document.getElementById("sample_piechart_{{ forloop.counter }}"), {
-                        type: 'doughnut',
-                        data: {
-                          labels: {{ sample.display_sample_category_number.0|safe }},
-                          datasets: [{
-                            label: "Sample numbers",
-                            backgroundColor: ["#3e95cd", "#8e5ea2"],
-                            data: {{ sample.display_sample_category_number.1 }}
-                          }]
-                        },
-                        options: {
-                          title: {
-                            display: true,
-                            text: 'Sample distribution'
-                          },
-                          legend: {
-                            position: 'bottom',
-                            reverse: true,
-                            labels: {
-                              boxWidth: 20
-                            }
-                          }
-                        }
-                      });
-                    });
-                </script>
-              </div>
+        {% if sample.display_sample_category_number.0|length > 0 %}
+          <!-- Sample distribution -->
+          <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function(event) {
+              var data_chart = {{ sample.display_sample_category_number|safe }};
+              draw_samples_piechart(data_chart,{{ forloop.counter }},'sample');
+            });
+          </script>
+          <div class="sample_piechart_container mr-5">
+            <div>
+              <canvas id="sample_piechart_{{ forloop.counter }}" width="200" height="150"></canvas>
             </div>
-          {% endif %}
-          {% if sample.display_sample_gender_percentage.0|length > 0 %}
-            <div style="float:left;">
-              <div style="width:200px;height:150px;border:1px solid #ccc">
-                <canvas id="sample_piechart_gender_{{ forloop.counter }}" width="200" height="150"></canvas>
-                <script type="text/javascript">
-
-                    ready(function(){
-
-                      new Chart(document.getElementById("sample_piechart_gender_{{ forloop.counter }}"), {
-                        type: 'doughnut',
-                        data: {
-                          labels: {{ sample.display_sample_gender_percentage.0|safe }},
-                          datasets: [{
-                            label: "Sample gender",
-                            backgroundColor: ["#F18F2B", "#4F78A7"],
-                            data: {{ sample.display_sample_gender_percentage.1 }}
-                          }]
-                        },
-                        options: {
-                          title: {
-                            display: true,
-                            text: 'Sample gender distribution'
-                          },
-                          legend: {
-                            position: 'bottom',
-                            reverse: true,
-                            labels: {
-                              boxWidth: 20
-                            }
-                          }
-                        }
-                      });
-                    });
-                </script>
-              </div>
+          </div>
+        {% endif %}
+        {% if sample.display_sample_gender_percentage.0|length > 0 %}
+          <!-- Sample gender distribution -->
+          <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function(event) {
+              var data_chart = {{ sample.display_sample_gender_percentage|safe }};
+              draw_samples_piechart(data_chart,{{ forloop.counter }},'gender');
+            });
+          </script>
+          <div class="sample_piechart_container">
+            <div>
+              <canvas id="sample_piechart_gender_{{ forloop.counter }}" width="200" height="150"></canvas>
             </div>
-          {% endif %}
+          </div>
+        {% endif %}
         </div>
-
       </section>
+
       <section>
         {% if table_cohort != '' %}
           {% if sample_count|length > 1 %}

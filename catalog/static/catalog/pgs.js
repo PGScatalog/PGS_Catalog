@@ -3,7 +3,7 @@ $(document).ready(function() {
     // Fix issue with internal links because of the sticky header
     function offsetAnchor() {
       if(location.hash.length !== 0) {
-        window.scrollTo(window.scrollX, window.scrollY - 105);
+        window.scrollTo(window.scrollX, window.scrollY - 95);
       }
     }
     // This will capture hash changes while on the page
@@ -136,7 +136,7 @@ $(document).ready(function() {
             continue;
           }
           var chars = (matches[i-1] == 'x10') ? 'x10' : 'e';
-          let pgs_param_sup = pgs_param.replace(chars+matches[i], chars+"<sup>"+matches[i]+"</sup>");
+          var pgs_param_sup = pgs_param.replace(chars+matches[i], chars+"<sup>"+matches[i]+"</sup>");
           $('#pgs_params').html(pgs_param_sup);
           pgs_param = pgs_param_sup;
         }

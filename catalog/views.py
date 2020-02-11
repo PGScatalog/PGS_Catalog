@@ -5,6 +5,7 @@ import re
 
 from .tables import *
 
+
 def performance_disclaimer():
     return """<span class="pgs_note_title">Disclaimer: </span>
         The performance metrics are displayed as reported by the source studies.
@@ -44,7 +45,6 @@ def traits_chart_data():
 
     return data
 
-
 def index(request):
     current_release = Release.objects.order_by('-date').first()
 
@@ -56,7 +56,6 @@ def index(request):
     }
     return render(request, 'catalog/index.html', context)
 
-
 def browseby(request, view_selection):
     context = {}
 
@@ -67,8 +66,11 @@ def browseby(request, view_selection):
         for x in r:
             l.append(x['trait_efo'])
         table = Browse_TraitTable(EFOTrait.objects.filter(id__in=l), order_by="label")
-        context['table'] = table
-        context['data_chart'] = traits_chart_data()
+        context = {
+            'table': table,
+            'data_chart': traits_chart_data(),
+            'has_chart': 1
+        }
     elif view_selection == 'studies':
         context['view_name'] = 'Publications'
         table = Browse_PublicationTable(Publication.objects.all(), order_by="num")
@@ -81,6 +83,8 @@ def browseby(request, view_selection):
         context['view_name'] = 'Polygenic Scores'
         table = Browse_ScoreTable(Score.objects.all(), order_by="num")
         context['table'] = table
+
+    context['has_table'] = 1
 
     return render(request, 'catalog/browseby.html', context)
 
@@ -100,7 +104,8 @@ def pgs(request, pgs_id):
         'citation' : citation,
         'performance_disclaimer': performance_disclaimer(),
         'efos' : score.trait_efo.all(),
-        'num_variants_pretty' : '{:,}'.format(score.variants_number)
+        'num_variants_pretty' : '{:,}'.format(score.variants_number),
+        'has_table': 1
     }
 
     # Extract and display Sample Tables
@@ -116,14 +121,16 @@ def pgs(request, pgs_id):
     table = PerformanceTable(pquery)
     context['table_performance'] = table
 
-    pquery_samples = []
+    pquery_samples = set()
     for q in pquery:
-        pquery_samples = pquery_samples + q.samples()
+        for sample in q.samples():
+            pquery_samples.add(sample)
 
     table = SampleTable_performance(pquery_samples)
     context['table_performance_samples'] = table
 
     return render(request, 'catalog/pgs.html', context)
+
 
 def pgp(request, pub_id):
     try:
@@ -133,6 +140,7 @@ def pgp(request, pub_id):
     context = {
         'publication' : pub,
         'performance_disclaimer': performance_disclaimer(),
+        'has_table': 1
     }
 
     #Display scores that were developed by this publication
@@ -157,13 +165,15 @@ def pgp(request, pub_id):
     table = PerformanceTable_PubTrait(pquery)
     context['table_performance'] = table
 
-    pquery_samples = []
+    pquery_samples = set()
     for q in pquery:
-        pquery_samples = pquery_samples + q.samples()
+        for sample in q.samples():
+            pquery_samples.add(sample)
 
     table = SampleTable_performance(pquery_samples)
     context['table_performance_samples'] = table
 
+    context['has_table'] = 1
     return render(request, 'catalog/pgp.html', context)
 
 
@@ -177,7 +187,8 @@ def efo(request, efo_id):
     context = {
         'trait': trait,
         'performance_disclaimer': performance_disclaimer(),
-        'table_scores' : Browse_ScoreTable(related_scores)
+        'table_scores' : Browse_ScoreTable(related_scores),
+        'has_table': 1
     }
 
     # Check if there are multiple descriptions
@@ -191,11 +202,12 @@ def efo(request, efo_id):
     #Find the evaluations of these scores
     pquery = Performance.objects.filter(score__in=related_scores)
     table = PerformanceTable_PubTrait(pquery)
-    context['table_performance'] =table
+    context['table_performance'] = table
 
-    pquery_samples = []
+    pquery_samples = set()
     for q in pquery:
-        pquery_samples = pquery_samples + q.samples()
+        for sample in q.samples():
+            pquery_samples.add(sample)
 
     table = SampleTable_performance(pquery_samples)
     context['table_performance_samples'] = table
@@ -223,7 +235,9 @@ def pss(request, pss_id):
     context = {
         'pss_id': pss_id,
         'sample_count': range(len(samples_list)),
-        'sample_set_data': sample_set_data
+        'sample_set_data': sample_set_data,
+        'has_table': 1,
+        'has_chart': 1
     }
     return render(request, 'catalog/pss.html', context)
 

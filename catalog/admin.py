@@ -95,3 +95,14 @@ class ScoreAdmin(admin.ModelAdmin):
             return ["num","id"]
         else:
             return []
+
+@admin.register(TraitCategory)
+class TraitCategoryAdmin(admin.ModelAdmin):
+    list_display = ["label", "colour", "parent"]
+    ordering = ('label',)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ["id"]
+        else:
+            return []
