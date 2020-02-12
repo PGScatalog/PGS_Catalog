@@ -72,8 +72,20 @@
               var aa = a[sortName].replace(/<\/?[^>]+(>|$)/g, "");
               var bb = b[sortName].replace(/<\/?[^>]+(>|$)/g, "");
 
+              // Date (American notation)
+              if (aa.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                aa_date = aa.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+                bb_date = bb.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+                if (aa_date && aa_date.length > 2) {
+                  aa = parseInt(aa_date[3]+''+aa_date[1]+''+aa_date[2]);
+                }
+                if (bb_date && bb_date.length > 2) {
+                  bb = parseInt(bb_date[3]+''+bb_date[1]+''+bb_date[2]);
+                }
+              }
               // Numeric sort with or without strings after it
-              if (aa.match(/^\d+/)) {
+              else if (aa.match(/^\d+/)) {
                 aa_num = aa.replace(/,/g, '').match(/(^\d+)(\D+|$)/);
                 bb_num = bb.replace(/,/g, '').match(/(^\d+)(\D+|$)/);
 
@@ -84,17 +96,25 @@
                   bb = parseInt(bb_num[1]);
                 }
               }
+              // Numeric value with strings before it (e.g. EFO_, HP_)
+              else if (aa.match(/^(EFO|HP)_\d+$/)) {
+                aa_num = aa.match(/^(EFO|HP)_(\d+)$/);
+                bb_num = bb.match(/^(EFO|HP)_(\d+)$/);
+
+                if (aa_num && aa_num.length > 1) {
+                  aa = parseFloat(aa_num[2]);
+                }
+                if (bb_num && bb_num.length > 1) {
+                  bb = parseFloat(bb_num[2]);
+                }
+              }
               // Numeric value with strings before it (e.g. OR:, HR:, ...)
               else if (aa.match(/^\w+\:\s*\d+/)) {
-                console.log("before: "+aa);
-
-                console.log("middle: "+aa);
                 aa_num = aa.match(/^\w+\:\s*(\d+\.?\d*)(\D|$)/);
                 bb_num = bb.match(/^\w+\:\s*(\d+\.?\d*)(\D|$)/);
 
                 if (aa_num && aa_num.length > 1) {
                   aa = parseFloat(aa_num[1]);
-                  console.log("end: "+aa);
                 }
                 if (bb_num && bb_num.length > 1) {
                   bb = parseFloat(bb_num[1]);

@@ -13,9 +13,11 @@ $pgs_dark0: #000;
 $pgs_dark2: #222; // Main font-color
 $pgs_dark3: #333; // Header & footer background-color
 $pgs_dark5: #555;
-$pgs_darkB: #BBB;
+$pgs_darkA: #AAA;
+$pgs_darkC: #CCC;
 $pgs_light_grey: #e9ecef;
 $pgs_light_grey2: #FAFAFA;
+$pgs_light_grey3: #FEFEFE;
 $pgs_note_title: #F00;
 $pgs_dev: #577284;
 //$pgs_color_1: #D45390; /* Logo pink color */
@@ -24,7 +26,7 @@ $pgs_dev: #577284;
 //$pgs_color_4: #B3B2B2; /* Logo light grey color */
 //$pgs_color_5: #727070; /* Logo dark grey color */
 
-$header_height_with_margin: 110px;
+$header_height_with_margin: 97px;
 $footer_height: 97px;
 
 
@@ -115,7 +117,7 @@ u {
 /* Navbar and horizontal menu */
 .navbar {
   background-color: $pgs_dark3;
-  padding: 0.5rem 3rem;
+  padding: 0rem 3rem;
   background-image: url("/static/catalog/imgs/pgs_header_background.png");
   background-repeat: no-repeat;
   background-position: top right;
@@ -325,26 +327,35 @@ th .th-inner {
   text-align: center;
   margin-top:0rem;
   margin-bottom:5rem;
+
   a {
     display: block;
-    padding:20px 50px;
+    padding:20px 25px;
+    margin: 0px 15px;
     text-decoration: none;
     transition: background-color .1s;
+    border-radius: 2px;
+    box-shadow: 2px 2px 8px #CCC;
+    background-color: $pgs_colour_1;
+
 
     &:hover, &:focus {
-      background-color: #F9F9FA;
+      background-color: $pgs_colour_1_lighter;
       transition: background-color .1s;
     }
 
     > div:first-child {
-        color: $pgs_dark2;
+      color: #FFF;
       font-weight: 200;
       font-size: 30px;
       text-align: center;
     }
     > div:nth-child(2) {
       font-size: 40px;
-      color: $pgs_colour_1;
+      color: #FFF;
+      .icon-dna:hover {
+        color: #FFF !important;
+      }
     }
 
     .pgs_browse_score {
@@ -352,8 +363,9 @@ th .th-inner {
       justify-content:center;
       align-items:center;
 
-      i {
+      div:first-child {
         vertical-align: middle;
+        float:left;
         padding-right:0px;
         font-size:34px;
         @include transform(rotate(90deg));
@@ -362,7 +374,8 @@ th .th-inner {
           text-decoration: none;
         }
       }
-      span {
+      div:last-child {
+        float:left;
         padding-left:10px;
         padding-right:8px;
       }
@@ -398,9 +411,10 @@ th .th-inner {
 @media screen and (max-width: 765px) {
   .pgs_browse {
     > div {
-      border-right:none;
-      &:not(:last-child) {
-        border-bottom: 1px solid $pgs_colour_2; //#ecedf1;
+      margin: 10px 0px;
+      > a {
+        padding:10px 50px;
+        margin: 0px 25px;
       }
     }
   }
@@ -412,7 +426,7 @@ th .th-inner {
         padding-top:20px;
       }
       &:not(:last-child) {
-        border-bottom: 1px solid $pgs_colour_2;//#CCC; //#ecedf1;
+        border-bottom: 1px solid $pgs_colour_2;
       }
       p {
         text-align:center;
@@ -424,9 +438,9 @@ th .th-inner {
 @media screen and (min-width: 766px) {
   .pgs_browse {
     > div {
-      border-bottom: none;
-      &:not(:last-child) {
-        border-right: 1px solid $pgs_colour_2; //#ecedf1;
+      margin: 10px 0px;
+      > a {
+        height:150px;
       }
     }
   }
@@ -449,23 +463,24 @@ th .th-inner {
     }
   }
 }
-@media screen and (min-width: 766px) and (max-width: 879px) {
+@media screen and (min-width: 766px) and (max-width: 899px) {
   .pgs_browse {
     a {
+      margin: 0px 10px;
       padding: 20px !important;
     }
   }
 }
-@media screen and (min-width: 880px) {
+@media screen and (min-width: 900px) {
   .pgs_browse {
-    margin-left: 2vw;
-    margin-right: 2vw;
+    margin-left: 4vw;
+    margin-right: 4vw;
   }
 }
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 990px) {
   .pgs_browse {
-    margin-left: 5vw;
-    margin-right: 5vw;
+    margin-left: 7vw;
+    margin-right: 7vw;
   }
 }
 
@@ -758,11 +773,11 @@ a {
   display:flex;
   pre {
     padding: 0.5rem 0.75rem;
-    border:1px solid $pgs_light_grey;
+    border:1px solid $pgs_darkA;
     line-height: 20px;
     span {
       font-weight: bold;
-      color: $pgs_darkB;
+      color: $pgs_darkA;
     }
     span.scoring_col {
       padding-right:1.5rem;

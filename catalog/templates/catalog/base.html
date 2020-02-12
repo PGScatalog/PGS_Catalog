@@ -39,7 +39,9 @@
   <!-- Boostrap CSS libraries -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-  <link href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css" rel="stylesheet"/>
+  {% if has_table %}
+    <link href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css" rel="stylesheet"/>
+  {% endif %}
 
   <!-- CSS: implied media=all -->
   <!-- CSS concatenated and minified via ant build script-->
@@ -51,18 +53,21 @@
   {% endcompress %}
 
   <!-- Chart.js -->
-  <link rel="stylesheet" href="{% static 'catalog/Chart.min.css' %}" type="text/css" media="all" />
-  <script defer type="text/javascript" src="{% static 'catalog/Chart.bundle.min.js' %}"></script>
+  {% if has_chart %}
+    <link rel="stylesheet" href="{% static 'catalog/Chart.min.css' %}" type="text/css" media="all" />
+    <script defer type="text/javascript" src="{% static 'catalog/Chart.bundle.min.js' %}"></script>
+  {% endif %}
 
   <!-- jQuery, bootstrap, bootstrap-table (and extensions), table-export libraries -->
-  <script defer src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
   <!-- Bootstrap bundle include Popper.js and Bootstrap JS -->
   <script defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
-  <script defer src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
-  <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
-  <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/extensions/export/bootstrap-table-export.min.js"></script>
-  <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
-
+  {% if has_table %}
+    <script defer src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+  {% endif %}
 
   {% compress js file pgs_min %}
     <script defer src="{% static 'catalog/pgs.js' %}"></script>
@@ -94,8 +99,13 @@
                 </div>
               </li>
               <li class="nav-item"><a class="nav-link" href="../../downloads/">Downloads</a></li>
-              <li class="nav-item"><a class="nav-link" href="../../docs/">Documentation</a></li>
-              <li class="nav-item"><a class="nav-link" href="../../about/">About</a></li>
+              <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="../../about/">About</a>
+                  <a class="dropdown-item" href="../../docs/">Data Description</a>
+                </div>
+              </li>
             </ul>
           </div>
         <!--/.navbar-collapse - end -->
@@ -104,7 +114,7 @@
 
 
     <div class="feedback">
-      <a href="mailto:pgs-info@ebi.ac.uk" title="Feedback or contact us">
+      <a href="mailto:{{ pgs_contact }}" title="Feedback or contact us">
         <button type="button" id="feedback-btn">Feedback</button>
       </a>
     </div>
@@ -120,28 +130,28 @@
       <div class="footer_first_row">
         <div>Funded by:</div>
         <div>
-          <a class="pgs_no_icon_link" href="https://www.phpc.cam.ac.uk/"><img class="img-fluid" src="{% static 'catalog/imgs/UofCambridge_small.png' %}" alt="University of Cambridge" style="max-height:30px"></a>
+          <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/UofCambridge_small.png' %}" alt="University of Cambridge"></a>
         </div>
         <div >
-          <a class="pgs_no_icon_link" href="https://www.ebi.ac.uk/" style="link:none"><img class="img-fluid" src="{% static 'catalog/imgs/EMBL_EBI_small.png' %}" alt="EMBL-EBI" style="max-height:30px"></a>
+          <a class="pgs_no_icon_link" href="{{ ebi_url }}" style="link:none"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/EMBL_EBI_small.png' %}" alt="EMBL-EBI"></a>
         </div>
         <div>
-          <a class="pgs_no_icon_link" href="https://www.hdruk.ac.uk/about/structure/hdr-uk-cambridge/"><img class="img-fluid" src="{% static 'catalog/imgs/HDR-UK_small.png' %}" alt="HDR-UK (Cambridge)" style="max-height:30px"></a>
+          <a class="pgs_no_icon_link" href="{{ hdr_uk_cam_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/HDR-UK_small.png' %}" alt="HDR-UK (Cambridge)"></a>
         </div>
         <div>
-          <a class="pgs_no_icon_link" href="https://baker.edu.au/"><img class="img-fluid" src="{% static 'catalog/imgs/Baker_Logo_small.png' %}" alt="Baker Heart and Diabetes Institute" style="max-height:30px"></a>
+          <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/Baker_Logo_small.png' %}" alt="Baker Heart and Diabetes Institute"></a>
         </div>
         <div>
           <div class="pgs_social">
-            <a class="icon-common pgs_no_icon_link" title="Email" href="mailto:pgs-info@ebi.ac.uk" data-icon="&#xf1fa;" target="_blank"></a>
-            <a class="icon icon-socialmedia pgs_no_icon_link" title="Twitter" href="http://www.twitter.com/pgscatalog" data-icon="T" target="_blank"></a>
+            <a class="icon-common pgs_no_icon_link" title="Email" href="mailto:{{ pgs_contact }}" data-icon="&#xf0e0;" target="_blank"></a>
+            <a class="icon icon-socialmedia pgs_no_icon_link" title="Twitter" href="{{ pgs_twitter_url }}" data-icon="T" target="_blank"></a>
           </div>
         </div>
       </div>
 
       <!-- Copyright -->
       <div class="footer-copyright text-center py-3 ">
-        Copyright © EMBL-EBI 2020 | <a class="pgs_no_icon_link" href="https://www.ebi.ac.uk/">EMBL-EBI</a> is an Outstation of the <a class="pgs_no_icon_link" href="https://www.embl.org/">European Molecular Biology Laboratory</a> | <a class="pgs_no_icon_link" href="https://www.ebi.ac.uk/about/privacy">Privacy</a> | <a class="pgs_no_icon_link" href="https://www.ebi.ac.uk/about/cookies">Cookies</a> | <a class="pgs_no_icon_link" href="https://www.ebi.ac.uk/about/terms-of-use">Terms of use</a>
+        Copyright © EMBL-EBI 2020 | <a class="pgs_no_icon_link" href="{{ ebi_url }}">EMBL-EBI</a> is an Outstation of the <a class="pgs_no_icon_link" href="https://www.embl.org/">European Molecular Biology Laboratory</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/privacy">Privacy</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/cookies">Cookies</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/terms-of-use">Terms of use</a>
       </div>
       <!-- Copyright -->
     </footer>

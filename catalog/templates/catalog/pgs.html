@@ -15,9 +15,9 @@
 
 
     <div class="clearfix">
-      <h2 style="float:left">Polygenic Score (PGS) ID: <b>{{score.id}}</b></h2>
-      <div style="float:right">
-        <a class="btn btn-pgs pgs_no_icon_link" href="ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/{{ score.id }}.txt.gz" download>
+      <h2 class="float_left">Polygenic Score (PGS) ID: <b>{{score.id}}</b></h2>
+      <div class="float_right">
+        <a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_root }}/ScoringFiles_formatted/{{ score.id }}.txt.gz" download>
           <span class="icon icon-common" data-icon="&#xf019;"></span> <b>Download PGS</b><div class="btn-sub-text">Variants and weights data file</div>
         </a>
       </div>
@@ -92,7 +92,7 @@
                       <a class="mr-2" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
                       (<a href="https://www.ebi.ac.uk/efo/{{ efos.0.id }}">{{ efos.0.id }}</a>)
                     {% else %}
-                      <ul style="margin-bottom:0px">
+                      <ul class="mb-0">
                       {% for trait in efos  %}
                         <li>
                           <a class="mr-2" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>

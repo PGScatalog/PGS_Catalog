@@ -2,14 +2,13 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import DecimalRangeField
 
-
 class Publication(models.Model):
     """Class for publications with PGS"""
     # Stable identifiers
-    num = models.IntegerField('PGS Publication (PGP) Number', primary_key=True)
-    id = models.CharField('PGS Publication (PGP) ID', max_length=30)
+    num = models.IntegerField('PGS Publication/Study (PGP) Number', primary_key=True)
+    id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30)
 
-    date_released = models.DateField('PGS Catalog Release Date', null=True)
+    date_released = models.DateField('PGS Release Date', null=True)
 
     # Key information (also) in the spreadsheet
     doi = models.CharField('digital object identifier (doi)', max_length=100)
@@ -58,10 +57,6 @@ class Publication(models.Model):
     def scores_evaluated(self):
         performances = Performance.objects.filter(publication=self)
         return len(performances.values('score').distinct())
-
-    @property
-    def pub_year(self):
-        return self.date_publication.strftime('%Y')
 
     def parse_EuropePMC(self, doi=None, PMID=None):
         '''Function to get the citation information from the EuropePMC API'''
@@ -204,8 +199,9 @@ class TraitCategory(models.Model):
         return scores_count
 
 
+
 class Demographic(models.Model):
-    estimate = models.FloatField(verbose_name='Estimate (value)', null=False)
+    estimate = models.FloatField(verbose_name='Estimate (value)', null=False, default=0)
     estimate_type = models.CharField(verbose_name='Estimate (type)', max_length=100, null=False, default='mean') #e.g. mean, median, mode
     unit = models.TextField(verbose_name='Unit', max_length=100, null=True)
     ci = DecimalRangeField(verbose_name='95% Confidence Interval', null=True)
@@ -261,7 +257,7 @@ class Sample(models.Model):
             ids.add(x['id'])
         ids = list(ids)
         ids.sort()
-        return ids
+        return list(ids)
 
     def associated_PSS(self):
         ids = set()
@@ -269,7 +265,7 @@ class Sample(models.Model):
             ids.add(x['id'])
         ids = list(ids)
         ids.sort()
-        return ids
+        return list(ids)
 
     def list_cohortids(self):
         return [x.name_full for x in self.cohorts.all()]
@@ -284,13 +280,35 @@ class Sample(models.Model):
         if self.sample_cases != None:
             sstring = '[ {:,} cases'.format(self.sample_cases)
             if self.sample_controls != None:
-                sstring += ', {:,} controls]'.format(self.sample_controls)
+                sstring += ', {:,} controls ]'.format(self.sample_controls)
             else:
-                sstring += ']'
+                sstring += ' ]'
             sinfo.append(sstring)
         if self.sample_percent_male != None:
-            sinfo.append('{:.2f} %% Male samples'.format(self.sample_percent_male))
+            sinfo.append('%s %% Male samples'%str(round(self.sample_percent_male,2)))
         return sinfo
+
+    @property
+    def display_samples_for_table(self):
+        div_id = "sample_"+str(self.pk)
+        sstring = ''
+        if self.sample_cases != None:
+            sstring += '<div><a class="toggle_table_btn" id="'+div_id+'" title="Click to show/hide the details">{:,} individuals <i class="fa fa-plus-circle"></i></a></div>'.format(self.sample_number)
+            sstring += '<div class="toggle_list" id="list_'+div_id+'">'
+            sstring += '<span class="only_export">[</span>'
+            sstring += '<ul>\n<li>{:,} cases</li>\n'.format(self.sample_cases)
+            if self.sample_controls != None:
+                sstring += '<li><span class="only_export">, </span>'
+                sstring += '{:,} controls</li>'.format(self.sample_controls)
+            sstring += '</ul>'
+            sstring += '<span class="only_export">]</span>'
+            sstring += '</div>'
+        else:
+            sstring += '{:,} individuals'.format(self.sample_number)
+        if self.sample_percent_male != None:
+            sstring += '<span class="only_export">, </span>'
+            sstring += '<div class="mt-2 smaller-90">%s %% Male samples</div>'%str(round(self.sample_percent_male,2))
+        return sstring
 
     @property
     def display_sample_number_total(self):
@@ -305,7 +323,7 @@ class Sample(models.Model):
             if self.sample_controls != None:
                 sinfo.append('{:,} controls'.format(self.sample_controls))
         if self.sample_percent_male != None:
-            sinfo.append('{:.2f} %% Male samples'.format(self.sample_percent_male))
+            sinfo.append('%s %% Male samples'%str(round(self.sample_percent_male,2)))
         return sinfo
 
     @property
@@ -327,7 +345,7 @@ class Sample(models.Model):
         categories = []
         numbers = []
         if self.sample_percent_male != None:
-            percent_male = '{:.2f} %% Male samples'.format(self.sample_percent_male)
+            percent_male = round(self.sample_percent_male,2)
             categories = ["% Male", "% Female"]
             numbers    = [percent_male, round(100-percent_male,2)]
         return [categories,numbers]
@@ -359,6 +377,7 @@ class Sample(models.Model):
 
 class Score(models.Model):
     """Class for individual Polygenic Score (PGS)"""
+
     # Stable identifiers
     num = models.IntegerField('Polygenic Score (PGS) Number', primary_key=True)
     id = models.CharField('Polygenic Score (PGS) ID', max_length=30)
@@ -395,6 +414,7 @@ class Score(models.Model):
     def set_score_ids(self, n):
         self.num = n
         self.id = 'PGS' + str(n).zfill(6)
+
 
     class Meta:
         get_latest_by = 'num'
@@ -533,7 +553,7 @@ class Performance(models.Model):
     def publication_withexternality(self):
         '''This function checks whether the evaluation is internal or external to the score development paper'''
         p = self.publication
-        info = [' '.join([p.id, '<br/><small>', p.firstauthor, '<i>et al.</i>', '(%s)' % p.date_publication.strftime('%Y'), '</small>']), self.publication.id]
+        info = [' '.join([p.id, '<br/><small><i class="fa fa-angle-double-right"></i> ',p.firstauthor, '<i>et al.</i>', '(%s)' % p.date_publication.strftime('%Y'), '</small>']), self.publication.id]
 
         if self.publication == self.score.publication:
             info.append('D')
