@@ -103,7 +103,7 @@ class EFOTrait(models.Model):
     (mainly to link multiple EFO to a single score)'''
     id = models.CharField('Ontology Trait ID', max_length=30, primary_key=True)
     label = models.CharField('Ontology Trait Label', max_length=500)
-    description = models.TextField('Ontology Trait Description')
+    description = models.TextField('Ontology Trait Description', null=True)
     url = models.CharField('Ontology URL', max_length=500)
 
     def parse_api(self):
