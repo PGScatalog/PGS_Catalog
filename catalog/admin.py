@@ -16,7 +16,7 @@ class CohortAdmin(admin.ModelAdmin):
 
 @admin.register(Demographic)
 class DemographicAdmin(admin.ModelAdmin):
-    list_display = ["unit", "estimate", "estimate_type", "ci", "range", "se"]
+    list_display = ["unit", "estimate", "estimate_type", 'range', 'range_type', 'variability', 'variability_type']
     ordering = ('unit',)
 
 
