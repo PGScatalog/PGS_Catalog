@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from django.db.models.functions import Lower
 import re
 
 from .tables import *
@@ -19,7 +20,7 @@ def performance_disclaimer():
 def traits_chart_data():
     data = []
 
-    for category in TraitCategory.objects.all():
+    for category in TraitCategory.objects.all().order_by('label'):
         cat_name   = category.label
         cat_colour = category.colour
         cat_scores_count = category.count_scores
@@ -27,7 +28,7 @@ def traits_chart_data():
 
         cat_traits = []
 
-        for trait in category.efotraits.all():
+        for trait in category.efotraits.order_by(Lower('label')):
             trait_id = trait.id
             trait_name = trait.label
             trait_scores_count = trait.scores_count
