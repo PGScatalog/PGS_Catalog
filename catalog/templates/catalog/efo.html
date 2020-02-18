@@ -57,6 +57,44 @@
               {% endif %}
             </td>
           </tr>
+          {% if trait.synonyms %}
+            <tr>
+              <td>Synonym{% if trait.synonyms_list|length > 1 %}s{% endif %}</td>
+              <td>
+                {% if trait.synonyms_list|length > 1 %}
+                  <a class="toggle_btn" data-toggle="tooltip" data-placement="bottom" id="trait_synomyms" title="Click to show/hide the list of synonyms"><b>{{ trait.synonyms_list|length }}</b> synonyms <i class="fa fa-plus-circle"></i></a>
+                  <div class="toggle_list" id="list_trait_synomyms">
+                    <ul>
+                    {% for synonym in trait.synonyms_list %}
+                      <li>{{ synonym }}</li>
+                    {% endfor %}
+                    </ul>
+                  </div>
+                {% else %}
+                  {{ trait.synonyms_list.0 }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
+          {% if trait.mapped_terms %}
+            <tr>
+              <td>Mapped term{% if trait.mapped_terms_list|length > 1 %}s{% endif %}</td>
+              <td>
+                {% if trait.mapped_terms_list|length > 1 %}
+                  <a class="toggle_btn" data-toggle="tooltip" data-placement="bottom" id="trait_mapped_terms" title="Click to show/hide the list of mapped terms"><b>{{ trait.mapped_terms_list|length }}</b> mapped terms <i class="fa fa-plus-circle"></i></a>
+                  <div class="toggle_list" id="list_trait_mapped_terms">
+                    <ul>
+                    {% for mapped_term in trait.mapped_terms_list %}
+                      <li>{{ mapped_term }}</li>
+                    {% endfor %}
+                    </ul>
+                  </div>
+                {% else %}
+                  {{ trait.mapped_terms_list.0 }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
         </tbody>
       </table>
     </section>

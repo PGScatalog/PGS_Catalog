@@ -10,6 +10,19 @@ def update_efo_info(trait):
         response = response[0]
         new_label = response['label']
 
+        # Synonyms
+        new_synonyms_string = ''
+        new_synonyms = response['synonyms']
+        if (new_synonyms):
+            new_synonyms_string = ' | '.join(new_synonyms)
+
+        # Mapped terms
+        new_mapped_terms_string = ''
+        if 'database_cross_reference' in response['annotation']:
+            new_mapped_terms = response['annotation']['database_cross_reference']
+            if (new_mapped_terms):
+                new_mapped_terms_string = ' | '.join(new_mapped_terms)
+
         # Make description
         try:
             desc = response['obo_definition_citation'][0]
@@ -33,8 +46,18 @@ def update_efo_info(trait):
             #print("\tnew desc '"+', '.join(new_desc)+"'")
             trait_has_changed = 1
             trait.description = new_desc
+        if new_synonyms_string != trait.synonyms and new_synonyms_string != '':
+            #print("\tnew syn: "+str(len(new_synonyms_string)))
+            trait_has_changed = 1
+            trait.synonyms = new_synonyms_string
+        if new_mapped_terms_string != trait.mapped_terms and new_mapped_terms_string != '':
+            #print("\tnew map: "+str(len(new_mapped_terms)))
+            trait_has_changed = 1
+            trait.mapped_terms = new_mapped_terms_string
         if trait_has_changed == 1:
             trait.save()
+    else:
+        print("The script can't update the trait '"+trait.label+"' ("+trait_id+"): the API returned "+str(len(response))+" results.")
 
 
 def update_efo_category_info(trait):

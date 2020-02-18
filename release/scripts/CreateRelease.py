@@ -47,7 +47,7 @@ class CreateRelease:
     def create_new_release(self):
         """ Create new release instance and save it in the database """
         #### Create new release instance ####
-        release_notes = 'This release contains {} new Score(s), {} new Publication(s) and {} Performance metric(s)'.format(len(self.new_scores.keys()), len(self.new_publications), len(self.new_performances.keys()))
+        release_notes = 'This release contains {} new Score(s), {} new Publication(s) and {} new Performance metric(s)'.format(len(self.new_scores.keys()), len(self.new_publications), len(self.new_performances.keys()))
         release = Release.objects.create(
                 date=self.new_release_date,
                 performance_count=len(self.new_performances.keys()),
