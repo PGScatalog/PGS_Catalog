@@ -126,6 +126,20 @@ $(document).ready(function() {
       }
     });
 
+    // Remove pagination text if there is no pagination links
+    $('.fixed-table-pagination').each(function(index) {
+      console.log("Class found #"+index+"!");
+      var page_list = $( this ).find('.page-list');
+      if (page_list.length == 0) {
+        $( this ).remove();
+      }
+      else {
+        if (page_list.css('display') == 'none') {
+          $( this ).remove();
+        }
+      }
+    });
+
     // Update to the scientific notation (1x10-1 and 1e-1)
     if ($('#pgs_params').length) {
       var pgs_param = $('#pgs_params').html();
@@ -281,6 +295,9 @@ function display_category_list(data_json) {
   item_height = 35;
   number_of_cat = Object.keys(data_json).length;
 
+  cat_div_height = number_of_cat * item_height;
+  cat_div_height += 'px';
+
   category_tooltip = 'data-toggle="tooltip" title=""';
   colour_to_replace = '##COLOUR##';
   colour_box = '<span class="trait_colour" style="background-color:'+colour_to_replace+'"></span>';
@@ -342,6 +359,7 @@ function display_category_list(data_json) {
     // Sub-categories (traits) sub container - vertical position
     var se_right = document.createElement('div');
     se_right.className = "trait_subcat_right";
+
     var subcat_div_height_right = 0;
     var count = cat_index + (subcat_children.length/2);
 
@@ -350,6 +368,7 @@ function display_category_list(data_json) {
     }
     else if (cat_index == number_of_cat-1) {
       cat_pos = cat_index * item_height;
+
       if (subcat_children.length < number_of_cat) {
         subcat_div_height_right = (number_of_cat -subcat_children.length)*item_height;
       }
@@ -358,6 +377,13 @@ function display_category_list(data_json) {
       cat_pos = cat_index * item_height;
       subcat_div_height_right = cat_pos - ((subcat_children.length)*item_height)/2 + item_height/2;
     }
+
+    // Display scrollbar for categories with lots of traits
+    if (subcat_children.length > number_of_cat) {
+      se_right.style.maxHeight = cat_div_height;
+      se_right.classList.add("v-scroll");
+    }
+
     se_right.style.marginTop = subcat_div_height_right+"px";
 
     // Create the sub-categories (traits) boxes

@@ -289,6 +289,10 @@ u {
 
 
 /* boostrap-table overwrite */
+.bootstrap-table {
+  margin-bottom: 2rem;
+}
+
 .fixed-table-toolbar {
   background-color:$pgs_dark3;
   padding-right:8px;
@@ -398,6 +402,16 @@ th .th-inner {
       }
     }
   }
+  > div:first-child {
+    p {
+      text-align:justify;
+    }
+  }
+  > div:last-child {
+    p {
+      text-align:justify;
+    }
+  }
 }
 
 .pgs_section {
@@ -410,6 +424,9 @@ th .th-inner {
 
 @media screen and (max-width: 765px) {
   .pgs_browse {
+    margin-bottom: 0rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid $pgs_colour_2;
     > div {
       margin: 10px 0px;
       > a {
@@ -419,19 +436,16 @@ th .th-inner {
     }
   }
   .pgs_desc {
+    margin-bottom: 0rem;
     > div {
       border-right:none;
-      padding-bottom: 10px;
-      &:not(:first-child) {
-        padding-top:20px;
-      }
-      &:not(:last-child) {
-        border-bottom: 1px solid $pgs_colour_2;
-      }
-      p {
-        text-align:center;
-      }
+      padding-top: 3rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid $pgs_colour_2;
     }
+  }
+  .pgs_section {
+    margin-top: 3rem;
   }
 }
 
@@ -449,16 +463,6 @@ th .th-inner {
       border-bottom: none;
       &:not(:last-child) {
         border-right: 1px solid $pgs_colour_2;//#CCC; //#ecedf1;
-      }
-    }
-    > div:first-child {
-      p {
-        text-align:right;
-      }
-    }
-    > div:last-child {
-      p {
-        text-align:left;
       }
     }
   }
@@ -530,6 +534,10 @@ td > ul {
 
 .table_pgs_auto {
   width: auto;
+  tbody > tr > td:first-child {
+    font-weight:bold;
+    font-style: italic;
+  }
 }
 
 .table_pgs_h {
@@ -645,6 +653,14 @@ a {
 .badge-pgs {
   color: #fff;
   background-color: $pgs_colour_1;
+  font-size: 85%;
+  span {
+    font-weight: 200;
+  }
+}
+.badge-pgs-2 {
+  color: #fff;
+  background-color: $pgs_colour_2;
   font-size: 85%;
   span {
     font-weight: 200;
@@ -803,6 +819,11 @@ a {
   font-size: 90%;
 }
 
+.v-scroll {
+  overflow-y: scroll;
+  scrollbar-color: $pgs_colour_1 $pgs_light_grey;
+}
+
 /* Trait CSS */
 .trait_graph_container {
   display:flex;
@@ -935,7 +956,7 @@ a {
 
 /* Footer CSS */
 footer {
-  margin-top:1rem;
+  margin-top:2rem;
   background-color: $pgs_dark3;
   color: #FFF;
   a {
@@ -962,6 +983,14 @@ footer {
       padding-left: 2rem;
     }
   }
+  .footer-copyright {
+    a {
+      color: $pgs_colour_1_lighter;
+      &:hover {
+        border-bottom: 1px dotted #FFF;
+      }
+    }
+  }
 }
 .pgs_social {
   a {
@@ -971,8 +1000,13 @@ footer {
     border-radius: 4px;
     border:none;
     text-align:right;
+    transition: 0.2s;
     &:not(:last-child) {
       margin-right:8px;
+    }
+    &:hover {
+      color: #FFF;
+      background-color: $pgs_colour_1;
     }
   }
 }
