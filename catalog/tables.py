@@ -33,6 +33,37 @@ class Column_metriclist(tables.Column):
         values = smaller_in_bracket('<br>'.join([': '.join(x) for x in l]))
         return format_html(values)
 
+class Column_demographic(tables.Column):
+    def render(self, value):
+        l = []
+
+        #Estimate
+        e = ''
+        if value.estimate != None:
+            e += '{} = {}'.format(value.estimate_type.title(), value.estimate)
+            if value.range != None and value.range_type.lower() == 'ci':
+                e += ' {}'.format(smaller_in_bracket(str(value.range)))
+            e += ' {}'.format(value.unit)
+        if len(e) > 0:
+            l.append(e)
+
+        #Variability
+        v = None
+        if value.variability != None:
+            v = '{} = {} {}'.format(value.variability_type.title(), value.variability, value.unit)
+        if v != None:
+            l.append(v)
+
+        #Range
+        r = None
+        if '[' not in e:
+            if value.range != None:
+                r = '{} = {} {}'.format(value.range_type.title(), smaller_in_bracket(str(value.range)), value.unit)
+        if r != None:
+            l.append(r)
+
+        return format_html('<br>'.join(l))
+
 class Column_sample_merged(tables.Column):
     def render(self, value):
         return format_html(value)
@@ -98,6 +129,7 @@ class Column_format_html(tables.Column):
 
 
 class Browse_PublicationTable(tables.Table):
+    '''Table to browse Publications in the PGS Catalog'''
     scores_count = tables.Column(accessor='scores_count', verbose_name='PGS Developed', orderable=False)
     scores_evaluated = tables.Column(accessor='scores_evaluated', verbose_name='PGS Evaluated', orderable=False)
 
@@ -135,6 +167,7 @@ class Browse_PublicationTable(tables.Table):
 
 
 class Browse_TraitTable(tables.Table):
+    '''Table to browse Traits in the PGS Catalog'''
     label_link = Column_format_html(accessor='display_label', verbose_name='Trait (ontology term)', orderable=True)
     scores_count = tables.Column(accessor='scores_count', verbose_name='Number of PGS Developed')
     id_url = Column_format_html(accessor='display_id_url', verbose_name='Trait identifier (ontology ID)')
@@ -156,6 +189,7 @@ class Browse_TraitTable(tables.Table):
 
 
 class Browse_ScoreTable(tables.Table):
+    '''Table to browse Scores (PGS) in the PGS Catalog'''
     list_traits = tables.Column(accessor='list_traits', verbose_name='Mapped Trait(s)\n(Ontology)', orderable=False)
     ftp_link = tables.Column(accessor='link_filename', verbose_name=format_html('PGS Variants data files '), orderable=False)
 
@@ -201,6 +235,7 @@ class Browse_ScoreTable(tables.Table):
 
 
 class Browse_SampleSetTable(tables.Table):
+    '''Table to browse SampleSets (PSS; used in PGS evaluations) in the PGS Catalog'''
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
     sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br />(PSS ID)'), orderable=False)
@@ -258,6 +293,7 @@ class SampleTable_variants_details(tables.Table):
 
 
 class SampleTable_variants(tables.Table):
+    '''Table on PGS page - displays information about the GWAS samples used'''
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sources = Column_joinlist(accessor='display_sources', verbose_name='Study Identifiers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
@@ -293,9 +329,14 @@ class SampleTable_variants(tables.Table):
 
 
 class SampleTable_training(tables.Table):
+    '''Table on PGS page - displays information about the samples used in Score Development'''
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
     cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
+
+    # Demographics (Column_demographic)
+    followup_time = Column_demographic(accessor='followup_time', verbose_name='Participant Follow-up Time', orderable=False)
+    sample_age = Column_demographic(accessor='sample_age', verbose_name='Age of Study Participants', orderable=False)
 
     class Meta:
         model = Sample
@@ -304,7 +345,9 @@ class SampleTable_training(tables.Table):
         }
         fields = [
             'phenotyping_free',
+            'followup_time',
             'sample_merged',
+            'sample_age',
             'sample_ancestry','ancestry_additional',
             'cohorts', 'cohorts_additional'
         ]
@@ -315,11 +358,16 @@ class SampleTable_training(tables.Table):
 
 
 class SampleTable_performance(tables.Table):
+    '''Table on PGS page - displays information about the samples used in for PGS evaluation (accessed by PSS)'''
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
     sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br />(PSS ID)'), orderable=False)
     phenotyping_free = tables.Column(accessor='phenotyping_free', verbose_name='Detailed Phenotype Description')
     cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
+
+    # Demographics (Column_demographic)
+    followup_time = Column_demographic(accessor='followup_time', verbose_name='Participant Follow-up Time', orderable=False)
+    sample_age = Column_demographic(accessor='sample_age', verbose_name='Age of Study Participants', orderable=False)
 
     class Meta:
         model = Sample
@@ -330,7 +378,9 @@ class SampleTable_performance(tables.Table):
         fields = [
             'sampleset',
             'phenotyping_free',
+            'followup_time',
             'sample_merged',
+            'sample_age',
             'sample_ancestry','ancestry_additional',
             'cohorts', 'cohorts_additional',
         ]
@@ -348,6 +398,7 @@ class SampleTable_performance(tables.Table):
 
 
 class PerformanceTable(tables.Table):
+    '''On each PGS page - Displays PGS Performance metrics'''
     id = tables.Column(accessor='id', verbose_name=format_html('PGS Performance Metric ID<br />(PPM ID)'))
     sampleset = tables.Column(accessor='sampleset', verbose_name=format_html('PGS Sample Set ID<br />(PSS ID)'))
     trait_info = Column_trait(accessor='display_trait', verbose_name='Trait', orderable=False)
@@ -375,6 +426,7 @@ class PerformanceTable(tables.Table):
 
 
 class PerformanceTable_PubTrait(tables.Table):
+    '''On each Performance/trait page - Displays PGS Performance metrics'''
     id = tables.Column(accessor='id', verbose_name=format_html('PGS Performance Metric ID<br />(PPM ID)'))
     trait_info = Column_trait(accessor='display_trait', verbose_name='Trait', orderable=False)
     sampleset = tables.Column(accessor='sampleset', verbose_name=format_html('PGS Sample Set ID<br/>(PSS ID)'), orderable=False)
@@ -405,6 +457,7 @@ class PerformanceTable_PubTrait(tables.Table):
 
 
 class CohortTable(tables.Table):
+    '''Displays information about Cohorts that have been cited by PGS'''
     name_short = tables.Column(accessor='name_short', verbose_name='Cohort short name', orderable=True)
     name_full  = tables.Column(accessor='name_full', verbose_name='Cohort long name', orderable=False)
 
