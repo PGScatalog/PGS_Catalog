@@ -201,16 +201,16 @@ class TraitCategory(models.Model):
 
 
 class Demographic(models.Model):
+    """Class to describe Sample fields (sample_age, followup_time) that can be point estimates or distributions"""
     estimate = models.FloatField(verbose_name='Estimate (value)', null=True)
     estimate_type = models.CharField(verbose_name='Estimate (type)', max_length=100, null=True, default='mean') #e.g. [mean, median]
     unit = models.TextField(verbose_name='Unit', max_length=100, null=False, default='years') # e.g. [years, months, days]
 
     range = DecimalRangeField(verbose_name='Range (values)', null=True)
-    range_type = models.CharField(verbose_name='Range (type)', max_length=100, default='range') # e.g. Confidence interval (ci), range, open range
+    range_type = models.CharField(verbose_name='Range (type)', max_length=100, default='range') # e.g. Confidence interval (ci), range, interquartile range (iqr), open range
 
     variability = models.FloatField(verbose_name='Variability (value)', null=True)
     variability_type = models.CharField(verbose_name='Range (type)', max_length=100, default='se') # e.g. standard deviation (sd), standard error (se)
-
 
 class Sample(models.Model):
     """Class to describe samples used in variant associations and PGS training/testing"""
