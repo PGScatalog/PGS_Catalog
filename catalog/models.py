@@ -103,7 +103,7 @@ class EFOTrait(models.Model):
     (mainly to link multiple EFO to a single score)'''
     id = models.CharField('Ontology Trait ID', max_length=30, primary_key=True)
     label = models.CharField('Ontology Trait Label', max_length=500)
-    description = models.TextField('Ontology Trait Description')
+    description = models.TextField('Ontology Trait Description', null=True)
     url = models.CharField('Ontology URL', max_length=500)
 
     def parse_api(self):
@@ -201,12 +201,15 @@ class TraitCategory(models.Model):
 
 
 class Demographic(models.Model):
-    estimate = models.FloatField(verbose_name='Estimate (value)', null=False, default=0)
-    estimate_type = models.CharField(verbose_name='Estimate (type)', max_length=100, null=False, default='mean') #e.g. mean, median, mode
-    unit = models.TextField(verbose_name='Unit', max_length=100, null=True)
-    ci = DecimalRangeField(verbose_name='95% Confidence Interval', null=True)
-    range = DecimalRangeField(verbose_name='Range', null=True)
-    se = models.FloatField(verbose_name='Standard Error', null=True)
+    estimate = models.FloatField(verbose_name='Estimate (value)', null=True)
+    estimate_type = models.CharField(verbose_name='Estimate (type)', max_length=100, null=True, default='mean') #e.g. [mean, median]
+    unit = models.TextField(verbose_name='Unit', max_length=100, null=False, default='years') # e.g. [years, months, days]
+
+    range = DecimalRangeField(verbose_name='Range (values)', null=True)
+    range_type = models.CharField(verbose_name='Range (type)', max_length=100, default='range') # e.g. Confidence interval (ci), range, open range
+
+    variability = models.FloatField(verbose_name='Variability (value)', null=True)
+    variability_type = models.CharField(verbose_name='Range (type)', max_length=100, default='se') # e.g. standard deviation (sd), standard error (se)
 
 
 class Sample(models.Model):

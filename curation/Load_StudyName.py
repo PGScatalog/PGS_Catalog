@@ -11,19 +11,18 @@ import numpy as np
 # EFOTrait.objects.all().delete()
 # Publication.objects.all().delete()
 # Cohort.objects.all().delete()
-skip_scorefiles = False
+skip_scorefiles = True
 
-
-loc_curation2schema = './DB_SourceFiles/Templates/TemplateColumns2Models_v4.xlsx'
+loc_curation2schema = '../pgs_DBSourceFiles/Templates/TemplateColumns2Models_v5.xlsx'
 curation2schema = pd.read_excel(loc_curation2schema, index_col = 0)
 
-loc_curation2schema_scoring = './DB_SourceFiles/Templates/ScoringFileSchema.xlsx'
+loc_curation2schema_scoring = '../pgs_DBSourceFiles/Templates/ScoringFileSchema.xlsx'
 curation2schema_scoring = pd.read_excel(loc_curation2schema_scoring, index_col = 0)
 
-loc_localGWAS = './DB_SourceFiles/local_GWASCatalog/'
+loc_localGWAS = '../pgs_DBSourceFiles/local_GWASCatalog/'
 gwas_studies, gwas_samples = load_GWAScatalog(loc_localGWAS, update = False)
 gwas_studies.set_index('STUDY ACCESSION', inplace = True)
-gwas_samples.set_index('STUDY ACCCESSION', inplace = True)
+gwas_samples.set_index('STUDY ACCESSION', inplace = True)
 gwas_samples = gwas_samples[gwas_samples['STAGE'] == 'initial'] # Get rid of replication studies
 
 StudyNames = ['Mavaddat2015','Mavaddat2019',
@@ -33,16 +32,17 @@ StudyNames = ['Mavaddat2015','Mavaddat2019',
               'Desikan2017', 'Khera2019', 'Shieh2016', 'Schumacher2018', 'Vassy2014', 'Song2018',
               'Weng2018', 'Mahajan2018', 'Udler2019', 'Belsky2013', 'RuttenJacobs2019', 'Abraham2019',
               'Abraham2014', 'Abraham2015',
-              'Klarin2019',
-              'Pashayan2015a_GIM', 'Pashayan2015b_BRJ',
+              'Klarin2019','Pashayan2015a_GIM', 'Pashayan2015b_BRJ',
               'Kuchenbaecker2017', 'Lecarpentier2018',
               'Wen2016', 'Zhang2018', 'Lakeman2019', 'Patel2016', 'Tosto2017', 'Schmit2018','Paul2018',
-              'Natarajan2017', 'Morieri2018', 'Hajek2018']
+              'Natarajan2017', 'Morieri2018', 'Hajek2018',
+              'Johnson2015', 'Kuchenbaecker2019', 'Seibert2018', 'Yang2018', 'Dai2019', 'Graff2020']
 
+#Loop through studies to be included/loaded
 for StudyName in StudyNames:
     print(StudyName)
     current_study = CurationTemplate()
-    current_study.file_loc  = './DB_SourceFiles/{}/{}.xlsx'.format(StudyName,StudyName)
+    current_study.file_loc  = '../pgs_DBSourceFiles/{}/{}.xlsx'.format(StudyName,StudyName)
     current_study.read_curation()
     current_study.table_mapschema = curation2schema
     current_study.extract_publication()
@@ -97,6 +97,10 @@ for StudyName in StudyNames:
                                 cohort = Cohort(name_short=name_short, name_full=name_full)
                                 cohort.save()
                             cohorts_toadd.append(cohort)
+                    elif f in ['sample_age', 'followup_time']:
+                        current_demographic = Demographic(**val)
+                        current_demographic.save()
+                        setattr(current_sample, f, current_demographic)
                     else:
                         setattr(current_sample, f, val)
                 current_sample.save()
@@ -114,12 +118,12 @@ for StudyName in StudyNames:
     for x in current_study.parsed_samples_testing:
         test_name, sample_list = x
 
-        # Declare the current SampleSet
+        # Initialize the current SampleSet
         current_sampleset = SampleSet()
         current_sampleset.set_ids(next_PSS_num())
         current_sampleset.save()
 
-        # Attach underlying sample descriptions to the SampleSet
+        # Attach underlying sample(s) and their descriptions to the SampleSet
         for sample_desc in sample_list:
             current_sample = Sample()
             cohorts_toadd = []
@@ -132,11 +136,15 @@ for StudyName in StudyNames:
                             cohort = Cohort(name_short=name_short, name_full=name_full)
                             cohort.save()
                         cohorts_toadd.append(cohort)
+                elif f in ['sample_age', 'followup_time']:
+                    current_demographic = Demographic(**val)
+                    current_demographic.save()
+                    setattr(current_sample, f, current_demographic)
                 else:
                     setattr(current_sample, f, val)
             current_sample.save()
 
-            # Add cohorts to the sample
+            # Add cohort(s) to the sample
             for cohort in cohorts_toadd:
                 current_sample.cohorts.add(cohort)
             current_sample.save()
@@ -157,7 +165,7 @@ for StudyName in StudyNames:
         for f, val in fields.items():
             if f not in ['publication', 'metrics']:
                 setattr(current_performance, f, val)
-        current_performance.set_score_ids(next_scorenumber(Performance))
+        current_performance.set_performance_id(next_scorenumber(Performance))
         current_performance.save()
         # Parse metrics
         for m in fields['metrics']:
@@ -170,43 +178,42 @@ for StudyName in StudyNames:
     if skip_scorefiles == False:
         for score_id, current_score in saved_scores.items():
             try:
-                loc_scorefile = './DB_SourceFiles/{}/raw_scores/{}.txt'.format(StudyName, score_id)
-                if os.path.isfile(loc_scorefile):
-                    #print('reading scorefile: {}', loc_scorefile)
-                    df_scoring = pd.read_table(loc_scorefile, float_precision='round_trip')
-                    # Check that columns are in the schema
-                    column_check = [x in curation2schema_scoring.index for x in df_scoring.columns]
-                    if all(column_check):
-                        header = create_scoringfileheader(current_score)
+                loc_scorefile = '../pgs_DBSourceFiles/{}/raw_scores/{}.txt'.format(StudyName, score_id)
+                #print('reading scorefile: {}', loc_scorefile)
+                df_scoring = pd.read_table(loc_scorefile, float_precision='round_trip')
+                # Check that columns are in the schema
+                column_check = [x in curation2schema_scoring.index for x in df_scoring.columns]
+                if all(column_check):
+                    header = create_scoringfileheader(current_score)
 
-                        #Check if weight_type in columns
-                        if 'weight_type' in df_scoring.columns:
-                            if all(df_scoring['weight_type']):
-                                val = df_scoring['weight_type'][0]
-                                if val == 'OR':
-                                    df_scoring = df_scoring.rename({'effect_weight' : 'OR'}, axis='columns').drop(['weight_type'], axis=1)
-                        if 'effect_weight' not in df_scoring.columns:
-                            if 'OR' in df_scoring.columns:
-                                df_scoring['effect_weight'] = np.log(df_scoring['OR'])
-                            elif 'HR' in df_scoring.columns:
-                                df_scoring['effect_weight'] = np.log(df_scoring['HR'])
+                    #Check if weight_type in columns
+                    if 'weight_type' in df_scoring.columns:
+                        if all(df_scoring['weight_type']):
+                            val = df_scoring['weight_type'][0]
+                            if val == 'OR':
+                                df_scoring = df_scoring.rename({'effect_weight' : 'OR'}, axis='columns').drop(['weight_type'], axis=1)
+                    if 'effect_weight' not in df_scoring.columns:
+                        if 'OR' in df_scoring.columns:
+                            df_scoring['effect_weight'] = np.log(df_scoring['OR'])
+                        elif 'HR' in df_scoring.columns:
+                            df_scoring['effect_weight'] = np.log(df_scoring['HR'])
 
-                        # Reorganize columns according to schema
-                        corder = []
-                        for x in curation2schema_scoring.index:
-                            if x in df_scoring.columns:
-                                corder.append(x)
-                        df_scoring = df_scoring[corder]
+                    # Reorganize columns according to schema
+                    corder = []
+                    for x in curation2schema_scoring.index:
+                        if x in df_scoring.columns:
+                            corder.append(x)
+                    df_scoring = df_scoring[corder]
 
-                        with gzip.open('ScoringFiles/{}.txt.gz'.format(current_score.id), 'w') as outf:
-                            outf.write('\n'.join(header).encode('utf-8'))
-                            outf.write('\n'.encode('utf-8'))
-                            outf.write(df_scoring.to_csv(sep='\t', index=False).encode('utf-8'))
-                    else:
-                        badmaps = []
-                        for i, v in enumerate(column_check):
-                            if v == False:
-                                badmaps.append(df_scoring.columns[i])
-                        print('Error - bad columns: {}', badmaps)
+                    with gzip.open('ScoringFiles/{}.txt.gz'.format(current_score.id), 'w') as outf:
+                        outf.write('\n'.join(header).encode('utf-8'))
+                        outf.write('\n'.encode('utf-8'))
+                        outf.write(df_scoring.to_csv(sep='\t', index=False).encode('utf-8'))
+                else:
+                    badmaps = []
+                    for i, v in enumerate(column_check):
+                        if v == False:
+                            badmaps.append(df_scoring.columns[i])
+                    print('Error - bad columns: {}', badmaps)
             except:
                 print('ERROR reading scorefile: {}', loc_scorefile)

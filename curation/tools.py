@@ -110,6 +110,8 @@ class CurationTemplate():
 
     def extract_samples(self, gwas):
         current_schema = self.table_mapschema.loc['Sample Descriptions'].set_index('Column')
+
+        # Extract data for training (GWAS + Score Development) sample
         for sample_ids, sample_info in self.table_samples_scores.iterrows():
             sample_remapped = {}
             for c, val in sample_info.to_dict().items():
@@ -119,7 +121,7 @@ class CurationTemplate():
                         if f == 'cohorts':
                             val = self.cohort_to_tuples(val)
                         elif f in ['sample_age', 'followup_time']:
-                            val = str2demographic(f, val)
+                            val = str2demographic(val)
 
                         sample_remapped[f] = val
             # Parse from GWAS Catalog
@@ -137,6 +139,7 @@ class CurationTemplate():
                     sample_remapped = gwas_results
             self.parsed_samples_scores.append((sample_ids, sample_remapped))
 
+        # Extract data Testing samples
         for testset_name, testsets in self.table_samples_testing.groupby(level=0):
             results = []
             for sample_ids, sample_info in testsets.iterrows():
@@ -288,19 +291,45 @@ def str2metric(field, val):
 
     return current_metric
 
-def str2demographic(field, val):
+def str2demographic(val):
     current_demographic = {}
     if type(val) == float:
         current_demographic['estimate'] = val
     else:
-        matches = insquarebrackets.findall(val)
-        if len(matches) == 1:
-            current_demographic['mean'] = float(val.split('[')[0])
+        #Split by ; in case of multiple sub-fields
+        l = val.split(';')
+        for x in l:
+            name, value = x.split('=')
+            name = name.strip()
+            value = value.strip()
 
-            ci_match = tuple(map(float, matches[0].split(' - ')))
-            current_demographic['ci'] = NumericRange(lower=ci_match[0], upper=ci_match[1], bounds='[]')
-        else:
-            current_demographic['mean'] = float(val.split('[')[0])
+            # Check if it contains a range item
+            matches = insquarebrackets.findall(value)
+            if len(matches) == 1:
+                range_match = tuple(map(float, matches[0].split(' - ')))
+                current_demographic['range'] = NumericRange(lower=range_match[0], upper=range_match[1], bounds='[]')
+                current_demographic['range_type'] = name.strip()
+            else:
+                if name.lower().startswith('m'):
+                    current_demographic['estimate_type'] = name.strip()
+                    with_units = re.match("([-+]?\d*\.\d+|\d+) ([a-zA-Z]+)", value, re.I)
+                    if with_units:
+                        items = with_units.groups()
+                        current_demographic['estimate'] = items[0]
+                        current_demographic['unit'] = items[1]
+                    else:
+                        current_demographic['estimate'] = value
+
+                elif name.lower().startswith('s'):
+                    current_demographic['variability_type'] = name.strip()
+                    with_units = re.match("([-+]?\d*\.\d+|\d+) ([a-zA-Z]+)", value, re.I)
+                    if with_units:
+                        items = with_units.groups()
+                        current_demographic['variability']  = items[0]
+                        current_demographic['unit'] = items[1]
+                    else:
+                        current_demographic['variability'] = value
+    #print(val, current_demographic)
     return current_demographic
 
 def create_scoringfileheader(cscore):
