@@ -40,7 +40,7 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
   {% if has_table %}
-    <link href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css" rel="stylesheet"/>
+    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
   {% endif %}
 
   <!-- CSS: implied media=all -->
@@ -64,9 +64,9 @@
   <script defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
   {% if has_table %}
     <script defer src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/extensions/export/bootstrap-table-export.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.15.5/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
   {% endif %}
 
   {% compress js file pgs_min %}
@@ -143,7 +143,7 @@
         </div>
         <div>
           <div class="pgs_social">
-            <a class="icon-common pgs_no_icon_link" title="Email" href="mailto:{{ pgs_contact }}" data-icon="&#xf0e0;" target="_blank"></a>
+            <a class="icon-common pgs_no_icon_link" title="Contact us" href="mailto:{{ pgs_contact }}" data-icon="&#xf0e0;" target="_blank"></a>
             <a class="icon icon-socialmedia pgs_no_icon_link" title="Twitter" href="{{ pgs_twitter_url }}" data-icon="T" target="_blank"></a>
           </div>
         </div>
