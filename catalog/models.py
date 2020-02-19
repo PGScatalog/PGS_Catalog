@@ -105,6 +105,9 @@ class EFOTrait(models.Model):
     label = models.CharField('Ontology Trait Label', max_length=500)
     description = models.TextField('Ontology Trait Description', null=True)
     url = models.CharField('Ontology URL', max_length=500)
+    synonyms = models.TextField('Synonyms', null=True)
+    mapped_terms = models.TextField('Mapped terms', null=True)
+
 
     def parse_api(self):
         import requests
@@ -153,6 +156,14 @@ class EFOTrait(models.Model):
 
     def display_id_url(self):
         return '<a href="%s">%s</a><span class="only_export">: %s</span>'%(self.url, self.id, self.url)
+
+    @property
+    def synonyms_list(self):
+        return self.synonyms.split(' | ')
+
+    @property
+    def mapped_terms_list(self):
+        return self.mapped_terms.split(' | ')
 
     @property
     def scores_count(self):
