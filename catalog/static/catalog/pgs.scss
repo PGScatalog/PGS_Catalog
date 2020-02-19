@@ -651,6 +651,15 @@ a {
   }
 }
 
+.badge-pgs-2 {
+  color: #fff;
+  background-color: $pgs_colour_2;
+  font-size: 85%;
+  span {
+    font-weight: 200;
+  }
+}
+
 .badge-pgs-small {
   color: #fff;
   background-color: $pgs_colour_1;

@@ -12,8 +12,6 @@
       </ol>
     </nav>
 
-
-
     <div class="clearfix">
       <h2 class="float_left">Polygenic Score (PGS) ID: <b>{{score.id}}</b></h2>
       <div class="float_right">
@@ -23,113 +21,117 @@
       </div>
     </div>
     <section>
-      <div class="row">
-        <div class="col">
-          <h3>Score Details</h3>
-
-          <table class="table table-bordered table_pgs_h">
+        <h3>Predicted Trait</h3>
+        <table class="table table-bordered table_pgs_h">
             <tbody>
-              <tr>
-                <td>Name</td>
-                <td><b>{{ score.name }}</b></td>
-              </tr>
-              <tr>
-                <td>Original Genome Build</td>
-                <td><b>{{ score.variants_genomebuild }}</b></td>
-              </tr>
-              <tr>
-                <td>Number of Variants</td>
-                <td><span class="badge badge-pill badge-pgs">{{ num_variants_pretty }}</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="col">
-          <h3>Development Method</h3>
-          <table class="table table-bordered table_pgs_h">
-            <tbody>
-              <tr>
-                <td>Name</td>
-                <td><b>{{ score.method_name }}</b></td>
-              </tr>
-
                 <tr>
-                  <td>Parameters</td>
-
-                  <td id="pgs_params">
-                    {% if score.method_params %}
-                      {{ score.method_params }}
-                    {% else %}
-                      NR
-                    {% endif %}
-                  </td>
+                    <td>Reported Trait</td>
+                    <td><b>{{ score.trait_reported }}</b></td>
                 </tr>
-              {% if score.variants_interactions > 0 %}
                 <tr>
-                  <td>Number of Variant Interaction Terms</td>
-                  <td>{{ score.variants_interactions }}</td>
+                    <td>Mapped Trait(s)</td>
+                    <td>
+                        {% if efos|length == 1 %}
+                          <a class="mr-2" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
+                          (<a href="https://www.ebi.ac.uk/efo/{{ efos.0.id }}">{{ efos.0.id }}</a>)
+                        {% else %}
+                          <ul class="mb-0">
+                          {% for trait in efos  %}
+                            <li>
+                              <a class="mr-2" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
+                              (<a href="https://www.ebi.ac.uk/efo/{{ trait.id }}">{{ trait.id }}</a>)
+                            </li>
+                          {% endfor %}
+                          </ul>
+                        {% endif %}
+                    </td>
                 </tr>
-              {% endif %}
+                {% if score.trait_additional != '' and score.trait_additional != None %}
+                  <tr>
+                    <td>Additional Trait Information</td>
+                    <td>{{ score.trait_additional }}</td>
+                  </tr>
+                {% endif %}
             </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col">
-          <h3>Predicted Trait</h3>
-          <table class="table table-bordered table_pgs_h">
-            <tbody>
-              <tr>
-                <td>Reported Trait</td>
-                <td><b>{{ score.trait_reported }}</b></td>
-              </tr>
-              <tr>
-                <td>Mapped Trait(s)</td>
-                <td>
-                    {% if efos|length == 1 %}
-                      <a class="mr-2" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
-                      (<a href="https://www.ebi.ac.uk/efo/{{ efos.0.id }}">{{ efos.0.id }}</a>)
-                    {% else %}
-                      <ul class="mb-0">
-                      {% for trait in efos  %}
-                        <li>
-                          <a class="mr-2" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
-                          (<a href="https://www.ebi.ac.uk/efo/{{ trait.id }}">{{ trait.id }}</a>)
-                        </li>
-                      {% endfor %}
-                      </ul>
-                    {% endif %}
-                </td>
-              </tr>
-            {% if score.trait_additional != '' and score.trait_additional != None %}
-              <tr>
-                <td>Additional Trait Information</td>
-                <td>{{ score.trait_additional }}</td>
-              </tr>
-            {% endif %}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="col">
-          <h3>Citation</h3>
-          <table class="table table-bordered table_pgs_h">
-            <tbody>
-              <tr>
-                <td>Publication</td>
-                <td>{{ citation }}</td>
-              </tr>
-              <tr>
-                <td>PGS Catalog Publication ID</td>
-                <td><a href=../../publication/{{ score.publication.id }}>{{ score.publication.id }}</a></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+        </table>
     </section>
+
+    <section>
+
+        <h3>Score  Details</h3>
+        <div class="row">
+            <div class="col">
+                <h4>Score Construction</h4>
+                <table class="table table-bordered table_pgs_h">
+                    <tbody>
+                        <tr>
+                            <td>PGS Name</td>
+                            <td><b>{{ score.name }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Variants</td>
+                            <td>
+                                <table class="table table-bordered table-left-col-filled">
+                                    <tr>
+                                        <td>Original Genome Build</td>
+                                        <td><b>{{ score.variants_genomebuild }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Number of Variants</td>
+                                        <td><span class="badge badge-pill badge-pgs">{{ num_variants_pretty }}</span></td>
+                                    </tr>
+                                    {% if score.variants_interactions > 0 %}
+                                        <tr>
+                                            <td>Number of Variant Interaction Terms</td>
+                                            <td><span class="badge badge-pill badge-pgs-2">{{ score.variants_interactions }}</span></td>
+                                        </tr>
+                                    {% endif %}
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Development<br>Method</td>
+                            <td>
+                                <table class="table table-bordered table-left-col-filled">
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>{{ score.method_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Parameters</td>
+                                        <td id="pgs_params">
+                                            {% if score.method_params %}
+                                              {{ score.method_params }}
+                                            {% else %}
+                                              NR
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                     </tbody>
+                </table>
+            </div>
+
+            <div class="col">
+              <h4>Source Publication</h4>
+              <table class="table table-bordered table_pgs_h">
+                <tbody>
+                  <tr>
+                    <td>PGS Catalog</br>Publication ID</td>
+                    <td><a href=../../publication/{{ score.publication.id }}>{{ score.publication.id }}</a></td>
+                  </tr>
+
+                  <tr>
+                    <td>Citation</td>
+                    <td>{{ citation }}</td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+        </div>
 
         <h4>Contributing Samples</h4>
         {% if table_sample_variants or table_sample_training %}
@@ -145,6 +147,8 @@
             No sample information available.
         {% endif %}
     </section>
+
+    <section>
         <h3>Performance Metrics</h3>
         <p>{{ performance_disclaimer|safe }}</p>
         {% render_table table_performance %}

@@ -97,7 +97,7 @@ def pgs(request, pgs_id):
 
     pub = score.publication
     citation = format_html(' '.join([pub.firstauthor, '<i>et al. %s</i>'%pub.journal, '(%s)' % pub.date_publication.strftime('%Y')]))
-    citation = format_html('<a target="_blank" href=https://doi.org/{}>{}</a>', pub.doi, citation)
+    citation = format_html('<a class ="external-link" target="_blank" href=https://doi.org/{}>{}</a>', pub.doi, citation)
     context = {
         'pgs_id' : pgs_id,
         'score' : score,
