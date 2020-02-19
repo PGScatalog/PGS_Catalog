@@ -627,10 +627,28 @@ class Metric(models.Model):
 class Release(models.Model):
     """Class to store and manipulate the releases information"""
     date = models.DateField("Release date", null=False)
-    score_count =  models.IntegerField('Number of new PGS scores released', default=0)
+    score_count = models.IntegerField('Number of new PGS scores released', default=0)
     performance_count = models.IntegerField('Number of new PGS Performance metrics released', default=0)
     publication_count = models.IntegerField('Number of new PGS Publication released', default=0)
     notes = models.TextField(verbose_name='Release notes', max_length=600, blank=True)
+    updated_score_count = models.IntegerField('Number of PGS scores updated', default=0)
+    updated_performance_count = models.IntegerField('Number of PGS Performance metrics updated', default=0)
+    updated_publication_count = models.IntegerField('Number of PGS Publication updated', default=0)
 
     def __str__(self):
         return str(self.date)
+
+    @property
+    def released_score_ids(self):
+        scores = Score.objects.filter(date_released__exact=self.date)
+        return [x.id for x in scores]
+
+    @property
+    def released_publication_ids(self):
+        publications = Publication.objects.filter(date_released__exact=self.date)
+        return [x.id for x in publications]
+
+    @property
+    def released_performance_ids(self):
+        performances = Performance.objects.filter(date_released__exact=self.date)
+        return [x.id for x in performances]
