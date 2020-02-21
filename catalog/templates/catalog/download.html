@@ -29,7 +29,7 @@
           <tr>
             <td>
               <span class="pgs_h_big_header">PGS variants scoring</span>
-              <a class="pgs_no_icon_link info-icon" href="#dl_ftp_score" data-toggle="tooltip" data-placement="bottom" title="Individual PGS variants scoring and metadata files. Click on this icon to see information about the PGS Scoring File format"><i class="icon icon-common" data-icon="&#xf129;"></i></a>
+              <a class="pgs_no_icon_link info-icon" href="#dl_ftp" data-toggle="tooltip" data-placement="bottom" title="Individual PGS variants scoring and metadata files. Click on this icon to see information about the PGS Scoring File format"><i class="icon icon-common" data-icon="&#xf129;"></i></a>
             </td>
             <td><a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_root }}/scores/" target="_blank"><span class="icon icon-common" data-icon="&#xf07b;"></span> PGS Score FTP directories</a></td>
           </tr>
@@ -45,7 +45,7 @@
     </section>
 
     <section>
-      <h3 id="dl_ftp_score">PGS Catalog Scoring Files</h3>
+      <h3 id="dl_ftp">PGS Catalog Scoring Files</h3>
         <p>Each score file is formatted to be a gzipped <b>tab-delimited</b> text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
         <p>In the current catalog the scores have been extracted from the relevant publication and only been reformatted to have a consistent header (lines starting with <code>#</code>)
            listing relevant PGS Catalog information, e.g.:
@@ -70,21 +70,21 @@
           <tr><th>Column Header</th><th>Field Name</th><th>Field Description</th></tr>
         </thead>
         <tbody>
-          <tr><td><i>rsID</i></td><td>dbSNP Accession ID (rsID) </td><td>The SNP’s rs ID</td></tr>
-          <tr><td><i>chr_name</i></td><td>Location - Chromosome </td><td>Chromosome name/number associated with the variant</td></tr>
-          <tr><td><i>chr_position</i></td><td>Location - Position within the Chromosome</td><td>Chromosomal position associated with the variant</td></tr>
-          <tr><td><i>effect_allele</i></td><td>Effect Allele</td><td>The allele that's dosage is counted (e.g. {0, 1, 2}) and multiplied by the variant's weight ('effect_weight') when calculating score. The effect allele is also known as the 'risk allele'.</td></tr>
-          <tr><td><i>reference_allele</i></td><td>Reference Allele</td><td>The other allele(s) at the loci</td></tr>
-          <tr><td><i>effect_weight</i></td><td>Variant Weight</td><td>Value of the effect that is multiplied by the dosage of the effect allele ('effect_allele') when calculating the score.</td></tr>
-          <tr><td><i>locus_name</i></td><td>Locus Name</td><td>This is kept in for loci where the variant may be referenced by the gene (APOE e4). It is also common (usually in smaller PGS) to see the variants named according to the genes they impact.</td></tr>
-          <tr><td><i>weight_type</i></td><td>Type of Weight</td><td>Whether the author supplied Variant Weight is a: <b>beta</b> (effect size), or something like an <b>OR/HR</b> (odds/hazard ratio)</td></tr>
-          <tr><td><i>allelefrequency_effect</i></td><td>Effect Allele Frequency</td><td>Reported effect allele frequency, if the associated locus is a haplotype then haplotype frequency will be extracted.</td></tr>
-          <tr><td><i>is_interaction</i></td><td>FLAG: Interaction</td><td>This is a TRUE/FALSE variable that flags whether the weight should be multiplied with the dosage of more than one variant. Interactions are demarcated with a <i>_x_</i> between entries for each of the variants present in the interaction. </td></tr>
-          <tr><td><i>is_recessive</i></td><td>FLAG: Recessive Inheritance Model</td><td>This is a TRUE/FALSE variable that flags whether the weight should be added to the PGS sum only if there are 2 copies of the effect allele (e.g. it is a recessive allele).</td></tr>
-          <tr><td><i>is_haplotype</i><br><i>is_diplotype</i></td><td>FLAG: Haplotype or Diplotype</td><td>This is a TRUE/FALSE variable that flags whether the effect allele is a haplotype/diplotype rather than a single SNP. Constituent SNPs in the haplotype are semi-colon separated. </td></tr>
-          <tr><td><i>imputation_method</i></td><td>Imputation Method</td><td>This described whether the variant was specifically called with a specific imputation or variant calling method. This is mostly kept to describe HLA-genotyping methods (e.g. flag SNP2HLA, HLA*IMP) that gives alleles that are not referenced by genomic position.</td></tr>
-          <tr><td><i>variant_description</i></td><td>Variant Description</td><td>This field describes any extra information about the variant (e.g. how it is genotyped or scored) that cannot be captured by the other fields.</td></tr>
-          <tr><td><i>inclusion_criteria</i></td><td>Score Inclusion Criteria</td><td>Explanation of when this variant gets included into the PGS (e.g. if it depends on the results from other variants).</td></tr>
+          <tr><td>rsID</td><td>dbSNP Accession ID (rsID) </td><td>The SNP’s rs ID</td></tr>
+          <tr><td>chr_name</td><td>Location - Chromosome </td><td>Chromosome name/number associated with the variant</td></tr>
+          <tr><td>chr_position</td><td>Location - Position within the Chromosome</td><td>Chromosomal position associated with the variant</td></tr>
+          <tr><td>effect_allele</td><td>Effect Allele</td><td>The allele that's dosage is counted (e.g. {0, 1, 2}) and multiplied by the variant's weight ('effect_weight') when calculating score. The effect allele is also known as the 'risk allele'.</td></tr>
+          <tr><td>reference_allele</td><td>Reference Allele</td><td>The other allele(s) at the loci</td></tr>
+          <tr><td>effect_weight</td><td>Variant Weight</td><td>Value of the effect that is multiplied by the dosage of the effect allele ('effect_allele') when calculating the score.</td></tr>
+          <tr><td>locus_name</td><td>Locus Name</td><td>This is kept in for loci where the variant may be referenced by the gene (APOE e4). It is also common (usually in smaller PGS) to see the variants named according to the genes they impact.</td></tr>
+          <tr><td>weight_type</td><td>Type of Weight</td><td>Whether the author supplied Variant Weight is a: <b>beta</b> (effect size), or something like an <b>OR/HR</b> (odds/hazard ratio)</td></tr>
+          <tr><td>allelefrequency_effect</td><td>Effect Allele Frequency</td><td>Reported effect allele frequency, if the associated locus is a haplotype then haplotype frequency will be extracted.</td></tr>
+          <tr><td>is_interaction</td><td>FLAG: Interaction</td><td>This is a TRUE/FALSE variable that flags whether the weight should be multiplied with the dosage of more than one variant. Interactions are demarcated with a <i>_x_</i> between entries for each of the variants present in the interaction. </td></tr>
+          <tr><td>is_recessive</td><td>FLAG: Recessive Inheritance Model</td><td>This is a TRUE/FALSE variable that flags whether the weight should be added to the PGS sum only if there are 2 copies of the effect allele (e.g. it is a recessive allele).</td></tr>
+          <tr><td>is_haplotype</i><br><i>is_diplotype</td><td>FLAG: Haplotype or Diplotype</td><td>This is a TRUE/FALSE variable that flags whether the effect allele is a haplotype/diplotype rather than a single SNP. Constituent SNPs in the haplotype are semi-colon separated. </td></tr>
+          <tr><td>imputation_method</td><td>Imputation Method</td><td>This described whether the variant was specifically called with a specific imputation or variant calling method. This is mostly kept to describe HLA-genotyping methods (e.g. flag SNP2HLA, HLA*IMP) that gives alleles that are not referenced by genomic position.</td></tr>
+          <tr><td>variant_description</td><td>Variant Description</td><td>This field describes any extra information about the variant (e.g. how it is genotyped or scored) that cannot be captured by the other fields.</td></tr>
+          <tr><td>inclusion_criteria</td><td>Score Inclusion Criteria</td><td>Explanation of when this variant gets included into the PGS (e.g. if it depends on the results from other variants).</td></tr>
         </tbody>
       </table>
     </section>
@@ -98,13 +98,13 @@
           <tr><th>Worksheet Name</th><th>Description</th></tr>
         </thead>
         <tbody>
-          <tr><td><i>Readme</i></td><td>Summary stats</td></tr>
-          <tr><td><i>Scores</i></td><td>Lists the PGS scores and associated metadata</td></tr>
-          <tr><td><i>Performance Metrics</i></td><td>Lists the performance metrics and the associated PGS Scores and Publications</td></tr>
-          <tr><td><i>Evaluation Sample Sets</i></td><td>Describes the samples used in the different sample sets</td></tr>
-          <tr><td><i>Score Development Samples</i></td><td>Lists the samples used to collect the variants used to calculate the PGS Scores and the sample used to train the PGS Scores</td></tr>
-          <tr><td><i>Publications</i></td><td>Lists the publications</td></tr>
-          <tr><td><i>EFO Traits</i></td><td>Lists the EFO Traits used in the PGS Catalog</td></tr>
+          <tr><td>Readme</td><td>Summary stats</td></tr>
+          <tr><td>Scores</td><td>Lists the PGS scores and associated metadata</td></tr>
+          <tr><td>Performance Metrics</td><td>Lists the performance metrics and the associated PGS Scores and Publications</td></tr>
+          <tr><td>Evaluation Sample Sets</td><td>Describes the samples used in the different sample sets</td></tr>
+          <tr><td>Score Development Samples</td><td>Lists the samples used to collect the variants used to calculate the PGS Scores and the sample used to train the PGS Scores</td></tr>
+          <tr><td>Publications</td><td>Lists the publications</td></tr>
+          <tr><td>EFO Traits</td><td>Lists the EFO Traits used in the PGS Catalog</td></tr>
         </tbody>
       </table>
     </section>

@@ -128,7 +128,6 @@ $(document).ready(function() {
 
     // Remove pagination text if there is no pagination links
     $('.fixed-table-pagination').each(function(index) {
-      console.log("Class found #"+index+"!");
       var page_list = $( this ).find('.page-list');
       if (page_list.length == 0) {
         $( this ).remove();

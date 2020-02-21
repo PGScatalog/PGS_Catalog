@@ -223,6 +223,53 @@ class Demographic(models.Model):
     variability = models.FloatField(verbose_name='Variability (value)', null=True)
     variability_type = models.CharField(verbose_name='Range (type)', max_length=100, default='se') # e.g. standard deviation (sd), standard error (se)
 
+
+    def display_value(self):
+        l = []
+        helptip    = '<span title="{}" class="pgs_helptip">{}</span> : {} {}'
+        no_helptip = '{} : {} {}'
+
+        # Estimate
+        e = ''
+        if self.estimate != None:
+            e += '{} : {}'.format(self.estimate_type.title(), self.estimate)
+            if self.range != None and self.range_type.lower() == 'ci':
+                e += ' {}'.format(str(self.range))
+            e += ' {}'.format(self.unit)
+        if len(e) > 0:
+            l.append(e)
+
+        # Variability
+        v = None
+        if self.variability != None:
+            type_desc = self.variability_type_desc()
+            if (type_desc):
+                v = helptip.format(type_desc, self.variability_type.title(), self.variability, self.unit)
+            else:
+                v = no_helptip.format(self.variability_type.title(), self.variability, self.unit)
+        if v != None:
+            l.append(v)
+
+        # Range
+        r = None
+        if '[' not in e:
+            if self.range != None:
+                type_desc = self.range_type_desc()
+                if (type_desc):
+                    r = helptip.format(type_desc, self.range_type.title(), str(self.range), self.unit)
+                else:
+                    r = no_helptip.format(self.range_type.title(), str(self.range), self.unit)
+        if r != None:
+            l.append(r)
+
+        if (len(l) == 1):
+            return l[0]
+        elif (len(l) > 1):
+            return '<ul><li>'+'</li><li>'.join(l)+'</li></ul>'
+        else:
+            return ''
+
+
 class Sample(models.Model):
     """Class to describe samples used in variant associations and PGS training/testing"""
 

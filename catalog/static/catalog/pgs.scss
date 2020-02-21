@@ -15,7 +15,8 @@ $pgs_dark3: #333; // Header & footer background-color
 $pgs_dark5: #555;
 $pgs_darkA: #AAA;
 $pgs_darkC: #CCC;
-$pgs_light_grey: #e9ecef;
+$pgs_grey: #D2D8DE;
+$pgs_light_grey: #E9ECEF;
 $pgs_light_grey2: #FAFAFA;
 $pgs_light_grey3: #FEFEFE;
 $pgs_note_title: #F00;
@@ -71,6 +72,7 @@ h3 {
 
 h4 {
   margin-top: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 a {
@@ -88,6 +90,18 @@ u {
 }
 
 /* Main classes */
+
+h2 {
+  .pgs_title {
+    color:$pgs_dark2;
+    font-weight: bold;
+  }
+}
+
+.pgs_title_left {
+  float: left;
+  margin-right: 4rem;
+}
 
 .container-fluid {
   padding: 0rem 3rem;
@@ -339,7 +353,7 @@ th .th-inner {
     text-decoration: none;
     transition: background-color .1s;
     border-radius: 2px;
-    box-shadow: 2px 2px 8px #CCC;
+    box-shadow: 2px 2px 8px $pgs_darkC;
     background-color: $pgs_colour_1;
 
 
@@ -462,7 +476,7 @@ th .th-inner {
     > div {
       border-bottom: none;
       &:not(:last-child) {
-        border-right: 1px solid $pgs_colour_2;//#CCC; //#ecedf1;
+        border-right: 1px solid $pgs_colour_2;
       }
     }
   }
@@ -550,11 +564,16 @@ td > ul {
     text-align:right;
     vertical-align:middle !important;
     background-color: $pgs_light_grey;
-    //color: #FFF;
   }
   .pgs_h_big_header {
     font-size:16px;
     font-weight: bold;
+  }
+  .table_subtitle {
+    text-align: center !important;
+    padding: 2px 8px;
+    font-weight:bold;
+    background-color: $pgs_grey !important;
   }
 }
 
@@ -620,14 +639,14 @@ a {
 }
 
 .pgs_helptip,  {
-  border-bottom:1px dotted #222;
+  border-bottom:1px dotted $pgs_dark2;
   cursor: default;
   &:hover {
     border-color: $pgs_colour_2;
   }
 }
 .pgs_helpover {
-  border-bottom:1px dotted #222;
+  border-bottom:1px dotted $pgs_dark2;
   cursor: pointer;
   &:hover {
     color: $pgs_colour_2;
@@ -667,15 +686,6 @@ a {
   }
 }
 
-.badge-pgs-2 {
-  color: #fff;
-  background-color: $pgs_colour_2;
-  font-size: 85%;
-  span {
-    font-weight: 200;
-  }
-}
-
 .badge-pgs-small {
   color: #fff;
   background-color: $pgs_colour_1;
@@ -695,11 +705,12 @@ a {
 .btn-pgs {
   color: #FFF;
   background-color: $pgs_colour_1 !important;
+  border: none !important;
   .btn-sub-text {
-    font-size:14px;
+    font-size:13px;
     margin-top:4px;
     padding-top:4px;
-    border-top: 1px solid #EEE;
+    border-top: 1px solid $pgs_light_grey;
   }
   &:hover, &:focus {
     color: #FFF;
@@ -766,7 +777,7 @@ a {
 }
 .sample_piechart_container {
   float:left;
-  border:1px solid #ccc;
+  border:1px solid $pgs_darkC;
   > div {
     width:200px;
     height:150px;
@@ -779,12 +790,12 @@ a {
 }
 
 .pgs_h_list {
-  background-color: #FAFAFA;
+  background-color: $pgs_light_grey2;
   padding: 5px 5px 5px 0px;
   span:first-child {
     font-weight: bold;
     padding: 5px;
-    background-color: #e9ecef;
+    background-color: $pgs_light_grey;
   }
   .pgs_h_item {
     padding: 0px 8px;
@@ -892,7 +903,7 @@ a {
   margin-right: 5px;
 }
 .trait_colour_border {
-  border:1px solid #EEE;
+  border:1px solid $pgs_light_grey;
   padding: 2px 4px !important;
 }
 
@@ -907,9 +918,9 @@ a {
 }
 .trait_subcat_border {
   i {
-    text-shadow: -1px 1px  0 #EEE,
-				          1px 1px  0 #EEE,
-				          1px -1px 0 #EEE;
+    text-shadow: -1px 1px  0 $pgs_light_grey,
+				          1px 1px  0 $pgs_light_grey,
+				          1px -1px 0 $pgs_light_grey;
   }
 }
 
@@ -922,7 +933,7 @@ a {
   white-space: nowrap;
   padding: 4px 6px;
   border-radius:8px;
-  border: 1px solid #EEE;
+  border: 1px solid $pgs_light_grey;
   margin-bottom:4px;
   cursor:pointer;
   &:hover {

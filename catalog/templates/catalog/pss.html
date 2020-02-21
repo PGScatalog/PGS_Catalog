@@ -26,7 +26,7 @@
       </ol>
     </nav>
 
-    <h2 class="mb-3">PGS Sample Set (PSS): <b>{{ pss_id }}</b></h2>
+    <h2 class="mb-3">PGS Sample Set (PSS): <span class="pgs_title">{{ pss_id }}</span></h2>
 
     {% if sample_count|length > 1 %}
       <div class="content_container">
@@ -90,6 +90,22 @@
                           <li>{{ numbers }}</li>
                         {% endfor %}
                       </ul>
+                    </td>
+                  </tr>
+                {% endif %}
+                {% if sample.followup_time %}
+                  <tr>
+                    <td>Participant Follow-up Time</td>
+                    <td>
+                      {{ sample.followup_time.display_value|safe }}
+                    </td>
+                  </tr>
+                {% endif %}
+                {% if sample.sample_age %}
+                  <tr>
+                    <td>Age of Study Participants</td>
+                    <td>
+                      {{ sample.sample_age.display_value|safe }}
                     </td>
                   </tr>
                 {% endif %}
