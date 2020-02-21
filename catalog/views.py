@@ -61,13 +61,13 @@ def browseby(request, view_selection):
     context = {}
 
     if view_selection == 'traits':
-        context['view_name'] = 'Traits'
         r = Score.objects.all().values('trait_efo').distinct()
         l = []
         for x in r:
             l.append(x['trait_efo'])
         table = Browse_TraitTable(EFOTrait.objects.filter(id__in=l), order_by="label")
         context = {
+            'view_name': 'Traits',
             'table': table,
             'data_chart': traits_chart_data(),
             'has_chart': 1

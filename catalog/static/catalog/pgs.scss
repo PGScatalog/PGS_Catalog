@@ -562,7 +562,7 @@ td > ul {
   td:first-child {
     white-space: nowrap;
     text-align:right;
-    vertical-align:middle !important;
+    vertical-align:top !important;
     background-color: $pgs_light_grey;
   }
   .pgs_h_big_header {
@@ -732,13 +732,21 @@ a {
   }
 }
 
-.morecontent span {
+.morecontent {
   text-decoration:none;
   display: none;
 }
 .morelink {
+  margin-left: 0.5rem;
   display: inline;
   white-space: nowrap;
+  cursor: pointer;
+  color: $pgs_dark2;
+  border-bottom: 1px dotted $pgs_colour_1_lighter;
+  &:hover {
+    color: $pgs_colour_1;
+    border-bottom: 1px dotted $pgs_colour_2;
+  }
 }
 .link_more:after {
     font-family: 'EBI-Common';
@@ -846,55 +854,40 @@ a {
 
 /* Trait CSS */
 .trait_graph_container {
-  display:flex;
+  display:block;
+  white-space:nowrap;
   margin-bottom:2rem;
+  overflow-x:auto;
 }
 
 .trait_piechart_container {
-  float:left;
+  display:inline-block;
+  vertical-align:top;
   padding:5px;
   margin-right:1rem;
 }
 
 .trait_piechart{
-  float:left;
+  display:inline-block;
   margin-right:0px;
   width:300px;
   height:250px;
 }
 
+.trait_cat_container {
+  display:inline-block;
+  min-width: 300px;
+}
 
 @media screen and (max-width: 740px) {
-  #trait_cat {
-    display: none !important;
-  }
-  .trait_subcat_left, .trait_subcat_right {
-    margin-top: 0px !important;
-  }
   #reset_cat {
     margin-left:50px !important;
   }
 }
-@media screen and (max-width: 800px) {
-  .trait_item span:nth-child(3) {
-    span {
-      display:none;
-    }
-  }
-}
 @media screen and (max-width: 1100px) {
-  .trait_graph_container {
-    flex-direction:column;
+  .trait_piechart_container{
+    display: none !important;
   }
-  .trait_piechart {
-    margin-bottom: 1rem;
-  }
-}
-
-
-
-.trait_cat_container {
-  float:left;
 }
 
 .trait_colour {
@@ -971,6 +964,7 @@ a {
   padding: 4px 6px;
   vertical-align: baseline;
   margin-left:100px;
+  white-space: nowrap;
 }
 
 

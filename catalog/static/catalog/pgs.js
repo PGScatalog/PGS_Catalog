@@ -24,18 +24,19 @@ $(document).ready(function() {
     function shorten_displayed_content() {
       $('.more').each(function() {
           var content = $(this).html();
-          if(content.length > showChar) {
+          if (content.length > showChar ){
+            if (content.search('.moreellipses') == -1) {
               var c = content.substr(0, showChar);
               var h = content.substr(showChar, content.length - showChar);
-              var html = c + '<span class="moreellipses">' + ellipsestext+ '&nbsp;</span><span class="morecontent"><span>' + h + '</span>&nbsp;&nbsp;<a href="" class="morelink link_more">' + moretext + '</a></span>';
+              var html = c + '<span class="moreellipses">' + ellipsestext+ '&nbsp;</span><span class="morecontent">' + h + '</span><span class="morelink link_more">' + moretext + '</span>';
               $(this).html(html);
+            }
           }
       });
     }
-    shorten_displayed_content();
 
-
-    $(".morelink").click(function(){
+    $('body').on("click", 'span.morelink', function(){
+        console.log("clicked!");
         if($(this).hasClass("link_less")) {
           $(this).html(moretext);
         } else if ($(this).hasClass("link_more")){
@@ -43,13 +44,11 @@ $(document).ready(function() {
         }
         $(this).toggleClass("link_less link_more");
         // Show/hide "..." characters
-        $(this).parent().prev().toggle();
+        $(this).parent().find('.moreellipses').toggle();
         // Show/hide the rest of the text
-        $(this).prev().toggle();
+        $(this).parent().find('.morecontent').toggle();
         return false;
     });
-
-
 
     // Add external link icon and taget blank for external links
     function alter_external_links(prefix) {
@@ -100,21 +99,34 @@ $(document).ready(function() {
       $('#list_'+id).toggle();
     });
 
+    // Shorten long text in table after each sorting or filtering of the table
+    // This is due to the bootstrap-table library rebuilding the table content at each sorting/filtering
+    // Shorten long text in table after each sorting or filtering of the table
+    // This is due to the bootstrap-table library rebuilding the table content at each sorting/filtering
+
+    // Run the "post processing" once the tables have been loaded and sorted by default
+    $('table.table[data-toggle="table"]').each(function(){
+      setTimeout(function(){
+        alter_external_links('table.table[data-toggle="table"] tbody');
+        shorten_displayed_content();
+      }, 500);
+    });
+    // Run the "post processing" after a manual sorting
     $('table.table[data-toggle="table"]').on("click", ".sortable", function(){
       setTimeout(function(){
         alter_external_links('table.table[data-toggle="table"] tbody');
         shorten_displayed_content();
       }, 0);
     });
+    // Run the "post processing" after a manual filtering
     var timer;
-    var timeout = 1000;
     $('.form-control').keyup(function(){
       clearTimeout(timer);
       if ($('.form-control').val) {
           timer = setTimeout(function(){
             alter_external_links('table.table[data-toggle="table"] tbody');
             shorten_displayed_content();
-          }, timeout);
+          }, 1000);
       }
     });
 
@@ -168,6 +180,8 @@ $(document).ready(function() {
 function reset_showhide_trait() {
   // Reset traits
   $('.trait_subcat_container').hide("slow");
+  // Reset container min width (for horizontal scrolling)
+  $('.trait_cat_container').css('min-width', '300px');
   // Reset button
   $('#reset_cat').hide("slow");
   // Reset search
@@ -203,6 +217,10 @@ function showhide_trait(id, term) {
 
     // Add search term to filter the table
     add_search_term(term);
+
+    // Change the min width to avoid having the lists under each other.
+    // Trigger an horinzontal scroll
+    $('.trait_cat_container').css('min-width', '800px');
 
     // Reset button
     $('#reset_cat').show("slow");
