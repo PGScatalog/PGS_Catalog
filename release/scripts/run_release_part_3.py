@@ -1,6 +1,6 @@
 import sys, os.path
 from datetime import datetime
-from release.scripts.RemoveNonCuratedData import NonReleasedDataToRemove
+from release.scripts.RemoveDataForRelease import *
 from release.scripts.GenerateBulkExport import PGSExportAllMetadata
 from release.scripts.PGSExport import PGSExport
 from release.scripts.UpdateEFO import *
@@ -14,6 +14,9 @@ def run(*args):
 
     # Remove non released data
     call_remove_non_released_data()
+
+    # Remove non released data
+    call_remove_history_data()
 
     # Generate all PGS metadata files
     call_generate_all_metadata_exports(args[0])
@@ -50,6 +53,13 @@ def call_remove_non_released_data():
     print("Number of Sample Sets to remove: "+str(len(data2remove.pss2del.keys())))
     print( ' - '+'\n - '.join(data2remove.pss2del.keys()))
 
+
+def call_remove_history_data():
+
+    # Delete history records for the production database
+    history2remove = RemoveHistory()
+    history2remove.delete_history()
+    
 
 def call_generate_all_metadata_exports(dirpath):
     """ Generate all metadata export files """
