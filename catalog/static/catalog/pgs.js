@@ -84,19 +84,23 @@ $(document).ready(function() {
       ebiFrameworkRunDataProtectionBanner(localFrameworkVersion); // invoke the banner
     };
 
+
+    function pgs_toggle_btn(el) {
+      el.find('i').toggleClass("fa-plus-circle fa-minus-circle");
+      id = el.attr('id');
+      $('#list_'+id).toggle();
+      if ($('#list_'+id).is(":visible")) {
+        fadeIn($('#list_'+id));
+      }
+    }
     // Button toggle
     $('.toggle_btn').click(function() {
-      $(this).find('i').toggleClass("fa-plus-circle fa-minus-circle");
-      id = $(this).attr('id');
-      $('#list_'+id).toggle();
+      pgs_toggle_btn($(this));
     });
-
     // Button toggle within an HTML table
     $('table.table[data-toggle="table"]').on("click", ".toggle_table_btn", function(){
       pgs_tooltip();
-      $(this).find('i').toggleClass("fa-plus-circle fa-minus-circle");
-      id = $(this).attr('id');
-      $('#list_'+id).toggle();
+      pgs_toggle_btn($(this));
     });
 
     // Shorten long text in table after each sorting or filtering of the table

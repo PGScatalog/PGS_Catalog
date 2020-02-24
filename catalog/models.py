@@ -159,11 +159,17 @@ class EFOTrait(models.Model):
 
     @property
     def synonyms_list(self):
-        return self.synonyms.split(' | ')
+        if self.synonyms:
+            return self.synonyms.split(' | ')
+        else:
+            return []
 
     @property
     def mapped_terms_list(self):
-        return self.mapped_terms.split(' | ')
+        if self.mapped_terms:
+            return self.mapped_terms.split(' | ')
+        else:
+            return []
 
     @property
     def scores_count(self):

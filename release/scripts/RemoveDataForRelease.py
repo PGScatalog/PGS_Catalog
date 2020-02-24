@@ -58,6 +58,17 @@ class NonReleasedDataToRemove:
         return Score.objects.filter(date_released__isnull=True, publication=publication)
 
 
+class RemoveHistory:
+
+    def delete_history(self):
+        # Performance history to delete
+        Performance.history.all().delete()
+        # Publication history to delete
+        Publication.history.all().delete()
+        # Scores history to delete
+        Score.history.all().delete()()
+
+
 def run():
     # Release
     lastest_release = Release.objects.latest('date')
@@ -71,6 +82,10 @@ def run():
 
     # Delete selected entries
     #data2remove.delete_entries()
+
+    # Delete history records for the production database
+    history2remove = RemoveHistory()
+    history2remove.delete_history()
 
     print("Latest release: "+str(lastest_release.date))
     print("New release: "+str(release_date))
