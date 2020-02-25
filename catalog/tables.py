@@ -228,8 +228,7 @@ class Browse_ScoreTable(tables.Table):
 
     def render_ftp_link(self, value):
         ftp_link = 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/'+value
-        return format_html('<a class="pgs_no_icon_link" style="font-size:34px" href="{}" title="Download PGS Variants and weights data file" download><i class="icon icon-conceptual" data-icon="&#x6c;"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
-
+        return format_html('<a class="pgs_no_icon_link file_link" href="{}" title="Download PGS Variants and weights data file" download><i class="fa fa-file-text"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
     def render_variants_number(self, value):
         return '{:,}'.format(value)
 

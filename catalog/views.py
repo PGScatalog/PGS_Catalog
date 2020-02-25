@@ -53,7 +53,8 @@ def index(request):
         'release' : current_release,
         'num_pgs' : Score.objects.count(),
         'num_traits' : EFOTrait.objects.count(),
-        'num_pubs' : Publication.objects.count()
+        'num_pubs' : Publication.objects.count(),
+        'has_ebi_icons' : 1
     }
     return render(request, 'catalog/index.html', context)
 

@@ -173,6 +173,11 @@ $(document).ready(function() {
       // Update rsquare notation (r2)
       $('#pgs_params').html(pgs_param.replace("r2", "r<sup>2</sup>"));
     }
+
+
+    $('.pgs-ftp-btn').hover(function() {
+      $(this).children('span').toggleClass('fa-folder fa-folder-open');
+    });
 });
 
 
@@ -233,7 +238,7 @@ function showhide_trait(id, term) {
   $('a.trait_item').mouseover(function() {
     trait_link = $(this).find('.trait_link');
     if (trait_link.length == 0) {
-      $(this).append('<i class="icon icon-common trait_link" data-icon="&#xf0c1;"></i>');
+      $(this).append('<i class="trait_link fa fa-link"></i>');
     }
     else {
       trait_link.show();
@@ -324,7 +329,7 @@ function display_category_list(data_json) {
   colour_box = '<span class="trait_colour" style="background-color:'+colour_to_replace+'"></span>';
   count_to_replace = '##COUNT##';
   count_badge = '<span class="badge badge-pill badge-pgs float_right">'+count_to_replace+' <span>PGS</span></span>';
-  category_arrow = '<i class="icon icon-common" data-icon="&#xf061;"></i>';
+  category_arrow = '<i class="fa fa-arrow-circle-right"></i>';
 
   for (cat_index in data_json) {
     cat_index = parseInt(cat_index);
@@ -373,7 +378,7 @@ function display_category_list(data_json) {
     se_left.className = class_name;
     se_left.style.color = t_colour;
     se_left.innerHTML = category_arrow;
-    var subcat_div_height_left = cat_index * item_height;
+    var subcat_div_height_left = cat_index * item_height - 1;
     se_left.style.marginTop = subcat_div_height_left+"px";
     se.appendChild(se_left);
 

@@ -45,7 +45,9 @@
 
   <!-- CSS: implied media=all -->
   <!-- CSS concatenated and minified via ant build script-->
-  <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
+  {% if has_ebi_icons %}
+    <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
+  {% endif %}
 
   <!-- SCSS file -->
   {% compress css %}
@@ -143,8 +145,8 @@
         </div>
         <div>
           <div class="pgs_social">
-            <a class="icon-common pgs_no_icon_link" title="Contact us" href="mailto:{{ pgs_contact }}" data-icon="&#xf0e0;" target="_blank"></a>
-            <a class="icon icon-socialmedia pgs_no_icon_link" title="Twitter" href="{{ pgs_twitter_url }}" data-icon="T" target="_blank"></a>
+            <a class="pgs_no_icon_link fa fa-envelope" title="Contact us" href="mailto:{{ pgs_contact }}" target="_blank"></a>
+            <a class="pgs_no_icon_link fa fa-twitter" title="Twitter" href="{{ pgs_twitter_url }}" target="_blank"></a>
           </div>
         </div>
       </div>
