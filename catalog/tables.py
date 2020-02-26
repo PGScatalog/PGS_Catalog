@@ -168,10 +168,10 @@ class Browse_PublicationTable(tables.Table):
 
 class Browse_TraitTable(tables.Table):
     '''Table to browse Traits in the PGS Catalog'''
-    label_link = Column_format_html(accessor='display_label', verbose_name='Trait (ontology term)', orderable=True)
-    scores_count = tables.Column(accessor='scores_count', verbose_name='Number of PGS Developed')
-    id_url = Column_format_html(accessor='display_id_url', verbose_name='Trait identifier (ontology ID)')
-    category_labels = tables.Column(accessor='category_labels', verbose_name='Trait category')
+    label_link = Column_format_html(accessor='display_label', verbose_name='Trait (ontology term label)', orderable=True)
+    scores_count = tables.Column(accessor='scores_count', verbose_name='Number of Related PGS')
+    id_url = Column_format_html(accessor='display_id_url', verbose_name='Trait Identifier (Experimental Factor Ontology ID)')
+    category_labels = tables.Column(accessor='category_labels', verbose_name='Trait Category')
 
     class Meta:
         model = EFOTrait
