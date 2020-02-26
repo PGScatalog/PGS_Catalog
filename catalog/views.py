@@ -11,7 +11,7 @@ def performance_disclaimer():
     return """<span class="pgs_note_title">Disclaimer: </span>
         The performance metrics are displayed as reported by the source studies.
         It is important to note that metrics are not necessarily comparable with
-        each other.For example, metrics depend on the sample characteristics
+        each other. For example, metrics depend on the sample characteristics
         (described by the PGS Catalog Sample Set [PSS] ID), phenotyping, and
         statistical modelling. Please refer to the source publication for additional
         guidance on performance."""
