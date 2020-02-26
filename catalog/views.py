@@ -82,7 +82,7 @@ def browseby(request, view_selection):
         table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False))
         context['table'] = table
     else:
-        context['view_name'] = 'Polygenic Scores'
+        context['view_name'] = 'Polygenic Scores (PGS)'
         table = Browse_ScoreTable(Score.objects.all(), order_by="num")
         context['table'] = table
 
