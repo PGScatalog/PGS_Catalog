@@ -21,13 +21,15 @@
             <td>Title</td>
             <td><b>{{ publication.title }}</b></td>
           </tr>
-          <tr>
-            <td>PubMed ID</td>
-            <td>
-              <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ publication.PMID }}" class="mr-3">{{ publication.PMID }}</a>(<a href="http://europepmc.org/abstract/MED/{{ publication.PMID }}">Europe PMC</a>)
-            </td>
-          </tr>
-          <tr>
+          {% if publication.PMID is not None %}
+              <tr>
+                <td>PubMed ID</td>
+                <td>
+                  <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ publication.PMID }}" class="mr-3">{{ publication.PMID }}</a>(<a href="http://europepmc.org/abstract/MED/{{ publication.PMID }}">Europe PMC</a>)
+                </td>
+              </tr>
+              <tr>
+          {% endif %}
             <td>doi</td>
             <td><a href=https://doi.org/{{ publication.doi }}>{{ publication.doi }}</a></td>
           </tr>
