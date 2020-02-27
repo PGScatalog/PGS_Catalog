@@ -47,7 +47,7 @@
                {% for trait in efos %}
                 <li>
                  <a class="mr-2" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
-                 (<a href="https://www.ebi.ac.uk/efo/{{ trait.id }}">{{ trait.id }}</a>)
+                 (<a href="{{ trait.url }}">{{ trait.id }}</a>)
                 </li>
                {% endfor %}
               </ul>
