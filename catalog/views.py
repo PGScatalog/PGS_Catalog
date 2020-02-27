@@ -17,34 +17,48 @@ def performance_disclaimer():
         guidance on performance."""
 
 
-def traits_chart_data():
+def get_efo_traits_data():
+    """ Generate the list of traits and trait categories in PGS."""
     data = []
+    traits_list = []
 
-    for category in TraitCategory.objects.all().order_by('label'):
-        cat_name   = category.label
-        cat_colour = category.colour
-        cat_scores_count = category.count_scores
+    for category in TraitCategory.objects.all().prefetch_related('efotraits__score_set','efotraits__traitcategory_set').order_by('label'):
+        cat_scores_count = 0
         cat_id = category.parent.replace(' ', '_')
 
         cat_traits = []
 
-        for trait in category.efotraits.order_by(Lower('label')):
-            trait_id = trait.id
-            trait_name = trait.label
+        for trait in category.efotraits.all():
             trait_scores_count = trait.scores_count
-            trait_entry = {"name": trait_name, "size": trait_scores_count, "id": trait_id}
+            if trait_scores_count == 0:
+                continue
+            cat_scores_count += trait_scores_count
+            trait_entry = {
+                "name": trait.label,
+                "size": trait_scores_count,
+                "id": trait.id
+            }
             cat_traits.append(trait_entry)
+            traits_list.append(trait)
+
+        if cat_scores_count == 0:
+            continue
+
+        cat_traits.sort(key=lambda x: x["name"].lower())
 
         cat_data = {
-          "name": cat_name,
-          "colour" : cat_colour,
+          "name": category.label,
+          "colour" : category.colour,
           "id" : cat_id,
           "size_g": cat_scores_count,
           "children": cat_traits
         }
         data.append(cat_data)
 
-    return data
+    traits_list.sort(key=lambda x: x.label)
+
+    return [traits_list, data]
+
 
 def index(request):
     current_release = Release.objects.order_by('-date').first()
@@ -58,32 +72,30 @@ def index(request):
     }
     return render(request, 'catalog/index.html', context)
 
+
 def browseby(request, view_selection):
     context = {}
 
     if view_selection == 'traits':
-        r = Score.objects.all().values('trait_efo').distinct()
-        l = []
-        for x in r:
-            l.append(x['trait_efo'])
-        table = Browse_TraitTable(EFOTrait.objects.filter(id__in=l), order_by="label")
+        efo_traits_data = get_efo_traits_data()
+        table = Browse_TraitTable(efo_traits_data[0])
         context = {
             'view_name': 'Traits',
             'table': table,
-            'data_chart': traits_chart_data(),
+            'data_chart': efo_traits_data[1],
             'has_chart': 1
         }
     elif view_selection == 'studies':
         context['view_name'] = 'Publications'
-        table = Browse_PublicationTable(Publication.objects.all(), order_by="num")
+        table = Browse_PublicationTable(Publication.objects.all().prefetch_related('publication_score', 'publication_performance', 'publication_performance__score'), order_by="num")
         context['table'] = table
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
-        table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False))
+        table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False).prefetch_related('sampleset', 'cohorts'))
         context['table'] = table
     else:
         context['view_name'] = 'Polygenic Scores (PGS)'
-        table = Browse_ScoreTable(Score.objects.all(), order_by="num")
+        table = Browse_ScoreTable(Score.objects.select_related('publication').all().prefetch_related('trait_efo'), order_by="num")
         context['table'] = table
 
     context['has_table'] = 1
@@ -93,7 +105,7 @@ def browseby(request, view_selection):
 
 def pgs(request, pgs_id):
     try:
-        score = Score.objects.get(id__exact=pgs_id)
+        score = Score.objects.select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
     except Score.DoesNotExist:
         raise Http404("Polygenic Score (PGS): \"{}\" does not exist".format(pgs_id))
 
@@ -119,7 +131,8 @@ def pgs(request, pgs_id):
         context['table_sample_training'] = table
 
     # Extract + display Performance + associated samples
-    pquery = Performance.objects.filter(score=score)
+    pquery = Performance.objects.select_related('score', 'publication').filter(score=score).prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
+    table = PerformanceTable(pquery)
     table = PerformanceTable(pquery)
     context['table_performance'] = table
 
@@ -136,7 +149,7 @@ def pgs(request, pgs_id):
 
 def pgp(request, pub_id):
     try:
-        pub = Publication.objects.get(id__exact=pub_id)
+        pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
     except Publication.DoesNotExist:
         raise Http404("Publication: \"{}\" does not exist".format(pub_id))
     context = {
@@ -146,13 +159,13 @@ def pgp(request, pub_id):
     }
 
     #Display scores that were developed by this publication
-    related_scores = Score.objects.filter(publication=pub)
+    related_scores = pub.publication_score.all().prefetch_related('trait_efo', 'publication')
     if related_scores.count() > 0:
         table = Browse_ScoreTable(related_scores)
         context['table_scores'] = table
 
     #Get PGS evaluated by the PGP
-    pquery = Performance.objects.filter(publication=pub)
+    pquery = pub.publication_performance.select_related('publication','score').all().prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
 
     # Check if there any of the PGS are externally developed + display their information
     external_scores = set()
@@ -181,11 +194,11 @@ def pgp(request, pub_id):
 
 def efo(request, efo_id):
     try:
-        trait = EFOTrait.objects.get(id__exact=efo_id)
+        trait = EFOTrait.objects.prefetch_related('score_set').get(id__exact=efo_id)
     except EFOTrait.DoesNotExist:
         raise Http404("Trait: \"{}\" does not exist".format(efo_id))
 
-    related_scores = Score.objects.filter(trait_efo=efo_id)
+    related_scores = trait.score_set.select_related('publication').all().prefetch_related('trait_efo')
     context = {
         'trait': trait,
         'performance_disclaimer': performance_disclaimer(),
@@ -202,7 +215,7 @@ def efo(request, efo_id):
         pass
 
     #Find the evaluations of these scores
-    pquery = Performance.objects.filter(score__in=related_scores)
+    pquery = Performance.objects.select_related('publication','score').filter(score__in=related_scores).prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
     table = PerformanceTable_PubTrait(pquery)
     context['table_performance'] = table
 
@@ -219,7 +232,7 @@ def efo(request, efo_id):
 
 def pss(request, pss_id):
     try:
-        sample_set = SampleSet.objects.get(id__exact=pss_id)
+        sample_set = SampleSet.objects.prefetch_related('samples', 'samples__cohorts', 'samples__sample_age', 'samples__followup_time').get(id__exact=pss_id)
     except SampleSet.DoesNotExist:
         raise Http404("Sample Set: \"{}\" does not exist".format(pss_id))
 

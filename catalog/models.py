@@ -51,12 +51,15 @@ class Publication(models.Model):
 
     @property
     def scores_count(self):
-        return Score.objects.filter(publication=self).count()
+        return self.publication_score.all().count()
 
     @property
     def scores_evaluated(self):
-        performances = Performance.objects.filter(publication=self)
-        return len(performances.values('score').distinct())
+        # Using 'all()' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for performance in self.publication_performance.all():
+            score_ids_set.add(performance.score.id)
+        return len(list(score_ids_set))
 
     def parse_EuropePMC(self, doi=None, PMID=None):
         '''Function to get the citation information from the EuropePMC API'''
@@ -91,8 +94,8 @@ class Publication(models.Model):
 
 class Cohort(models.Model):
     """Class to describe cohorts used in samples"""
-    name_short = models.CharField('Cohort(Short Name)', max_length=100)
-    name_full = models.CharField('Cohort', max_length=1000)
+    name_short = models.CharField('Cohort Short Name', max_length=100, db_index=True)
+    name_full = models.CharField('Cohort Full Name', max_length=1000)
 
     def __str__(self):
         return self.name_short
@@ -102,7 +105,7 @@ class EFOTrait(models.Model):
     '''Class to hold information related to controlled trait vocabulary
     (mainly to link multiple EFO to a single score)'''
     id = models.CharField('Ontology Trait ID', max_length=30, primary_key=True)
-    label = models.CharField('Ontology Trait Label', max_length=500)
+    label = models.CharField('Ontology Trait Label', max_length=500, db_index=True)
     description = models.TextField('Ontology Trait Description', null=True)
     url = models.CharField('Ontology URL', max_length=500)
     synonyms = models.TextField('Synonyms', null=True)
@@ -173,12 +176,11 @@ class EFOTrait(models.Model):
 
     @property
     def scores_count(self):
-        return Score.objects.filter(trait_efo=self).count()
+        return self.score_set.count()
 
     @property
     def category_labels(self):
-        categories = TraitCategory.objects.filter(efotraits__id__exact=self.id)
-
+        categories = self.traitcategory_set.all()
         categories_data = ''
         if len(categories) > 0:
             category_labels = [x.label for x in categories]
@@ -188,18 +190,17 @@ class EFOTrait(models.Model):
 
     @property
     def category_list(self):
-        return TraitCategory.objects.filter(efotraits__id__exact=self.id)
+        return self.traitcategory_set.all()
 
 
 class TraitCategory(models.Model):
     # Stable identifiers for declaring a set of traits
-    label = models.CharField('Trait category', max_length=50)
+    label = models.CharField('Trait category', max_length=50, db_index=True)
     colour = models.CharField('Trait category colour', max_length=30)
     parent = models.CharField('Trait category (parent term)', max_length=50)
 
     # Link to the description of the sample(s) in the other table
-    efotraits = models.ManyToManyField(EFOTrait, verbose_name='Traits', related_name='efotrait')
-
+    efotraits = models.ManyToManyField(EFOTrait, verbose_name='Traits')
 
     class Meta:
         verbose_name_plural = "Trait categories"
@@ -214,7 +215,6 @@ class TraitCategory(models.Model):
             scores_count += trait.scores_count
 
         return scores_count
-
 
 
 class Demographic(models.Model):
@@ -274,6 +274,24 @@ class Demographic(models.Model):
             return '<ul><li>'+'</li><li>'.join(l)+'</li></ul>'
         else:
             return ''
+
+
+    def range_type_desc(self):
+        desc_list = {
+            'ci': 'Confidence interval',
+            'iqr': 'Interquartile range'
+        }
+        if self.range_type.lower() in desc_list:
+            return desc_list[self.range_type.lower()]
+
+    def variability_type_desc(self):
+        desc_list = {
+            'sd': 'Standard Deviation',
+            'sd (cases)': 'Standard Deviation',
+            'se': 'Standard Error',
+        }
+        if self.variability_type.lower() in desc_list:
+            return desc_list[self.variability_type.lower()]
 
 
 class Sample(models.Model):
@@ -339,7 +357,7 @@ class Sample(models.Model):
 
     @property
     def display_sampleset(self):
-        return SampleSet.objects.get(samples__in=[self])
+        return self.sampleset.all()[0]
 
     @property
     def display_samples(self):
@@ -456,7 +474,7 @@ class Score(models.Model):
     curation_notes = models.TextField('Curation Notes', default='')
 
     # Links to related models
-    publication = models.ForeignKey(Publication, on_delete=models.PROTECT, verbose_name='PGS Publication (PGP) ID')
+    publication = models.ForeignKey(Publication, on_delete=models.PROTECT, related_name='publication_score', verbose_name='PGS Publication (PGP) ID')
     ## Contributing Samples
     samples_variants = models.ManyToManyField(Sample, verbose_name='Source of Variant Associations (GWAS)', related_name='score_variants')
     samples_training = models.ManyToManyField(Sample, verbose_name='Score Development/Training', related_name='score_training')
@@ -495,8 +513,8 @@ class Score(models.Model):
     @property
     def list_traits(self):
         l = [] # tuples (id, label)
-        for t in self.trait_efo.values():
-            l.append((t['id'], t['label']))
+        for t in self.trait_efo.all():
+            l.append((t.id, t.label))
         return(l)
 
 class SampleSet(models.Model):
@@ -552,8 +570,8 @@ class Performance(models.Model):
     phenotyping_efo = models.ManyToManyField(EFOTrait, verbose_name='Mapped Trait(s) (EFO)')
     sampleset = models.ForeignKey(SampleSet, on_delete=models.PROTECT,
                                   verbose_name='PGS Sample Set (PSS)') # Samples used for evaluation
-    publication = models.ForeignKey(Publication, on_delete=models.PROTECT,
-                                    verbose_name='Peformance Source') # Study that reported performance metrics
+    publication = models.ForeignKey(Publication, on_delete=models.PROTECT, verbose_name='Peformance Source',
+                                    related_name='publication_performance') # Study that reported performance metrics
 
     # [Links to Performance metrics are made by ForeignKey in Metrics table, previously they were parameterized here]
     phenotyping_reported = models.CharField('Reported Trait', max_length=200)
@@ -579,42 +597,26 @@ class Performance(models.Model):
         d = {}
         if self.phenotyping_reported != '':
             d['reported'] = self.phenotyping_reported
-        if self.phenotyping_efo.distinct().count() > 0:
-            d['efo'] = self.phenotyping_efo.distinct()
+        # Using all and filter afterward uses less SQL queries than a direct distinct()
+        efo_traits = self.phenotyping_efo.all()
+        if efo_traits:
+            traits_set = set()
+            for trait in efo_traits:
+                traits_set.add(trait)
+            d['efo'] = list(traits_set)
         return d
 
     @property
     def effect_sizes_list(self):
-        metrics = Metric.objects.filter(performance=self, type ='Effect Size')
-        if len(metrics) > 0:
-            l=[]
-            for m in metrics:
-                l.append((m.name_tuple(), m.display_value()))
-            return l
-        else:
-            return None
+        return self.get_metric_data('Effect Size')
 
     @property
     def class_acc_list(self):
-        metrics = Metric.objects.filter(performance=self, type ='Classification Metric')
-        if len(metrics) > 0:
-            l=[]
-            for m in metrics:
-                l.append((m.name_tuple(), m.display_value()))
-            return l
-        else:
-            return None
+        return self.get_metric_data('Classification Metric')
 
     @property
     def othermetrics_list(self):
-        metrics = Metric.objects.filter(performance=self, type='Other Metric')
-        if len(metrics) > 0:
-            l = []
-            for m in metrics:
-                l.append((m.name_tuple(), m.display_value()))
-            return l
-        else:
-            return None
+        return self.get_metric_data('Other Metric')
 
     @property
     def publication_withexternality(self):
@@ -630,9 +632,23 @@ class Performance(models.Model):
         return '|'.join(info)
 
 
+    def get_metric_data(self, metric_type):
+        """ Generic method to extract and format the diverse metric data"""
+        # Using all and filter afterward uses less SQL queries than filtering directly on the queryset
+        metrics = self.performance_metric.all()
+        if metrics:
+            l = []
+            for m in metrics:
+                if (m.type == metric_type):
+                    l.append((m.name_tuple(), m.display_value()))
+            return l
+        else:
+            return None
+
+
 class Metric(models.Model):
     """Class to hold metric type, name, value and confidence intervals of a performance metric"""
-    performance = models.ForeignKey(Performance, on_delete=models.CASCADE, verbose_name='PGS Performance Metric (PPM)')
+    performance = models.ForeignKey(Performance, on_delete=models.CASCADE, verbose_name='PGS Performance Metric (PPM)', related_name="performance_metric")
 
     TYPE_CHOICES = [
         ('ES', 'Effect Size'),
@@ -642,6 +658,7 @@ class Metric(models.Model):
     type = models.CharField(max_length=40,
         choices=TYPE_CHOICES,
         default='Other Metric',
+        db_index=True
     )
 
     name = models.CharField(verbose_name='Performance Metric Name', max_length=100, null=False) # ex: "Odds Ratio"
