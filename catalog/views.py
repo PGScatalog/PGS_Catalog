@@ -72,6 +72,7 @@ def index(request):
     }
     return render(request, 'catalog/index.html', context)
 
+
 def browseby(request, view_selection):
     context = {}
 
@@ -86,7 +87,7 @@ def browseby(request, view_selection):
         }
     elif view_selection == 'studies':
         context['view_name'] = 'Publications'
-        table = Browse_PublicationTable(Publication.objects.all().prefetch_related('publication_score', 'publication_performance', 'publication_performance__score', 'publication_performance__score'), order_by="num")
+        table = Browse_PublicationTable(Publication.objects.all().prefetch_related('publication_score', 'publication_performance', 'publication_performance__score'), order_by="num")
         context['table'] = table
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
@@ -130,7 +131,8 @@ def pgs(request, pgs_id):
         context['table_sample_training'] = table
 
     # Extract + display Performance + associated samples
-    pquery = Performance.objects.select_related('score','score__publication','publication','sampleset').filter(score=score).prefetch_related('sampleset__samples','sampleset__samples__cohorts','phenotyping_efo')
+    pquery = Performance.objects.select_related('score', 'publication').filter(score=score).prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
+    table = PerformanceTable(pquery)
     table = PerformanceTable(pquery)
     context['table_performance'] = table
 
@@ -147,7 +149,7 @@ def pgs(request, pgs_id):
 
 def pgp(request, pub_id):
     try:
-        pub = Publication.objects.get(id__exact=pub_id)
+        pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
     except Publication.DoesNotExist:
         raise Http404("Publication: \"{}\" does not exist".format(pub_id))
     context = {
@@ -157,13 +159,13 @@ def pgp(request, pub_id):
     }
 
     #Display scores that were developed by this publication
-    related_scores = Score.objects.filter(publication=pub)
+    related_scores = pub.publication_score.all().prefetch_related('trait_efo', 'publication')
     if related_scores.count() > 0:
         table = Browse_ScoreTable(related_scores)
         context['table_scores'] = table
 
     #Get PGS evaluated by the PGP
-    pquery = Performance.objects.filter(publication=pub)
+    pquery = pub.publication_performance.select_related('publication','score').all().prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
 
     # Check if there any of the PGS are externally developed + display their information
     external_scores = set()
@@ -192,11 +194,11 @@ def pgp(request, pub_id):
 
 def efo(request, efo_id):
     try:
-        trait = EFOTrait.objects.get(id__exact=efo_id)
+        trait = EFOTrait.objects.prefetch_related('score_set').get(id__exact=efo_id)
     except EFOTrait.DoesNotExist:
         raise Http404("Trait: \"{}\" does not exist".format(efo_id))
 
-    related_scores = Score.objects.filter(trait_efo=efo_id)
+    related_scores = trait.score_set.select_related('publication').all().prefetch_related('trait_efo')
     context = {
         'trait': trait,
         'performance_disclaimer': performance_disclaimer(),
@@ -213,7 +215,7 @@ def efo(request, efo_id):
         pass
 
     #Find the evaluations of these scores
-    pquery = Performance.objects.filter(score__in=related_scores)
+    pquery = Performance.objects.select_related('publication','score').filter(score__in=related_scores).prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
     table = PerformanceTable_PubTrait(pquery)
     context['table_performance'] = table
 
@@ -230,7 +232,7 @@ def efo(request, efo_id):
 
 def pss(request, pss_id):
     try:
-        sample_set = SampleSet.objects.get(id__exact=pss_id)
+        sample_set = SampleSet.objects.prefetch_related('samples', 'samples__cohorts', 'samples__sample_age', 'samples__followup_time').get(id__exact=pss_id)
     except SampleSet.DoesNotExist:
         raise Http404("Sample Set: \"{}\" does not exist".format(pss_id))
 

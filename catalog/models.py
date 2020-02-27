@@ -55,8 +55,11 @@ class Publication(models.Model):
 
     @property
     def scores_evaluated(self):
-        performances = self.publication_performance.all().distinct('score__id')
-        return len(performances)
+        # Using 'all()' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for performance in self.publication_performance.all():
+            score_ids_set.add(performance.score.id)
+        return len(list(score_ids_set))
 
     def parse_EuropePMC(self, doi=None, PMID=None):
         '''Function to get the citation information from the EuropePMC API'''
@@ -91,8 +94,8 @@ class Publication(models.Model):
 
 class Cohort(models.Model):
     """Class to describe cohorts used in samples"""
-    name_short = models.CharField('Cohort(Short Name)', max_length=100, db_index=True)
-    name_full = models.CharField('Cohort', max_length=1000)
+    name_short = models.CharField('Cohort Short Name', max_length=100, db_index=True)
+    name_full = models.CharField('Cohort Full Name', max_length=1000)
 
     def __str__(self):
         return self.name_short
@@ -178,7 +181,6 @@ class EFOTrait(models.Model):
     @property
     def category_labels(self):
         categories = self.traitcategory_set.all()
-
         categories_data = ''
         if len(categories) > 0:
             category_labels = [x.label for x in categories]
@@ -200,7 +202,6 @@ class TraitCategory(models.Model):
     # Link to the description of the sample(s) in the other table
     efotraits = models.ManyToManyField(EFOTrait, verbose_name='Traits')
 
-
     class Meta:
         verbose_name_plural = "Trait categories"
 
@@ -214,7 +215,6 @@ class TraitCategory(models.Model):
             scores_count += trait.scores_count
 
         return scores_count
-
 
 
 class Demographic(models.Model):
@@ -274,6 +274,24 @@ class Demographic(models.Model):
             return '<ul><li>'+'</li><li>'.join(l)+'</li></ul>'
         else:
             return ''
+
+
+    def range_type_desc(self):
+        desc_list = {
+            'ci': 'Confidence interval',
+            'iqr': 'Interquartile range'
+        }
+        if self.range_type.lower() in desc_list:
+            return desc_list[self.range_type.lower()]
+
+    def variability_type_desc(self):
+        desc_list = {
+            'sd': 'Standard Deviation',
+            'sd (cases)': 'Standard Deviation',
+            'se': 'Standard Error',
+        }
+        if self.variability_type.lower() in desc_list:
+            return desc_list[self.variability_type.lower()]
 
 
 class Sample(models.Model):
@@ -579,43 +597,26 @@ class Performance(models.Model):
         d = {}
         if self.phenotyping_reported != '':
             d['reported'] = self.phenotyping_reported
-        efo_traits = self.phenotyping_efo.distinct()
+        # Using all and filter afterward uses less SQL queries than a direct distinct()
+        efo_traits = self.phenotyping_efo.all()
         if efo_traits:
-            d['efo'] = efo_traits
+            traits_set = set()
+            for trait in efo_traits:
+                traits_set.add(trait)
+            d['efo'] = list(traits_set)
         return d
 
     @property
     def effect_sizes_list(self):
-        metrics = self.performance_metric.filter(type ='Effect Size')
-        if len(metrics) > 0:
-            l=[]
-            for m in metrics:
-                l.append((m.name_tuple(), m.display_value()))
-            return l
-        else:
-            return None
+        return self.get_metric_data('Effect Size')
 
     @property
     def class_acc_list(self):
-        metrics = self.performance_metric.filter(type ='Classification Metric')
-        if len(metrics) > 0:
-            l=[]
-            for m in metrics:
-                l.append((m.name_tuple(), m.display_value()))
-            return l
-        else:
-            return None
+        return self.get_metric_data('Classification Metric')
 
     @property
     def othermetrics_list(self):
-        metrics = self.performance_metric.filter(type='Other Metric')
-        if len(metrics) > 0:
-            l = []
-            for m in metrics:
-                l.append((m.name_tuple(), m.display_value()))
-            return l
-        else:
-            return None
+        return self.get_metric_data('Other Metric')
 
     @property
     def publication_withexternality(self):
@@ -631,6 +632,20 @@ class Performance(models.Model):
         return '|'.join(info)
 
 
+    def get_metric_data(self, metric_type):
+        """ Generic method to extract and format the diverse metric data"""
+        # Using all and filter afterward uses less SQL queries than filtering directly on the queryset
+        metrics = self.performance_metric.all()
+        if metrics:
+            l = []
+            for m in metrics:
+                if (m.type == metric_type):
+                    l.append((m.name_tuple(), m.display_value()))
+            return l
+        else:
+            return None
+
+
 class Metric(models.Model):
     """Class to hold metric type, name, value and confidence intervals of a performance metric"""
     performance = models.ForeignKey(Performance, on_delete=models.CASCADE, verbose_name='PGS Performance Metric (PPM)', related_name="performance_metric")
@@ -643,6 +658,7 @@ class Metric(models.Model):
     type = models.CharField(max_length=40,
         choices=TYPE_CHOICES,
         default='Other Metric',
+        db_index=True
     )
 
     name = models.CharField(verbose_name='Performance Metric Name', max_length=100, null=False) # ex: "Odds Ratio"
