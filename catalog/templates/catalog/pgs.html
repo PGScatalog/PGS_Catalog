@@ -12,8 +12,6 @@
       </ol>
     </nav>
 
-    <!--<h2>Polygenic Score (PGS) ID: <span class="pgs_title">{{score.id}}</span></h2>-->
-
     <div class="clearfix">
       <h2 class="pgs_title_left">Polygenic Score (PGS) ID: <span class="pgs_title">{{score.id}}</span></h2>
       <div class="float_left">
@@ -29,9 +27,11 @@
     </div>
 
     <section>
-      <h3>Predicted Trait</h3>
-      <table class="table table-bordered table_pgs_h">
+      <table class="table table-bordered table_pgs_h mt-4">
         <tbody>
+          <tr>
+            <td class="table_title table_title_c font_16" colspan="2">Predicted Trait</td>
+          </tr>
           <tr>
             <td>Reported Trait</td>
             <td><b>{{ score.trait_reported }}</b></td>
@@ -69,9 +69,11 @@
         <h3 class="mb-0">Score  Details</h3>
         <div class="row">
             <div class="col">
-                <h4>Score Construction</h4>
-                <table class="table table-bordered table_pgs_h">
+                <table class="table table-bordered table_pgs_h mt-4">
                     <tbody>
+                        <tr>
+                          <td class="table_title table_title_g" colspan="2">Score Construction</td>
+                        </tr>
                         <tr>
                           <td>PGS Name</td>
                           <td><b>{{ score.name }}</b></td>
@@ -115,9 +117,11 @@
             </div>
 
             <div class="col">
-              <h4>PGS Source</h4>
-              <table class="table table-bordered table_pgs_h">
+              <table class="table table-bordered table_pgs_h mt-4">
                 <tbody>
+                  <tr>
+                    <td class="table_title table_title_g" colspan="2">PGS Source</td>
+                  </tr>
                   <tr>
                     <td>PGS Catalog Publication (PGP) ID</td>
                     <td><a href=../../publication/{{ score.publication.id }}>{{ score.publication.id }}</a></td>
