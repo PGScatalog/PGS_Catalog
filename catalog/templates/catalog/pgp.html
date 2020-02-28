@@ -21,13 +21,15 @@
             <td>Title</td>
             <td><b>{{ publication.title }}</b></td>
           </tr>
-          <tr>
-            <td>PubMed ID</td>
-            <td>
-              <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ publication.PMID }}" class="mr-3">{{ publication.PMID }}</a>(<a href="http://europepmc.org/abstract/MED/{{ publication.PMID }}">Europe PMC</a>)
-            </td>
-          </tr>
-          <tr>
+          {% if publication.PMID is not None %}
+              <tr>
+                <td>PubMed ID</td>
+                <td>
+                  <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ publication.PMID }}" class="mr-3">{{ publication.PMID }}</a>(<a href="http://europepmc.org/abstract/MED/{{ publication.PMID }}">Europe PMC</a>)
+                </td>
+              </tr>
+              <tr>
+          {% endif %}
             <td>doi</td>
             <td><a href=https://doi.org/{{ publication.doi }}>{{ publication.doi }}</a></td>
           </tr>
@@ -41,7 +43,7 @@
             <td><b><i>{{ publication.journal }}</i></b></td>
           </tr>
           <tr>
-            <td>Authors</td>
+            <td>Author(s)</td>
             <td><span class="more">{{ publication.authors }}</span></td>
           </tr>
         </tbody>
@@ -51,13 +53,13 @@
 
     <section>
     {% if table_scores or table_evaluated %}
-        <h3>PGS Associated with {{ publication.id }}</h3>
+        <h3>Associated Polygenic Score(s)</b></h3>
         {% if table_scores %}
-            <h4>PGS Developed By This Study</h4>
+            <h4>PGS Developed By This Publication</h4>
             {% render_table table_scores %}
         {% endif %}
         {% if table_evaluated %}
-            <h4>External PGS Evaluated By This Study</h4>
+            <h4>External PGS Evaluated By This Publication</h4>
             {% render_table table_evaluated %}
         {% endif %}
     {% endif %}

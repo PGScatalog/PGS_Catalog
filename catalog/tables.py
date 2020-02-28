@@ -168,10 +168,10 @@ class Browse_PublicationTable(tables.Table):
 
 class Browse_TraitTable(tables.Table):
     '''Table to browse Traits in the PGS Catalog'''
-    label_link = Column_format_html(accessor='display_label', verbose_name='Trait (ontology term)', orderable=True)
-    scores_count = tables.Column(accessor='scores_count', verbose_name='Number of PGS Developed')
-    id_url = Column_format_html(accessor='display_id_url', verbose_name='Trait identifier (ontology ID)')
-    category_labels = tables.Column(accessor='category_labels', verbose_name='Trait category')
+    label_link = Column_format_html(accessor='display_label', verbose_name='Trait (ontology term label)', orderable=True)
+    scores_count = tables.Column(accessor='scores_count', verbose_name='Number of Related PGS')
+    id_url = Column_format_html(accessor='display_id_url', verbose_name='Trait Identifier (Experimental Factor Ontology ID)')
+    category_labels = tables.Column(accessor='category_labels', verbose_name='Trait Category')
 
     class Meta:
         model = EFOTrait
@@ -191,7 +191,7 @@ class Browse_TraitTable(tables.Table):
 class Browse_ScoreTable(tables.Table):
     '''Table to browse Scores (PGS) in the PGS Catalog'''
     list_traits = tables.Column(accessor='list_traits', verbose_name='Mapped Trait(s)\n(Ontology)', orderable=False)
-    ftp_link = tables.Column(accessor='link_filename', verbose_name=format_html('PGS Variants data files '), orderable=False)
+    ftp_link = tables.Column(accessor='link_filename', verbose_name=format_html('PGS Scoring File (FTP Link)'), orderable=False)
 
     relative_path = '../..'
 
@@ -228,7 +228,7 @@ class Browse_ScoreTable(tables.Table):
 
     def render_ftp_link(self, value):
         ftp_link = 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/'+value
-        return format_html('<a class="pgs_no_icon_link file_link" href="{}" title="Download PGS Variants and weights data file" download><i class="fa fa-file-text"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
+        return format_html('<a class="pgs_no_icon_link file_link" href="{}" title="Download PGS Scoring File (variants, weights)" download><i class="fa fa-file-text"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
     def render_variants_number(self, value):
         return '{:,}'.format(value)
 

@@ -34,9 +34,11 @@
         <nav role="navigation">
           <h5>Table of Contents</h5>
           <ul>
-            <li><a href="#project">PGS Catalog Project</a></li>
-            <li><a href="#score">Polygenic Score</a></li>
-            <li><a href="#citation">Citation</a></li>
+            <li><a href="#score">What is a Polygenic Score?</a></li>
+            <li><a href="#project">The PGS Catalog Project</a></li>
+              <ul>
+                  <li><a href="#citation">Citation</a></li>
+              </ul>
             <li><a href="#eligibility">PGS Catalog Inclusion Criteria</a></li>
             <li><a href="#submission">Data submission</a></li>
             <li><a href="#under_dev">Features Under Development</a></li>
@@ -47,29 +49,35 @@
       </div>
     </div>
 
-
     <section>
-      <h3 id="project">PGS Catalog Project</h3>
-      <p>&lt;<i> Description of the project </i>&gt;</p>
+      <h3 id="score">What is a Polygenic Score?</h3>
+        <p>
+            <b>Polygenic scores (PGS)</b> are a method to predict an individual’s genetic predisposition to a trait by aggregating the effects of genomic variants into a single score.
+            <b>PGS</b> are typically comprised of hundreds-to-millions of variants (usually <span title="SNPs" data-content="Single Nucleotide Polymorphisms" class="pgs_helpover">SNPs</span>),
+            combined as a weighted sum of genotype dosages with effect sizes discovered by <span title="GWAS" data-content="Genome-wide association studies" class="pgs_helpover">GWAS</span>.
+        </p>
+        <p>
+            PGS are also sometimes called <b>genetic</b>, <b>genomic</b>, or <b>polygenic risk scores</b> (<b>GRS</b> / <b>PRS</b>) if they refer to a score that predicts a clinical trait or disease phenotype of interest.
+        </p>
     </section>
 
 
     <section>
-      <h3 id="score">Polygenic Score</h3>
-      <p>&lt;<i> Definition of the polygenic score </i>&gt;</p>
-    </section>
+      <h3 id="project">The PGS Catalog Project</h3>
+        <p>
+            The <span title="PGS Catalog" data-content="Polygenic Score (PGS) Catalog" class="pgs_helpover"><b>PGS Catalog</b></span> is an open database of published <b>polygenic scores (PGS)</b>.
+            Each <b>PGS</b> in the <b>Catalog</b> is consistently annotated with relevant metadata; including scoring files (variants, effect alleles/weights), annotations of how the PGS was developed and applied, and evaluations of their predictive ability.
+        </p>
 
-
-    <section>
-    <h3 id="citation">Citation</h3>
+    <h4 id="citation">Citation</h4>
     <p>The PGS Catalog development is led by <a href="https://www.ebi.ac.uk/about/people/samuel-lambert">Samuel Lambert</a>
         under the supervision of <a href="http://www.inouyelab.org/home/people">Michael Inouye</a> (<a href="https://sysgenresearch.org/">University of Cambridge & Baker Institute</a>)
         and <a href="https://www.ebi.ac.uk/about/people/jackie-macarthur">Jackie MacArthur</a> (<a href="https://www.ebi.ac.uk/gwas/">NHGRI-EBI GWAS Catalog</a>).</p>
     <p>The Catalog is under active development, and a flagship publication is in preparation for early 2020. If you use the catalog before then we ask that you cite it as:
     <div class="clearfix mb-3">
       <div class="highlight_content">
-        <p>Samuel A. Lambert, Simon Jupp, Gad Abraham, Helen Parkinson, John Danesh, Jacqueline A.L. MacArthur, and Michael Inouye. (2019)</p>
-        <p><u>The Polygenic Score (PGS) Catalog: a database of published PGS to enable reproducibility and uniform evaluation.</u>
+        <p>Samuel A. Lambert, Laurent Gil, Simon Jupp, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A.L. MacArthur, and Michael Inouye. (2019)</p>
+        <p><u>The Polygenic Score (PGS) Catalog: an open database to enable reproducibility and systematic evaluation</u>
         [<a href="http://www.pgscatalog.org">www.pgscatalog.org</a>]</p>
       </div>
     </div>
@@ -89,8 +97,8 @@
         </ul>
         <li class="mt-2"><b>An evaluation of a previously developed PGS.</b> This would include the evaluation of PGS already present in the catalog (or eligible for inclusion), on samples not used for PGS training. The requirements for description would be the same as for the evaluation of a new PGS.</li>
     </ul></p>
-    <p>In the current pilot of the catalog we have only curated PGS developed after 2010, and focused on including well-studied scores for the following traits: coronary artery disease (CAD), diabetes (types 1 and 2), obesity / body mass index (BMI), breast cancer, prostate cancer and Alzheimer’s disease.
-    The catalog however is not limited to these traits, and in the future we plan to move to a model where researchers can submit PGS and evaluations for curation and subsequent inclusion into the catalog.</p>
+    <p>In the pilot PGS Catalog (presented at ASHG 2019) we focused on curating PGS developed after 2010, and included well-studied scores for the following traits: coronary artery disease (CAD), diabetes (types 1 and 2), obesity / body mass index (BMI), breast cancer, prostate cancer and Alzheimer’s disease.
+        The catalog however is not limited to these traits, and since then we have focused on broadening the coverage of traits and scores. Researchers are invited to <a href="#submission">submit</a> their PGS and evaluations to us by e-mail for curation and inclusion in the PGS Catalog - we plan to provide a streamlined interface to submit these data in the future.</p>
     </section>
 
 
@@ -125,9 +133,9 @@
       <h3 id="acknowledgements">Acknowledgements</h3>
       <p>We wish to acknowledge the help of the following people & teams for their support of the PGS Catalog:
         <ul>
-          <li><a href="{{ ebi_url }}/about/spot-team">EMBL-EBI Samples Phenotypes and Ontologies Team</a> - Helen Parkinson, Simon Jupp</li>
-          <li>NHGRI-EBI GWAS Catalog Team - Aoife McMahon</li>
-          <li>Inouye Lab Members - Jonathan Marten, Petar Scepanovic, Gad Abraham</li>
+          <li><a href="{{ ebi_url }}/about/spot-team">EMBL-EBI Samples Phenotypes and Ontologies Team</a> - Helen Parkinson, Simon Jupp, James Hayhurst, Trish Whetzel</li>
+          <li><a href="{{ ebi_url }}/gwas">NHGRI-EBI GWAS Catalog</a> Team - Annalisa Buniello, Aoife McMahon</li>
+          <li><a href="http://www.inouyelab.org">Inouye Lab</a> Members - Jonathan Marten, Petar Scepanovic, Scott Ritchie, Gad Abraham</li>
         </ul>
       </p>
       <p>The development of the PGS Catalog is funded by:</p>
