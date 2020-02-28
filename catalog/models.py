@@ -229,6 +229,30 @@ class Demographic(models.Model):
     variability = models.FloatField(verbose_name='Variability (value)', null=True)
     variability_type = models.CharField(verbose_name='Range (type)', max_length=100, default='se') # e.g. standard deviation (sd), standard error (se)
 
+    def format_estimate(self):
+        if self.estimate != None:
+            e = '{}:{}'.format(self.estimate_type, self.estimate)
+            if self.range != None and self.range_type.lower() == 'ci':
+                e += ' {}'.format(str(self.range))
+            return e
+        else:
+            return None
+
+    def format_range(self):
+        if self.estimate == None and self.range != None:
+            return '{}:{}'.format(self.range_type, str(self.range))
+        return None
+
+    def format_variability(self):
+        if self.variability != None:
+            return '{}:{}'.format(self.variability_type, self.variability)
+        return None
+
+    def format_unit(self):
+        if self.unit != None:
+            return '{}:{}'.format('unit', self.unit)
+        return None
+
 
     def display_value(self):
         l = []
