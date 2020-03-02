@@ -40,7 +40,9 @@
                   <li><a href="#citation">Citation</a></li>
               </ul>
             <li><a href="#eligibility">PGS Catalog Inclusion Criteria</a></li>
-            <li><a href="#submission">Data submission</a></li>
+              <ul>
+                  <li><a href="#submission">Data submission</a></li>
+              </ul>
             <li><a href="#under_dev">Features Under Development</a></li>
             <li><a href="#contact">Feedback & Contact Information</a></li>
             <li><a href="#acknowledgements">Acknowledgements</a></li>
@@ -67,6 +69,7 @@
         <p>
             The <span title="PGS Catalog" data-content="Polygenic Score (PGS) Catalog" class="pgs_helpover"><b>PGS Catalog</b></span> is an open database of published <b>polygenic scores (PGS)</b>.
             Each <b>PGS</b> in the <b>Catalog</b> is consistently annotated with relevant metadata; including scoring files (variants, effect alleles/weights), annotations of how the PGS was developed and applied, and evaluations of their predictive ability.
+            See the <a href="../docs/">PGS Catalog Data Description</a> page for a complete description of the metadata captured for PGS, Samples, Performance Metrics, Traits, and Publications.
         </p>
 
     <h4 id="citation">Citation</h4>
@@ -81,7 +84,7 @@
         [<a href="http://www.pgscatalog.org">www.pgscatalog.org</a>]</p>
       </div>
     </div>
-    <p>Individual PGS obtained from the database should also be cited appropriately, and used in accordance with any licensing restrictions set by the authors (see <a href="https://www.ebi.ac.uk/about/terms-of-use">Terms of Use</a> for more information).</p>
+    <p>Individual PGS obtained from the database should also be cited appropriately, and used in accordance with any licensing restrictions set by the authors (see our <a href="https://www.ebi.ac.uk/about/terms-of-use">Terms of Use</a> for more information).</p>
     </section>
 
 
@@ -97,28 +100,39 @@
         </ul>
         <li class="mt-2"><b>An evaluation of a previously developed PGS.</b> This would include the evaluation of PGS already present in the catalog (or eligible for inclusion), on samples not used for PGS training. The requirements for description would be the same as for the evaluation of a new PGS.</li>
     </ul></p>
+    <p>
+        A complete description of the data captured for each PGS and publication can be found <a href="../docs/">here</a>.
+    </p>
     <p>In the pilot PGS Catalog (presented at ASHG 2019) we focused on curating PGS developed after 2010, and included well-studied scores for the following traits: coronary artery disease (CAD), diabetes (types 1 and 2), obesity / body mass index (BMI), breast cancer, prostate cancer and Alzheimer’s disease.
         The catalog however is not limited to these traits, and since then we have focused on broadening the coverage of traits and scores. Researchers are invited to <a href="#submission">submit</a> their PGS and evaluations to us by e-mail for curation and inclusion in the PGS Catalog - we plan to provide a streamlined interface to submit these data in the future.</p>
     </section>
 
 
     <section>
-      <h3 id="submission">Data submission</h3>
-      <p>&lt;<i> Description about the submission form and process </i>&gt;</p>
+      <h4 id="submission">Data Submission</h4>
+        <p>If you have a PGS or publication that meets the Catalog's eligibility requirements we invite you to submit your data by e-mail (<a href="mailto:{{ pgs_contact }}"><span class="fa fa-envelope"></span> {{ pgs_contact }}</a>).
+            To ensure a speedy curation and inclusion into the catalog it would be helpful if you provide the following information about your study:</p>
+            <ul>
+                <li><b>Source Publication.</b> PubMed identifier and/or publication doi.</li>
+                <li><b>The Polygenic Score(s).</b> If you've developed a new PGS we'll need the variant-level information required to calculate the score on new samples (<i>see our <a href="../downloads/#dl_ftp">Scoring File documentation</a> for more description</i>).
+                    If an existing PGS was used it would be helpful if you provided it's PGS ID, or links to the original publication.</li>
+                <li><b><i>Optional:</i> A completed PGS Catalog Curation Template.</b> You can view and download the current <a href="../template/current" target="_blank">PGS Catalog Curation Template (<span class="fa fa-file-excel-o"></span></a>) on GoogleDocs - this sheet forms the basis of our curation pipeline and future PGS deposition framework.
+                    We will be releasing a detailed set of guidelines and instructions on how to record your data in the template mid-2020.
+                </li>
+            </ul>
     </section>
 
 
     <section>
       <h3 id="under_dev">Features Under Development</h3>
       <ul>
-          <li><b>Including more PGS & developing a deposition interface.</b><br />In its current pilot stage the catalog includes a smaller exemplar set of traits and PGS (see <a href="../../docs/#eligibility">catalog inclusion criteria</a>).
-              The PGS Catalog is not limited to these traits - we plan to actively curate PGS for inclusion while also developing an interface in which authors can deposit PGS or PGS evaluations using a standard template.</li>
+          <li><b>Including more PGS & developing a deposition interface.</b><br />We are actively curating more PGS for inclusion in the Catalog, responding to submissions from authors, and are committed to increasing the diversity of traits. We are also developing an interface so that authors can easily deposit PGS or PGS evaluations into the PGS Catalog using a standard template.</li>
           <li style="margin-top:6px"><b>Search functionality and better integration of the trait ontology.</b><br />The catalog will be fully searchable, and use the trait ontology to provide PGS for related traits.</li>
-          <li style="margin-top:6px"><b>Better download & programmatic access to the catalog.</b><br />The main goal of the catalog is to distribute the scores and their annotations in a consistent and easy to use format.
-              We will customize our download formats, and functionality (mostly likely a cart/checkout model, and API) based on user feedback.</li>
+          <li style="margin-top:6px"><b>Programmatic access to the catalog.</b><br />The main goal of the catalog is to distribute the scores and their annotations in a consistent and easy to use format.
+              We are currently providing both single PGS and bulk catalog downloads of scoring files and metatdata. We are currently working towards building a REST API to enable programmatic access to the PGS Catalog and files.</li>
           <li style="margin-top:6px"><b>PGS Harmonized to Current Genome Builds.</b><br />Currently PGS provided through the database are described
               by standard column names & descriptions, along with the genome build it was developed with (<i>if known</i>).
-              In the future we plan to harmonize all PGS across genome builds to reduce ambiguity.</li>
+              In the future we plan to harmonize all PGS to common genome builds (GRCh37 and GRCh38) based on the ENSEMBL variation database to reduce ambiguity.</li>
       </ul>
     </section>
 
@@ -134,8 +148,8 @@
       <p>We wish to acknowledge the help of the following people & teams for their support of the PGS Catalog:
         <ul>
           <li><a href="{{ ebi_url }}/about/spot-team">EMBL-EBI Samples Phenotypes and Ontologies Team</a> - Helen Parkinson, Simon Jupp, James Hayhurst, Trish Whetzel</li>
-          <li><a href="{{ ebi_url }}/gwas">NHGRI-EBI GWAS Catalog</a> Team - Annalisa Buniello, Aoife McMahon</li>
-          <li><a href="http://www.inouyelab.org">Inouye Lab</a> Members - Jonathan Marten, Petar Scepanovic, Scott Ritchie, Gad Abraham</li>
+          <li><a href="{{ ebi_url }}/gwas">NHGRI-EBI GWAS Catalog Team</a> - Annalisa Buniello, Aoife McMahon</li>
+          <li><a href="http://www.inouyelab.org">Inouye Lab Members</a> - Jonathan Marten, Petar Scepanovic, Scott Ritchie, Gad Abraham</li>
         </ul>
       </p>
       <p>The development of the PGS Catalog is funded by:</p>
