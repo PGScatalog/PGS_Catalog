@@ -27,5 +27,8 @@ urlpatterns = [
     path('docs/', views.DocsView.as_view(), name='Documentation'),
 
     # ex: /downloads/
-    path('downloads/', views.DownloadView.as_view(), name='Downloads')
+    path('downloads/', views.DownloadView.as_view(), name='Downloads'),
+
+    #ex: /template/current
+    path('template/current', views.CurrentTemplateView.as_view(), name='Current Curation Template')
 ]

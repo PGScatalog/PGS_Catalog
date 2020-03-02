@@ -93,7 +93,8 @@ USEFUL_URLS = {
     'PGS_CONTACT'    : 'pgs-info@ebi.ac.uk',
     'PGS_FTP_ROOT'   : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_TWITTER_URL': 'https://www.twitter.com/pgscatalog',
-    'UOC_URL'        : 'https://www.phpc.cam.ac.uk/'
+    'UOC_URL'        : 'https://www.phpc.cam.ac.uk/',
+    'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing'
 }
 
 WSGI_APPLICATION = 'pgs_web.wsgi.application'

@@ -1,6 +1,8 @@
 from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
+from django.conf import settings
 from django.db.models.functions import Lower
 import re
 
@@ -265,3 +267,6 @@ class DocsView(TemplateView):
 
 class DownloadView(TemplateView):
     template_name = "catalog/download.html"
+
+class CurrentTemplateView(RedirectView):
+    url = settings.USEFUL_URLS['TEMPLATEGoogleDoc_URL']
