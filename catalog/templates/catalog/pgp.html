@@ -18,7 +18,11 @@
       <table class="table table-bordered table_pgs_h mt-4">
         <tbody>
           <tr>
-            <td class="table_title table_title_c" colspan="2">{{ publication.title }}</td>
+            <td class="table_title table_title_c" colspan="2">Publication Information (EuropePMC)</td>
+          </tr>
+          <tr>
+            <td>Title</td>
+            <td><b>{{ publication.title }}</b></td>
           </tr>
           {% if publication.PMID %}
             <tr>
@@ -47,7 +51,9 @@
           </tr>
         </tbody>
       </table>
-
+      {% if publication.date_released %}
+        <div><i class="fa fa-calendar pgs_color_1"></i> Released in PGS: <b>{{ publication.date_released }}</b></div>
+      {% endif %}
     </section>
 
     <section>
