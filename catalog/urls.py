@@ -1,5 +1,4 @@
 from django.urls import path
-from django.views.generic.base import RedirectView
 
 from . import views
 
@@ -31,5 +30,5 @@ urlpatterns = [
     path('downloads/', views.DownloadView.as_view(), name='Downloads'),
 
     #ex: /template/current
-    path('template/current', RedirectView.as_view(url='https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing'))
+    path('template/current', views.CurrentTemplateView.as_view(), name='Current Curation Template')
 ]
