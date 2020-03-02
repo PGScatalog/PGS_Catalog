@@ -14,31 +14,18 @@
 
     <h2>Trait: <span class="pgs_title">{{ trait.label }}</span></h2>
 
-    <table class="table table-bordered table_pgs_h">
-      <tbody>
-        <tr>
-          <td>Trait category</td>
-          <td>
-            {% for category in trait.category_list %}
-              <div>
-                <span class="trait_colour" style="background-color:{{ category.colour }}"></span>
-                <b>{{ category.label }}</b>
-              </div>
-            {% endfor %}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-
     <section>
-    {% if 'EFO' in trait.id %}
-      <h3>Experimental Factor Ontology (EFO) Information</h3>
-    {% else %}
-      <h3>Trait Information</h3>
-    {% endif %}
-      <table class="table table-bordered table_pgs_h">
+      <table class="table table-bordered table_pgs_h mt-4">
         <tbody>
+          <tr>
+            <td class="table_title table_title_c" colspan="2">
+              {% if 'EFO' in trait.id %}
+                Experimental Factor Ontology (EFO) Information
+              {% else %}
+                Trait Information
+              {% endif %}
+            </td>
+          </tr>
           <tr>
             <td>Identifier</td>
             <td><b><a href="{{ trait.url }}">{{ trait.id }}</a></b></td>
@@ -53,16 +40,25 @@
                   {% endfor %}
                 </ul>
               {% else %}
-                <b>{{ trait.description }}</b>
+                <span class="more">{{ trait.description }}</span>
               {% endif %}
             </td>
           </tr>
+          <td>Trait category</td>
+          <td>
+            {% for category in trait.category_list %}
+              <div>
+                <span class="trait_colour" style="background-color:{{ category.colour }}"></span>
+                <b>{{ category.label }}</b>
+              </div>
+            {% endfor %}
+          </td>
           {% if trait.synonyms %}
             <tr>
-              <td>Synonyms{% if trait.synonyms_list|length > 1 %}s{% endif %}</td>
+              <td>Synonyms</td>
               <td>
                 {% if trait.synonyms_list|length > 1 %}
-                  <a class="toggle_btn" data-toggle="tooltip" data-placement="bottom" id="trait_synomyms" title="Click to show/hide the list of synonyms"><b>{{ trait.synonyms_list|length }}</b> synonyms <i class="fa fa-plus-circle"></i></a>
+                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="trait_synomyms" title="Click to show/hide the list of synonyms"><b>{{ trait.synonyms_list|length }}</b> synonyms <i class="fa fa-plus-circle"></i></a>
                   <div class="toggle_list" id="list_trait_synomyms">
                     <ul>
                     {% for synonym in trait.synonyms_list %}
@@ -78,10 +74,10 @@
           {% endif %}
           {% if trait.mapped_terms %}
             <tr>
-              <td>Mapped Term(s){% if trait.mapped_terms_list|length > 1 %}s{% endif %}</td>
+              <td>Mapped term(s)</td>
               <td>
                 {% if trait.mapped_terms_list|length > 1 %}
-                  <a class="toggle_btn" data-toggle="tooltip" data-placement="bottom" id="trait_mapped_terms" title="Click to show/hide the list of mapped terms"><b>{{ trait.mapped_terms_list|length }}</b> mapped terms <i class="fa fa-plus-circle"></i></a>
+                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right"  data-delay="500" id="trait_mapped_terms" title="Click to show/hide the list of mapped terms"><b>{{ trait.mapped_terms_list|length }}</b> mapped terms <i class="fa fa-plus-circle"></i></a>
                   <div class="toggle_list" id="list_trait_mapped_terms">
                     <ul>
                     {% for mapped_term in trait.mapped_terms_list %}
