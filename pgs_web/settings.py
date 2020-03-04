@@ -69,22 +69,45 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'pgs_web.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'catalog.context_processors.pgs_urls'
-            ],
+if DEBUG == True:
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                    'catalog.context_processors.pgs_urls'
+                ],
+            },
         },
-    },
-]
+    ]
+else:
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [os.path.join(BASE_DIR, 'templates')],
+            'OPTIONS': {
+                'context_processors': [
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                    'catalog.context_processors.pgs_urls'
+                ],
+                'loaders': [
+                    ('django.template.loaders.cached.Loader', [
+                        'django.template.loaders.filesystem.Loader',
+                        'django.template.loaders.app_directories.Loader'
+                    ])
+                ]
+            },
+        },
+    ]
 
 USEFUL_URLS = {
     'BAKER_URL'      : 'https://baker.edu.au',
