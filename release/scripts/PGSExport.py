@@ -25,13 +25,13 @@ class PGSExport:
                 'sample_cases',
                 'sample_controls',
                 'sample_percent_male',
-                'sample_age',
+                'sample_age_formatted',
                 'ancestry_broad',
                 'ancestry_free',
                 'ancestry_country',
                 'ancestry_additional',
                 'phenotyping_free',
-                'followup_time',
+                'followup_time_formatted',
                 'source_GWAS_catalog',
                 'source_PMID',
                 'cohorts_list',
@@ -90,7 +90,9 @@ class PGSExport:
         'pub_doi_label'  : 'Publication (doi)',
         'cohorts_list' : 'Cohort(s)',
         'associated_score' : 'Polygenic Score (PGS) ID',
-        'study_stage' : 'Stage of PGS Development'
+        'study_stage' : 'Stage of PGS Development',
+        'sample_age_formatted' : 'Sample Age',
+        'followup_time_formatted': 'Followup Time'
     }
 
     # Metrics
@@ -330,7 +332,6 @@ class PGSExport:
             effect_sizes_list = perf.effect_sizes_list
             if effect_sizes_list:
                 for metric in effect_sizes_list:
-                    #print(metric[0]+": "+str(metric[1]))
                     if metric[0][1] in metrics_type:
                         m_header = metrics_header[metric[0][1]]
                         metrics_data[m_header] = metric[1]
@@ -382,12 +383,15 @@ class PGSExport:
 
         # Sample
         sample_object_labels = self.get_column_labels(Sample)
+        # Remove the "study_stage" column for this spreadsheet
+        del sample_object_labels['study_stage']
         for label in list(sample_object_labels.values()):
             object_data[label] = []
 
+
         samplesets = []
         if len(pgs_list) == 0:
-            samplesets = SampleSet.objects.all()
+            samplesets = SampleSet.objects.all().prefetch_related('samples')
         else:
             for pgs_id in pgs_list:
                 score = Score.objects.get(id__exact=pgs_id)
@@ -405,8 +409,9 @@ class PGSExport:
             scores = ', '.join(scores_ids.keys())
             for sample in pss.samples.all():
                 object_data[sample_object_labels['associated_score']].append(scores)
-                object_data[sample_object_labels['study_stage']].append('Score Evaluation')
                 object_data[sample_object_labels['cohorts_list']].append(', '.join([c.name_short for c in sample.cohorts.all()]))
+                object_data[sample_object_labels['sample_age_formatted']].append(self.format_demographic_data(sample.sample_age))
+                object_data[sample_object_labels['followup_time_formatted']].append(self.format_demographic_data(sample.followup_time))
 
                 for sample_column in sample_object_labels.keys():
                     if self.not_in_extra_fields_to_include(sample_column):
@@ -449,6 +454,8 @@ class PGSExport:
                     for sample in samples:
                         object_data[object_labels['associated_score']].append(score.id)
                         object_data[object_labels['study_stage']].append(stage_name)
+                        object_data[object_labels['sample_age_formatted']].append(self.format_demographic_data(sample.sample_age))
+                        object_data[object_labels['followup_time_formatted']].append(self.format_demographic_data(sample.followup_time))
 
                         for column in object_labels.keys():
                             if self.not_in_extra_fields_to_include(column):
@@ -524,3 +531,25 @@ class PGSExport:
                     object_data[object_labels[column]].append(object_method_name)
 
         return object_data
+
+
+    def format_demographic_data(self, demographic):
+        """ Combine the different elements of the Demographic model within 1 line """
+        data = []
+        if demographic:
+            # Extract and format demographic data
+            estimate = demographic.format_estimate()
+            if not estimate:
+                estimate = demographic.format_range()
+            variability = demographic.format_variability()
+
+            # Add formatted data
+            if estimate:
+                data.append(estimate)
+            if variability:
+                data.append(variability)
+            if data:
+                data.append(demographic.format_unit())
+        if data:
+            return ';'.join(data)
+        return ''
