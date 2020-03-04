@@ -50,6 +50,11 @@ class Publication(models.Model):
         return self.PMID != None
 
     @property
+    def pub_year(self):
+        45
+        return self.date_publication.strftime('%Y')
+
+    @property
     def scores_count(self):
         return self.publication_score.all().count()
 
