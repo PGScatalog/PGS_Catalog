@@ -137,7 +137,8 @@ class Browse_PublicationTable(tables.Table):
         model = Publication
         attrs = {
             "data-show-columns" : "true",
-            "data-sort-name" : "id"
+            "data-sort-name" : "id",
+            "data-page-size" : "50"
         }
         fields  = [
             'id',
@@ -177,7 +178,8 @@ class Browse_TraitTable(tables.Table):
         model = EFOTrait
         attrs = {
             "data-show-columns" : "true",
-            "data-sort-name" : "display_label"
+            "data-sort-name" : "display_label",
+            "data-page-size" : "50"
         }
         fields = [
             'label_link',
@@ -199,7 +201,8 @@ class Browse_ScoreTable(tables.Table):
         model = Score
         attrs = {
             "data-show-columns" : "true",
-            "data-sort-name" : "id"
+            "data-sort-name" : "id",
+            "data-page-size" : "50"
         }
         fields = [
             'id',
@@ -229,6 +232,7 @@ class Browse_ScoreTable(tables.Table):
     def render_ftp_link(self, value):
         ftp_link = 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/'+value
         return format_html('<a class="pgs_no_icon_link file_link" href="{}" title="Download PGS Scoring File (variants, weights)" download><i class="fa fa-file-text"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
+
     def render_variants_number(self, value):
         return '{:,}'.format(value)
 
@@ -244,7 +248,8 @@ class Browse_SampleSetTable(tables.Table):
     class Meta:
         model = Sample
         attrs = {
-            "data-show-columns" : "true"
+            "data-show-columns" : "true",
+            "data-page-size" : "50"
         }
         fields = [
             'sampleset',
@@ -457,12 +462,11 @@ class PerformanceTable_PubTrait(tables.Table):
 
 class CohortTable(tables.Table):
     '''Displays information about Cohorts that have been cited by PGS'''
-    name_short = tables.Column(accessor='name_short', verbose_name='Cohort short name', orderable=True)
-    name_full  = tables.Column(accessor='name_full', verbose_name='Cohort long name', orderable=False)
 
     class Meta:
         attrs = {
-            "data-show-columns" : "false"
+            "data-show-columns" : "false",
+            "data-sort-name" : "name_short"
         }
         model = Cohort
         fields = [

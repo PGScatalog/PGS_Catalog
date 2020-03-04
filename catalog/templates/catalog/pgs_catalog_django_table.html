@@ -3,6 +3,7 @@
     {% block table %}
         <table
           data-toggle="table"
+          {% render_attrs table.attrs %}
           data-search="true"
           data-sortable="true"
           data-sort-order="asc"
@@ -12,10 +13,9 @@
           data-minimum-count-columns="1"
           data-pagination="true"
           data-page-size="15"
-          data-page-list="[15, 25, 50, 100, All]"
+          data-page-list="[15, 25, 50, 100, 200, All]"
           data-export-data-type="all"
-          data-export-types="['json', 'xml', 'csv', 'txt', 'excel']"
-          {% render_attrs table.attrs %}>
+          data-export-types="['json', 'xml', 'csv', 'txt', 'excel']">
             {% block table.thead %}
             {% if table.show_header %}
                 <thead class="thead-light">
