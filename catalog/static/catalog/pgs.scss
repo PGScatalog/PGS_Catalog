@@ -639,6 +639,8 @@ td > ul {
 
 .file_link {
   font-size: 28px;
+  border: none !important;
+  cursor: pointer !important;
   i {
     padding-left: 0.5rem;
   }
@@ -730,11 +732,11 @@ td > ul {
   font-size: 75%;
 }
 
-/*.badge-pgs-white {
+.badge-pgs-white {
   color: $pgs_colour_1;
   background-color: #FFF;
-  font-size: 100%;
-}*/
+  font-size: 85%;
+}
 
 .pgs_color_1 {
   color: $pgs_colour_1;
@@ -747,6 +749,9 @@ td > ul {
   &:hover, &:focus {
     color: #FFF;
     background-color: $pgs_colour_1_lighter !important;
+    .badge-pgs-white {
+      color: $pgs_colour_1_lighter;
+    }
   }
 }
 .btn-pgs-2 {
