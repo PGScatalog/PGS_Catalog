@@ -344,7 +344,7 @@ th .th-inner {
 .pgs_browse {
   text-align: center;
   margin-top:0rem;
-  margin-bottom:5rem;
+  margin-bottom:4rem;
 
   a {
     display: block;
@@ -747,6 +747,21 @@ td > ul {
   &:hover, &:focus {
     color: #FFF;
     background-color: $pgs_colour_1_lighter !important;
+  }
+}
+.btn-pgs-2 {
+  border:1px solid $pgs_colour_2 !important;
+  font-size:20px;
+  span {
+    color: $pgs_colour_2;
+  }
+  &:hover, &:focus {
+    color: #FFF;
+    background-color: $pgs_colour_1_lighter;
+    border-color: $pgs_colour_1_lighter !important;
+    span {
+      color: #FFF;
+    }
   }
 }
 
