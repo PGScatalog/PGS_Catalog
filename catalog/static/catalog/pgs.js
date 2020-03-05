@@ -13,30 +13,11 @@ $(document).ready(function() {
     // seems necessary to allow the browser to jump to the anchor first.
     window.setTimeout(offsetAnchor, 0.1);
 
+    // Shorten content having long text
+    shorten_displayed_content();
 
-    // Configure/customize these variables.
-    var showChar = 100;  // How many characters are shown by default
-    var ellipsestext = "...";
-    var moretext = 'Show more';
-    var lesstext = 'Show less';
-
-
-    function shorten_displayed_content() {
-      $('.more').each(function() {
-          var content = $(this).html();
-          if (content.length > showChar ){
-            if (content.search('.moreellipses') == -1) {
-              var c = content.substr(0, showChar);
-              var h = content.substr(showChar, content.length - showChar);
-              var html = c + '<span class="moreellipses">' + ellipsestext+ '&nbsp;</span><span class="morecontent">' + h + '</span><span class="morelink link_more">' + moretext + '</span>';
-              $(this).html(html);
-            }
-          }
-      });
-    }
 
     $('body').on("click", 'span.morelink', function(){
-        console.log("clicked!");
         if($(this).hasClass("link_less")) {
           $(this).html(moretext);
         } else if ($(this).hasClass("link_more")){
@@ -65,7 +46,7 @@ $(document).ready(function() {
 
     // Tooltip | Popover
     function pgs_tooltip() {
-      $('.pgs_helptip').attr('data-toggle','tooltip').attr('data-placement','bottom');
+      $('.pgs_helptip').attr('data-toggle','tooltip').attr('data-placement','bottom').attr('data-delay','800');
       $('.pgs_helpover').attr('data-toggle','popover').attr('data-placement','bottom');
 
       $('[data-toggle="tooltip"]').tooltip();
@@ -110,15 +91,24 @@ $(document).ready(function() {
 
     // Run the "post processing" once the tables have been loaded and sorted by default
     $('table.table[data-toggle="table"]').each(function(){
+      // Remove column search if the number of rows is too small
+      var trs = $( this ).find( "tbody > tr");
+      if (trs.length < 3) {
+        $( this ).find('.fht-cell').hide()
+      }
+      // Alter the table display
       setTimeout(function(){
         alter_external_links('table.table[data-toggle="table"] tbody');
+        pgs_tooltip();
         shorten_displayed_content();
       }, 500);
     });
+
     // Run the "post processing" after a manual sorting
     $('table.table[data-toggle="table"]').on("click", ".sortable", function(){
       setTimeout(function(){
         alter_external_links('table.table[data-toggle="table"] tbody');
+        pgs_tooltip();
         shorten_displayed_content();
       }, 0);
     });
@@ -129,18 +119,12 @@ $(document).ready(function() {
       if ($('.form-control').val) {
           timer = setTimeout(function(){
             alter_external_links('table.table[data-toggle="table"] tbody');
+            pgs_tooltip();
             shorten_displayed_content();
           }, 1000);
       }
     });
 
-    // Remove column search if the number of rows is too small
-    $('table.table[data-toggle="table"]').each(function(index) {
-      var trs = $( this ).find( "tbody > tr");
-      if (trs.length < 3) {
-        $( this ).find('.fht-cell').hide()
-      }
-    });
 
     // Remove pagination text if there is no pagination links
     $('.fixed-table-pagination').each(function(index) {
@@ -179,6 +163,31 @@ $(document).ready(function() {
       $(this).children('span').toggleClass('fa-folder fa-folder-open');
     });
 });
+
+
+
+
+/*
+ * Function to shorten content having long text
+ */
+var showChar = 100;  // How many characters are shown by default
+var ellipsestext = "...";
+var moretext = 'Show more';
+var lesstext = 'Show less';
+
+function shorten_displayed_content() {
+  $('.more').each(function() {
+      var content = $(this).html();
+      if (content.length > showChar ){
+        if (content.search('.moreellipses') == -1) {
+          var c = content.substr(0, showChar);
+          var h = content.substr(showChar, content.length - showChar);
+          var html = c + '<span class="moreellipses">' + ellipsestext+ '&nbsp;</span><span class="morecontent">' + h + '</span><span class="morelink link_more">' + moretext + '</span>';
+          $(this).html(html);
+        }
+      }
+  });
+}
 
 
 /*
@@ -389,19 +398,26 @@ function display_category_list(data_json) {
     var subcat_div_height_right = 0;
     var count = cat_index + (subcat_children.length/2);
 
+    // One sub-category entry
     if (subcat_children.length == 1) {
       subcat_div_height_right = cat_index * item_height;
     }
+    // Last entry
     else if (cat_index == number_of_cat-1) {
       cat_pos = cat_index * item_height;
-
       if (subcat_children.length < number_of_cat) {
-        subcat_div_height_right = (number_of_cat -subcat_children.length)*item_height;
+        subcat_div_height_right = (number_of_cat - subcat_children.length)*item_height;
       }
     }
+    // Other entries with more than 1 sub-category
     else if ((cat_index + (subcat_children.length/2)) < number_of_cat) {
       cat_pos = cat_index * item_height;
       subcat_div_height_right = cat_pos - ((subcat_children.length)*item_height)/2 + item_height/2;
+    }
+    // Other entries with more than 1 sub-category going over the end of the list
+    else if ((cat_index + (subcat_children.length/2)) >= number_of_cat && subcat_children.length <= number_of_cat) {
+      cat_pos = cat_index * item_height;
+      subcat_div_height_right = (number_of_cat - subcat_children.length)*item_height;
     }
 
     // Display scrollbar for categories with lots of traits
