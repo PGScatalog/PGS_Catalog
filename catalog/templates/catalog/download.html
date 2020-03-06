@@ -11,7 +11,7 @@
   </nav>
 
     <div class="clearfix">
-      <h2 class="float_left">PGS Catalog Downloads</h2>
+      <h2 class="float_left">Downloads</h2>
       <div class="float_right">
         <a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_root }}" target="_blank">
           <span class="fa fa-folder"></span> PGS Catalog FTP site
@@ -19,7 +19,7 @@
       </div>
     </div>
     <p>
-        This page contains information about the PGS Catalog downloads and ftp.
+        This page contains information about the PGS Catalog downloads and FTP.
     </p>
 
     <section>
@@ -28,25 +28,30 @@
         <tbody>
           <tr>
             <td>
-              <span class="pgs_h_big_header">PGS variants scoring</span>
+              <span class="pgs_h_big_header">PGS Scoring Files & Metadata</span>
               <a class="pgs_no_icon_link info-icon" href="#dl_ftp" data-toggle="tooltip" data-placement="bottom" title="Individual PGS variants scoring and metadata files. Click on this icon to see information about the PGS Scoring File format"><i class="fa fa-info-circle"></i></a>
             </td>
-            <td><a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_root }}/scores/" target="_blank"><span class="fa fa-folder"></span> PGS Score FTP directories</a></td>
+            <td><a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_root }}/scores/" target="_blank"><span class="fa fa-folder"></span> View PGS Score Directories (FTP)</a></td>
           </tr>
           <tr>
             <td>
-              <span class="pgs_h_big_header">All PGS metadata</span>
+              <span class="pgs_h_big_header">PGS Catalog Metadata</span>
               <a class="pgs_no_icon_link info-icon" href="#dl_ftp_metadata" data-toggle="tooltip" data-placement="bottom" title="Available PGS global metadata files. Click on this icon to see information about the PGS Metadata File format"><i class="fa fa-info-circle"></i></a>
             </td>
-            <td><a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fa fa-download"></span> Download Metadata file<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a></td>
+            <td><a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fa fa-download"></span> Bulk Metadata Downloads<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a></td>
           </tr>
         </tbody>
       </table>
     </section>
 
     <section>
-      <h3 id="dl_ftp">PGS Catalog Scoring Files</h3>
-        <p>Each score file is formatted to be a gzipped <b>tab-delimited</b> text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
+        <h3 id="dl_ftp">PGS Catalog FTP</h3>
+        <p>The PGS Catalog FTP is structured to allow consistent access to data for each Polygenic Score (PGS) and the bulk downlaods. The FTP is strcutred according to the following diagram:</p>
+
+        <!-- INSERT: FTP structure diagram -->
+
+        <h4>PGS Scoring Files</h4>
+        <p>Each scoring file (variant information, effect alleles/weights) is formatted to be a gzipped <b>tab-delimited</b> text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
         <p>In the current catalog the scores have been extracted from the relevant publication and only been reformatted to have a consistent header (lines starting with <code>#</code>)
            listing relevant PGS Catalog information, e.g.:
         </p>
@@ -90,46 +95,43 @@
     </section>
 
     <section>
-      <h3 id="dl_ftp_metadata">PGS Metadata File</h3>
-      <p>
-        Downloads of the full PGS Catalog and annotations:
-        <a class="btn btn-pgs pgs_no_icon_link ml-2" href="{{ pgs_ftp_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fa fa-download"></span> Download Metadata file<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a>
-      </p>
-      <p>It consists on an Excel file containing several worksheets:</p>
+      <h4 id="dl_ftp_metadata">PGS Catalog Metadata</h4>
+        <p>Bulk download of the entire PGS Catalog's metadata, describing all PGS in terms of their publication source, samples used for development/evaluation, and related performance metrics.<a class="btn btn-pgs pgs_no_icon_link ml-2" href="{{ pgs_ftp_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fa fa-download"></span> Download Metadata file<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a></p>
+      <p>The bulk ownload contains a single Excel file with multiple sheets describing each of the data types. The sheets are also provided as individual <code>.csv</code> files for easier import in analysis tools, and are provided on the FTP in the <code>metadata/</code> folder.</p>
       <table class="table table-striped table_pgs_auto">
         <thead class="thead-light">
           <tr>
-            <th>Worksheet Name</th>
+            <th>Worksheet</th>
             <th>Description</th>
-            <th><span class="fa fa-download"></span> Download individual worksheet<span class="badge badge-pill badge-pgs-white ml-2">.csv</span></th>
+            <th><span class="fa fa-download"></span> Download Sheet<span class="badge badge-pill badge-pgs-white ml-2">.csv</span></th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Readme</td><td>Summary stats</td><td>-</td>
+            <td>Readme</td><td>PGS Catalog Release Date and Summary Information.</td><td>-</td>
           </tr>
           <tr>
-            <td>Scores</td><td>Lists the PGS scores and associated metadata</td>
+            <td>Scores</td><td>Lists all PGS scores and their associated metadata.</td>
             <td><a class="pgs_no_icon_link file_link pgs_helptip" href="{{ pgs_ftp_root }}/metadata/pgs_metadata_scores.csv" title="Click to download all PGS Score metadata" download><i class="fa fa-file-text"></i></a></td>
           </tr>
           <tr>
-            <td>Performance Metrics</td><td>Lists the performance metrics and the associated PGS Scores and Publications</td>
+            <td>Performance Metrics</td><td>Lists all performance metrics and the associated PGS Scores and Publications.</td>
             <td><a class="pgs_no_icon_link file_link" href="{{ pgs_ftp_root }}/metadata/pgs_metadata_performance_metrics.csv" title="Click to download all PGS Performance metrics" download><i class="fa fa-file-text"></i></a></td>
           </tr>
           <tr>
-            <td>Evaluation Sample Sets</td><td>Describes the samples used in the different sample sets</td>
+            <td>Evaluation Sample Sets</td><td>Describes the samples used to evaluate PGS performance (refferenced as Polygenic Score Sample Sets (PSS).</td>
             <td><a class="pgs_no_icon_link file_link" href="{{ pgs_ftp_root }}/metadata/pgs_metadata_evaluation_sample_sets.csv" title="Click to download all PGS Evaluation sample sets" download><i class="fa fa-file-text"></i></a></td>
           </tr>
           <tr>
-            <td>Score Development Samples</td><td>Lists the samples used to collect the variants used to calculate the PGS Scores and the sample used to train the PGS Scores</td>
+            <td>Score Development Samples</td><td>Lists the samples used to create the PGS: samples used to discover the variant associations (GWAS), samples used for score development/training.</td>
             <td><a class="pgs_no_icon_link file_link" href="{{ pgs_ftp_root }}/metadata/pgs_metadata_score_development_samples.csv" title="Click to download all PGS Score development samples" download><i class="fa fa-file-text"></i></a></td>
           </tr>
           <tr>
-            <td>Publications</td><td>Lists the publications</td>
+            <td>Publications</td><td>Lists the publication sources for the PGS and PGS evaluations in the catalog.</td>
             <td><a class="pgs_no_icon_link file_link" href="{{ pgs_ftp_root }}/metadata/pgs_metadata_publications.csv" title="Click to download all PGS Publications" download><i class="fa fa-file-text"></i></a></td>
           </tr>
           <tr>
-            <td>EFO Traits</td><td>Lists the EFO Traits used in the PGS Catalog</td>
+            <td>EFO Traits</td><td>Lists the ontology-mapped traits information for all PGS in the catalog.</td>
             <td><a class="pgs_no_icon_link file_link" href="{{ pgs_ftp_root }}/metadata/pgs_metadata_efo_traits.csv" title="Click to download all PGS Traits" download><i class="fa fa-file-text"></i></a></td>
           </tr>
         </tbody>
