@@ -8,7 +8,7 @@ $pgs_petrol: #007C82; /* EBI petrol */
 $pgs_colour_1: $pgs_petrol;//#8ac832;//#119da4;//#1178a4; // Main colour
 $pgs_colour_1_lighter: #00adb5;//#00b3b3;//#8ac832;//#00b3b3;//#1592c8;
 $pgs_colour_2: #BE4A81;//#B72E6C;//#3DB28C;//#BE4A81;//#3DB28C;
-$pgs_colour_3: #8ac832;
+$pgs_colour_2_lighter: #e83e8c;
 $pgs_dark0: #000;
 $pgs_dark2: #222; // Main font-color
 $pgs_dark3: #333; // Header & footer background-color
@@ -866,7 +866,7 @@ td > ul {
   }
 }
 
-.pgs_scoring_header {
+.pgs_formatted_block {
   display:flex;
   pre {
     padding: 0.5rem 0.75rem;
@@ -875,6 +875,10 @@ td > ul {
     span {
       font-weight: bold;
       color: $pgs_darkA;
+    }
+    span.pgs_hl {
+      color: $pgs_colour_2_lighter;
+      font-weight: normal !important;
     }
     span.scoring_col {
       padding-right:1.5rem;
@@ -1032,7 +1036,6 @@ footer {
   color: #FFF;
   a {
     color: $pgs_colour_1;
-    //color: $pgs_colour_3;
     border:none;
     &:hover {
       color: $pgs_colour_1_lighter;
