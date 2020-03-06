@@ -880,6 +880,11 @@ td > ul {
       color: $pgs_colour_2_lighter;
       font-weight: normal !important;
     }
+    span.pgs_hl_i {
+      font-style: italic;
+      color: $pgs_dark2;
+      font-weight: normal !important;
+    }
     span.scoring_col {
       padding-right:1.5rem;
     }

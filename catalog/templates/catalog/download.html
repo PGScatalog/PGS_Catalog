@@ -46,18 +46,22 @@
 
     <section>
         <h3 id="dl_ftp">PGS Catalog FTP</h3>
-        <p>The PGS Catalog FTP is structured to allow consistent access to data for each Polygenic Score (PGS) and the bulk downlaods. The FTP is structured according to the following diagram:</p>
+        <p>The PGS Catalog FTP allows for consistent access to the bulk downloads, and is indexed by Polygenic Score (PGS) ID to allow programmatic access to score level data. The following diagram illustrates the FTP structure:</p>
 
         <div class="pgs_formatted_block">
           <pre>
 <a href="{{ pgs_ftp_root }}">{{ pgs_ftp_root }}</a>
 ├── <a href="{{ pgs_ftp_root }}/metadata"><b>metadata/</b></a>
 │   ├── <span class="pgs_hl">pgs_all_metadata.xlsx</span>
+│   ├── <span class="pgs_hl">pgs_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(6 files)</small>
+│   ├── <span class="pgs_hl">pgs_all_metadata.tar.gz</span> <small>(xlsx + csv files)</small>
 │   └── <b>previous_releases/</b>
 └── <a href="{{ pgs_ftp_root }}/scores"><b>scores/</b></a>
     ├── <b>PGS000001/</b>
     │   ├── <b>Metadata/</b>
     │   │   ├── <span class="pgs_hl">PGS000001_metadata.xlsx</span>
+    │   │   ├── <span class="pgs_hl">PGS000001_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(6 files)</small>
+    │   │   ├── <span class="pgs_hl">PGS000001_metadata.tar.gz</span> <small>(xlsx + csv files)</small>
     │   │   └── <b>archived_versions/</b>
     │   └── <b>ScoringFiles/</b>
     │       ├── <span class="pgs_hl">PGS000001.txt.gz</span>
