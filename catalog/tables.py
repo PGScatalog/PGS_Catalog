@@ -19,6 +19,10 @@ class Column_joinlist(tables.Column):
         values = smaller_in_bracket('<br/>'.join(value))
         return format_html(values)
 
+class Column_shorten_text_content(tables.Column):
+    def render(self, value):
+        return format_html('<span class="more">'+value+'</span>')
+
 class Column_metriclist(tables.Column):
     def render(self, value):
         l = []
@@ -410,6 +414,8 @@ class PerformanceTable(tables.Table):
     class_accuracy = Column_metriclist(accessor='class_acc_list', verbose_name='PGS Classification Metrics', orderable=False)
     othermetrics = Column_metriclist(accessor='othermetrics_list', verbose_name='Other Metrics', orderable=False)
     pub_withexternality = Column_pubexternality(accessor='publication_withexternality', verbose_name='Performance Source', orderable=False)
+    covariates = Column_shorten_text_content(accessor='covariates')
+    performance_comments = Column_shorten_text_content(accessor='performance_comments')
 
     class Meta:
         model = Performance
