@@ -246,7 +246,7 @@ class Browse_SampleSetTable(tables.Table):
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
     sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br />(PSS ID)'), orderable=False)
-    phenotyping_free = tables.Column(accessor='phenotyping_free', verbose_name='Detailed Phenotype Description')
+    phenotyping_free = Column_shorten_text_content(accessor='phenotyping_free', verbose_name='Detailed Phenotype Description')
     cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
 
     class Meta:

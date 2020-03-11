@@ -8,7 +8,7 @@ class Publication(models.Model):
     num = models.IntegerField('PGS Publication/Study (PGP) Number', primary_key=True)
     id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30)
 
-    date_released = models.DateField('PGS Release Date', null=True)
+    date_released = models.DateField('PGS Release Date', null=True, db_index=True)
 
     # Key information (also) in the spreadsheet
     doi = models.CharField('digital object identifier (doi)', max_length=100)
@@ -51,7 +51,6 @@ class Publication(models.Model):
 
     @property
     def pub_year(self):
-        45
         return self.date_publication.strftime('%Y')
 
     @property
@@ -365,21 +364,21 @@ class Sample(models.Model):
 
     def associated_PGS(self):
         ids = set()
-        for x in self.score_variants.all().values():
-            ids.add(x['id'])
-        for x in self.score_training.all().values():
-            ids.add(x['id'])
+        for x in self.score_variants.all():
+            ids.add(x.id)
+        for x in self.score_training.all():
+            ids.add(x.id)
         ids = list(ids)
         ids.sort()
-        return list(ids)
+        return ids
 
     def associated_PSS(self):
         ids = set()
-        for x in self.sampleset.all().values():
-            ids.add(x['id'])
+        for x in self.sampleset.all():
+            ids.add(x.id)
         ids = list(ids)
         ids.sort()
-        return list(ids)
+        return ids
 
     def list_cohortids(self):
         return [x.name_full for x in self.cohorts.all()]
@@ -499,7 +498,7 @@ class Score(models.Model):
     name = models.CharField('PGS Name', max_length=100)
 
     # Curation/release information
-    date_released = models.DateField('PGS Catalog Release Date', null=True)
+    date_released = models.DateField('PGS Catalog Release Date', null=True, db_index=True)
     curation_notes = models.TextField('Curation Notes', default='')
 
     # Links to related models
@@ -590,15 +589,15 @@ class Performance(models.Model):
     id = models.CharField('PGS Performance Metric (PPM) ID', max_length=30)
 
     # Curation information
-    date_released = models.DateField('PGS Catalog Release Date', null=True)
+    date_released = models.DateField('PGS Catalog Release Date', null=True, db_index=True)
     curation_notes = models.TextField('Curation Notes', default='')
 
     # Links to related objects
     score = models.ForeignKey(Score, on_delete=models.CASCADE,
                               verbose_name='Evaluated Score') # PGS that the metrics are associated with
     phenotyping_efo = models.ManyToManyField(EFOTrait, verbose_name='Mapped Trait(s) (EFO)')
-    sampleset = models.ForeignKey(SampleSet, on_delete=models.PROTECT,
-                                  verbose_name='PGS Sample Set (PSS)') # Samples used for evaluation
+    sampleset = models.ForeignKey(SampleSet, on_delete=models.PROTECT, verbose_name='PGS Sample Set (PSS)',
+                                    related_name='sampleset_performance') # Samples used for evaluation
     publication = models.ForeignKey(Publication, on_delete=models.PROTECT, verbose_name='Peformance Source',
                                     related_name='publication_performance') # Study that reported performance metrics
 
@@ -725,7 +724,7 @@ class Metric(models.Model):
 
 class Release(models.Model):
     """Class to store and manipulate the releases information"""
-    date = models.DateField("Release date", null=False)
+    date = models.DateField("Release date", null=False, db_index=True)
     score_count = models.IntegerField('Number of new PGS scores released', default=0)
     performance_count = models.IntegerField('Number of new PGS Performance metrics released', default=0)
     publication_count = models.IntegerField('Number of new PGS Publication released', default=0)

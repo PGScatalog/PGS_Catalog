@@ -270,3 +270,21 @@ class DownloadView(TemplateView):
 
 class CurrentTemplateView(RedirectView):
     url = settings.USEFUL_URLS['TEMPLATEGoogleDoc_URL']
+
+
+# Method used for the App Engine warmup
+def warmup(request):
+    """
+    Provides default procedure for handling warmup requests on App
+    Engine. Just add this view to your main urls.py.
+    """
+    import importlib
+    from django.http import HttpResponse
+    for app in settings.INSTALLED_APPS:
+        for name in ('urls', 'views', 'models'):
+            try:
+                importlib.import_module('%s.%s' % (app, name))
+            except ImportError:
+                pass
+    content_type = 'text/plain; charset=utf-8'
+    return HttpResponse("Warmup done.", content_type=content_type)

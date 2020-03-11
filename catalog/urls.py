@@ -30,5 +30,8 @@ urlpatterns = [
     path('downloads/', views.DownloadView.as_view(), name='Downloads'),
 
     #ex: /template/current
-    path('template/current', views.CurrentTemplateView.as_view(), name='Current Curation Template')
+    path('template/current', views.CurrentTemplateView.as_view(), name='Current Curation Template'),
+
+    # Setup URL used to warmup the Django app in the Google App Engine
+    path('_ah/warmup', views.warmup, name="Warmup")
 ]
