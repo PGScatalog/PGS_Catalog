@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.conf import settings
 from django.utils.html import format_html
 from .models import *
 from django.utils.crypto import get_random_string
@@ -234,7 +235,8 @@ class Browse_ScoreTable(tables.Table):
         return format_html('<br>'.join(l))
 
     def render_ftp_link(self, value):
-        ftp_link = 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs/ScoringFiles_formatted/'+value
+        id = value.split('.')[0]
+        ftp_link = settings.USEFUL_URLS['PGS_FTP_ROOT']+'/scores/{}/ScoringFiles/{}'.format(id, value)
         return format_html('<a class="pgs_no_icon_link file_link" href="{}" title="Download PGS Scoring File (variants, weights)" download><i class="fa fa-file-text"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
 
     def render_variants_number(self, value):
