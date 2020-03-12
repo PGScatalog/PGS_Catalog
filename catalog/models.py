@@ -6,7 +6,7 @@ class Publication(models.Model):
     """Class for publications with PGS"""
     # Stable identifiers
     num = models.IntegerField('PGS Publication/Study (PGP) Number', primary_key=True)
-    id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30)
+    id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30, db_index=True)
 
     date_released = models.DateField('PGS Release Date', null=True, db_index=True)
 
@@ -493,7 +493,7 @@ class Score(models.Model):
 
     # Stable identifiers
     num = models.IntegerField('Polygenic Score (PGS) Number', primary_key=True)
-    id = models.CharField('Polygenic Score (PGS) ID', max_length=30)
+    id = models.CharField('Polygenic Score (PGS) ID', max_length=30, db_index=True)
 
     name = models.CharField('PGS Name', max_length=100)
 
@@ -548,7 +548,7 @@ class Score(models.Model):
 class SampleSet(models.Model):
     # Stable identifiers for declaring a set of related samples
     num = models.IntegerField('PGS Sample Set (PSS) Number', primary_key=True)
-    id = models.CharField('PGS Sample Set (PSS) ID', max_length=30)
+    id = models.CharField('PGS Sample Set (PSS) ID', max_length=30, db_index=True)
 
     # Link to the description of the sample(s) in the other table
     samples = models.ManyToManyField(Sample, verbose_name='Sample Set Descriptions', related_name='sampleset')
@@ -586,7 +586,7 @@ class Performance(models.Model):
     """Class to hold performance/accuracy metrics for a PGS and a set of samples"""
     # Key identifiers
     num = models.IntegerField('PGS Performance Metric (PPM) Number', primary_key=True)
-    id = models.CharField('PGS Performance Metric (PPM) ID', max_length=30)
+    id = models.CharField('PGS Performance Metric (PPM) ID', max_length=30, db_index=True)
 
     # Curation information
     date_released = models.DateField('PGS Catalog Release Date', null=True, db_index=True)

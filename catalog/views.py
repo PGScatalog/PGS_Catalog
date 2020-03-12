@@ -63,7 +63,7 @@ def get_efo_traits_data():
 
 
 def index(request):
-    current_release = Release.objects.order_by('-date').first()
+    current_release = Release.objects.values('date').order_by('-date').first()
 
     context = {
         'release' : current_release,
