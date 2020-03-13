@@ -406,7 +406,7 @@ class Sample(models.Model):
         div_id = "sample_"+str(self.pk)
         sstring = ''
         if self.sample_cases != None:
-            sstring += '<div><a class="toggle_table_btn" id="'+div_id+'" title="Click to show/hide the details">{:,} individuals <i class="fa fa-plus-circle"></i></a></div>'.format(self.sample_number)
+            sstring += '<div><a class="toggle_table_btn pgs_helptip" id="'+div_id+'" title="Click to show/hide the details">{:,} individuals <i class="fa fa-plus-circle"></i></a></div>'.format(self.sample_number)
             sstring += '<div class="toggle_list" id="list_'+div_id+'">'
             sstring += '<span class="only_export">[</span>'
             sstring += '<ul>\n<li>{:,} cases</li>\n'.format(self.sample_cases)
