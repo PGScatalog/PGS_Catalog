@@ -16,10 +16,10 @@ def run(*args):
     previous_release_date = get_previous_release_date()
 
     # Remove non released data
-    call_remove_non_released_data(previous_release_date)
+    #call_remove_non_released_data(previous_release_date)
 
     # Remove non released data
-    call_remove_history_data()
+    #call_remove_history_data()
 
     debug = 0
     scores_db = Score.objects.all().order_by('num')
@@ -153,10 +153,12 @@ def call_generate_studies_metadata_exports(dirpath,scores,debug):
             print("Can't create a directory for the study "+pgs_id)
             break
 
+        #filename = 'study_download_example.xlsx'
         filename = study_dir+pgs_id+"_metadata.xlsx"
 
         # Create export object
         pgs_export = PGSExport(filename)
+        pgs_export.set_pgs_list([pgs_id])
 
         # Build the spreadsheets
         pgs_export.generate_sheets(csv_prefix)
@@ -181,6 +183,10 @@ def build_score_ftp(dirpath,dirpath_new,scores,previous_release,debug):
     # 1 - Add scoring data for each PGS Score
     for score in scores:
         pgs_id = score.id
+
+        # For test only
+        if debug and score.num == debug:
+            break
 
         extension = str('.txt.gz')
         pgs_ftp = PGSBuildFtp(pgs_id, extension, 'score')
@@ -229,6 +235,10 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
     # 1 - Add metadata for each PGS Score
     for score in scores:
         pgs_id = score.id
+
+        # For test only
+        if debug and score.num == debug:
+            break
 
         pgs_ftp = PGSBuildFtp(pgs_id, '_metadata.xlsx', 'metadata')
 
