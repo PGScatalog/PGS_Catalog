@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic.base import TemplateView
 
 from . import views
 
@@ -33,5 +34,8 @@ urlpatterns = [
     path('template/current', views.CurrentTemplateView.as_view(), name='Current Curation Template'),
 
     # Setup URL used to warmup the Django app in the Google App Engine
-    path('_ah/warmup', views.warmup, name="Warmup")
+    path('_ah/warmup', views.warmup, name="Warmup"),
+
+    # Setup robots.txt
+    path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain"))
 ]
