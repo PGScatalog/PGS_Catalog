@@ -126,37 +126,8 @@
       {% endblock %}
     </div>
 
+    {% include "catalog/includes/footer.html" %}
 
-    <footer class="footer font-small pt-3">
-
-      <div class="footer_first_row">
-        <div>Supported by:</div>
-        <div>
-          <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/UofCambridge_small.png' %}" alt="University of Cambridge"></a>
-        </div>
-        <div >
-          <a class="pgs_no_icon_link" href="{{ ebi_url }}" style="link:none"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/EMBL_EBI_small.png' %}" alt="EMBL-EBI"></a>
-        </div>
-        <div>
-          <a class="pgs_no_icon_link" href="{{ hdr_uk_cam_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/HDR-UK_small.png' %}" alt="HDR-UK (Cambridge)"></a>
-        </div>
-        <div>
-          <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/Baker_Logo_small.png' %}" alt="Baker Heart and Diabetes Institute"></a>
-        </div>
-        <div>
-          <div class="pgs_social">
-            <a class="pgs_no_icon_link fa fa-envelope" title="Contact us" href="mailto:{{ pgs_contact }}" target="_blank"></a>
-            <a class="pgs_no_icon_link fa fa-twitter" title="Twitter" href="{{ pgs_twitter_url }}" target="_blank"></a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Copyright -->
-      <div class="footer-copyright text-center py-3">
-        Copyright © EMBL-EBI 2020 | <a class="pgs_no_icon_link" href="{{ ebi_url }}">EMBL-EBI</a> is an Outstation of the <a class="pgs_no_icon_link" href="https://www.embl.org/">European Molecular Biology Laboratory</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/privacy">Privacy</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/cookies">Cookies</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/terms-of-use">Terms of use</a>
-      </div>
-      <!-- Copyright -->
-    </footer>
   </div>
 
   <!-- Google Analytics details... -->
