@@ -137,10 +137,10 @@ if os.getenv('GAE_APPLICATION', None):
         }
     }
 else:
-    # Running locally so connect to either a local MySQL instance or connect
+    # Running locally so connect to either a local PostgreSQL instance or connect
     # to Cloud SQL via the proxy.  To start the proxy via command line:
-    #    $ cloud_sql_proxy -instances=pgs-catalog:europe-west1:pgs-db-server-1=tcp:3306
-    # See https://cloud.google.com/sql/docs/mysql-connect-proxy
+    # $ cloud_sql_proxy -instances=pgs-catalog:europe-west2:pgs-*******=tcp:5430
+    # See https://cloud.google.com/sql/docs/postgres/connect-admin-proxy
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
