@@ -15,7 +15,7 @@
     <div class="clearfix">
       <h2 class="pgs_title_left">Polygenic Score (PGS) ID: <span class="pgs_title">{{score.id}}</span></h2>
       <div class="float_left">
-        <a class="btn btn-pgs pgs_no_icon_link pgs_helptip mr-2 mb-3" href="{{ pgs_ftp_root }}/scores/{{ score.id }}/ScoringFiles/{{ score.id }}.txt.gz"
+        <a class="btn btn-pgs pgs_no_icon_link pgs_helptip mr-2 mb-3" href="{{ score.ftp_scoring_file }}"
           title="Variants and weights data file for {{ score.id }}" download>
           <span class="fa fa-download"></span> Download Score
         </a>

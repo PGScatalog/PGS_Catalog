@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import DecimalRangeField
 
@@ -537,6 +538,11 @@ class Score(models.Model):
     def link_filename(self):
         filename = self.id + '.txt.gz'
         return filename
+
+    @property
+    def ftp_scoring_file(self):
+        ftp_url = '{}/scores/{}/ScoringFiles/{}'.format(settings.USEFUL_URLS['PGS_FTP_ROOT'], self.id, self.link_filename)
+        return ftp_url
 
     @property
     def list_traits(self):
