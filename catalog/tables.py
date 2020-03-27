@@ -236,7 +236,7 @@ class Browse_ScoreTable(tables.Table):
 
     def render_ftp_link(self, value):
         id = value.split('.')[0]
-        ftp_link = settings.USEFUL_URLS['PGS_FTP_ROOT']+'/scores/{}/ScoringFiles/{}'.format(id, value)
+        ftp_link = settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT']+'/scores/{}/ScoringFiles/{}'.format(id, value)
         return format_html('<a class="pgs_no_icon_link file_link" href="{}" title="Download PGS Scoring File (variants, weights)" download><i class="fa fa-file-text"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
 
     def render_variants_number(self, value):
@@ -275,6 +275,21 @@ class Browse_SampleSetTable(tables.Table):
 
     def render_cohorts_additional(self, value):
         return format_html('<span class="more">{}</span>', value)
+
+
+class Browse_CohortTable(tables.Table):
+    name_link = Column_format_html(accessor='display_cohort_name', verbose_name='Cohort Short Name', orderable=True)
+    class Meta:
+        model = Cohort
+        attrs = {
+            "data-show-columns" : "false",
+            "data-sort-name" : "display_cohort_name"
+        }
+        fields = [
+            'name_link',
+            'name_full'
+        ]
+        template_name = 'catalog/pgs_catalog_django_table.html'
 
 
 class SampleTable_variants_details(tables.Table):

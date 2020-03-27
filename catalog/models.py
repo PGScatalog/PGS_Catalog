@@ -141,20 +141,6 @@ class EFOTrait(models.Model):
                 self.description = response['description']
 
 
-    def get_category(self):
-        """ Test to fetch the GWAS trait category from an EFO ID """
-        import requests
-
-        response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%self.id)
-        response_json = response.json()
-        print("Response JSON:")
-        print(response_json)
-        if response_json and response_json['trait'] != 'None':
-            print(response_json['parent'])
-            print(response_json['colourLabel'])
-            print(response_json['colour'])
-
-
     def __str__(self):
         return '%s | %s '%(self.id, self.label)
 
@@ -541,7 +527,7 @@ class Score(models.Model):
 
     @property
     def ftp_scoring_file(self):
-        ftp_url = '{}/scores/{}/ScoringFiles/{}'.format(settings.USEFUL_URLS['PGS_FTP_ROOT'], self.id, self.link_filename)
+        ftp_url = '{}/scores/{}/ScoringFiles/{}'.format(settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], self.id, self.link_filename)
         return ftp_url
 
     @property
@@ -550,6 +536,7 @@ class Score(models.Model):
         for t in self.trait_efo.all():
             l.append((t.id, t.label))
         return(l)
+
 
 class SampleSet(models.Model):
     # Stable identifiers for declaring a set of related samples
@@ -571,7 +558,7 @@ class SampleSet(models.Model):
         ancestry_list = []
         for sample in self.samples.all():
             ancestry = sample.display_ancestry_inline
-            if ancestry not in ancestry_list:
+            if ancestry and ancestry not in ancestry_list:
                 ancestry_list.append(ancestry)
         if len(ancestry_list) > 0:
             return ', '.join(ancestry_list)
@@ -585,7 +572,6 @@ class SampleSet(models.Model):
     @property
     def count_performances(self):
         return len(Performance.objects.filter(sampleset_id=self.num))
-
 
 
 class Performance(models.Model):
@@ -744,15 +730,15 @@ class Release(models.Model):
 
     @property
     def released_score_ids(self):
-        scores = Score.objects.filter(date_released__exact=self.date)
-        return [x.id for x in scores]
+        scores = Score.objects.values('id').filter(date_released__exact=self.date)
+        return [x['id'] for x in scores]
 
     @property
     def released_publication_ids(self):
-        publications = Publication.objects.filter(date_released__exact=self.date)
-        return [x.id for x in publications]
+        publications = Publication.objects.values('id').filter(date_released__exact=self.date)
+        return [x['id'] for x in publications]
 
     @property
     def released_performance_ids(self):
-        performances = Performance.objects.filter(date_released__exact=self.date)
-        return [x.id for x in performances]
+        performances = Performance.objects.values('id').filter(date_released__exact=self.date)
+        return [x['id'] for x in performances]
