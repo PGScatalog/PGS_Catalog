@@ -15,7 +15,7 @@ class PGSExportAllMetadata(PGSExport):
 
         readme_data = {}
 
-        version_date = '2019-11-04' # fetch today's date instead
+        version_date = Release.objects.latest('date').date
         readme_data['PGS Catalog version'] = [version_date]
         readme_data['Number of Polygenic Scores'] = [Score.objects.all().count()]
         readme_data['Number of Traits'] = [EFOTrait.objects.all().count()]
