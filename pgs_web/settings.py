@@ -107,13 +107,14 @@ else:
 
 
 USEFUL_URLS = {
-    'BAKER_URL'      : 'https://baker.edu.au',
-    'EBI_URL'        : 'https://www.ebi.ac.uk',
-    'HDR_UK_CAM_URL' : 'https://www.hdruk.ac.uk/about/structure/hdr-uk-cambridge/',
-    'PGS_CONTACT'    : 'pgs-info@ebi.ac.uk',
-    'PGS_FTP_ROOT'   : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
-    'PGS_TWITTER_URL': 'https://www.twitter.com/pgscatalog',
-    'UOC_URL'        : 'https://www.phpc.cam.ac.uk/',
+    'BAKER_URL'         : 'https://baker.edu.au',
+    'EBI_URL'           : 'https://www.ebi.ac.uk',
+    'HDR_UK_CAM_URL'    : 'https://www.hdruk.ac.uk/about/structure/hdr-uk-cambridge/',
+    'PGS_CONTACT'       : 'pgs-info@ebi.ac.uk',
+    'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
+    'PGS_FTP_HTTP_ROOT' : 'http://ftp.ebi.ac.uk/pub/databases/spot/pgs',
+    'PGS_TWITTER_URL'   : 'https://www.twitter.com/pgscatalog',
+    'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',
     'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing'
 }
 

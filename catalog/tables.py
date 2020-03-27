@@ -236,7 +236,7 @@ class Browse_ScoreTable(tables.Table):
 
     def render_ftp_link(self, value):
         id = value.split('.')[0]
-        ftp_link = settings.USEFUL_URLS['PGS_FTP_ROOT']+'/scores/{}/ScoringFiles/{}'.format(id, value)
+        ftp_link = settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT']+'/scores/{}/ScoringFiles/{}'.format(id, value)
         return format_html('<a class="pgs_no_icon_link file_link" href="{}" title="Download PGS Scoring File (variants, weights)" download><i class="fa fa-file-text"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
 
     def render_variants_number(self, value):
