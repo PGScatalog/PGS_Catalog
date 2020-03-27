@@ -11,8 +11,7 @@ class PGSBuildFtp:
     ftp_path = 'pub/databases/spot/pgs/'
     allowed_types = ['score','metadata']
     all_meta_file = 'pgs_all_metadata.tar.gz'
-    data_dir = '/ScoringFiles_formatted/'
-    #data_dir = '/scores/'
+    data_dir = '/scores/'
     scoring_dir = '/ScoringFiles/'
     meta_dir    = '/Metadata/'
 
@@ -38,7 +37,7 @@ class PGSBuildFtp:
         if self.type == 'metadata':
             filepath += self.meta_dir+self.pgs_id+self.file_extension
         else:
-            filepath += self.score_dir+self.pgs_id+'.txt.gz'
+            filepath += self.score_dir+self.pgs_id+self.file_extension
 
         try:
             ftp.retrbinary('RETR %s' % filepath, m.update)
