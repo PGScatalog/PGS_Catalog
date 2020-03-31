@@ -222,12 +222,8 @@ class Demographic(models.Model):
 
     def format_estimate(self):
         if self.estimate != None:
-            e = '{}:{}'.format(self.estimate_type, self.estimate)
-            if self.range != None and self.range_type.lower() == 'ci':
-                e += ' {}'.format(str(self.range))
-            return e
-        else:
-            return None
+            return '{}:{}'.format(self.estimate_type, self.estimate)
+        return None
 
     def format_range(self):
         if self.estimate == None and self.range != None:
@@ -368,7 +364,7 @@ class Sample(models.Model):
         return ids
 
     def list_cohortids(self):
-        return [x.name_full for x in self.cohorts.all()]
+        return [x.name_short for x in self.cohorts.all()]
 
     @property
     def display_sampleset(self):

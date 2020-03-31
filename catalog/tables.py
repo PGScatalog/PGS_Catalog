@@ -45,27 +45,19 @@ class Column_demographic(tables.Column):
         #Estimate
         e = ''
         if value.estimate != None:
-            e += '{} = {}'.format(value.estimate_type.title(), value.estimate)
-            if value.range != None and value.range_type.lower() == 'ci':
-                e += ' {}'.format(smaller_in_bracket(str(value.range)))
-            e += ' {}'.format(value.unit)
-        if len(e) > 0:
+            e = '{} = {} {}'.format(value.estimate_type.title(), value.estimate, value.unit)
             l.append(e)
 
         #Variability
-        v = None
         if value.variability != None:
             v = '{} = {} {}'.format(value.variability_type.title(), value.variability, value.unit)
-        if v != None:
             l.append(v)
 
         #Range
-        r = None
         if '[' not in e:
             if value.range != None:
                 r = '{} = {} {}'.format(value.range_type.title(), smaller_in_bracket(str(value.range)), value.unit)
-        if r != None:
-            l.append(r)
+                l.append(r)
 
         return format_html('<br>'.join(l))
 
