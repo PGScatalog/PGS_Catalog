@@ -726,15 +726,15 @@ class Release(models.Model):
 
     @property
     def released_score_ids(self):
-        scores = Score.objects.values('id').filter(date_released__exact=self.date)
+        scores = Score.objects.values('id').filter(date_released__exact=self.date).order_by('id')
         return [x['id'] for x in scores]
 
     @property
     def released_publication_ids(self):
-        publications = Publication.objects.values('id').filter(date_released__exact=self.date)
+        publications = Publication.objects.values('id').filter(date_released__exact=self.date).order_by('id')
         return [x['id'] for x in publications]
 
     @property
     def released_performance_ids(self):
-        performances = Performance.objects.values('id').filter(date_released__exact=self.date)
+        performances = Performance.objects.values('id').filter(date_released__exact=self.date).order_by('id')
         return [x['id'] for x in performances]
