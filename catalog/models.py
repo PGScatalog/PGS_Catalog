@@ -222,12 +222,8 @@ class Demographic(models.Model):
 
     def format_estimate(self):
         if self.estimate != None:
-            e = '{}:{}'.format(self.estimate_type, self.estimate)
-            if self.range != None and self.range_type.lower() == 'ci':
-                e += ' {}'.format(str(self.range))
-            return e
-        else:
-            return None
+            return '{}:{}'.format(self.estimate_type, self.estimate)
+        return None
 
     def format_range(self):
         if self.estimate == None and self.range != None:
@@ -368,7 +364,7 @@ class Sample(models.Model):
         return ids
 
     def list_cohortids(self):
-        return [x.name_full for x in self.cohorts.all()]
+        return [x.name_short for x in self.cohorts.all()]
 
     @property
     def display_sampleset(self):
@@ -730,15 +726,15 @@ class Release(models.Model):
 
     @property
     def released_score_ids(self):
-        scores = Score.objects.values('id').filter(date_released__exact=self.date)
+        scores = Score.objects.values('id').filter(date_released__exact=self.date).order_by('id')
         return [x['id'] for x in scores]
 
     @property
     def released_publication_ids(self):
-        publications = Publication.objects.values('id').filter(date_released__exact=self.date)
+        publications = Publication.objects.values('id').filter(date_released__exact=self.date).order_by('id')
         return [x['id'] for x in publications]
 
     @property
     def released_performance_ids(self):
-        performances = Performance.objects.values('id').filter(date_released__exact=self.date)
+        performances = Performance.objects.values('id').filter(date_released__exact=self.date).order_by('id')
         return [x['id'] for x in performances]
