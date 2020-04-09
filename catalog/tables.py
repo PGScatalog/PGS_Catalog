@@ -7,6 +7,7 @@ from django.utils.crypto import get_random_string
 relative_path = '../..'
 publication_path = relative_path+'/publication'
 trait_path = relative_path+'/trait'
+page_size = "50"
 
 def smaller_in_bracket(value):
     bracket_left = '['
@@ -135,7 +136,8 @@ class Browse_PublicationTable(tables.Table):
         attrs = {
             "data-show-columns" : "true",
             "data-sort-name" : "id",
-            "data-page-size" : "50"
+            "data-page-size" : page_size,
+            "data-export-options" : '{"fileName": "pgs_publications_data"}'
         }
         fields  = [
             'id',
@@ -176,7 +178,8 @@ class Browse_TraitTable(tables.Table):
         attrs = {
             "data-show-columns" : "true",
             "data-sort-name" : "display_label",
-            "data-page-size" : "50"
+            "data-page-size" : page_size,
+            "data-export-options" : '{"fileName": "pgs_traits_data"}'
         }
         fields = [
             'label_link',
@@ -199,7 +202,8 @@ class Browse_ScoreTable(tables.Table):
         attrs = {
             "data-show-columns" : "true",
             "data-sort-name" : "id",
-            "data-page-size" : "50"
+            "data-page-size" : page_size,
+            "data-export-options" : '{"fileName": "pgs_scores_data"}'
         }
         fields = [
             'id',
@@ -247,7 +251,8 @@ class Browse_SampleSetTable(tables.Table):
         model = Sample
         attrs = {
             "data-show-columns" : "true",
-            "data-page-size" : "50"
+            "data-page-size" : page_size,
+            "data-export-options" : '{"fileName": "pgs_samplesets_data"}'
         }
         fields = [
             'sampleset',
@@ -278,7 +283,8 @@ class SampleTable_variants_details(tables.Table):
         model = Sample
         attrs = {
             "data-show-columns" : "true",
-            "data-sort-name" : "display_ancestry"
+            "data-sort-name" : "display_ancestry",
+            "data-export-options" : '{"fileName": "pgs_sample_variants_data"}'
         }
         fields = [
             'sources',
@@ -303,7 +309,8 @@ class SampleTable_variants(tables.Table):
     class Meta:
         model = Sample
         attrs = {
-            "data-show-columns" : "true"
+            "data-show-columns" : "true",
+            "data-export-options" : '{"fileName": "pgs_sample_source_data"}'
         }
         fields = [
             'sources',
@@ -343,7 +350,8 @@ class SampleTable_training(tables.Table):
     class Meta:
         model = Sample
         attrs = {
-            "data-show-columns" : "true"
+            "data-show-columns" : "true",
+            "data-export-options" : '{"fileName": "pgs_sample_development_data"}'
         }
         fields = [
             'phenotyping_free',
@@ -375,7 +383,8 @@ class SampleTable_performance(tables.Table):
         model = Sample
         attrs = {
             "data-show-columns" : "true",
-            "data-sort-name" : "display_sampleset"
+            "data-sort-name" : "display_sampleset",
+            "data-export-options" : '{"fileName": "pgs_sample_evaluation_data"}'
         }
         fields = [
             'sampleset',
@@ -415,7 +424,8 @@ class PerformanceTable(tables.Table):
         model = Performance
         attrs = {
             "data-show-columns" : "true",
-            "data-sort-name" : "id"
+            "data-sort-name" : "id",
+            "data-export-options" : '{"fileName": "pgs_performance_metrics_data"}'
         }
         fields = [
             'id', 'sampleset', 'pub_withexternality',
@@ -443,7 +453,8 @@ class PerformanceTable_PubTrait(tables.Table):
         model = Performance
         attrs = {
             "data-show-columns" : "true",
-            "data-sort-name" : "id"
+            "data-sort-name" : "id",
+            "data-export-options" : '{"fileName": "pgs_performance_metrics_pub-trait_data"}'
         }
         fields = [
             'id','score', 'sampleset', 'pub_withexternality',
@@ -466,7 +477,8 @@ class CohortTable(tables.Table):
     class Meta:
         attrs = {
             "data-show-columns" : "false",
-            "data-sort-name" : "name_short"
+            "data-sort-name" : "name_short",
+            "data-export-options" : '{"fileName": "pgs_sample_cohorts_data"}'
         }
         model = Cohort
         fields = [
