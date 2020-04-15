@@ -591,7 +591,7 @@ class Performance(models.Model):
 
     # [Links to Performance metrics are made by ForeignKey in Metrics table, previously they were parameterized here]
     phenotyping_reported = models.CharField('Reported Trait', max_length=200)
-    covariates = models.TextField('Covariates Included in PGS Model')
+    covariates = models.TextField('Covariates Included in the Model')
     performance_comments = models.TextField('PGS Performance: Other Relevant Information')
 
     def __str__(self):
