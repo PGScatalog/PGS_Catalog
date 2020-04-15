@@ -201,10 +201,12 @@ def efo(request, efo_id):
         raise Http404("Trait: \"{}\" does not exist".format(efo_id))
 
     related_scores = trait.score_set.select_related('publication').all().prefetch_related('trait_efo')
+    table_scores = Browse_ScoreTable(related_scores)
+    table_scores.exclude = ('list_traits')
     context = {
         'trait': trait,
         'performance_disclaimer': performance_disclaimer(),
-        'table_scores' : Browse_ScoreTable(related_scores),
+        'table_scores' : table_scores,
         'has_table': 1
     }
 

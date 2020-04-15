@@ -567,7 +567,7 @@ class SampleSet(models.Model):
 
     @property
     def count_performances(self):
-        return len(Performance.objects.filter(sampleset_id=self.num))
+        return len(Performance.objects.values('id').filter(sampleset_id=self.num))
 
 
 class Performance(models.Model):
