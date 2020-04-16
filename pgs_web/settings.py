@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_tables2',
-    'django_extensions'
+    'django_extensions',
+    'compressor'
 ]
 
 MIDDLEWARE = [
@@ -76,7 +77,8 @@ if os.getenv('GAE_APPLICATION', None) and DEBUG==False:
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
-                    'catalog.context_processors.pgs_urls'
+                    'catalog.context_processors.pgs_urls',
+                    'catalog.context_processors.pgs_settings'
                 ],
                 'loaders': [
                     ('django.template.loaders.cached.Loader', [
@@ -117,6 +119,10 @@ USEFUL_URLS = {
     'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',
     'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing'
 }
+if os.getenv('GAE_APPLICATION', None):
+    PGS_ON_GAE = 1
+else:
+    PGS_ON_GAE = 0
 
 WSGI_APPLICATION = 'pgs_web.wsgi.application'
 
@@ -198,14 +204,13 @@ STATICFILES_FINDERS = [
 	'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 ]
+if not os.getenv('GAE_APPLICATION', None):
+    STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
 
 
 COMPRESS_PRECOMPILERS = ''
 COMPRESS_ROOT = os.path.join(BASE_DIR, "static/")
 
-if not os.getenv('GAE_APPLICATION', None):
-    INSTALLED_APPS.append('compressor')
-    STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
-    COMPRESS_PRECOMPILERS = (
-        ('text/x-scss', 'django_libsass.SassCompiler'),
-    )
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)

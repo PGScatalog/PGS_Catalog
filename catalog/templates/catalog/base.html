@@ -1,5 +1,7 @@
 {% load static %}
-{% load compress %}
+{% if is_pgs_app_on_gae == 0 %}
+  {% load compress %}
+{% endif %}
 <!doctype html>
 <html lang="en">
 
@@ -40,7 +42,7 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
   {% if has_table %}
-    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet"/>
   {% endif %}
 
   <!-- CSS: implied media=all -->
@@ -49,10 +51,14 @@
     <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
   {% endif %}
 
-  <!-- SCSS file -->
-  {% compress css %}
-    <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
-  {% endcompress %}
+  <!-- PGS (S)CSS file -->
+  {% if is_pgs_app_on_gae %}
+    <link rel="stylesheet" href="{% static 'catalog/pgs.min.css' %}" type="text/css" media="all" />
+  {% else %}
+    {% compress css %}
+      <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+  {% endif %}
 
   <!-- Chart.js -->
   {% if has_chart %}
@@ -71,10 +77,14 @@
     <script defer src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
   {% endif %}
 
-  {% compress js file pgs_min %}
-    <script defer src="{% static 'catalog/pgs.js' %}"></script>
-  {% endcompress %}
-
+  <!-- PGS Javascript file -->
+  {% if is_pgs_app_on_gae %}
+    <script defer src="{% static 'catalog/pgs.min.js' %}"></script>
+  {% else %}
+    {% compress js file pgs_min %}
+      <script defer src="{% static 'catalog/pgs.js' %}"></script>
+    {% endcompress %}
+  {% endif %}
 </head>
 <body>
 
