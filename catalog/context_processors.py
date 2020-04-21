@@ -1,5 +1,10 @@
 from django.conf import settings
 
+def pgs_settings(request):
+    return {
+        'is_pgs_app_on_gae' : settings.PGS_ON_GAE
+    }
+
 def pgs_urls(request):
     return {
         'baker_url'        : settings.USEFUL_URLS['BAKER_URL'],
