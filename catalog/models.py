@@ -657,9 +657,9 @@ class Performance(models.Model):
             for m in metrics:
                 if (m.type == metric_type):
                     l.append((m.name_tuple(), m.display_value()))
-            return l
-        else:
-            return None
+            if len(l) != 0:
+                return l
+        return None
 
 
 class Metric(models.Model):
