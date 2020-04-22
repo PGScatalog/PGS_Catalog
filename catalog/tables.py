@@ -218,7 +218,7 @@ class Browse_ScoreTable(tables.Table):
 
     def render_id(self, value):
         global relative_path
-        return format_html('<a href='+relative_path+'/pgs/{}>{}</a>', value, value)
+        return format_html('<a href='+relative_path+'/score/{}>{}</a>', value, value)
 
     def render_publication(self, value):
         citation = format_html(' '.join([value.id, '<br/><small><i class="fa fa-angle-double-right"></i>', value.firstauthor, '<i>et al.</i>', value.journal, '(%s)'%value.date_publication.strftime('%Y'), '</small>']))
@@ -468,7 +468,7 @@ class PerformanceTable_PubTrait(tables.Table):
         return format_html('<a href="#{}">{}</a>', value, value)
 
     def render_score(self, value):
-        return format_html('<a href="../../pgs/{}">{}</a> (<i>{}</i>)', value.id, value.id, value.name)
+        return format_html('<a href="../../score/{}">{}</a> (<i>{}</i>)', value.id, value.id, value.name)
 
 
 class CohortTable(tables.Table):

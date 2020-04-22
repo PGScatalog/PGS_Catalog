@@ -6,8 +6,10 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
 
-    # ex: /pgs/PGS000029/
-    path('pgs/<str:pgs_id>/', views.pgs, name='PGS'),
+    # ex: /score/PGS000029/
+    path('score/<str:pgs_id>/', views.pgs, name='Score'),
+    # /!\ Legacy URL /!\ ex: /pgs/PGS000029/
+    path('pgs/<str:pgs_id>/', views.redirect_pgs_to_score, name='PGS'),
 
     # ex: /publication/PGP000001/
     path('publication/<str:pub_id>/', views.pgp, name='Publication'),

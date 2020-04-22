@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.conf import settings
@@ -147,6 +147,11 @@ def pgs(request, pgs_id):
     context['table_performance_samples'] = table
 
     return render(request, 'catalog/pgs.html', context)
+
+
+def redirect_pgs_to_score(request, pgs_id):
+    response = redirect('/score/'+str(pgs_id), permanent=True)
+    return response
 
 
 def pgp(request, pub_id):
