@@ -39,7 +39,7 @@ def run(*args):
     datadir = dirpath+"all_metadata/"
     filename = datadir+'pgs_all_metadata.xlsx'
 
-    csv_prefix = datadir+'pgs'
+    csv_prefix = datadir+'pgs_all'
 
     if not os.path.isdir(datadir):
         try:
