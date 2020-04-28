@@ -131,7 +131,12 @@
 
                   <tr>
                     <td>Citation (<i>link to publication</i>)</td>
-                    <td>{{ citation }}</td>
+                    <td>
+                      {{ citation }}
+                      {% if score.publication.is_preprint %}
+                        <span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Preprint</span>
+                      {% endif %}
+                    </td>
                   </tr>
 
                 </tbody>

@@ -51,6 +51,10 @@ class Publication(models.Model):
         return self.PMID != None
 
     @property
+    def is_preprint(self):
+        return 'bioRxiv' in self.journal or 'medRxiv' in self.journal
+
+    @property
     def pub_year(self):
         return self.date_publication.strftime('%Y')
 
@@ -644,6 +648,11 @@ class Performance(models.Model):
             info.append('D')
         else:
             info.append('E')
+
+        if self.publication.is_preprint:
+            info.append('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
+        else:
+            info.append('')
 
         return '|'.join(info)
 
