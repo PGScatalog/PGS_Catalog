@@ -86,21 +86,11 @@ class Column_ancestry(tables.Column):
 
 class Column_pubexternality(tables.Column):
     def render(self, value):
-        citation, pgp, externality = value.split('|')
+        citation, pgp, externality, is_preprint = value.split('|')
         if externality == 'E':
-            return format_html('<a href="'+publication_path+'/{}">{}</a> <sup class="pgs_sup" title="External PGS evaluation">Ext.</sup>', pgp, format_html(citation))
+            return format_html('<a href="'+publication_path+'/{}">{}</a> <sup class="pgs_sup" data-toggle="tooltip" title="External PGS evaluation">Ext.</sup> {}', pgp, format_html(citation), format_html(is_preprint))
         else:
-            return format_html('<a href="'+publication_path+'/{}">{}</a>', pgp, format_html(citation))
-
-class Column_pubexternality_PGS(tables.Column):
-    def render(self, value):
-        citation, pgp, externality = value.split('|')
-        if externality == 'E':
-            return format_html('<a href="'+publication_path+'/{}">{}</a> <sup class="pgs_sup" title="External PGS evaluation">Ext.</sup>', pgp, format_html(citation))
-        elif externality == 'D':
-            return format_html('<a href="'+publication_path+'/{}">Original Report</a>', pgp)
-        else:
-            return format_html('<a href="'+publication_path+'/{}">{}</a>', pgp, format_html(citation))
+            return format_html('<a href="'+publication_path+'/{}">{}</a> {}', pgp, format_html(citation), format_html(is_preprint))
 
 class Column_cohorts(tables.Column):
     def render(self, value):
@@ -156,7 +146,10 @@ class Browse_PublicationTable(tables.Table):
         return format_html('<a href="'+publication_path+'/{}">{}</a>', value, value)
 
     def render_journal(self, value):
-        return format_html('<i>{}</i>', value)
+        is_preprint = ''
+        if 'bioRxiv' in value or 'medRxiv' in value:
+            is_preprint = format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
+        return format_html('<i>{}</i>{}', value, is_preprint)
 
     def render_doi(self, value):
         return format_html('<a class="pgs_nowrap" href=https://doi.org/{}>{}</a>', value, value)
@@ -222,7 +215,10 @@ class Browse_ScoreTable(tables.Table):
 
     def render_publication(self, value):
         citation = format_html(' '.join([value.id, '<br/><small><i class="fa fa-angle-double-right"></i>', value.firstauthor, '<i>et al.</i>', value.journal, '(%s)'%value.date_publication.strftime('%Y'), '</small>']))
-        return format_html('<a href="'+publication_path+'/{}">{}</a>', value.id, citation)
+        is_preprint = ''
+        if value.is_preprint:
+            is_preprint = format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
+        return format_html('<a href="'+publication_path+'/{}">{}</a>{}', value.id, citation, is_preprint)
 
     def render_list_traits(self, value):
         l = []

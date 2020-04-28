@@ -14,7 +14,13 @@
     </nav>
 
     <section>
-      <h2>PGS Publication: <span class="pgs_title">{{ publication.id }}</span></h2>
+      <h2>PGS
+        {% if publication.is_preprint %}
+          Preprint:
+        {% else %}
+          Publication:
+        {% endif %}
+        <span class="pgs_title">{{ publication.id }}</span></h2>
       <table class="table table-bordered table_pgs_h mt-4">
         <tbody>
           <tr>
@@ -43,7 +49,12 @@
           </tr>
           <tr>
             <td>Journal</td>
-            <td><b><i>{{ publication.journal }}</i></b></td>
+            <td>
+              <b><i>{{ publication.journal }}</i></b>
+              {% if publication.is_preprint %}
+                <span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Preprint</span>
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <td>Author(s)</td>
