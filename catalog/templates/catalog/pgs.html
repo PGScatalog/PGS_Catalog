@@ -41,7 +41,7 @@
             <td>
              {% if efos|length == 1 %}
               <a class="mr-2" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
-              (<a href="https://www.ebi.ac.uk/efo/{{ efos.0.id }}">{{ efos.0.id }}</a>)
+              (<a href="{{ efos.0.url }}">{{ efos.0.id }}</a>)
              {% else %}
               <ul class="mb-0">
                {% for trait in efos %}
