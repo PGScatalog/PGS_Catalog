@@ -14,14 +14,14 @@ def update_efo_info(trait):
         new_synonyms_string = ''
         new_synonyms = response['synonyms']
         if (new_synonyms):
-            new_synonyms_string = ' | '.join(new_synonyms)
+            new_synonyms_string = ' | '.join(sorted(new_synonyms))
 
         # Mapped terms
         new_mapped_terms_string = ''
         if 'database_cross_reference' in response['annotation']:
             new_mapped_terms = response['annotation']['database_cross_reference']
             if (new_mapped_terms):
-                new_mapped_terms_string = ' | '.join(new_mapped_terms)
+                new_mapped_terms_string = ' | '.join(sorted(new_mapped_terms))
 
         # Make description
         try:
@@ -36,6 +36,12 @@ def update_efo_info(trait):
             new_desc = str_desc
         except:
             new_desc = response['description']
+
+        # URL (iri):
+        ols_url = 'https://www.ebi.ac.uk/ols/ontologies/efo/terms?iri='
+        new_trait_url = response['iri']
+        if not trait_id.startswith('EFO_'):
+            new_trait_url = ols_url + new_trait_url
 
         trait_has_changed = 0
         if new_label != trait.label:
@@ -54,6 +60,9 @@ def update_efo_info(trait):
             #print("\tnew map: "+str(len(new_mapped_terms)))
             trait_has_changed = 1
             trait.mapped_terms = new_mapped_terms_string
+        if new_trait_url != trait.url:
+            trait_has_changed = 1
+            trait.url = new_trait_url
         if trait_has_changed == 1:
             trait.save()
     else:
