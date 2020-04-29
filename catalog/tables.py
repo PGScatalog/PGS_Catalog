@@ -296,7 +296,7 @@ class SampleTable_variants_details(tables.Table):
     def render_sources(self, value):
         pmid = ''
         if 'PMID' in value and value['PMID']:
-            pmid = '<a href="https://www.ncbi.nlm.nih.gov/pubmed/{}">{}</a>'.format(value['PMID'], value['PMID'])
+            pmid = '<a href="https://europepmc.org/search?query={}">{}</a>'.format(value['PMID'], value['PMID'])
         return format_html(pmid)
 
 
@@ -323,7 +323,7 @@ class SampleTable_variants(tables.Table):
         if 'GCST' in value:
             l.append('GWAS Catalog: <a href="https://www.ebi.ac.uk/gwas/studies/{}">{}</a>'.format(value['GCST'], value['GCST']))
         if 'PMID' in value and value['PMID']:
-            l.append('PubMed: <a href="https://www.ncbi.nlm.nih.gov/pubmed/{}">{}</a>'.format(value['PMID'], value['PMID']))
+            l.append('EuropePMC: <a href="https://europepmc.org/search?query={}">{}</a>'.format(value['PMID'], value['PMID']))
         return format_html('<br>'.join(l))
 
     def render_source_GWAS_catalog(self, value):
