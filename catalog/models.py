@@ -332,7 +332,7 @@ class Sample(models.Model):
 
     ## Cohorts/Sources
     source_GWAS_catalog = models.CharField('GWAS Catalog Study ID (GCST...)', max_length=20)
-    source_PMID = models.CharField('Source PubMed ID (PMID)', max_length=20)
+    source_PMID = models.CharField('Source PubMed ID (PMID) or doi', max_length=100)
     cohorts = models.ManyToManyField(Cohort, verbose_name='Cohort(s)')
     cohorts_additional = models.TextField('Additional Sample/Cohort Information', null=True)
 
