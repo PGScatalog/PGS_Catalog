@@ -32,7 +32,7 @@ def run(*args):
     call_generate_studies_metadata_exports(args[0],scores_db,debug)
 
     # Build FTP structure for scoring files
-    build_score_ftp(args[0],new_ftp_dir,scores_db,previous_release_date,debug)
+    #build_score_ftp(args[0],new_ftp_dir,scores_db,previous_release_date,debug)
 
     # Build FTP structure for metadata files
     build_metadata_ftp(args[0],new_ftp_dir,scores_db,previous_release_date,debug)
