@@ -22,9 +22,10 @@ def performance_disclaimer():
 def get_efo_traits_data():
     """ Generate the list of traits and trait categories in PGS."""
     data = []
-    traits_list = []
-
-    for category in TraitCategory.objects.all().prefetch_related('efotraits__score_set','efotraits__traitcategory_set').order_by('label'):
+    # Use set() to avoid duplication when an entry belongs to several categories
+    traits_list = set()
+    efo_traits_defer = ['efotraits__synonyms','efotraits__mapped_terms']
+    for category in TraitCategory.objects.all().prefetch_related('efotraits__score_set','efotraits__traitcategory_set').defer(*efo_traits_defer).order_by('label'):
         cat_scores_count = 0
         cat_id = category.parent.replace(' ', '_')
 
@@ -41,7 +42,8 @@ def get_efo_traits_data():
                 "id": trait.id
             }
             cat_traits.append(trait_entry)
-            traits_list.append(trait)
+            # Traits table
+            traits_list.add(trait)
 
         if cat_scores_count == 0:
             continue
@@ -57,6 +59,7 @@ def get_efo_traits_data():
         }
         data.append(cat_data)
 
+    traits_list = list(traits_list)
     traits_list.sort(key=lambda x: x.label)
 
     return [traits_list, data]
@@ -89,7 +92,9 @@ def browseby(request, view_selection):
         }
     elif view_selection == 'studies':
         context['view_name'] = 'Publications'
-        table = Browse_PublicationTable(Publication.objects.all().prefetch_related('publication_score', 'publication_performance', 'publication_performance__score'), order_by="num")
+        publication_defer_attributes = ['authors','curation_status','curation_notes','date_released']
+        publication_prefetch_related = ['publication_score', 'publication_performance', 'publication_performance__score']
+        table = Browse_PublicationTable(Publication.objects.defer(*publication_defer_attributes).all().prefetch_related(*publication_prefetch_related), order_by="num")
         context['table'] = table
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
@@ -97,7 +102,9 @@ def browseby(request, view_selection):
         context['table'] = table
     else:
         context['view_name'] = 'Polygenic Scores (PGS)'
-        table = Browse_ScoreTable(Score.objects.select_related('publication').all().prefetch_related('trait_efo'), order_by="num")
+        score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number']
+        score_defer_attributes = ['publication__authors','publication__date_released','publication__curation_status']
+        table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').defer(*score_defer_attributes).all().prefetch_related('trait_efo'), order_by="num")
         context['table'] = table
 
     context['has_table'] = 1
