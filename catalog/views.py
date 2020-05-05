@@ -239,6 +239,37 @@ def efo(request, efo_id):
     return render(request, 'catalog/efo.html', context)
 
 
+def gwas_gcst(request, gcst_id):
+    samples = Sample.objects.filter(source_GWAS_catalog__exact=gcst_id).distinct()
+    if len(samples) == 0:
+        raise Http404("No PGS Samples are associated with the NHGRI-GWAS Catalog Study: \"{}\"".format(gcst_id))
+
+    related_scores = Score.objects.select_related('publication').filter(samples_variants__in=samples).prefetch_related('trait_efo').distinct()
+    if len(related_scores) == 0:
+        raise Http404("No PGS Scores are associated with the NHGRI-GWAS Catalog Study: \"{}\"".format(gcst_id))
+
+    context = {
+        'gwas_id': gcst_id,
+        'performance_disclaimer': performance_disclaimer(),
+        'table_scores' : Browse_ScoreTable(related_scores),
+        'has_table': 1
+    }
+
+    pquery = Performance.objects.select_related('publication','score').filter(score__in=related_scores).prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
+    table = PerformanceTable(pquery)
+    context['table_performance'] = table
+
+    pquery_samples = set()
+    for q in pquery:
+        for sample in q.samples():
+            pquery_samples.add(sample)
+
+    table = SampleTable_performance(pquery_samples)
+    context['table_performance_samples'] = table
+
+    return render(request, 'catalog/gwas_gcst.html', context)
+
+
 def pss(request, pss_id):
     try:
         sample_set = SampleSet.objects.prefetch_related('samples', 'samples__cohorts', 'samples__sample_age', 'samples__followup_time').get(id__exact=pss_id)

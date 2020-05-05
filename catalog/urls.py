@@ -20,6 +20,9 @@ urlpatterns = [
     # ex: /sampleset/PSS000001/
     path('sampleset/<str:pss_id>/', views.pss, name='Sample Set'),
 
+    # ex: /gwas/GCST001937/
+    path('gwas/<str:gcst_id>/', views.gwas_gcst, name='NHGRI-EBI GWAS Catalog Study'),
+
     # ex: /browse/{scores, traits, studies}/
     path('browse/<str:view_selection>/', views.browseby, name='Browse Scores'),
 
