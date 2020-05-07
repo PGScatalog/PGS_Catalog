@@ -1,5 +1,6 @@
-import sys, os, shutil
+import sys, os, shutil, re
 from os import path
+import argparse
 import hashlib
 
 class CopyScoringFiles:
@@ -137,20 +138,27 @@ class CopyScoringFiles:
 
 def main():
 
-    if len(sys.argv) >= 3:
-        previous_release = sys.argv[1]
-        new_ftp_scores_dir = sys.argv[2]
-        if len(sys.argv) == 4:
-            scoring_files_dir = sys.argv[3]
-        else:
-            # Default value
-            scoring_files_dir = '/nfs/production3/spot/pgs/data-files/ScoringFiles/'
+    defaut_scores_dir = '/nfs/production3/spot/pgs/data-files/ScoringFiles/'
 
-        pgs_scoring_files = CopyScoringFiles(new_ftp_scores_dir,scoring_files_dir,previous_release)
-        pgs_scoring_files.copy_scoring_files()
-    else:
-        print("Error: Missing parameter(s)! The command line should look like:")
-        print("python CopyScoringFiles.py <previous_release (YYYY-MM-DD)> <new_ftp_scores_dir> <scoring_files_dir>")
+    argparser = argparse.ArgumentParser(description='Script to check that the expected FTP files and directories exist.')
+    argparser.add_argument("--release", type=str, help='Date of the previous release (format YYYY-MM-DD)', required=True)
+    argparser.add_argument("--data_dir", type=str, help='The path to the data directory (only containing the metadata)', required=True)
+    argparser.add_argument("--scores_dir", type=str, help='The path to the scoring files directory', default=defaut_scores_dir, required=False)
+
+    args = argparser.parse_args()
+
+    if not re.match(r'^\d{4}\-\d{2}\-\d{2}', args.release):
+        print("Error: The release date '"+str(args.release)+"' doesn't match the required format (YYYY-MM-DD).")
+        exit(1)
+    if not os.path.exists(args.data_dir):
+        print("Error: The path to the data directory can't be found ("+args.data_dir+").")
+        exit(1)
+    if not os.path.exists(args.scores_dir):
+        print("Error: The path to the scoring files directory can't be found ("+args.scores_dir+").")
+        exit(1)
+
+    pgs_scoring_files = CopyScoringFiles(args.data_dir,args.scores_dir,args.release)
+    pgs_scoring_files.copy_scoring_files()
 
 if __name__== "__main__":
    main()
