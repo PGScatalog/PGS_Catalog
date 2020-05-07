@@ -1,4 +1,5 @@
 import sys, os
+import argparse
 from os import path
 
 class PGSFTPChecks:
@@ -199,25 +200,23 @@ class PGSFTPChecks:
 
 def main():
 
-    if len(sys.argv) > 2:
-        max_id = sys.argv[1]
-        root_dir = sys.argv[2]
-        # Check max_id is a number
-        if not(isinstance(max_id, int)):
+    argparser = argparse.ArgumentParser(description='Script to check that the expected FTP files and directories exist.')
+    argparser.add_argument("-n", type=int, help='Number of entries to be checked (will iterate over the number to get the PGS IDs)', required=True)
+    argparser.add_argument("--dir", type=str, help='The path to root directory to be checked (e.g. PGS FTP root directory)', required=True)
+
+    args = argparser.parse_args()
+
+    if not(isinstance(args.n, int)):
             print("Error: The first parameter 'Number of entries' must be an integer")
             exit(1)
-        if not os.path.exists(root_dir):
-            print("Error: The path to ftp root directory can't be found ("+root_dir+").")
+    if not os.path.exists(args.dir):
+            print("Error: The path to ftp root directory can't be found ("+args.dir+").")
             exit(1)
-    else:
-        print("Error: Missing parameter(s)! The command line should look like:")
-        print("python PGSFTPChecks.py <number_of_entries> <path_to_ftp_root_dir>")
-        exit(1)
 
     list_pgs_ids = []
     max_numbers = 6
     pgs_id_prefix = 'PGS'
-    for id in range(1,max_id+1):
+    for id in range(1,args.n+1):
         id_str = str(id)
         id_length = len(id_str)
         pgs_id = pgs_id_prefix
@@ -226,7 +225,7 @@ def main():
         pgs_id += id_str
         list_pgs_ids.append(pgs_id)
 
-    pgs_ftp_checks = PGSFTPChecks(list_pgs_ids,root_dir)
+    pgs_ftp_checks = PGSFTPChecks(list_pgs_ids,args.dir)
     pgs_ftp_checks.check_directories()
     pgs_ftp_checks.check_score_files()
     pgs_ftp_checks.check_metadata_files()
