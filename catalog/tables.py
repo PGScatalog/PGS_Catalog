@@ -323,15 +323,6 @@ class SampleTable_variants(tables.Table):
             l.append('EuropePMC: <a href="https://europepmc.org/search?query={}">{}</a>'.format(value['PMID'], value['PMID']))
         return format_html('<br>'.join(l))
 
-    def render_source_GWAS_catalog(self, value):
-        if value.startswith('GCST'):
-            return format_html('<a href="https://www.ebi.ac.uk/gwas/studies/{}">{}</a>', value, value)
-        else:
-            return value
-
-    def render_source_PMID(self, value):
-        return format_html('<a href="https://www.ncbi.nlm.nih.gov/pubmed/{}">{}</a>', value, value)
-
 
 class SampleTable_training(tables.Table):
     '''Table on PGS page - displays information about the samples used in Score Development'''

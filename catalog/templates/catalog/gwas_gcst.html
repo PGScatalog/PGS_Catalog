@@ -1,0 +1,72 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% load render_table from django_tables2 %}
+
+{% block title %}NHGRI-GWAS Catalog{% endblock %}
+
+{% block content %}
+  <nav aria-label="You are here:">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+      <li class="breadcrumb-item">NHGRI-EBI GWAS Catalog</li>
+      <li class="breadcrumb-item">{{ gwas_id }}</li>
+    </ol>
+  </nav>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script defer src="{% static 'catalog/pgs_gwas.js' %}"></script>
+
+  <section>
+    <h2>NHGRI-EBI GWAS Catalog Study: <span id="gwas_id" class="pgs_title">{{ gwas_id }}</span></h2>
+    <!-- Spinner -->
+    <div id="pgs_loading" class="d-flex justify-content-center">
+      <div class="spinner-border pgs_color_1" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    <!-- GWAS table -->
+    <table id="gwas_table" class="table table-bordered table_pgs_h mt-4" style="display:none">
+      <tbody>
+        <tr>
+          <td class="table_title table_title_c" colspan="2">NHGRI-EBI GWAS Catalog Study</td>
+        </tr>
+        <tr>
+          <td>Discovery Sample Description</td>
+          <td id="gwas_desc"></td>
+        </tr>
+        <tr>
+          <td>Reported Trait</td>
+          <td id="gwas_trait"></td>
+        </tr>
+        <tr>
+          <td>Publication</td>
+          <td>
+            <div id="gwas_pub_title"></div>
+            <div id="gwas_pub_info"></div>
+          </td>
+        </tr>
+        <tr>
+          <td>URL to the Catalog Study</td>
+          <td id="gwas_link"></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  {% if table_scores %}
+    <section>
+      <h3>PGS Developed Using Variant Associations from {{ gwas_id }}</h3>
+      {% render_table table_scores %}
+    </section>
+  {% endif %}
+
+  <section>
+    <h3>PGS Performance Metrics</h3>
+    <p>{{ performance_disclaimer|safe }}</p>
+
+    {% render_table table_performance %}
+    <h4>Evaluated Samples</h4>
+    {% render_table table_performance_samples %}
+  </section>
+
+{% endblock %}
