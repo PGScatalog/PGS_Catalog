@@ -674,6 +674,7 @@ td > ul {
   color: #FFF;
   background-color: $pgs_colour_1 !important;
   border: none !important;
+  cursor: pointer;
   &:hover, &:focus {
     color: #FFF;
     background-color: $pgs_colour_1_lighter !important;
@@ -700,6 +701,37 @@ td > ul {
 .btn-pgs-small {
   font-size: 14px;
   padding: 3px 8px;
+}
+
+a.link-with-btn {
+  border-bottom: none !important;
+  i {
+    font-size:16px;
+    border-radius:4px;
+    background-color: $pgs_colour_1;
+    color:#FFF;
+    margin-right:0.5rem;
+  }
+  i.fa-download {
+    padding:3px 4px;
+  }
+  i.fa-code {
+    padding:3px 3px;
+  }
+  span {
+    color: $pgs_dark2;
+    border-bottom: 1px dotted $pgs_colour_1_lighter;
+  }
+  &:hover {
+    i {
+      background-color: $pgs_colour_1_lighter;
+    }
+    span {
+      color: $pgs_colour_1;
+      text-decoration: none;
+      border-bottom: 1px dotted $pgs_colour_2;
+    }
+  }
 }
 
 .highlight_content {
@@ -776,6 +808,11 @@ td > ul {
     height:150px;
   }
 }
+
+.pgs_v_separator_left {
+  border-left: 1px solid $pgs_colour_2;
+}
+
 .pgs_h_separator {
   height:2px;
   margin-top:2rem;

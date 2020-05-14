@@ -34,7 +34,6 @@ DEBUG = False
 if os.environ['DEBUG'] == 'True':
     DEBUG = True
 
-#ALLOWED_HOSTS = []
 ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
 
 
@@ -42,6 +41,7 @@ ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
 
 INSTALLED_APPS = [
 	'catalog.apps.CatalogConfig',
+    'rest_api.apps.RestApiConfig',
     'release.apps.ReleaseConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_tables2',
     'django_extensions',
-    'compressor'
+    'compressor',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -215,3 +216,41 @@ COMPRESS_ROOT = os.path.join(BASE_DIR, "static/")
 COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'django_libsass.SassCompiler'),
 )
+
+
+#---------------------#
+#  REST API Settings  #
+#---------------------#
+
+#REST_SAFELIST_IPS = [
+#    '127.0.0.1'
+#]
+REST_BLACKLIST_IPS = [
+    #'127.0.0.1'
+]
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_api.rest_permissions.BlacklistPermission', # see REST_BLACKLIST_IPS
+        #'rest_api.rest_permissions.SafelistPermission', # see REST_SAFELIST_IPS
+        #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 50,
+    'EXCEPTION_HANDLER': 'rest_api.views.custom_exception_handler',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES' : {
+        'anon': '100/min',
+        'user': '100/min'
+    }
+}

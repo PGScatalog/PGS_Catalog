@@ -1,0 +1,14 @@
+language: python
+python:
+  - "3.7"
+services:
+  - postgresql
+env:
+  - DEBUG=False ALLOWED_HOSTS=localhost DATABASE_NAME=travis_ci_test DATABASE_USER=postgres DATABASE_PASSWORD=password DATABASE_HOST=localhost DATABASE_PORT=5432 REST_URL_ROOT=http://127.0.0.1/rest/
+  install:
+  - pip install -r requirements.txt
+  - pip install requests
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+script:
+  - python manage.py test catalog/tests rest_api/tests
