@@ -70,6 +70,14 @@ class Publication(models.Model):
             score_ids_set.add(performance.score.id)
         return len(list(score_ids_set))
 
+    @property
+    def associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.publication_score.all():
+            score_ids_set.add(score.id)
+        return list(score_ids_set)
+
     def parse_EuropePMC(self, doi=None, PMID=None):
         '''Function to get the citation information from the EuropePMC API'''
         import requests
@@ -108,6 +116,42 @@ class Cohort(models.Model):
 
     def __str__(self):
         return self.name_short
+
+    @property
+    def associated_pgs_ids(self):
+
+        list_dev_associated_pgs_ids  = set()
+        list_eval_associated_pgs_ids = set()
+        sample_ids_list = set()
+        pss_ids_list = set()
+
+        for sample in self.sample_set.all():
+            if sample.id in sample_ids_list:
+                continue
+            list_pgs_ids = sample.associated_PGS()
+            for pgs_id in list_pgs_ids:
+                if pgs_id != '':
+                    list_dev_associated_pgs_ids.add(pgs_id)
+
+            pss_ids = sample.associated_PSS()
+            for pss_id in pss_ids:
+                pss_ids_list.add(pss_id)
+
+            sample_ids_list.add(sample.id)
+
+        list_dev_associated_pgs_ids = list(list_dev_associated_pgs_ids)
+        list_dev_associated_pgs_ids.sort()
+
+        sample_sets = SampleSet.objects.filter(id__in=list(pss_ids_list)).distinct()
+        perfs = Performance.objects.select_related('score').values('score__id').filter(sampleset__in=sample_sets).distinct()
+
+        for perf in perfs:
+            list_eval_associated_pgs_ids.add(perf['score__id'])
+
+        list_eval_associated_pgs_ids = list(list_eval_associated_pgs_ids)
+        list_eval_associated_pgs_ids.sort()
+
+        return { 'development': list_dev_associated_pgs_ids, 'evaluation': list_eval_associated_pgs_ids}
 
 
 class EFOTrait(models.Model):
@@ -168,6 +212,14 @@ class EFOTrait(models.Model):
             return self.mapped_terms.split(' | ')
         else:
             return []
+
+    @property
+    def associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.score_set.all():
+            score_ids_set.add(score.id)
+        return list(score_ids_set)
 
     @property
     def scores_count(self):
@@ -289,6 +341,32 @@ class Demographic(models.Model):
             return '<ul><li>'+'</li><li>'.join(l)+'</li></ul>'
         else:
             return ''
+
+    def display_values_dict(self):
+        l = {}
+
+        # Estimate
+        estimate = ''
+        if self.estimate != None:
+            estimate = str(self.estimate)
+            if self.range != None and self.range_type.lower() == 'ci':
+                estimate += str(self.range)
+            if estimate:
+                l[self.estimate_type] = estimate
+
+        # Range
+        if self.range != None and '[' not in estimate:
+            l[self.range_type] = str(self.range)
+
+        # Variability
+        if self.variability != None:
+            l[self.variability_type] = self.variability
+
+        # Unit
+        if self.unit != None:
+            l['unit'] = self.unit
+
+        return l
 
 
     def range_type_desc(self):
@@ -613,6 +691,10 @@ class Performance(models.Model):
         return list(self.sampleset.samples.all())
 
     @property
+    def associated_pgs_id(self):
+        return self.score.id
+
+    @property
     def display_trait(self):
         d = {}
         if self.phenotyping_reported != '':
@@ -637,6 +719,35 @@ class Performance(models.Model):
     @property
     def othermetrics_list(self):
         return self.get_metric_data('Other Metric')
+
+
+    @property
+    def performance_metrics(self):
+        perf_metrics = {}
+
+        effect_sizes_list = self.effect_sizes_list
+        effect_sizes_data = []
+        if effect_sizes_list:
+            for effect_size in self.effect_sizes_list:
+                effect_sizes_data.append({'labels': effect_size[0], 'value': effect_size[1]})
+        perf_metrics['effect_sizes'] = effect_sizes_data
+
+        class_acc_list = self.class_acc_list
+        class_acc_data = []
+        if class_acc_list:
+            for class_acc in self.class_acc_list:
+                class_acc_data.append({'labels': class_acc[0], 'value': class_acc[1]})
+        perf_metrics['class_acc'] = class_acc_data
+
+        othermetrics_list = self.othermetrics_list
+        othermetrics_data = []
+        if othermetrics_list:
+            for othermetrics in othermetrics_list:
+                othermetrics_data.append({'labels': othermetrics[0], 'value': othermetrics[1]})
+        perf_metrics['othermetrics'] = othermetrics_data
+
+        return perf_metrics
+
 
     @property
     def publication_withexternality(self):
