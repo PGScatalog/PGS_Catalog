@@ -8,6 +8,7 @@ env:
 install:
   - pip install -r requirements.txt
   - pip install requests
+  - pip install pyyaml
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
 script:
