@@ -162,7 +162,7 @@ else:
             'USER': os.environ['DATABASE_USER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': 'localhost',
-            'PORT': 5430
+            'PORT': os.environ['DATABASE_PORT']
         }
     }
 # [END db_setup]
