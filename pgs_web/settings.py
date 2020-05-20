@@ -12,13 +12,18 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-if not os.getenv('GAE_APPLICATION', None):
-    import yaml
-    with open(os.path.join('./', 'app.yaml')) as secrets_file:
-        secrets = yaml.load(secrets_file, Loader=yaml.FullLoader)
-        for keyword in secrets['env_variables']:
-            os.environ[keyword] = secrets['env_variables'][keyword]
 
+if not os.getenv('GAE_APPLICATION', None):
+    app_settings = os.path.join('./', 'app.yaml')
+    if os.path.exists(app_settings):
+        import yaml
+        with open(app_settings) as secrets_file:
+            secrets = yaml.load(secrets_file, Loader=yaml.FullLoader)
+            for keyword in secrets['env_variables']:
+                os.environ[keyword] = secrets['env_variables'][keyword]
+    elif not os.environ['SECRET_KEY']:
+        print("Error: missing secret key")
+        exit(1)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
