@@ -142,7 +142,7 @@ if os.getenv('GAE_APPLICATION', None):
             'USER': os.environ['DATABASE_USER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': os.environ['DATABASE_HOST'],
-            'PORT': 5432
+            'PORT': os.environ['DATABASE_PORT']
         }
     }
 else:
