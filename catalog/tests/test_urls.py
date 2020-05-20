@@ -15,7 +15,7 @@ class BrowseUrlTest(TestCase):
             '/docs/',
             '/downloads/',
             '/rest/',
-            'robots.txt'
+            '/robots.txt'
         ]
         for url in urls:
             resp = client.get(url)
