@@ -1,6 +1,5 @@
 openapi: 3.0.2
 servers:
-  - url: https://rest-dot-pgs-catalog.appspot.com/
   - url: https://www.pgscatalog.org/
 info:
   title: PGS Catalog REST API
