@@ -11,7 +11,7 @@ import numpy as np
 # EFOTrait.objects.all().delete()
 # Publication.objects.all().delete()
 # Cohort.objects.all().delete()
-skip_scorefiles = True
+skip_scorefiles = False
 
 loc_curation2schema = '../pgs_DBSourceFiles/Templates/TemplateColumns2Models_v5.xlsx'
 curation2schema = pd.read_excel(loc_curation2schema, index_col = 0)
@@ -20,23 +20,31 @@ loc_curation2schema_scoring = '../pgs_DBSourceFiles/Templates/ScoringFileSchema.
 curation2schema_scoring = pd.read_excel(loc_curation2schema_scoring, index_col = 0)
 
 loc_localGWAS = '../pgs_DBSourceFiles/local_GWASCatalog/'
-gwas_studies, gwas_samples = load_GWAScatalog(loc_localGWAS, update = False)
+gwas_studies, gwas_samples = load_GWAScatalog(loc_localGWAS, update = True)
 gwas_studies.set_index('STUDY ACCESSION', inplace = True)
 gwas_samples.set_index('STUDY ACCESSION', inplace = True)
 gwas_samples = gwas_samples[gwas_samples['STAGE'] == 'initial'] # Get rid of replication studies
 
-StudyNames = ['Mavaddat2015','Mavaddat2019',
-              'Mega2015', 'Tada2016', 'Abraham2016',
-              'Khera2018', 'Inouye2018', 'Wunnemann2019', 'Paquette2017', 'Lall2017',
-              'Oram2016', 'Perry2018', 'Onengut-Gumuscu2019', 'Sharp2019', 'Chouraki2016',
-              'Desikan2017', 'Khera2019', 'Shieh2016', 'Schumacher2018', 'Vassy2014', 'Song2018',
-              'Weng2018', 'Mahajan2018', 'Udler2019', 'Belsky2013', 'RuttenJacobs2019', 'Abraham2019',
-              'Abraham2014', 'Abraham2015',
-              'Klarin2019','Pashayan2015a_GIM', 'Pashayan2015b_BRJ',
-              'Kuchenbaecker2017', 'Lecarpentier2018',
-              'Wen2016', 'Zhang2018', 'Lakeman2019', 'Patel2016', 'Tosto2017', 'Schmit2018','Paul2018',
-              'Natarajan2017', 'Morieri2018', 'Hajek2018',
-              'Johnson2015', 'Kuchenbaecker2019', 'Seibert2018', 'Yang2018', 'Dai2019', 'Graff2020']
+# StudyNames = ['Mavaddat2015','Mavaddat2019',
+#               'Mega2015', 'Tada2016', 'Abraham2016',
+#               'Khera2018', 'Inouye2018', 'Wunnemann2019', 'Paquette2017', 'Lall2017',
+#               'Oram2016', 'Perry2018', 'Onengut-Gumuscu2019', 'Sharp2019', 'Chouraki2016',
+#               'Desikan2017', 'Khera2019', 'Shieh2016', 'Schumacher2018', 'Vassy2014', 'Song2018',
+#               'Weng2018', 'Mahajan2018', 'Udler2019', 'Belsky2013', 'RuttenJacobs2019', 'Abraham2019',
+#               'Abraham2014', 'Abraham2015',
+#               'Klarin2019','Pashayan2015a_GIM', 'Pashayan2015b_BRJ',
+#               'Kuchenbaecker2017', 'Lecarpentier2018',
+#               'Wen2016', 'Zhang2018', 'Lakeman2019', 'Patel2016', 'Tosto2017', 'Schmit2018','Paul2018',
+#               'Natarajan2017', 'Morieri2018', 'Hajek2018',
+#               'Johnson2015', 'Kuchenbaecker2019', 'Seibert2018', 'Yang2018', 'Dai2019', 'Graff2020',
+#               'Xu2020', 'Canovas2020',
+#               'Trinder2020', 'Elliott2020',
+#               'Fritsche2019', 'HoLe2016', 'Homburger2019', 'Huynh-Le2019', 'Ibanez2017', 'Khera2019_VIRGO',
+#               'MacGregor2018', 'Qi2017', 'Tin2019', 'Wheeler2017', 'Zheutlin2019', 'Craig2020',
+#               'Cai2020', 'Hsu2015', 'IbanezSanz2017','Jeon2018', 'Smith2018', 'Weigl2018', 'Xin2018', 'Shi2019', 'Khera2016', 'Timmerman2019',
+#               'Vuckovic2020']
+
+StudyNames = ['Kathiresan2008']
 
 #Loop through studies to be included/loaded
 for StudyName in StudyNames:
@@ -195,8 +203,10 @@ for StudyName in StudyNames:
                     if 'effect_weight' not in df_scoring.columns:
                         if 'OR' in df_scoring.columns:
                             df_scoring['effect_weight'] = np.log(df_scoring['OR'])
+                            df_scoring['weight_type'] = 'log(OR)'
                         elif 'HR' in df_scoring.columns:
                             df_scoring['effect_weight'] = np.log(df_scoring['HR'])
+                            df_scoring['weight_type'] = 'log(HR)'
 
                     # Reorganize columns according to schema
                     corder = []
@@ -214,6 +224,6 @@ for StudyName in StudyNames:
                     for i, v in enumerate(column_check):
                         if v == False:
                             badmaps.append(df_scoring.columns[i])
-                    print('Error - bad columns: {}', badmaps)
+                    print('Error in {} ! bad columns: {}', loc_scorefile, badmaps)
             except:
                 print('ERROR reading scorefile: {}', loc_scorefile)
