@@ -24,7 +24,7 @@ urlpatterns = [
     path('gwas/<str:gcst_id>/', views.gwas_gcst, name='NHGRI-EBI GWAS Catalog Study'),
 
     # ex: /browse/{scores, traits, studies}/
-    path('browse/<str:view_selection>/', views.browseby, name='Browse Scores'),
+    path('browse/<str:view_selection>/', views.browseby, name='Browse data'),
 
     # ex: /about/
     path('about/', views.AboutView.as_view(), name='About'),

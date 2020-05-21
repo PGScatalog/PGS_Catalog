@@ -19,7 +19,7 @@ info:
         ```
           {
             "count": 137,
-            "next": "https://www.pgscatalog.org/rest/score/all/?limit=50&offset=50",
+            "next": "https://www.pgscatalog.org/rest/score/all?limit=50&offset=50",
             "previous": null,
             "results": [
               < list the results 1 to 50 >
@@ -556,7 +556,7 @@ paths:
                 $ref: '#/components/schemas/SampleSet'
           description: 'List of samples used evaluate a PGS Score'
 
-  '/rest/sample_set/search/':
+  '/rest/sample_set/search':
     get:
       tags:
         - "Sample endpoints"
@@ -636,7 +636,7 @@ paths:
                 $ref: '#/components/schemas/PerformanceMetric'
           description: 'Performance Metric + PGS Score + Publication + Sample Set'
 
-  '/rest/performance/search/':
+  '/rest/performance/search':
     get:
       tags:
         - "Performance Metric endpoints"
@@ -686,7 +686,7 @@ paths:
 
 
   # Publication endpoints
-  '/rest/publication/all/':
+  '/rest/publication/all':
     get:
       tags:
         - "Publication endpoints"
@@ -748,7 +748,7 @@ paths:
                 $ref: '#/components/schemas/Publication_extended'
           description: 'Publication information'
 
-  '/rest/publication/search/':
+  '/rest/publication/search':
     get:
       tags:
           - "Publication endpoints"
@@ -822,7 +822,7 @@ paths:
 
 
   # Release endpoints
-  '/rest/release/all/':
+  '/rest/release/all':
     get:
       tags:
         - "Release endpoints"
@@ -884,7 +884,7 @@ paths:
                 $ref: '#/components/schemas/Release'
           description: 'Release information'
 
-  '/rest/release/current/':
+  '/rest/release/current':
     get:
       tags:
         - "Release endpoints"
@@ -905,7 +905,7 @@ paths:
 
 
   # Score endpoints
-  '/rest/score/all/':
+  '/rest/score/all':
     get:
       tags:
         - "Score endpoints"
@@ -985,7 +985,7 @@ paths:
                   $ref: '#/components/schemas/Error_4XX'
           description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
-  '/rest/score/search/':
+  '/rest/score/search':
     get:
       tags:
         - "Score endpoints"
@@ -1066,7 +1066,7 @@ paths:
 
 
   # Trait endpoints
-  '/rest/trait/all/':
+  '/rest/trait/all':
     get:
       tags:
         - "Trait endpoints"
@@ -1129,7 +1129,7 @@ paths:
           description: 'Trait information'
 
 
-  '/rest/trait/search/':
+  '/rest/trait/search':
     get:
       tags:
           - "Trait endpoints"
