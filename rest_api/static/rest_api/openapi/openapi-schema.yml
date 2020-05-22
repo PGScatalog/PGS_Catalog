@@ -492,6 +492,11 @@ paths:
           * Cohort full name
           * Associated PGS Scores(s), with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
 
+          Example of request:
+          ```
+          https://www.pgscatalog.org/rest/cohort/ABCFS
+          ```
+
         __Notes__: A cohort symbol is not unique, therefore the API might return more than 1 result.
       parameters:
         - name: cohort_symbol
@@ -536,6 +541,11 @@ paths:
           * List of samples
             * Ancestry data
             * Corresponding cohort(s)
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/sample_set/PSS000070
+        ```
       parameters:
         - name: pss_id
           in: path
@@ -563,6 +573,10 @@ paths:
       operationId: searchSampleSet
       description: |
         Search PGS Sample Sets using defined parameters (cf. "Parameters" section below).<br />
+        The parameters can be used directly in the request URL, e.g.:
+        ```
+        https://www.pgscatalog.org/rest/sample_set/search?pgs_id=PGS000001
+        ```
         This returns a list of PGS Sample Sets, including for each of them:
           * List of samples
             * Ancestry data
@@ -616,6 +630,11 @@ paths:
           * Associated PGS Score(s)
           * Publication information
           * List of samples used for the evaluation, with their ancestry and corresponding cohorts
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/performance/PPM000001
+        ```
       parameters:
         - name: ppm_id
           in: path
@@ -643,6 +662,10 @@ paths:
       operationId: searchPerformanceMetrics
       description: |
         Search PGS Performance Metrics using defined parameters (cf. "Parameters" section below).<br />
+        The parameters can be used directly in the request URL, e.g.:
+        ```
+        https://www.pgscatalog.org/rest/performance/search?pgs_id=PGS000001
+        ```
         This returns a list of PGS Performance Metrics, including for each of them:
           * Performance metrics metadata (odd ratio, beta coefficient, C-index, ...)
           * Reported phenotyping
@@ -696,6 +719,11 @@ paths:
           * Pubmed ID and doi
           * Publication title, journal, date and authors
           * Associated PGS Score(s)
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/publication/all
+        ```
       parameters: []
       responses:
         '200':
@@ -728,6 +756,11 @@ paths:
           * Pubmed ID and doi
           * Publication title, journal, date and authors
           * Associated PGS Score(s)
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/publication/PGP000001
+        ```
       parameters:
         - name: pgp_id
           in: path
@@ -755,6 +788,10 @@ paths:
       operationId: searchPublications
       description: |
         Search PGS Publications using defined parameters (cf. "Parameters" section below).<br />
+        The parameters can be used directly in the request URL, e.g.:
+        ```
+        https://www.pgscatalog.org/rest/publication/search?pgs_id=PGS000001
+        ```
         This returns a list of PGS Publications, including for each of them:
           * Pubmed ID and doi
           * Publication title, journal, data and authors
@@ -832,6 +869,11 @@ paths:
           * The release date (format YYYY-MM-DD)
           * The number of new PGS Scores, Publications and Performance Metrics
           * The list of new PGS Scores, Publications and Performance Metrics IDs
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/release/all
+        ```
       parameters: []
       responses:
         '200':
@@ -864,6 +906,11 @@ paths:
           * The release date (format YYYY-MM-DD)
           * The number of new PGS Scores, Publications and Performance Metrics
           * The list of new PGS Scores, Publications and Performance Metrics IDs
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/release/2020-02-12
+        ```
       parameters:
         - name: release_date
           in: path
@@ -894,6 +941,11 @@ paths:
           * The release date (format YYYY-MM-DD)
           * The number of new PGS Scores, Publications and Performance Metrics
           * The list of new PGS Scores, Publications and Performance Metrics IDs
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/release/current
+        ```
       parameters: []
       responses:
         '200':
@@ -918,6 +970,11 @@ paths:
           * The different samples used during the PGS, with ancestry information and cohort(s):
             * **samples_variants**: samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available.
             * **samples_training**: samples used to develop or train the score (e.g. not used for variant discovery, and non-overlapping with the samples used to evaluate the PGS predictive ability).
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/score/all
+        ```
       parameters: []
       responses:
         '200':
@@ -959,6 +1016,11 @@ paths:
           * The different samples used during the PGS, with ancestry information and cohort(s):
             * **samples_variants**: samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available.
             * **samples_training**: samples used to develop or train the score (e.g. not used for variant discovery, and non-overlapping with the samples used to evaluate the PGS predictive ability).
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/score/PGS000001
+        ```
       parameters:
         - name: pgs_id
           in: path
@@ -992,6 +1054,10 @@ paths:
       operationId: searchScores
       description: |
         Search PGS Scores using defined parameters (cf. "Parameters" section below).<br />
+        The parameters can be used directly in the request URL, e.g.:
+        ```
+        https://www.pgscatalog.org/rest/score/search?trait_id=EFO_1000649
+        ```
         This returns a list of PGS Scores, including for each of them:
           * The URL to the scoring file
           * Publication information
@@ -1076,6 +1142,11 @@ paths:
           * Ontology ID, trait label, description and URL
           * Synonyms and external mapped terms
           * Associated PGS Score(s)
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/trait/all
+        ```
       parameters: []
       responses:
         '200':
@@ -1108,6 +1179,11 @@ paths:
           * Ontology ID, trait label, description and URL
           * Synonyms and external mapped terms
           * Associated PGS Score(s)
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/trait/EFO_0000305
+        ```
       parameters:
         - name: trait_id
           in: path
@@ -1136,6 +1212,10 @@ paths:
       operationId: searchTrait
       description: |
         Search Traits using defined parameters (cf. "Parameters" section below).<br />
+        The parameters can be used directly in the request URL, e.g.:
+        ```
+        https://www.pgscatalog.org/rest/trait/search?term=Alzheimer
+        ```
         This returns a list of Traits, including for each of them:
           * Ontology ID, trait label, description and URL
           * Synonyms and external mapped terms
@@ -1182,7 +1262,13 @@ paths:
       tags:
         - "Other endpoints"
       operationId: getGCST
-      description: Retrieve all the PGS Scores IDs using a given NHGRI-EBI GWAS Catalog study (GCST) as source of variant association
+      description: |
+        Retrieve all the PGS Scores IDs using a given NHGRI-EBI GWAS Catalog study (GCST) as source of variant association
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/gwas/get_score_ids/GCST001937
+        ```
       parameters:
         - name: gcst_id
           in: path
