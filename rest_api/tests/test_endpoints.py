@@ -69,7 +69,7 @@ class BrowseEndpointTest(TestCase):
     def test_endpoints(self):
         """ Test the status code of each endpoint listed above """
         for endpoint in self.endpoints:
-            url_endpoint = self.server+endpoint[1]+'/'
+            url_endpoint = self.server+endpoint[1]
 
             #print('# '+endpoint[0])
 
@@ -77,7 +77,7 @@ class BrowseEndpointTest(TestCase):
                 # Endpoint with parameter within the URL path
                 if ('path' in endpoint[self.index_example]):
                     for example in endpoint[self.index_example]['path']:
-                        self.send_request(url_endpoint+example)
+                        self.send_request(url_endpoint+'/'+example)
                 # Endpoint with parameter as query
                 elif ('query' in endpoint[self.index_example]):
                     for example in endpoint[self.index_example]['query']:
@@ -86,6 +86,26 @@ class BrowseEndpointTest(TestCase):
                 self.send_request(url_endpoint)
                 self.get_paginated_response(url_endpoint)
 
+
+    def test_endpoints_with_slash(self):
+        """ Test the status code of each endpoint listed above, with a trailing slash """
+        for endpoint in self.endpoints:
+            url_endpoint = self.server+endpoint[1]+'/'
+
+            #print('# '+endpoint[0])
+
+            if len(endpoint) > self.index_example:
+                # Endpoint with parameter within the URL path
+                if ('path' in endpoint[self.index_example]):
+                    for example in endpoint[self.index_example]['path']:
+                        self.send_request(url_endpoint+example+'/')
+                # Endpoint with parameter as query
+                elif ('query' in endpoint[self.index_example]):
+                    for example in endpoint[self.index_example]['query']:
+                        self.send_request(url_endpoint+'?'+example)
+            else:
+                self.send_request(url_endpoint)
+                self.get_paginated_response(url_endpoint)
 
     def test_empty_endpoints(self):
         """ Test the status code and empty response of each endpoint listed above """
