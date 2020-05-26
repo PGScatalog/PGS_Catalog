@@ -124,7 +124,8 @@ USEFUL_URLS = {
     'PGS_FTP_HTTP_ROOT' : 'http://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_TWITTER_URL'   : 'https://www.twitter.com/pgscatalog',
     'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',
-    'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing'
+    'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing',
+    'CATALOG_PUBLICATION_URL' : 'https://doi.org/10.1101/2020.05.20.20108217'
 }
 if os.getenv('GAE_APPLICATION', None):
     PGS_ON_GAE = 1
