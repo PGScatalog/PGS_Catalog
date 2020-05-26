@@ -15,4 +15,5 @@ def pgs_urls(request):
         'pgs_ftp_http_root': settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT'],
         'pgs_twitter_url'  : settings.USEFUL_URLS['PGS_TWITTER_URL'],
         'uoc_url'          : settings.USEFUL_URLS['UOC_URL'],
+        'catalog_publication_url': settings.USEFUL_URLS['CATALOG_PUBLICATION_URL'],
     }
