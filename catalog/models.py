@@ -399,7 +399,7 @@ class Sample(models.Model):
     sample_age = models.OneToOneField(Demographic, on_delete=models.CASCADE,related_name='ages_of', null=True)
 
     ## Description
-    phenotyping_free = models.TextField('Detailed Phenotype Description')
+    phenotyping_free = models.TextField('Detailed Phenotype Description', null=True)
     followup_time = models.OneToOneField(Demographic, on_delete=models.CASCADE,related_name='followuptime_of', null=True)
 
     ## Ancestry
@@ -409,8 +409,8 @@ class Sample(models.Model):
     ancestry_additional = models.TextField('Additional Ancestry Description', null=True)
 
     ## Cohorts/Sources
-    source_GWAS_catalog = models.CharField('GWAS Catalog Study ID (GCST...)', max_length=20)
-    source_PMID = models.CharField('Source PubMed ID (PMID) or doi', max_length=100)
+    source_GWAS_catalog = models.CharField('GWAS Catalog Study ID (GCST...)', max_length=20, null=True)
+    source_PMID = models.CharField('Source PubMed ID (PMID) or doi', max_length=100, null=True)
     cohorts = models.ManyToManyField(Cohort, verbose_name='Cohort(s)')
     cohorts_additional = models.TextField('Additional Sample/Cohort Information', null=True)
 
@@ -532,9 +532,9 @@ class Sample(models.Model):
     @property
     def display_sources(self):
         d = {}
-        if self.source_GWAS_catalog.startswith('GCST'):
+        if self.source_GWAS_catalog:
             d['GCST'] = self.source_GWAS_catalog
-        if self.source_PMID != None:
+        if self.source_PMID:
             d['PMID'] = self.source_PMID
         return d
 
@@ -579,7 +579,7 @@ class Score(models.Model):
 
     # PGS Development/method details
     method_name = models.TextField('PGS Development Method')
-    method_params = models.TextField('PGS Development Details/Relevant Parameters')
+    method_params = models.TextField('PGS Development Details/Relevant Parameters', default='NR')
 
     variants_number = models.IntegerField('Number of Variants', validators=[MinValueValidator(1)])
     variants_interactions = models.IntegerField('Number of Interaction Terms', default=0)
@@ -673,8 +673,8 @@ class Performance(models.Model):
 
     # [Links to Performance metrics are made by ForeignKey in Metrics table, previously they were parameterized here]
     phenotyping_reported = models.CharField('Reported Trait', max_length=200)
-    covariates = models.TextField('Covariates Included in the Model')
-    performance_comments = models.TextField('PGS Performance: Other Relevant Information')
+    covariates = models.TextField('Covariates Included in the Model', null=True)
+    performance_comments = models.TextField('PGS Performance: Other Relevant Information', null=True)
 
     def __str__(self):
         return '%s | %s -> %s'%(self.id, self.score.id, self.sampleset.id)
