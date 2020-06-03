@@ -420,6 +420,9 @@ components:
           description: "URL to the scoring file on the PGS FTP"
         publication:
           $ref: '#/components/schemas/Publication'
+        matches_publication:
+          type: boolean
+          description: "Indicate if the PGS data matches the published polygenic score. If not, the authors have provided an alternative polygenic for the Catalog and some other data, such as performance metrics may differ from the publication."
         samples_variants:
           type: array
           description: "List of samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available."
