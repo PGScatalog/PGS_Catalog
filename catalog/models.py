@@ -566,6 +566,9 @@ class Score(models.Model):
     date_released = models.DateField('PGS Catalog Release Date', null=True, db_index=True)
     curation_notes = models.TextField('Curation Notes', default='')
 
+    # Used to identify scores that don't match the original publication
+    flag_asis = models.BooleanField('Score and results match the original publication', default=True)
+
     # Links to related models
     publication = models.ForeignKey(Publication, on_delete=models.PROTECT, related_name='publication_score', verbose_name='PGS Publication (PGP) ID')
     ## Contributing Samples

@@ -108,15 +108,19 @@ class ScoreSerializer(serializers.ModelSerializer):
     samples_variants = SampleSerializer(many=True, read_only=True)
     samples_training = SampleSerializer(many=True, read_only=True)
     trait_efo = EFOTraitSerializer(many=True, read_only=True)
+    matches_publication = serializers.SerializerMethodField('get_flag_asis')
 
     class Meta:
         model = Score
-        fields = ('id', 'name', 'ftp_scoring_file', 'publication', 'samples_variants', 'samples_training',
+        fields = ('id', 'name', 'ftp_scoring_file', 'publication', 'matches_publication', 'samples_variants', 'samples_training',
                   'trait_reported', 'trait_additional', 'trait_efo', 'method_name', 'method_params',
                   'variants_number', 'variants_interactions', 'variants_genomebuild')
-        read_only_fields = ('id', 'name', 'ftp_scoring_file', 'publication', 'samples_variants', 'samples_training',
+        read_only_fields = ('id', 'name', 'ftp_scoring_file', 'publication', 'matches_publication', 'samples_variants', 'samples_training',
                   'trait_reported', 'trait_additional', 'trait_efo', 'method_name', 'method_params',
                   'variants_number', 'variants_interactions', 'variants_genomebuild')
+
+    def get_flag_asis(self, obj):
+        return obj.flag_asis
 
 
 class PerformanceSerializer(serializers.ModelSerializer):

@@ -32,6 +32,11 @@ def performance_disclaimer():
         statistical modelling. Please refer to the source publication for additional
         guidance on performance.""")
 
+def score_disclaimer(publication_url):
+    return disclaimer_formatting("""The original published polygenic score is unavailable.
+    The authors have provided an alternative polygenic for the Catalog.
+    Please note some details and performance metrics may differ from the <a href="https://doi.org/{}">publication</a>.""".format(publication_url))
+
 
 def get_efo_traits_data():
     """ Generate the list of traits and trait categories in PGS."""
@@ -142,6 +147,8 @@ def pgs(request, pgs_id):
         'num_variants_pretty' : '{:,}'.format(score.variants_number),
         'has_table': 1
     }
+    if not score.flag_asis:
+        context['score_disclaimer'] = score_disclaimer(score.publication.doi)
 
     # Extract and display Sample Tables
     if score.samples_variants.count() > 0:

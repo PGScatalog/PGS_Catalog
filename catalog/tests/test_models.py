@@ -692,6 +692,7 @@ class ScoreTest(TestCase):
         self.assertEqual(score.method_name, self.m_name)
         self.assertEqual(score.method_params, self.m_params)
         self.assertEqual(score.variants_genomebuild, self.v_build)
+        self.assertTrue(score.flag_asis)
         # Other methods
         self.assertEqual(score.__str__(),  score.id+" | "+score.name+" | ("+score.publication.__str__()+")")
         self.assertRegexpMatches(score.link_filename, r'^PGS\d+\.txt\.gz$')
