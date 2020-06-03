@@ -68,7 +68,10 @@
     </section>
 
     <section>
-        <h3 class="mb-0">Score  Details</h3>
+        <h3 class="mb-0">Score Details</h3>
+        {% if score_disclaimer %}
+          {{ score_disclaimer|safe }}
+        {% endif %}
         <div class="row">
             <div class="col">
                 <table class="table table-bordered table_pgs_h mt-4">
@@ -160,7 +163,7 @@
     </section>
 
     <section>
-        <h3>Performance Metrics</h3>
+        <h3 class="mb-0">Performance Metrics</h3>
         <p>{{ performance_disclaimer|safe }}</p>
         {% render_table table_performance %}
         <h4>Evaluated Samples</h4>

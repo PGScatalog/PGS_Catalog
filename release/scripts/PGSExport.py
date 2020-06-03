@@ -55,7 +55,8 @@ class PGSExport:
                 'variants_interactions',
                 'pub_id',
                 'pub_pmid_label',
-                'pub_doi_label'
+                'pub_doi_label',
+                'flag_asis'
             ],
         'Performance':
             [
