@@ -21,14 +21,16 @@ pgs_prefetch = {
     'perf' : ['score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric']
 }
 
+def disclaimer_formatting(content):
+    return '<div class="clearfix"><div class="mt-2 float_left pgs_note"><div><span>Disclaimer: </span>{}</div></div></div>'.format(content)
+
 def performance_disclaimer():
-    return """<span class="pgs_note_title">Disclaimer: </span>
-        The performance metrics are displayed as reported by the source studies.
+    return disclaimer_formatting("""The performance metrics are displayed as reported by the source studies.
         It is important to note that metrics are not necessarily comparable with
         each other. For example, metrics depend on the sample characteristics
         (described by the PGS Catalog Sample Set [PSS] ID), phenotyping, and
         statistical modelling. Please refer to the source publication for additional
-        guidance on performance."""
+        guidance on performance.""")
 
 
 def get_efo_traits_data():

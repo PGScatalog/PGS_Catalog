@@ -589,10 +589,19 @@ td > ul {
   display:none;
 }
 
-.pgs_note_title {
-  font-style: italic;
-  font-weight: bold;
-  color: $pgs_note_title;
+.pgs_note {
+  padding:6px 10px 6px 6px;
+  border:1px solid $pgs_grey;
+  border-radius:4px;
+  div {
+    border-left:5px solid $pgs_note_title;
+    padding-left:6px;
+    span:first-child {
+      font-style: italic;
+      font-weight: bold;
+      color: $pgs_note_title;
+    }
+  }
 }
 
 .pgs_helptip,  {
@@ -737,13 +746,18 @@ a.link-with-btn {
 .highlight_content {
   float:left;
   background-color: $pgs_light_grey2;
-  padding: 1rem 2rem;
+  border: 1px solid $pgs_colour_1;
+  border-radius: 4px;
+  padding:0.8rem 1rem;
   p {
     &:not(:last-child) {
       margin-bottom:2px;
     }
     &:last-child {
       margin-bottom:0px;
+    }
+    u {
+      font-size:16px;
     }
   }
 }
@@ -1182,6 +1196,7 @@ footer {
   .highlight_content {
     float:none !important;
     u {
+      font-size:14px;
       white-space: normal !important;
     }
   }
