@@ -1,5 +1,5 @@
 import sys, os.path, shutil, glob
-from datetime import datetime, date
+from datetime import date
 import tarfile
 from release.scripts.RemoveDataForRelease import *
 from release.scripts.GenerateBulkExport import PGSExportAllMetadata
@@ -14,10 +14,12 @@ def run(*args):
         print("Please use the command line with: --script-args <path_to_the_export_directory>")
         exit()
 
+    today = date.today()
+
     previous_release_date = get_previous_release_date()
 
     # Remove non released data
-    #call_remove_non_released_data(previous_release_date)
+    #call_remove_non_released_data(previous_release_date, today)
 
     # Remove non released data
     #call_remove_history_data()
@@ -26,7 +28,6 @@ def run(*args):
     scores_db = Score.objects.all().order_by('num')
     new_ftp_dir = '{}/../new_ftp_content/'.format(args[0])
 
-    today = datetime.date.today()
     archive_file_name = '{}/../pgs_ftp_{}.tar.gz'.format(args[0],today)
 
     # Generate all PGS metadata files
@@ -52,11 +53,8 @@ def run(*args):
 #  Methods  #
 #-----------#
 
-def call_remove_non_released_data(lastest_release):
+def call_remove_non_released_data(lastest_release, release_date):
     """ Remove non released data """
-
-    # Release
-    release_date = datetime.today().strftime('%Y-%m-%d')
 
     # Create object to remove the non released data
     data2remove = NonReleasedDataToRemove()

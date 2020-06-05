@@ -6,6 +6,9 @@ from catalog.models import *
 
 def run():
 
+    # Check that the publications are associated to at least a Score or a Performance Metric
+    check_publications_associations()
+
     # Create release
     call_create_release()
 
@@ -13,7 +16,30 @@ def run():
     call_efo_update()
 
     # Update/add GWAS data
-    #call_gwas_update()
+    ##call_gwas_update()
+
+
+def check_publications_associations():
+    """ Check the publications associations """
+
+    publications = Publication.objects.all().order_by('num')
+    pub_list = []
+
+    for publication in publications:
+        pub_id = publication.id
+        is_associated = 0
+        if Score.objects.filter(publication=publication):
+            is_associated = 1
+        elif Performance.objects.filter(publication=publication):
+            is_associated = 1
+        if not is_associated:
+            pub_list.append(pub_id)
+
+    if len(pub_list) > 0:
+        print("ERROR: The following PGS publications are not associated to a Score or a Performance Metric:\n"+'\n'.join(pub_list))
+        exit(1)
+    else:
+        print("Publications associations - OK: All the publications are associated to a Score or a Performance Metric!")
 
 
 def call_create_release():

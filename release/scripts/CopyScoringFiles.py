@@ -141,14 +141,14 @@ def main():
     defaut_scores_dir = '/nfs/production3/spot/pgs/data-files/ScoringFiles/'
 
     argparser = argparse.ArgumentParser(description='Script to check that the expected FTP files and directories exist.')
-    argparser.add_argument("--release", type=str, help='Date of the previous release (format YYYY-MM-DD)', required=True)
+    argparser.add_argument("--prev_release", type=str, help='Date of the previous release (format YYYY-MM-DD)', required=True)
     argparser.add_argument("--data_dir", type=str, help='The path to the data directory (only containing the metadata)', required=True)
     argparser.add_argument("--scores_dir", type=str, help='The path to the scoring files directory', default=defaut_scores_dir, required=False)
 
     args = argparser.parse_args()
 
-    if not re.match(r'^\d{4}\-\d{2}\-\d{2}', args.release):
-        print("Error: The release date '"+str(args.release)+"' doesn't match the required format (YYYY-MM-DD).")
+    if not re.match(r'^\d{4}\-\d{2}\-\d{2}', args.prev_release):
+        print("Error: The previous release date '"+str(args.prev_release)+"' doesn't match the required format (YYYY-MM-DD).")
         exit(1)
     if not os.path.exists(args.data_dir):
         print("Error: The path to the data directory can't be found ("+args.data_dir+").")
@@ -157,7 +157,7 @@ def main():
         print("Error: The path to the scoring files directory can't be found ("+args.scores_dir+").")
         exit(1)
 
-    pgs_scoring_files = CopyScoringFiles(args.data_dir,args.scores_dir,args.release)
+    pgs_scoring_files = CopyScoringFiles(args.data_dir,args.scores_dir,args.prev_release)
     pgs_scoring_files.copy_scoring_files()
 
 if __name__== "__main__":

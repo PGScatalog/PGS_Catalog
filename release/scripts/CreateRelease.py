@@ -1,6 +1,6 @@
 import re
 from catalog.models import *
-from datetime import datetime
+from datetime import date
 from ftplib import FTP
 
 
@@ -13,7 +13,7 @@ class CreateRelease:
     new_performances = {}
 
     def __init__(self):
-        self.new_release_date = datetime.today().strftime('%Y-%m-%d')
+        self.new_release_date = date.today()
         self.new_publications = Publication.objects.filter(date_released__isnull=True, curation_status="C")
 
 
@@ -125,4 +125,4 @@ def run():
     print("Number of new Scores (direct fetch): "+str(scores_direct.count()))
     print("Number of new Performances (direct fetch): "+str(perfs_direct.count()))
 
-    release.check_ftp()
+    #release.check_ftp()
