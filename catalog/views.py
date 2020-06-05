@@ -161,6 +161,7 @@ def pgs(request, pgs_id):
     # Extract + display Performance + associated samples
     pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('score', 'publication').filter(score=score).prefetch_related(*pgs_prefetch['perf'])
     table = PerformanceTable(pquery)
+    table.exclude = ('score')
     context['table_performance'] = table
 
     pquery_samples = set()
@@ -210,7 +211,7 @@ def pgp(request, pub_id):
         context['table_evaluated'] = table
 
     #Find + table the evaluations
-    table = PerformanceTable_PubTrait(pquery)
+    table = PerformanceTable(pquery)
     context['table_performance'] = table
 
     pquery_samples = set()
@@ -251,7 +252,7 @@ def efo(request, efo_id):
 
     #Find the evaluations of these scores
     pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
-    table = PerformanceTable_PubTrait(pquery)
+    table = PerformanceTable(pquery)
     context['table_performance'] = table
 
     pquery_samples = set()
