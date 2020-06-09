@@ -755,6 +755,8 @@ class TraitCategoryTest(TestCase):
         trait_category.efotraits.add(trait)
         self.assertEqual(trait.category_labels, trait_category.label)
         self.assertEqual(list(trait.category_list), [trait_category])
+        self.assertEqual(list(trait.category_labels_list), [trait_category.label])
+        self.assertNotEqual(trait.display_category_labels,'')
 
         # Test to count scores per trait category
         scoretest = ScoreTest()
