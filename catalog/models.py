@@ -228,7 +228,7 @@ class EFOTrait(models.Model):
 
     @property
     def category_list(self):
-        return self.traitcategory_set.all()
+        return sorted(self.traitcategory_set.all(), key=lambda y: y.label)
 
     @property
     def category_labels_list(self):
@@ -254,7 +254,8 @@ class EFOTrait(models.Model):
         if len(categories) > 0:
             category_labels = []
             for category in categories:
-                category_labels.append('<div><span class="trait_colour" style="background-color:{}"></span>{}</div>'.format(category.colour,category.label))
+                v_spacing = ' class="mt-1"' if len(category_labels) > 0 else ''
+                category_labels.append('<div{}><span class="trait_colour" style="background-color:{}"></span>{}</div>'.format(v_spacing,category.colour,category.label))
             categories_data = ''.join(category_labels)
 
         return categories_data
