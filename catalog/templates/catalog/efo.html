@@ -30,20 +30,22 @@
             <td>Identifier</td>
             <td><b><a href="{{ trait.url }}">{{ trait.id }}</a></b></td>
           </tr>
-          <tr>
-            <td>Description</td>
-            <td>
-              {% if desc_list %}
-                <ul>
-                  {% for desc in desc_list %}
-                    <li>{{ desc }}</li>
-                  {% endfor %}
-                </ul>
-              {% else %}
-                <span class="more">{{ trait.description }}</span>
-              {% endif %}
-            </td>
-          </tr>
+          {% if trait.description %}
+            <tr>
+              <td>Description</td>
+              <td>
+                {% if desc_list %}
+                  <ul>
+                    {% for desc in desc_list %}
+                      <li>{{ desc }}</li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <span class="more">{{ trait.description }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
           <td>Trait category</td>
           <td>
             {% for category in trait.category_list %}
@@ -97,6 +99,37 @@
 
     <section>
     <h3>Associated Polygenic Score(s)</h3>
+    {% if trait_scores_child_count and trait_scores_direct_count %}
+      <!--<input type="checkbox" checked id="include_children" name="include_children" value="{{ trait.label }}"/>-->
+      <div class="clearfix mb-2">
+        <div class="mt-2 float_left pgs_note">
+          <div class="mb-2">
+            <span>Note: </span>This table shows by default direct and indirect (child traits) associations between PGS Score(s) and "<b>{{ trait.label }}</b>."
+          </div>
+          <span>
+            <input type="checkbox" {% if include_children %}checked{% endif %} id="include_children" name="include_children" value="{{ trait.id }}"/>
+            <label class="mb-0" for="include_children"> Include PGS Score(s) for all child terms of this trait (indirect associations)</label>
+          </span>
+        </div>
+      </div>
+    {% elif trait_scores_child_count  %}
+      <div class="clearfix mb-2">
+        <div class="mt-2 float_left pgs_note">
+          <div>
+            <span>Note: </span>This table only shows PGS Score(s) associated with all child terms of "<b>{{ trait.label }}</b>."
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="clearfix mb-2">
+        <div class="mt-2 float_left pgs_note">
+          <div>
+            <span>Note: </span>This table only shows direct associations between PGS Score(s) and "<b>{{ trait.label }}</b>."
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
     {% render_table table_scores %}
     </section>
 

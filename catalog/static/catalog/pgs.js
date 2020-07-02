@@ -65,13 +65,13 @@ $(document).ready(function() {
       ebiFrameworkRunDataProtectionBanner(localFrameworkVersion); // invoke the banner
     };
 
-
     function pgs_toggle_btn(el) {
       el.find('i').toggleClass("fa-plus-circle fa-minus-circle");
       id = el.attr('id');
-      $('#list_'+id).toggle();
-      if ($('#list_'+id).is(":visible")) {
-        fadeIn($('#list_'+id));
+      prefix = '#list_';
+      $(prefix+id).toggle();
+      if ($(prefix+id).is(":visible")) {
+        fadeIn($(prefix+id));
       }
     }
     // Button toggle
@@ -162,9 +162,48 @@ $(document).ready(function() {
     $('.pgs-ftp-btn').hover(function() {
       $(this).children('span').toggleClass('fa-folder fa-folder-open');
     });
+
+    $('body').on("click", '#include_children', function(){
+      console.log("Clicked!");
+      if ($(this).prop("checked") == true) {
+        //add_search_term('', 'list_traits');
+        $(location).attr('href','/trait/'+$(this).val());
+      }
+      else {
+        //add_search_term($(this).val(), 'list_traits');
+        $(location).attr('href','/trait/'+$(this).val()+'?include_children=false');
+      }
+    });
+
+    /*$('body').on("click", '#include_children_2', function(){
+      console.log("Clicked!");
+      if ($(this).prop("checked") == true) {
+        //$(this).prop("checked", false);
+        //add_search_term('', 'list_traits');
+        //$('#scores_table').bootstrapTable('getHiddenRows', true);
+        children_rows = $(this).val().split('|');
+        for(i=0;i<children_rows.length; i++){
+          console.log("INDEX: "+children_rows[i]);
+          $('#scores_table').bootstrapTable('showRow', {index:children_rows[i]});
+        }
+        $('.fixed-table-pagination').first().hide();
+      }
+      else {
+          //$(this).prop("checked", true);
+          console.log($(this).val());
+          //table = $('#scores_table');
+          var children_rows = $(this).val().split('|');
+          for(i=0;i<children_rows.length; i++){
+            console.log("INDEX "+i+": "+children_rows[i]);
+            //$("#scores_table tr[data-index='"+children_rows[i]+"']").hide();
+            $('#scores_table').bootstrapTable('hideRow', { index: children_rows[i] });
+          }
+          $('.fixed-table-pagination').first().hide();
+          //$('#scores_table').bootstrapTable('showRow', { index: '9' });
+          //add_search_term($(this).val(), 'list_traits');
+      }
+    });*/
 });
-
-
 
 
 /*
@@ -188,6 +227,7 @@ function shorten_displayed_content() {
       }
   });
 }
+
 
 
 /*
@@ -259,19 +299,88 @@ function showhide_trait(id, term) {
 }
 
 
-function add_search_term(term) {
+function add_search_term(term, input_class) {
+
   var elems = $('.search-input');
+  if (input_class) {
+    elems = $('.bootstrap-table-filter-control-'+input_class);
+  }
   if (elems.length > 0) {
     elem = elems[0];
     elem.focus();
     elem.value = term;
+    //elem.dispatchEvent(new KeyboardEvent('keydown',{'key':'a'}));
+    if (input_class) {
+      var e = jQuery.Event("keydown");
+      e.which = 13; // Enter
+      console.log("Pressed")
+      $('.bootstrap-table-filter-control-'+input_class).trigger("change");
+      //$('.bootstrap-table-filter-control-'+input_class).first().focus.trigger(jQuery.Event('keydown', { keyCode: 69 }));
+      console.log("Pressed - done")
+    }
     elem.blur();
+
     setTimeout(function(){
       $('table.table[data-toggle="table"] tbody a[href^="http"]').attr('target','_blank');
       $('table.table[data-toggle="table"] tbody a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
     }, 1000);
   }
+  /*input_class_name = '.bootstrap-table-filter-control-'+input_class
+  $(input_class_name).first().focus();
+  $(input_class_name).first().val(term);
+  e = jQuery.Event('keydown', { keyCode: 13 });
+  $(input_class_name).first().trigger(e);
+  $(input_class_name).first().blur();
+
+  setTimeout(function(){
+    $('table.table[data-toggle="table"] tbody a[href^="http"]').attr('target','_blank');
+    $('table.table[data-toggle="table"] tbody a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
+  }, 1000);*/
 }
+
+
+// Buttons in the Search page results
+$('.search_facet').click(function(){
+  /*id = $(this).attr('id');
+  type = id.replace('_facet', '');
+  if (type == 'all') {
+    $('.pgs_result').show();
+  }
+  else {
+    table_id = type+'_results';
+    entry_class = type+'_entry';
+    $('.pgs_result').hide();
+    $('.'+entry_class).show();
+  }
+  title = type.charAt(0).toUpperCase() + type.slice(1);*/
+
+
+  if ($(this).find('i.fa-circle-o')) {
+    id = $(this).attr('id');
+    type = id.replace('_facet', '');
+    if (type == 'all') {
+      $('.pgs_result').show();
+    }
+    else {
+      //table_id = type+'_results';
+      entry_class = type+'_entry';
+      console.log("ENTRY: "+entry_class);
+      //$('.pgs_result').hide();
+      $('.'+entry_class).show();
+      $('.pgs_result').not('.'+entry_class).hide();
+    }
+    title = type.charAt(0).toUpperCase() + type.slice(1);
+
+
+    $('.search_facet.selected').find('i').removeClass("fa-check-circle").addClass("fa-circle-o");
+    $('.search_facet.selected').removeClass("selected");
+
+    $(this).find('i').removeClass("fa-circle-o").addClass("fa-check-circle");
+    $(this).addClass("selected");
+    //$(".table_results").hide();
+    //$('#'+table_id).show();
+  }
+});
 
 
 // Build and draw the Trait category piechart

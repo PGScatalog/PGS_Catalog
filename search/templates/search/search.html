@@ -1,0 +1,70 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Search with ES{% endblock %}
+
+{% block content %}
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      id = $('.search_facet.selected').attr('id');
+      type = id.replace('_facet', '');
+      if (type != 'all') {
+        entry_class = type+'_entry';
+        $('.'+entry_class).show();
+        $('.pgs_result').not('.'+entry_class).hide();
+      }
+    });
+  </script>
+
+  <h3 class="search_result_header mt-0 mb-4 pb-2">Results for "<span class="pgs_color_1">{{ query }}</span>"</h3>
+  {% if efo_traits_count or publications_count %}
+    <div class="search_facet_container mt-4">
+      {% if efo_traits_count %}
+        <div class="search_facet selected" id="efo_traits_facet">
+          <i class="fa fa-check-circle"></i>
+          <span class="search_facet_type search_facet_type_1"></span>
+          <div>Traits</div>
+          <span class="badge badge-pill badge-pgs">{{ efo_traits_count }}</span>
+        </div>
+      {% endif %}
+
+      {% if publications_count %}
+        {% if efo_traits_count %}
+          <div class="search_facet" id="publications_facet">
+            <i class="fa fa-circle-o"></i>
+        {% else %}
+          <div class="search_facet selected" id="publications_facet">
+            <i class="fa fa-check-circle"></i>
+        {% endif %}
+            <span class="search_facet_type search_facet_type_2"></span>
+            <div>Publications</div>
+            <span class="badge badge-pill badge-pgs">{{ publications_count }}</span>
+          </div>
+      {% endif %}
+
+      {% if efo_traits_count and publications_count %}
+        <div class="search_facet" id="all_facet">
+          <i class="fa fa-circle-o"></i>
+          <span class="search_facet_type search_facet_type_1"></span>
+          <span class="search_facet_type search_facet_type_2"></span>
+          <div>All results</div>
+          <span class="badge badge-pill badge-pgs">{{ all_results|length }}</span>
+        </div>
+      {% endif %}
+
+    </div>
+
+    {% if efo_traits_count or publications_count %}
+      <div class="table_results pt-5" id="all_results">
+        {% for result in all_results%}
+          {{ result|safe }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div>No results found</div>
+  {% endif %}
+
+{% endblock %}

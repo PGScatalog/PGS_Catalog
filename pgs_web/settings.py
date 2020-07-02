@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-
 if not os.getenv('GAE_APPLICATION', None):
     app_settings = os.path.join('./', 'app.yaml')
     if os.path.exists(app_settings):
@@ -24,6 +23,7 @@ if not os.getenv('GAE_APPLICATION', None):
     elif not os.environ['SECRET_KEY']:
         print("Error: missing secret key")
         exit(1)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -47,6 +47,7 @@ ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
 INSTALLED_APPS = [
 	'catalog.apps.CatalogConfig',
     'rest_api.apps.RestApiConfig',
+    'search.apps.SearchConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,7 +57,8 @@ INSTALLED_APPS = [
     'django_tables2',
     'django_extensions',
     'compressor',
-    'rest_framework'
+    'rest_framework',
+    'django_elasticsearch_dsl'
 ]
 
 MIDDLEWARE = [
@@ -68,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'pgs_web.urls'
 
@@ -83,7 +86,8 @@ if os.getenv('GAE_APPLICATION', None) and DEBUG==False:
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
                     'catalog.context_processors.pgs_urls',
-                    'catalog.context_processors.pgs_settings'
+                    'catalog.context_processors.pgs_settings',
+                    'catalog.context_processors.pgs_search_examples'
                 ],
                 'loaders': [
                     ('django.template.loaders.cached.Loader', [
@@ -107,7 +111,8 @@ else:
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
                     'catalog.context_processors.pgs_urls',
-                    'catalog.context_processors.pgs_settings'
+                    'catalog.context_processors.pgs_settings',
+                    'catalog.context_processors.pgs_search_examples'
                 ],
             },
         },
@@ -258,4 +263,17 @@ REST_FRAMEWORK = {
         'anon': '100/min',
         'user': '100/min'
     }
+}
+
+# Elasticsearch configuration
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': os.environ['ELASTICSEARCH_URL_ROOT']
+    }
+}
+
+# Name of the Elasticsearch index
+ELASTICSEARCH_INDEX_NAMES = {
+    'search.documents.efo_trait': 'efo_trait',
+    'search.documents.publication': 'publication'
 }

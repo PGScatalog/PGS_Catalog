@@ -43,7 +43,7 @@ def get_efo_traits_data():
     data = []
     # Use set() to avoid duplication when an entry belongs to several categories
     traits_list = set()
-    for category in TraitCategory.objects.all().prefetch_related('efotraits__score_set','efotraits__traitcategory_set').order_by('label'):
+    for category in TraitCategory.objects.all().prefetch_related('efotraits__associated_scores','efotraits__traitcategory').order_by('label'):
         cat_scores_count = 0
         cat_id = category.parent.replace(' ', '_')
 
@@ -191,8 +191,7 @@ def pgp(request, pub_id):
         'has_table': 1
     }
 
-    #Display scores that were developed by this publication
-    #related_scores = pub.publication_score.all().prefetch_related('trait_efo', 'publication')
+    # Display scores that were developed by this publication
     related_scores = pub.publication_score.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
     if related_scores.count() > 0:
         table = Browse_ScoreTable(related_scores)
@@ -227,31 +226,49 @@ def pgp(request, pub_id):
 
 
 def efo(request, efo_id):
+
+    exclude_children = False
+    include_children = request.GET.get('include_children');
+    if include_children:
+        if include_children.lower() == 'false':
+            exclude_children = True
+
     try:
-        trait = EFOTrait.objects.prefetch_related('score_set').get(id__exact=efo_id)
-    except EFOTrait.DoesNotExist:
+        ontology_trait = EFOTrait_Ontology.objects.prefetch_related('scores_direct_associations','scores_child_associations','child_traits').get(id__exact=efo_id)
+    except EFOTrait_Ontology.DoesNotExist:
         raise Http404("Trait: \"{}\" does not exist".format(efo_id))
 
-    related_scores = trait.score_set.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
-    table_scores = Browse_ScoreTable(related_scores)
-    table_scores.exclude = ('list_traits')
+    # Get list of PGS Scores
+    related_direct_scores = ontology_trait.scores_direct_associations.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+    related_child_scores = ontology_trait.scores_child_associations.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+    if exclude_children:
+        related_scores = related_direct_scores
+    else:
+        related_scores = list(related_direct_scores) + list(related_child_scores)
+        related_scores.sort(key=lambda x: x.id)
+
     context = {
-        'trait': trait,
+        'trait': ontology_trait,
+        'trait_scores_direct_count': len(related_direct_scores),
+        'trait_scores_child_count': len(related_child_scores),
         'performance_disclaimer': performance_disclaimer(),
-        'table_scores' : table_scores,
+        'table_scores': Browse_ScoreTable(related_scores),
+        'include_children': False if exclude_children else True,
         'has_table': 1
     }
 
     # Check if there are multiple descriptions
     try:
-        desc_list = eval(trait.description)
+        desc_list = eval(ontology_trait.description)
         if type(desc_list) == list:
             context['desc_list'] = desc_list
     except:
         pass
 
-    #Find the evaluations of these scores
+
+    # Find the evaluations of these scores
     pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
+
     table = PerformanceTable(pquery)
     context['table_performance'] = table
 
@@ -321,6 +338,19 @@ def pss(request, pss_id):
         'has_table': 1,
         'has_chart': 1
     }
+
+    related_performance = Performance.objects.defer(*pgs_defer['perf']).select_related('score', 'publication').filter(sampleset=sample_set).prefetch_related('score__publication', 'score__trait_efo', 'sampleset', 'phenotyping_efo', 'performance_metric')
+    if related_performance.count() > 0:
+        # Scores
+        related_scores = [x.score for x in related_performance]
+        table_scores = Browse_ScoreTable(related_scores)
+        context['table_scores'] = table_scores
+        # Display performance metrics associated with this sample set
+        table_performance = PerformanceTable(related_performance)
+        table_performance.exclude = ('sampleset')
+        context['table_performance'] = table_performance
+        context['performance_disclaimer'] = performance_disclaimer()
+
     return render(request, 'catalog/pss.html', context)
 
 

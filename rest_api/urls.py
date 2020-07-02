@@ -5,14 +5,15 @@ from rest_framework.schemas import get_schema_view
 
 slash = '/?'
 rest_urls = {
-    'cohort':      'rest/cohort/',
-    'trait':       'rest/trait/',
-    'performance': 'rest/performance/',
-    'publication': 'rest/publication/',
-    'release':     'rest/release/',
-    'sample_set':  'rest/sample_set/',
-    'score':       'rest/score/',
-    'gwas':        'rest/gwas/get_score_ids/'
+    'cohort':         'rest/cohort/',
+    'trait':          'rest/trait/',
+    'trait_category': 'rest/trait_category/',
+    'performance':    'rest/performance/',
+    'publication':    'rest/publication/',
+    'release':        'rest/release/',
+    'sample_set':     'rest/sample_set/',
+    'score':          'rest/score/',
+    'gwas':           'rest/gwas/get_score_ids/'
 }
 
 urlpatterns = [
@@ -51,5 +52,7 @@ urlpatterns = [
     path(rest_urls['score']+'<str:pgs_id>/', RestScore.as_view(), name="getScore"),
     # Extra endpoints
     path(rest_urls['gwas']+'<str:gcst_id>', RestGCST.as_view(), name="pgs_score_ids_from_gwas_gcst_id"),
-    path(rest_urls['gwas']+'<str:gcst_id>/', RestGCST.as_view(), name="pgs_score_ids_from_gwas_gcst_id")
+    path(rest_urls['gwas']+'<str:gcst_id>/', RestGCST.as_view(), name="pgs_score_ids_from_gwas_gcst_id"),
+    # Trait Category
+    re_path(r'^'+rest_urls['trait_category']+'all'+slash, RestListTraitCategories.as_view(), name="getAllTraitCategories"),
 ]

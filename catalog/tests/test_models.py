@@ -754,6 +754,9 @@ class TraitCategoryTest(TestCase):
         trait = efotraittest.create_efo_trait('EFO_0000292','bladder carcinoma','A carcinoma that arises from epithelial cells of the urinary bladder')
         trait_category.efotraits.add(trait)
         self.assertEqual(trait.category_labels, trait_category.label)
+        self.assertNotEqual(trait.display_category_labels, '')
+        category_label =  r'^<div>.*'+trait_category.label+r'.*</div>$'
+        self.assertRegexpMatches(trait.display_category_labels, category_label)
         self.assertEqual(list(trait.category_list), [trait_category])
 
         # Test to count scores per trait category
@@ -765,3 +768,93 @@ class TraitCategoryTest(TestCase):
             score.trait_efo.add(trait)
             score_id += 1
         self.assertEqual(trait_category.count_scores, score_range)
+
+
+class EFOTrait_OntologyTest(TestCase):
+    """ Test the EFOTrait_Ontology model """
+
+    efo_id_1   = 'EFO_0000305'
+    efo_name_1 = 'breast carcinoma'
+    efo_desc_1 = 'A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]'
+    efo_synonyms_list_1 = ['CA - Carcinoma of breast','Carcinoma of breast NOS','Mammary Carcinoma, Human']
+    efo_synonyms_1 = ' | '.join(efo_synonyms_list_1)
+    efo_mapped_terms_list_1 = ['OMIM:615554','NCIT:C4872','UMLS:C0678222']
+    efo_mapped_terms_1 = ' | '.join(efo_mapped_terms_list_1)
+
+    efo_id_2   = 'EFO_1000649'
+    efo_name_2 = 'estrogen-receptor positive breast cancer'
+    efo_desc_2 = 'a subtype of breast cancer that is estrogen-receptor positive [EFO: 1000649]'
+    #efo_synonyms_list_2 = ['ER+ breast cancer', 'estrogen receptor positive breast cancer', 'estrogen-receptor positive breast cancer']
+    #efo_synonyms_2 = ' | '.join(efo_synonyms_list_2)
+    #efo_mapped_terms_list_2 = ['DOID:0060075','MONDO:0006512']
+    #efo_mapped_terms_2 = ' | '.join(efo_mapped_terms_list_2)
+
+    def create_efo_trait_ontology(self, efo_id ,label, desc, syn, terms):
+        return EFOTrait_Ontology.objects.create(id=efo_id,label=label,description=desc,synonyms=syn,mapped_terms=terms)
+
+    def test_efo_trait_ontology(self):
+
+        scoretest = ScoreTest()
+        score_num = 825
+        score_1 = scoretest.create_score(num=score_num,name="Score_1_for_EFOTrait_OntologyTest", var_number=1)
+        score_1.set_score_ids(score_num)
+        score_2a = scoretest.create_score(num=score_num+1,name="Score_2a_for_EFOTrait_OntologyTest", var_number=1)
+        score_2a.set_score_ids(score_num+1)
+        score_2b = scoretest.create_score(num=score_num+2,name="Score_2b_for_EFOTrait_OntologyTest", var_number=1)
+        score_2b.set_score_ids(score_num+2)
+        associated_pgs_1 = [score_1]
+        associated_pgs_2 = [score_2a,score_2b]
+
+        efo_trait_1 = self.create_efo_trait_ontology(
+            efo_id=self.efo_id_1,label=self.efo_name_1, desc=self.efo_desc_1, syn=self.efo_synonyms_1,
+            terms=self.efo_mapped_terms_1)
+        for score in associated_pgs_1:
+            efo_trait_1.scores_direct_associations.add(score)
+
+        # Instance
+        self.assertTrue(isinstance(efo_trait_1, EFOTrait_Ontology))
+        # Variables
+        self.assertIsNotNone(efo_trait_1.label)
+        self.assertIsNotNone(efo_trait_1.url)
+        self.assertIsNotNone(efo_trait_1.description)
+        self.assertEqual(efo_trait_1.id, self.efo_id_1)
+        self.assertEqual(efo_trait_1.label, self.efo_name_1)
+        self.assertEqual(efo_trait_1.description, self.efo_desc_1)
+        self.assertEqual(efo_trait_1.synonyms, self.efo_synonyms_1)
+        self.assertEqual(efo_trait_1.mapped_terms, self.efo_mapped_terms_1)
+        self.assertEqual(efo_trait_1.synonyms_list, self.efo_synonyms_list_1)
+        self.assertEqual(efo_trait_1.mapped_terms_list, self.efo_mapped_terms_list_1)
+        self.assertEqual(len(efo_trait_1.scores_direct_associations.all()), len(associated_pgs_1))
+        self.assertEqual(efo_trait_1.scores_direct_associations.all()[0].num, score_num)
+        self.assertEqual(efo_trait_1.associated_pgs_ids, [x.id for x in associated_pgs_1])
+        # Other methods
+        self.assertEqual(efo_trait_1.__str__(), self.efo_id_1+' | '+self.efo_name_1+' ')
+        label_url =  r'^\<a\s.*href=.+\/trait\/'+self.efo_id_1+r'.*\>'+self.efo_name_1+r'\<\/a\>$'
+        self.assertRegexpMatches(efo_trait_1.display_label, label_url)
+        id_url = r'^\<a\s.*href=.+\>'+self.efo_id_1+r'</a>.+$'
+        self.assertRegexpMatches(efo_trait_1.display_id_url(), id_url)
+
+
+        # Test empty synonyms & mapped_terms
+        efo_trait_2 = self.create_efo_trait_ontology(efo_id=self.efo_id_2,label=self.efo_name_2, desc=self.efo_desc_2, syn=None,terms=None)
+        for score in associated_pgs_2:
+            efo_trait_2.scores_direct_associations.add(score)
+
+        efo_trait_2.parent_traits.add(efo_trait_1)
+        # Instance
+        self.assertTrue(isinstance(efo_trait_2, EFOTrait_Ontology))
+        # Other methods
+        self.assertEqual(efo_trait_2.synonyms_list, [])
+        self.assertEqual(efo_trait_2.mapped_terms_list, [])
+        self.assertEqual(efo_trait_2.parent_traits.all()[0], efo_trait_1)
+        self.assertEqual(len(efo_trait_2.scores_direct_associations.all()), len(associated_pgs_2))
+        self.assertEqual(efo_trait_2.scores_direct_associations.all()[0].num, score_num+1)
+        self.assertEqual(efo_trait_2.associated_pgs_ids, [x.id for x in associated_pgs_2])
+
+        efo_trait_1.child_traits.add(efo_trait_2)
+        for score in efo_trait_2.scores_direct_associations.all():
+            efo_trait_1.scores_child_associations.add(score)
+        self.assertEqual(efo_trait_1.child_traits.all()[0], efo_trait_2)
+        self.assertEqual(len(efo_trait_1.scores_child_associations.all()), len(associated_pgs_2))
+        self.assertEqual(efo_trait_1.scores_child_associations.all()[0].num, score_num+1)
+        self.assertEqual(efo_trait_1.child_associated_pgs_ids, [x.id for x in associated_pgs_2])
