@@ -4,7 +4,7 @@ python:
 services:
   - postgresql
 env:
-  - DEBUG=False ALLOWED_HOSTS=localhost DATABASE_NAME=travis_ci_test DATABASE_USER=postgres DATABASE_PASSWORD=password DATABASE_HOST=localhost DATABASE_PORT=5432 REST_URL_ROOT=http://127.0.0.1/rest/ SECRET_KEY=1234
+  - DEBUG=False ALLOWED_HOSTS=localhost DATABASE_NAME=travis_ci_test DATABASE_USER=postgres DATABASE_PASSWORD=password DATABASE_HOST=localhost DATABASE_PORT=5432 REST_URL_ROOT=http://127.0.0.1/rest/ ELASTICSEARCH_URL_ROOT=http://localhost:9200 SECRET_KEY=1234
 install:
   - pip install -r requirements.txt
   - pip install requests
