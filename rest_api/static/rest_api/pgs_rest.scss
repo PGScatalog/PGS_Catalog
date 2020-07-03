@@ -11,6 +11,9 @@ $pgs_dark3: #333; // Header & footer background-color
 $pgs_darkC: #CCC;
 $pgs_light_grey2: #FAFAFA;
 
+$header_height_with_margin: 60px;
+$header_height_with_margin_mobile: $header_height_with_margin + 58px;
+
 
 /* CSS classes */
 
@@ -76,7 +79,7 @@ hgroup > div {
     text-decoration: none;
   }
 }
-.btn {
+.try-out .btn, .btn-clear {
   border-color: $pgs_colour_1 !important;
   background-color: #FFF !important;
   color: $pgs_colour_1 !important;
@@ -85,13 +88,13 @@ hgroup > div {
     color: $pgs_colour_1_lighter !important;
   }
 }
-.btn.cancel {
+.try-out .btn.cancel {
   border-color: $pgs_colour_2 !important;
   color: $pgs_colour_2 !important;
 }
 
 #swagger-ui  {
-  padding-top: 50px;
+  padding-top: $header_height_with_margin;
 }
 .pgs_brand {
   border: none !important;
@@ -336,6 +339,17 @@ table.model .model-toggle, table.model .model-toggle:after {
   }
   ul {
     padding-left: 1.5rem !important
+  }
+}
+
+
+/* Mobile phone display */
+@media screen and (max-width: 499px) {
+  #swagger-ui {
+    padding-top: $header_height_with_margin_mobile !important;
+  }
+  .swagger-ui .wrapper {
+    padding:0px !important;
   }
 }
 
