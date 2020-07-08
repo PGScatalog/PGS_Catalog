@@ -8,6 +8,7 @@ class SimpleContentTest(TestCase):
 
     def test_content(self):
         self.assertIsNotNone(performance_disclaimer())
+        self.assertIsNotNone(score_disclaimer('test'))
 
 
 class EFOTraitDataTest(TestCase):

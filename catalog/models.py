@@ -843,11 +843,7 @@ class EFOTrait_Ontology(EFOTrait_Base):
     scores_direct_associations = models.ManyToManyField(Score, verbose_name='PGS Score IDs - direct associations', related_name='scores_trait_direct_associations')
     scores_child_associations = models.ManyToManyField(Score, verbose_name='PGS Score IDs - child associations', related_name='scores_trait_child_associations')
 
-    child_traits = models.ManyToManyField('self', verbose_name='Child traits')
-
-    # This parent_traits relation is needed as django-elasticsearch-dsl (7.1.1) apparently can't deal with recursive models.
-    # The more efficient way would have been to use a "related_name" on the "child_traits" variable
-    parent_traits = models.ManyToManyField('self', verbose_name='Parents traits')
+    child_traits = models.ManyToManyField('self', verbose_name='Child traits', symmetrical=False, related_name='parent_traits')
 
     @property
     def associated_pgs_ids(self):
@@ -864,6 +860,18 @@ class EFOTrait_Ontology(EFOTrait_Base):
         for score in self.scores_child_associations.all():
             score_ids_set.add(score.id)
         return sorted(list(score_ids_set))
+
+    @property
+    def display_child_traits_list(self):
+        child_traits = self.child_traits.all()
+        if child_traits:
+            child_traits_list = []
+            for child_trait in sorted(child_traits, key=lambda y: y.label):
+                child_trait_html = '<a href="/trait/{}">{}</a>'.format(child_trait.id, child_trait.label)
+                child_traits_list.append(child_trait_html)
+            return child_traits_list
+        else:
+            return []
 
 
 class TraitCategory(models.Model):

@@ -271,9 +271,6 @@ function showhide_trait(id, term) {
 function add_search_term(term) {
 
   var elems = $('.search-input');
-  if (input_class) {
-    elems = $('.bootstrap-table-filter-control-'+input_class);
-  }
   if (elems.length > 0) {
     elem = elems[0];
     elem.focus();

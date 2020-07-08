@@ -784,10 +784,6 @@ class EFOTrait_OntologyTest(TestCase):
     efo_id_2   = 'EFO_1000649'
     efo_name_2 = 'estrogen-receptor positive breast cancer'
     efo_desc_2 = 'a subtype of breast cancer that is estrogen-receptor positive [EFO: 1000649]'
-    #efo_synonyms_list_2 = ['ER+ breast cancer', 'estrogen receptor positive breast cancer', 'estrogen-receptor positive breast cancer']
-    #efo_synonyms_2 = ' | '.join(efo_synonyms_list_2)
-    #efo_mapped_terms_list_2 = ['DOID:0060075','MONDO:0006512']
-    #efo_mapped_terms_2 = ' | '.join(efo_mapped_terms_list_2)
 
     def create_efo_trait_ontology(self, efo_id ,label, desc, syn, terms):
         return EFOTrait_Ontology.objects.create(id=efo_id,label=label,description=desc,synonyms=syn,mapped_terms=terms)
@@ -850,6 +846,7 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertEqual(len(efo_trait_2.scores_direct_associations.all()), len(associated_pgs_2))
         self.assertEqual(efo_trait_2.scores_direct_associations.all()[0].num, score_num+1)
         self.assertEqual(efo_trait_2.associated_pgs_ids, [x.id for x in associated_pgs_2])
+        self.assertEqual(efo_trait_2.display_child_traits_list, [])
 
         efo_trait_1.child_traits.add(efo_trait_2)
         for score in efo_trait_2.scores_direct_associations.all():
@@ -858,3 +855,5 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertEqual(len(efo_trait_1.scores_child_associations.all()), len(associated_pgs_2))
         self.assertEqual(efo_trait_1.scores_child_associations.all()[0].num, score_num+1)
         self.assertEqual(efo_trait_1.child_associated_pgs_ids, [x.id for x in associated_pgs_2])
+        display_child = r'^\<a\s.*href=".+'+self.efo_id_2+'"\s*>'+self.efo_name_2+r'</a>$'
+        self.assertRegexpMatches(efo_trait_1.display_child_traits_list[0], display_child)

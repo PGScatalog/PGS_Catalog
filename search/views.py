@@ -60,14 +60,15 @@ def format_efo_traits_results(request, data):
         scores = list(d.scores_direct_associations) + list(d.scores_child_associations)
         score_html =  score_mini_table(d.id, scores)
 
-        categories = ', '.join([x.label for x in d.traitcategory])
+        categories = '</div><div>'.join([x.label for x in d.traitcategory])
+
         hmtl_results =  '<div class="pgs_result efo_traits_entry mb-4" title='+str(d.meta.score)+'>'
         hmtl_results += '<div class="pgs_result_title">'
         hmtl_results += '  <h4 class="mt-0 mb-2 mr-4">'
         hmtl_results += '    '+icon+'<a href="/trait/{}">{}</a>'.format(d.id, d.label)
         hmtl_results += '  </h4>'
         hmtl_results += '  <div class="pgs_result_subtitles">'
-        hmtl_results += '    <div class="mr-3">{}</div>'.format(categories)
+        hmtl_results += '    <div>{}</div>'.format(categories)
         hmtl_results += '    <div>{}</div>'.format(d.id)
         hmtl_results += '  </div>'
         hmtl_results += '</div>'

@@ -1,7 +1,7 @@
 {% extends 'catalog/base.html' %}
 {% load render_table from django_tables2 %}
 
-{% block title %}Search with ES{% endblock %}
+{% block title %}PGS Catalog Search{% endblock %}
 
 {% block content %}
 
@@ -17,16 +17,39 @@
     });
   </script>
 
-  <h3 class="search_result_header mt-0 mb-4 pb-2">Results for "<span class="pgs_color_1">{{ query }}</span>"</h3>
+  <nav aria-label="You are here:">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+      <li class="breadcrumb-item">Search</li>
+    </ol>
+  </nav>
+
+  <h3 class="search_result_header mt-0 mb-4 pb-2">Search results for "<span class="pgs_color_1">{{ query }}</span>"</h3>
   {% if efo_traits_count or publications_count %}
     <div class="search_facet_container mt-4">
-      {% if efo_traits_count %}
-        <div class="search_facet selected" id="efo_traits_facet">
+
+      {% if efo_traits_count and publications_count %}
+        <div class="search_facet selected" id="all_facet">
           <i class="fa fa-check-circle"></i>
           <span class="search_facet_type search_facet_type_1"></span>
-          <div>Traits</div>
-          <span class="badge badge-pill badge-pgs">{{ efo_traits_count }}</span>
+          <span class="search_facet_type search_facet_type_2"></span>
+          <div>All results</div>
+          <span class="badge badge-pill badge-pgs">{{ all_results|length }}</span>
         </div>
+      {% endif %}
+
+      {% if efo_traits_count %}
+        {% if publications_count %}
+          <div class="search_facet" id="efo_traits_facet">
+            <i class="fa fa-circle-o"></i>
+        {% else %}
+          <div class="search_facet selected" id="efo_traits_facet">
+            <i class="fa fa-check-circle"></i>
+        {% endif %}
+            <span class="search_facet_type search_facet_type_1"></span>
+            <div>Traits</div>
+            <span class="badge badge-pill badge-pgs">{{ efo_traits_count }}</span>
+          </div>
       {% endif %}
 
       {% if publications_count %}
@@ -42,17 +65,6 @@
             <span class="badge badge-pill badge-pgs">{{ publications_count }}</span>
           </div>
       {% endif %}
-
-      {% if efo_traits_count and publications_count %}
-        <div class="search_facet" id="all_facet">
-          <i class="fa fa-circle-o"></i>
-          <span class="search_facet_type search_facet_type_1"></span>
-          <span class="search_facet_type search_facet_type_2"></span>
-          <div>All results</div>
-          <span class="badge badge-pill badge-pgs">{{ all_results|length }}</span>
-        </div>
-      {% endif %}
-
     </div>
 
     {% if efo_traits_count or publications_count %}

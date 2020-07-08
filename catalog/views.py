@@ -22,7 +22,7 @@ pgs_prefetch = {
 }
 
 def disclaimer_formatting(content):
-    return '<div class="clearfix"><div class="mt-2 float_left pgs_note"><div><span>Disclaimer: </span>{}</div></div></div>'.format(content)
+    return '<div class="clearfix"><div class="mt-2 float_left pgs_note pgs_note_2"><div><span>Disclaimer: </span>{}</div></div></div>'.format(content)
 
 def performance_disclaimer():
     return disclaimer_formatting("""The performance metrics are displayed as reported by the source studies.

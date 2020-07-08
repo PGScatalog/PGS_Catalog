@@ -19,7 +19,8 @@ $pgs_grey: #D2D8DE;
 $pgs_light_grey: #E9ECEF;
 $pgs_light_grey2: #FAFAFA;
 $pgs_light_grey3: #FEFEFE;
-$pgs_note_title: #F00;
+$pgs_note_title_1: $pgs_colour_1;
+$pgs_note_title_2: #F00;
 $pgs_dev: #577284;
 $pgs_facet_1: $pgs_colour_2;
 $pgs_facet_2: #f58f22;
@@ -735,12 +736,26 @@ td > ul {
   border:1px solid $pgs_grey;
   border-radius:4px;
   div {
-    border-left:5px solid $pgs_note_title;
     padding-left:6px;
     span:first-child {
       font-style: italic;
       font-weight: bold;
-      color: $pgs_note_title;
+    }
+  }
+}
+.pgs_note_1 {
+  div {
+    border-left:5px solid $pgs_note_title_1;
+    span {
+      color: $pgs_note_title_1;
+    }
+  }
+}
+.pgs_note_2 {
+  div {
+    border-left:5px solid $pgs_note_title_2;
+    span {
+      color: $pgs_note_title_2;
     }
   }
 }
@@ -1085,6 +1100,11 @@ a.link-with-btn {
   }
 }
 
+td.trait_categories {
+  div:not(:last-child) {
+    margin-bottom: 0.25rem;
+  }
+}
 .trait_colour {
   padding: 3px 5px;
   border-radius: 8px;
@@ -1248,17 +1268,15 @@ footer {
       vertical-align: middle;
       padding: 3px 0px;
       margin-bottom: 0.5rem;
-        /*> div {
-          border-left:1px solid $pgs_colour_2;
-          padding-left: 1rem;
-          vertical-align:middle;
-        }*/
       div {
         border:1px solid $pgs_colour_2 !important;
         padding: 1px 6px !important;
         background-color: #FFF;
         border-radius: 10px;
         font-size: 0.9em;
+      }
+      div:not(:last-child) {
+        margin-right: 1rem;
       }
     }
   }
@@ -1451,6 +1469,15 @@ footer {
     .badge-pgs {
       padding-left: 0.4em;
       padding-right: 0.4em;
+    }
+  }
+  .pgs_result_subtitles {
+    height:auto !important;
+    div {
+      margin-bottom: 5px;
+    }
+    div:not(:last-child) {
+      margin-right: 0.5rem !important;
     }
   }
 
