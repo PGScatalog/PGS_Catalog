@@ -1286,7 +1286,7 @@ paths:
           * Associated PGS Score(s) with child trait(s)
           * Child traits (when the parameter *include_children* is set to 1)
 
-        This endpoint can be used to retrieve trait-PGS Score mappings for any trait in the database
+        This endpoint can be used to retrieve trait-PGS mappings for any trait in the database
         (including parent terms from the ontology that aren’t included in the `/rest/trait/all` endpoint).
 
         Example of request:
@@ -1343,7 +1343,7 @@ paths:
           * Associated PGS Score(s)
           * Associated PGS Score(s) with child trait(s)
 
-        This endpoint can be used to retrieve trait-PGS Score mappings for any trait in the database
+        This endpoint can be used to retrieve trait-PGS mappings for any trait in the database
         (including parent terms from the ontology that aren’t included in the `/rest/trait/all` endpoint).
       parameters:
         - in: query
