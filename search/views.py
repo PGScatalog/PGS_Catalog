@@ -62,7 +62,7 @@ def format_efo_traits_results(request, data):
 
         categories = '</div><div>'.join([x.label for x in d.traitcategory])
 
-        hmtl_results =  '<div class="pgs_result efo_traits_entry mb-4" title='+str(d.meta.score)+'>'
+        hmtl_results =  '<div class="pgs_result efo_traits_entry mb-4">'
         hmtl_results += '<div class="pgs_result_title">'
         hmtl_results += '  <h4 class="mt-0 mb-2 mr-4">'
         hmtl_results += '    '+icon+'<a href="/trait/{}">{}</a>'.format(d.id, d.label)
@@ -95,7 +95,7 @@ def format_publications_results(request, data):
 
         score_html =  score_mini_table("pub_"+str(idx), d.publication_score)
 
-        hmtl_results =  '<div class="pgs_result publications_entry mb-4" title='+str(d.meta.score)+'>'
+        hmtl_results =  '<div class="pgs_result publications_entry mb-4">'
         hmtl_results += '<div class="pgs_result_title"><h4 class="mt-0 mb-2">'+icon+'<a href="/publication/{}">{}</a></h4></div>'.format(d.id, d.title)
         hmtl_results += '<div class="pgs_result_content">{} et al. ({}) - {}'.format(d.firstauthor, d.pub_year, d.journal)
         hmtl_results += '<span class="ml-2 pl-2"><b>PMID</b>:{}</span>'.format( d.PMID)
@@ -113,15 +113,18 @@ def format_publications_results(request, data):
 def score_mini_table(id, scores):
     """ Build the HTML table listing the associated PGS Scores. """
 
-    score_html =  '<a class="toggle_btn" id="{}_scores"><i class="fa fa-plus-circle"></i></a>'.format(id)
-    score_html += '<div class="toggle_content" id="list_{}_scores" style="display:none">'.format(id)
-    score_html += """<table class="table table-striped table_pgs_score_results mt-2">
-      <thead class="thead-light">
-        <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
-      </thead>
-      <tbody>"""
-    for score in scores:
-        score_html += '<tr><td><a href="/score/{}">{}</a></td><td>{}</td><td>{}</td></tr>'.format(score.id, score.id, score.name, score.trait_reported)
-    score_html += '</tbody></table></div>'
+    score_html = ''
+
+    if scores:
+        score_html +=  '<a class="toggle_btn" id="{}_scores"><i class="fa fa-plus-circle"></i></a>'.format(id)
+        score_html += '<div class="toggle_content" id="list_{}_scores" style="display:none">'.format(id)
+        score_html += """<table class="table table-striped table_pgs_score_results mt-2">
+          <thead class="thead-light">
+            <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
+          </thead>
+          <tbody>"""
+        for score in scores:
+            score_html += '<tr><td><a href="/score/{}">{}</a></td><td>{}</td><td>{}</td></tr>'.format(score.id, score.id, score.name, score.trait_reported)
+        score_html += '</tbody></table></div>'
 
     return score_html

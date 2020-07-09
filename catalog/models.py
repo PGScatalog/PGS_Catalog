@@ -263,7 +263,7 @@ class EFOTrait(EFOTrait_Base):
             for category in categories:
                 v_spacing = ' class="mt-1"' if len(category_labels) > 0 else ''
                 category_labels.append('<div{}><span class="trait_colour" style="background-color:{}"></span>{}</div>'.format(v_spacing,category.colour,category.label))
-            categories_data = ''.join(category_labels)
+            categories_data = '<span class="only_export">, </span>'.join(category_labels)
 
         return categories_data
 
