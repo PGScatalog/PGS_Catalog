@@ -230,7 +230,7 @@ class EFOTrait_Base(models.Model):
 
     @property
     def category_list(self):
-        return sorted(self.traitcategory_set.all(), key=lambda y: y.label)
+        return sorted(self.traitcategory.all(), key=lambda y: y.label)
 
     @property
     def category_labels_list(self):
@@ -261,6 +261,7 @@ class EFOTrait_Base(models.Model):
             categories_data = ''.join(category_labels)
 
         return categories_data
+
 
 class EFOTrait(EFOTrait_Base):
     """Implementation of the abstract class 'EFOTrait_Base' to hold information related to controlled trait vocabulary
