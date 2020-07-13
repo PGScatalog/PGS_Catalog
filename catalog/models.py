@@ -229,6 +229,18 @@ class EFOTrait_Base(models.Model):
             return []
 
     @property
+    def category_list(self):
+        return sorted(self.traitcategory_set.all(), key=lambda y: y.label)
+
+    @property
+    def category_labels_list(self):
+        categories = self.category_list
+        if len(categories) > 0:
+            return [x.label for x in categories]
+        else:
+            return []
+
+    @property
     def category_labels(self):
         category_labels = self.category_labels_list
         categories_data = ''
@@ -237,6 +249,18 @@ class EFOTrait_Base(models.Model):
 
         return categories_data
 
+    @property
+    def display_category_labels(self):
+        categories = self.category_list
+        categories_data = ''
+        if len(categories) > 0:
+            category_labels = []
+            for category in categories:
+                v_spacing = ' class="mt-1"' if len(category_labels) > 0 else ''
+                category_labels.append('<div{}><span class="trait_colour" style="background-color:{}"></span>{}</div>'.format(v_spacing,category.colour,category.label))
+            categories_data = ''.join(category_labels)
+
+        return categories_data
 
 class EFOTrait(EFOTrait_Base):
     """Implementation of the abstract class 'EFOTrait_Base' to hold information related to controlled trait vocabulary

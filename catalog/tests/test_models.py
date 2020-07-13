@@ -758,6 +758,8 @@ class TraitCategoryTest(TestCase):
         category_label =  r'^<div>.*'+trait_category.label+r'.*</div>$'
         self.assertRegexpMatches(trait.display_category_labels, category_label)
         self.assertEqual(list(trait.category_list), [trait_category])
+        self.assertEqual(list(trait.category_labels_list), [trait_category.label])
+        self.assertNotEqual(trait.display_category_labels,'')
 
         # Test to count scores per trait category
         scoretest = ScoreTest()
