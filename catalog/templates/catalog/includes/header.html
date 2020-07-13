@@ -42,10 +42,10 @@
         <!--/.navbar-collapse - end -->
 
         <div class="search_box">
-          <form class="input-group search_form" action="/search/search" method="get">
+          <form class="input-group search_form" id="search_form" action="/search/search" method="get">
             <input class="form-control" id="q" name="q" type="text" placeholder="Search...">
             <div class="input-group-append">
-              <button type="submit" value="Submit" class="btn btn-pgs pgs_no_icon_link" >
+              <button type="button" class="btn btn-pgs pgs_no_icon_link" id="search_btn" value="Submit">
                 <span class="fa fa-search"></span>
               </button>
             </div>
@@ -58,10 +58,10 @@
     </nav>
   </div>
   <div class="search_box_2" style="display:none">
-    <form class="input-group search_form" action="/search/search" method="get">
-      <input class="form-control" id="q" name="q" type="text" placeholder="Search...">
+    <form class="input-group search_form" id="search_form_2" action="/search/search" method="get">
+      <input class="form-control" id="q2" name="q" type="text" placeholder="Search...">
       <div class="input-group-append">
-        <button type="submit" value="Submit" class="btn btn-pgs pgs_no_icon_link" >
+        <button type="button" class="btn btn-pgs pgs_no_icon_link" id="search_btn_2" value="Submit">
           <span class="fa fa-search"></span>
         </button>
       </div>

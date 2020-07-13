@@ -172,8 +172,31 @@ $(document).ready(function() {
         $(location).attr('href','/trait/'+$(this).val()+'?include_children=false');
       }
     });
+
+    // Control on search form(s)
+    $('#search_btn').click(function() {
+      console.log("Clicked");
+      if ($('#q').val() && $('#q').val() != ''){
+        $('#search_form').submit();
+      }
+    })
+    $('#search_btn_2').click(function() {
+      console.log("Clicked");
+      if ($('#q2').val() && $('#q2').val() != ''){
+        $('#search_form_2').submit();
+      }
+    })
 });
 
+function search_validator(){
+   //  ...bla bla bla... the checks
+   if($('#q').val()){
+      $('#search_form').submit();
+      return(true);
+   }else{
+      return(false);
+   }
+}
 
 /*
  * Function to shorten content having long text

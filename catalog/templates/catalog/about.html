@@ -67,7 +67,7 @@
     <section>
       <h3 id="project">The PGS Catalog Project</h3>
         <p>
-            The <span title="PGS Catalog" data-content="Polygenic Score (PGS) Catalog" class="pgs_helpover"><b>PGS Catalog</b></span> is an open database of published <b>polygenic scores (PGS)</b>.
+            The <span title="Polygenic Score (PGS) Catalog" class="pgs_helptip"><b>PGS Catalog</b></span> is an open database of published <b>polygenic scores (PGS)</b>.
             Each <b>PGS</b> in the <b>Catalog</b> is consistently annotated with relevant metadata; including scoring files (variants, effect alleles/weights), annotations of how the PGS was developed and applied, and evaluations of their predictive performance.
             See the <a href="../docs/">PGS Catalog Data Description</a> page for a complete description of the metadata captured for PGS, Samples, Performance Metrics, Traits, and Publications.
         </p>
@@ -79,9 +79,9 @@
     <p>The Catalog is under active development, and we continue to add new features and curate new data. If you use the Catalog in your research we ask that you cite our recent preprint:
     <div class="clearfix mb-3">
       <div class="highlight_content">
-        <p>Samuel A. Lambert, Laurent Gil, Simon Jupp, Scott C Ritchie, Yu Xu, Annalisa Buniello, Gad Abraham, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A.L. MacArthur, and Michael Inouye.</p>
+        <p>Samuel A. Lambert, Laurent Gil, Simon Jupp, Scott C. Ritchie, Yu Xu, Annalisa Buniello, Gad Abraham, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A.L. MacArthur, and Michael Inouye.</p>
         <p><u>The Polygenic Score Catalog: an open database for reproducibility and systematic evaluation</u></p>
-        <p>Preprint at <i>medRxiv</i>, doi:<a href="https://doi.org/10.1101/2020.05.20.20108217">10.1101/2020.05.20.20108217</a> (2020).</p>
+        <p><span class="with_sep_right">Preprint at <i>medRxiv</i></span>doi: <a href="https://doi.org/10.1101/2020.05.20.20108217">10.1101/2020.05.20.20108217</a> (2020).</p>
       </div>
     </div>
     <p>Individual PGS obtained from the database should also be cited appropriately, and used in accordance with any licensing restrictions set by the authors (see our <a href="https://www.ebi.ac.uk/about/terms-of-use">Terms of Use</a> for more information).</p>
@@ -127,7 +127,7 @@
       <h3 id="under_dev">Features Under Development</h3>
       <ul>
           <li><b>Including more PGS & developing a deposition interface.</b><br />We are actively curating more PGS for inclusion in the Catalog, responding to submissions from authors, and are committed to increasing the diversity of traits. We are also developing an interface so that authors can easily deposit PGS or PGS evaluations into the PGS Catalog using a standard template.</li>
-          <li style="margin-top:6px"><b>PGS Harmonized to Current Genome Builds.</b><br />Currently PGS provided through the database are described
+          <li class="mt-2"><b>PGS Harmonized to Current Genome Builds.</b><br />Currently PGS provided through the database are described
               by standard column names & descriptions, along with the genome build it was developed with (<i>if known</i>).
               In the future we plan to harmonize all PGS to common genome builds (GRCh37 and GRCh38) based on the ENSEMBL variation database to reduce ambiguity.</li>
       </ul>
@@ -150,18 +150,18 @@
         </ul>
       </p>
       <p>The development of the <b>PGS Catalog</b> is supported by:</p>
-      <div class="row justify-content-center" style="margin-bottom:25px">
+      <div class="row justify-content-center mb-4">
         <div class="col">
-          <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid" src="{% static 'catalog/imgs/UofCambridge.png' %}" alt="University of Cambridge" style="max-height:70px"></a>
+          <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/UofCambridge.png' %}" alt="University of Cambridge"></a>
         </div>
         <div class="col">
-          <a class="pgs_no_icon_link" href="{{ ebi_url }}" style="link:none"><img class="img-fluid" src="{% static 'catalog/imgs/EMBL_EBI.png' %}" alt="EMBL-EBI" style="max-height:70px"></a>
+          <a class="pgs_no_icon_link" href="{{ ebi_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/EMBL_EBI.png' %}" alt="EMBL-EBI"></a>
         </div>
         <div class="col">
-          <a class="pgs_no_icon_link" href="{{ hdr_uk_cam_url }}"><img class="img-fluid" src="{% static 'catalog/imgs/HDR-UK.png' %}" alt="HDR-UK (Cambridge)" style="max-height:70px"></a>
+          <a class="pgs_no_icon_link" href="{{ hdr_uk_cam_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/HDR-UK.png' %}" alt="HDR-UK (Cambridge)"></a>
         </div>
         <div class="col">
-          <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid" src="{% static 'catalog/imgs/Baker_Logo.png' %}" alt="Baker Heart and Diabetes Institute" style="max-height:70px"></a>
+          <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/Baker_Logo.png' %}" alt="Baker Heart and Diabetes Institute"></a>
         </div>
       </div>
     </section>

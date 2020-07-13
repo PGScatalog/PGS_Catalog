@@ -8,11 +8,13 @@
   <script type="text/javascript">
     $(document).ready(function() {
       id = $('.search_facet.selected').attr('id');
-      type = id.replace('_facet', '');
-      if (type != 'all') {
-        entry_class = type+'_entry';
-        $('.'+entry_class).show();
-        $('.pgs_result').not('.'+entry_class).hide();
+      if (id) {
+        type = id.replace('_facet', '');
+        if (type != 'all') {
+          entry_class = type+'_entry';
+          $('.'+entry_class).show();
+          $('.pgs_result').not('.'+entry_class).hide();
+        }
       }
     });
   </script>
@@ -76,7 +78,7 @@
     {% endif %}
 
   {% else %}
-    <div>No results found</div>
+    <h5><i class="fa fa-info-circle pgs_color_1 mr-2"></i>No results found!</h5>
   {% endif %}
 
 {% endblock %}

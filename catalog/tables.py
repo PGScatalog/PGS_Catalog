@@ -12,8 +12,8 @@ page_size = "50"
 def smaller_in_bracket(value):
     bracket_left = '['
     value = value.replace(' '+bracket_left, bracket_left)
-    value = value.replace(bracket_left,'<span class="smaller_90 pl-2"><span class="pgs_colour_2">[</span>')
-    value = value.replace(']','<span class="pgs_colour_2">]</span></span>')
+    value = value.replace(bracket_left,'<span class="smaller_90 pl-2"><span class="pgs_color_2">[</span>')
+    value = value.replace(']','<span class="pgs_color_2">]</span></span>')
     return value
 
 class Column_joinlist(tables.Column):
