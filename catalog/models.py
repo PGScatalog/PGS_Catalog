@@ -117,6 +117,7 @@ class Cohort(models.Model):
     def __str__(self):
         return self.name_short
 
+
     @property
     def associated_pgs_ids(self):
 
@@ -226,18 +227,38 @@ class EFOTrait(models.Model):
         return self.score_set.count()
 
     @property
-    def category_labels(self):
-        categories = self.traitcategory_set.all()
-        categories_data = ''
+    def category_list(self):
+        return sorted(self.traitcategory_set.all(), key=lambda y: y.label)
+
+    @property
+    def category_labels_list(self):
+        categories = self.category_list
         if len(categories) > 0:
-            category_labels = [x.label for x in categories]
+            return [x.label for x in categories]
+        else:
+            return []
+
+    @property
+    def category_labels(self):
+        category_labels = self.category_labels_list
+        categories_data = ''
+        if len(category_labels) > 0:
             categories_data = ', '.join(category_labels)
 
         return categories_data
 
     @property
-    def category_list(self):
-        return self.traitcategory_set.all()
+    def display_category_labels(self):
+        categories = self.category_list
+        categories_data = ''
+        if len(categories) > 0:
+            category_labels = []
+            for category in categories:
+                v_spacing = ' class="mt-1"' if len(category_labels) > 0 else ''
+                category_labels.append('<div{}><span class="trait_colour" style="background-color:{}"></span>{}</div>'.format(v_spacing,category.colour,category.label))
+            categories_data = ''.join(category_labels)
+
+        return categories_data
 
 
 class TraitCategory(models.Model):
