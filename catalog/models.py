@@ -278,19 +278,6 @@ class EFOTrait(EFOTrait_Base):
     def scores_count(self):
         return self.associated_scores.count()
 
-    @property
-    def display_category_labels(self):
-        categories = self.category_list
-        categories_data = ''
-        if len(categories) > 0:
-            category_labels = []
-            for category in categories:
-                v_spacing = ' class="mt-1"' if len(category_labels) > 0 else ''
-                category_labels.append('<div{}><span class="trait_colour" style="background-color:{}"></span>{}</div>'.format(v_spacing,category.colour,category.label))
-            categories_data = '<span class="only_export">, </span>'.join(category_labels)
-
-        return categories_data
-
 
 class Demographic(models.Model):
     """Class to describe Sample fields (sample_age, followup_time) that can be point estimates or distributions"""
