@@ -8,24 +8,25 @@ class SimpleContentTest(TestCase):
 
     def test_content(self):
         self.assertIsNotNone(performance_disclaimer())
+        self.assertIsNotNone(score_disclaimer('test'))
 
 
 class EFOTraitDataTest(TestCase):
     """ Test the fetch of the EFO traits data """
     def test_efo_traits_data(self):
         d_pub = datetime(2020,3,10)
-        pub = Publication.objects.create(num=1,date_publication=d_pub,PMID=1234)
+        pub = Publication.objects.create(num=350,date_publication=d_pub,PMID=12340,journal='Nature')
 
         trait_1 = EFOTrait.objects.create(id='EFO_0000292',label='bladder carcinoma')
         trait_2 = EFOTrait.objects.create(id='EFO_0000305',label='breast carcinoma')
         trait_3 = EFOTrait.objects.create(id='EFO_0000378',label='coronary artery disease')
         trait_4 = EFOTrait.objects.create(id='EFO_0000000',label='Not defined')
 
-        score_1 = Score.objects.create(num=1,publication=pub,variants_number=10,name='Score1')
+        score_1 = Score.objects.create(num=950,publication=pub,variants_number=10,name='Score1')
         score_1.trait_efo.add(trait_1)
-        score_2 = Score.objects.create(num=2,publication=pub,variants_number=10,name='Score2')
+        score_2 = Score.objects.create(num=951,publication=pub,variants_number=10,name='Score2')
         score_2.trait_efo.add(trait_2)
-        score_3 = Score.objects.create(num=3,publication=pub,variants_number=10,name='Score3')
+        score_3 = Score.objects.create(num=952,publication=pub,variants_number=10,name='Score3')
         score_3.trait_efo.add(trait_3)
 
         cat_label_1 = 'Cancer'

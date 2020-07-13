@@ -3,7 +3,7 @@ servers:
   - url: https://www.pgscatalog.org/
 info:
   title: PGS Catalog REST API
-  version: '1.0'
+  version: '1.2'
   description: |
     Programatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -55,6 +55,28 @@ info:
         * **message**: description of the error.
         * **availableIn**: number of seconds before the rate limit is reset.
       </div>
+
+    ---
+
+    <a class="toggle_btn" id="changelog">REST API version changelog <i class="fa fa-plus-circle"></i></a>
+    <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.2</span> - July 2020:
+        * Update `/rest/trait/search`:
+          * New parameters '*include_children*' and '*exact*'.
+          * New field **child_associated_pgs_ids**
+        * Update `/rest/trait/{trait_id}`:
+          * New parameter '*include_children*'.
+          * New field **child_associated_pgs_ids**
+          * New field **child_traits** present when the parameter '*include_children*' is set to 1.
+
+      * <span class="badge badge-pill badge-pgs">1.1</span> - June 2020:
+        * New endpoint `/rest/trait_category/all`.
+        * New field **trait_categories** in the `/rest/trait` endpoints.
+
+      * <span class="badge badge-pill badge-pgs">1.0</span> - May 2020:
+        * First version of the PGS Catalog REST API
+    </div>
 
     ---
   license:
@@ -174,6 +196,11 @@ components:
           required:
             - trait_id
           properties:
+            trait_categories:
+              type: array
+              description: "List of trait categories associated with the trait"
+              items:
+                type: string
             trait_synonyms:
               type: array
               description: "List of associated trait synonyms"
@@ -185,8 +212,70 @@ components:
               items:
                 type: string
             associated_pgs_ids:
-              type: string
+              type: array
               description: "List of associated PGS Score IDs"
+              items:
+                type: string
+
+    EFOTrait_Ontology:
+      description: "Structure containing information about a Trait, with extra ontology information (i.e. children traits and their associated PGS Scores). Mainly extracted from the Experimental Factor Ontology (EFO)."
+      type: object
+      required:
+        - trait_id
+      properties:
+        id:
+          type: string
+          description: "A trait identifier that links to an Ontology (e.g. EFO), and NHGRI-EBI GWAS catalog."
+          example: "'EFO_0000378"
+        label:
+          type: string
+          description: "Trait label/name"
+          example: "coronary artery disease"
+        description:
+          type: string
+          description: "Detailed description of the trait from EFO."
+        url:
+          type: string
+          description: "External link to the EFO entry"
+        trait_categories:
+          type: array
+          description: "List of trait categories associated with the trait"
+          items:
+            type: string
+        trait_synonyms:
+          type: array
+          description: "List of associated trait synonyms"
+          items:
+            type: string
+        trait_mapped_terms:
+          type: array
+          description: "List of associated external references/IDs"
+          items:
+            type: string
+        associated_pgs_ids:
+          type: array
+          description: "List of associated PGS Score IDs"
+          items:
+            type: string
+        child_associated_pgs_ids:
+          type: array
+          description: "List of PGS Score IDs associated with the children ontology term(s)"
+          items:
+            type: string
+
+    EFOTrait_OntologyChild:
+      description: "Based on the **EFOTrait_Ontology** schema, with the addition of the '**child_traits**' field."
+      allOf:
+        - $ref: '#/components/schemas/EFOTrait_Ontology'
+        - type: object
+          required:
+            - trait_id
+          properties:
+            child_traits:
+              type: array
+              description: "List of child traits with PGS Score associations."
+              items:
+                $ref: '#/components/schemas/EFOTrait_Ontology'
 
     PerformanceMetric:
       type: object
@@ -422,7 +511,7 @@ components:
           $ref: '#/components/schemas/Publication'
         matches_publication:
           type: boolean
-          description: "Indicate if the PGS data matches the published polygenic score. If not, the authors have provided an alternative polygenic for the Catalog and some other data, such as performance metrics may differ from the publication."
+          description: "Indicate if the PGS data matches the published polygenic score. If not, the authors have provided an alternative polygenic for the Catalog and some other data, such as performance metrics, may differ from the publication."
         samples_variants:
           type: array
           description: "List of samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available."
@@ -460,6 +549,18 @@ components:
           type: string
           description: "The version of the genome assembly that the variants present in the PGS are associated with. Listed as NR (Not Reported) if unknown."
           example: "GRCh38"
+
+    TraitCategory:
+      type: object
+      description: "Trait category, as defined by the GWAS Catalog, to structure the numerous traits in broad groups"
+      properties:
+        label:
+          type: string
+          description: "Trait category name"
+          example: "Cancer"
+        efotraits:
+          $ref: '#/components/schemas/EFOTrait'
+
 
     Pagination:
       type: object
@@ -589,11 +690,9 @@ paths:
           name: pgs_id
           schema:
             type: string
-          required: false
+          required: true
           description: 'PGS Score ID (PGS)'
           examples:
-            Select an example or type a value/ID:
-              value: ''
             PGS000001:
               value: "PGS000001"
             PGS000018:
@@ -680,11 +779,9 @@ paths:
           name: pgs_id
           schema:
             type: string
-          required: false
+          required: true
           description: 'PGS Score ID (PGS)'
           examples:
-            Select an example or type a value/ID:
-              value: ''
             PGS000001:
               value: "PGS000001"
             PGS000018:
@@ -1143,8 +1240,11 @@ paths:
       description: |
         Retrieve all the Traits, including for each of them:
           * Ontology ID, trait label, description and URL
+          * Trait categories
           * Synonyms and external mapped terms
           * Associated PGS Score(s)
+
+        This list matches the traits indexed in the metadata downloads.
 
         Example of request:
         ```
@@ -1180,8 +1280,14 @@ paths:
       description: |
         Retrieve a Trait, including:
           * Ontology ID, trait label, description and URL
+          * Trait categories
           * Synonyms and external mapped terms
           * Associated PGS Score(s)
+          * Associated PGS Score(s) with child trait(s)
+          * Child traits (when the parameter *include_children* is set to 1)
+
+        This endpoint can be used to retrieve trait-PGS mappings for any trait in the database
+        (including parent terms from the ontology that aren’t included in the `/rest/trait/all` endpoint).
 
         Example of request:
         ```
@@ -1199,12 +1305,23 @@ paths:
               value: "EFO_0000378"
           schema:
             type: string
+        - in: query
+          name: include_children
+          schema:
+            type: integer
+          required: false
+          description: 'Flag to include or not the children of the searched trait (defaut: 1)'
+          examples:
+            Select an example or type a value:
+              value: ''
+            Exclude the children terms:
+              value: 0
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EFOTrait_extended'
+                $ref: '#/components/schemas/EFOTrait_OntologyChild'
           description: 'Trait information'
 
 
@@ -1221,22 +1338,49 @@ paths:
         ```
         This returns a list of Traits, including for each of them:
           * Ontology ID, trait label, description and URL
+          * Trait categories
           * Synonyms and external mapped terms
           * Associated PGS Score(s)
+          * Associated PGS Score(s) with child trait(s)
+
+        This endpoint can be used to retrieve trait-PGS mappings for any trait in the database
+        (including parent terms from the ontology that aren’t included in the `/rest/trait/all` endpoint).
       parameters:
         - in: query
           name: term
           schema:
             type: string
-          required: false
-          description: 'Trait term or external ID'
+          required: true
+          description: 'Trait term, trait category or external ID'
           examples:
-            Select an example or type a value/ID:
-              value: ''
             Alzheimer:
               value: "Alzheimer"
+            "Neurological disorder":
+              value: "Neurological disorder"
             OMIM:605526:
               value: "OMIM:605526"
+        - in: query
+          name: include_children
+          schema:
+            type: integer
+          required: false
+          description: 'Flag to include or not the children of the searched trait (defaut: 1)'
+          examples:
+            Select an example or type a value:
+              value: ''
+            Exclude the children terms:
+              value: 0
+        - in: query
+          name: exact
+          schema:
+            type: integer
+          required: false
+          description: 'Flag to search only the exact term or not (defaut: 0)'
+          examples:
+            Select an example or type a value:
+              value: ''
+            Limit the query to the exact entered term:
+              value: 1
       responses:
         '200':
           content:
@@ -1250,9 +1394,48 @@ paths:
                     description: "List of Traits"
                     type: array
                     items:
-                      $ref: '#/components/schemas/EFOTrait_extended'
+                      $ref: '#/components/schemas/EFOTrait_Ontology'
           description: |
                   Traits in PGS Catalog
+
+                  ---
+
+                  __Notes:__ This endpoint uses pagination.
+
+  # TraitCategory endpoint
+  '/rest/trait_category/all':
+    get:
+      tags:
+        - "Trait endpoints"
+      operationId: getAllTraitCategories
+      description: |
+        Retrieve all higher-level Trait Categories in the Catalog, including for each of them:
+          * Trait category name
+          * List of all PGS Traits (EFO Ontology Terms) associated with the category
+
+        Trait Category to Trait mappings are retrieved from the <a class="link external-link" href="https://www.ebi.ac.uk/gwas/rest/docs/api#custom-parent" target="_blank">NHGRI-EBI GWAS Catalog</a>, structuring the traits (ontology terms) into higher-level groups..
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/trait_category/all
+        ```
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                properties:
+                  results:
+                    description: "List of Trait Categories"
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TraitCategory'
+          description: |
+                  Trait categories in PGS Catalog
 
                   ---
 

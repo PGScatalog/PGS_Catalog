@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 from rest_framework.exceptions import Throttled
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from catalog.models import *
 from .serializers import *
 
@@ -12,7 +12,15 @@ related_dict = {
     'score_prefetch' : [Prefetch('trait_efo', queryset=EFOTrait.objects.defer('synonyms','mapped_terms').all()), 'samples_variants', 'samples_variants__cohorts', 'samples_variants__sample_age', 'samples_variants__followup_time', 'samples_training', 'samples_training__cohorts', 'samples_training__sample_age', 'samples_training__followup_time'],
     'perf_select': ['score', 'publication', 'sampleset'],
     'publication_score_prefetch': [Prefetch('publication_score', queryset=Score.objects.only('id','publication__id').all())],
-    'score_set_prefetch': [Prefetch('score_set', queryset=Score.objects.only('id','trait_efo__id').all())],
+    'associated_scores_prefetch': [Prefetch('associated_scores', queryset=Score.objects.only('id','trait_efo__id').all())],
+    'ontology_associated_scores_prefetch': [
+                                             Prefetch('scores_direct_associations', queryset=Score.objects.only('id','trait_efo__id').all()),
+                                             Prefetch('scores_child_associations', queryset=Score.objects.only('id','trait_efo__id').all())
+                                           ],
+    'traitcategory_prefetch': [Prefetch('traitcategory', queryset=TraitCategory.objects.only('label','efotraits__id').all())],
+    'traitcategory_ontology_prefetch': [Prefetch('traitcategory', queryset=TraitCategory.objects.only('label','efotraits_ontology__id').all())],
+    'efotraits_ontology_set_prefetch': [Prefetch('efotraits_ontology_set', queryset=EFOTrait_Ontology.objects.only('label','child_traits__id').all())],
+    'efotraits_prefetch': [Prefetch('efotraits', queryset=EFOTrait.objects.defer('synonyms','mapped_terms').all())],
     'score_defer': [*generic_defer,'publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
     'perf_defer': [*generic_defer,'score__curation_notes','score__date_released','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
     'publication_defer': [*generic_defer,'curation_status']
@@ -218,7 +226,7 @@ class RestListEFOTraits(generics.ListAPIView):
     """
     Retrieve all the EFO Traits
     """
-    queryset = EFOTrait.objects.all().prefetch_related(*related_dict['score_set_prefetch']).order_by('label')
+    queryset = EFOTrait.objects.all().prefetch_related(*related_dict['associated_scores_prefetch'], *related_dict['traitcategory_prefetch']).order_by('label')
     serializer_class = EFOTraitExtendedSerializer
 
 
@@ -229,11 +237,23 @@ class RestEFOTrait(APIView):
 
     def get(self, request, trait_id):
         trait_id = trait_id.replace(':', '_')
+
         try:
-            queryset = EFOTrait.objects.prefetch_related(*related_dict['score_set_prefetch']).get(id=trait_id)
-        except EFOTrait.DoesNotExist:
+            queryset = EFOTrait_Ontology.objects.prefetch_related(*related_dict['ontology_associated_scores_prefetch'], *related_dict['traitcategory_ontology_prefetch']).get(id=trait_id)
+        except EFOTrait_Ontology.DoesNotExist:
             queryset = None
-        serializer = EFOTraitExtendedSerializer(queryset,many=False)
+
+        # 'include_children' parameter
+        include_children = True
+        param_include_children = self.request.query_params.get('include_children')
+        if param_include_children != None:
+            if  param_include_children == '0' or param_include_children == 0:
+                include_children = False
+
+        if include_children:
+            serializer = EFOTraitOntologyChildSerializer(queryset,many=False)
+        else:
+            serializer = EFOTraitOntologySerializer(queryset,many=False)
         return Response(serializer.data)
 
 
@@ -241,19 +261,65 @@ class RestEFOTraitSearch(generics.ListAPIView):
     """
     Retrieve the EFO Trait(s) using query
     """
-    serializer_class = EFOTraitExtendedSerializer
+    serializer_class = EFOTraitOntologySerializer
 
     def get_queryset(self):
 
-        queryset = EFOTrait.objects.all().prefetch_related(*related_dict['score_set_prefetch']).order_by('label')
+        queryset = EFOTrait_Ontology.objects.all().prefetch_related(*related_dict['ontology_associated_scores_prefetch'], *related_dict['traitcategory_ontology_prefetch']).order_by('label').distinct()
+
+        # 'include_children' parameter
+        include_children = True
+        param_include_children = self.request.query_params.get('include_children')
+        if param_include_children != None:
+            if  param_include_children == '0' or param_include_children == 0:
+                include_children = False
+
+        # 'exact' parameter
+        exact_term = False
+        param_exact_term = self.request.query_params.get('exact')
+        if param_exact_term != None:
+            if  param_exact_term == '1' or param_exact_term == 1:
+                exact_term = True
 
         # Search by trait term
         term = self.request.query_params.get('term')
         if term and term is not None:
-            queryset = queryset.filter(label__icontains=term) | queryset.filter(synonyms__icontains=term) | queryset.filter(mapped_terms__icontains=term)
+            if include_children:
+                if exact_term:
+                    queryset = queryset.filter(
+                        Q(id=term) | Q(label=term) | Q(synonyms__regex='(^|\| )'+term+'( \||$)') |
+                        Q(mapped_terms__regex='(^|\| )'+term+'( \||$)') | Q(traitcategory__label=term) |
+                        Q(parent_traits__id=term) | Q(parent_traits__label=term)
+                    )
+                else:
+                    queryset = queryset.filter(
+                        Q(id=term) | Q(label__icontains=term) | Q(synonyms__icontains=term) | Q(mapped_terms__icontains=term) |
+                        Q(traitcategory__label__icontains=term) | Q(parent_traits__id=term) | Q(parent_traits__label__icontains=term)
+                    )
+            else:
+                if exact_term:
+                    queryset = queryset.filter(
+                        Q(id=term) | Q(label=term) | Q(synonyms__regex='(^|\| )'+term+'( \||$)') |
+                        Q(mapped_terms__regex='(^|\| )'+term+'( \||$)') | Q(traitcategory__label=term)
+                    )
+                else:
+                    queryset = queryset.filter(
+                        Q(id=term) | Q(label__icontains=term) | Q(synonyms__icontains=term) | Q(mapped_terms__icontains=term) |
+                        Q(traitcategory__label__icontains=term)
+                    )
         else:
             queryset = []
         return queryset
+
+
+## Trait Categories ##
+
+class RestListTraitCategories(generics.ListAPIView):
+    """
+    Retrieve all the Trait categories
+    """
+    queryset = TraitCategory.objects.defer('parent','colour').all().prefetch_related(*related_dict['efotraits_prefetch']).order_by('label')
+    serializer_class = TraitCategorySerializer
 
 
 ## Samples / Sample Sets ##

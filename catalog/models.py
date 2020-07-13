@@ -76,10 +76,10 @@ class Publication(models.Model):
         score_ids_set = set()
         for score in self.publication_score.all():
             score_ids_set.add(score.id)
-        return list(score_ids_set)
+        return sorted(list(score_ids_set))
 
     def parse_EuropePMC(self, doi=None, PMID=None):
-        '''Function to get the citation information from the EuropePMC API'''
+        """Function to get the citation information from the EuropePMC API"""
         import requests
 
         payload = {'format': 'json'}
@@ -155,9 +155,9 @@ class Cohort(models.Model):
         return { 'development': list_dev_associated_pgs_ids, 'evaluation': list_eval_associated_pgs_ids}
 
 
-class EFOTrait(models.Model):
-    '''Class to hold information related to controlled trait vocabulary
-    (mainly to link multiple EFO to a single score)'''
+class EFOTrait_Base(models.Model):
+    """Abstract class to hold information related to controlled trait vocabulary
+    (mainly to link multiple EFO to a single score)"""
     id = models.CharField('Ontology Trait ID', max_length=30, primary_key=True)
     label = models.CharField('Ontology Trait Label', max_length=500, db_index=True)
     description = models.TextField('Ontology Trait Description', null=True)
@@ -165,6 +165,8 @@ class EFOTrait(models.Model):
     synonyms = models.TextField('Synonyms', null=True)
     mapped_terms = models.TextField('Mapped terms', null=True)
 
+    class Meta:
+        abstract = True
 
     def parse_api(self):
         import requests
@@ -215,20 +217,20 @@ class EFOTrait(models.Model):
             return []
 
     @property
-    def associated_pgs_ids(self):
-        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
-        score_ids_set = set()
-        for score in self.score_set.all():
-            score_ids_set.add(score.id)
-        return list(score_ids_set)
+    def category_list(self):
+        return sorted(self.traitcategory.all(), key=lambda y: y.label)
 
     @property
-    def scores_count(self):
-        return self.score_set.count()
+    def category_labels_list(self):
+        categories = self.category_list
+        if len(categories) > 0:
+            return [x.label for x in categories]
+        else:
+            return []
 
     @property
     def category_list(self):
-        return sorted(self.traitcategory_set.all(), key=lambda y: y.label)
+        return sorted(self.traitcategory.all(), key=lambda y: y.label)
 
     @property
     def category_labels_list(self):
@@ -261,28 +263,21 @@ class EFOTrait(models.Model):
         return categories_data
 
 
-class TraitCategory(models.Model):
-    # Stable identifiers for declaring a set of traits
-    label = models.CharField('Trait category', max_length=50, db_index=True)
-    colour = models.CharField('Trait category colour', max_length=30)
-    parent = models.CharField('Trait category (parent term)', max_length=50)
-
-    # Link to the description of the sample(s) in the other table
-    efotraits = models.ManyToManyField(EFOTrait, verbose_name='Traits')
-
-    class Meta:
-        verbose_name_plural = "Trait categories"
-
-    def __str__(self):
-        return self.label
+class EFOTrait(EFOTrait_Base):
+    """Implementation of the abstract class 'EFOTrait_Base' to hold information related to controlled trait vocabulary
+    (mainly to link multiple EFO to a single score)"""
 
     @property
-    def count_scores(self):
-        scores_count = 0
-        for trait in self.efotraits.all():
-            scores_count += trait.scores_count
+    def associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.associated_scores.all():
+            score_ids_set.add(score.id)
+        return sorted(list(score_ids_set))
 
-        return scores_count
+    @property
+    def scores_count(self):
+        return self.associated_scores.count()
 
 
 class Demographic(models.Model):
@@ -599,7 +594,7 @@ class Score(models.Model):
     # Trait information
     trait_reported = models.TextField('Reported Trait')
     trait_additional = models.TextField('Additional Trait Information', null=True)
-    trait_efo = models.ManyToManyField(EFOTrait, verbose_name='Mapped Trait(s) (EFO terms)')
+    trait_efo = models.ManyToManyField(EFOTrait, verbose_name='Mapped Trait(s) (EFO terms)', related_name='associated_scores')
 
     # PGS Development/method details
     method_name = models.TextField('PGS Development Method')
@@ -775,7 +770,7 @@ class Performance(models.Model):
 
     @property
     def publication_withexternality(self):
-        '''This function checks whether the evaluation is internal or external to the score development paper'''
+        """This function checks whether the evaluation is internal or external to the score development paper"""
         p = self.publication
         info = [' '.join([p.id, '<br/><small><i class="fa fa-angle-double-right"></i> ',p.firstauthor, '<i>et al.</i>', '(%s)' % p.date_publication.strftime('%Y'), '</small>']), self.publication.id]
 
@@ -852,6 +847,71 @@ class Metric(models.Model):
             return (self.name, self.name)
         else:
             return (self.name, self.name_short)
+
+
+class EFOTrait_Ontology(EFOTrait_Base):
+    """ Class similar to the EFOTrait class, with the addition of the associated PGS Scores and
+    the parents and children of the EFO trait """
+    scores_direct_associations = models.ManyToManyField(Score, verbose_name='PGS Score IDs - direct associations', related_name='scores_trait_direct_associations')
+    scores_child_associations = models.ManyToManyField(Score, verbose_name='PGS Score IDs - child associations', related_name='scores_trait_child_associations')
+
+    child_traits = models.ManyToManyField('self', verbose_name='Child traits', symmetrical=False, related_name='parent_traits')
+
+    @property
+    def associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.scores_direct_associations.all():
+            score_ids_set.add(score.id)
+        return sorted(list(score_ids_set))
+
+    @property
+    def child_associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.scores_child_associations.all():
+            score_ids_set.add(score.id)
+        return sorted(list(score_ids_set))
+
+    @property
+    def display_child_traits_list(self):
+        child_traits = self.child_traits.all()
+        if child_traits:
+            child_traits_list = []
+            for child_trait in sorted(child_traits, key=lambda y: y.label):
+                child_trait_html = '<a href="/trait/{}">{}</a>'.format(child_trait.id, child_trait.label)
+                child_traits_list.append(child_trait_html)
+            return child_traits_list
+        else:
+            return []
+
+
+class TraitCategory(models.Model):
+    """ Class to hold information about Trait category, as defined by the GWAS Catalog, to structure the numerous traits in broad groups."""
+    # Stable identifiers for declaring a set of traits
+    label = models.CharField('Trait category', max_length=50, db_index=True)
+    colour = models.CharField('Trait category colour', max_length=30)
+    parent = models.CharField('Trait category (parent term)', max_length=50)
+
+    # Link to the list of associated EFOTrait models
+    efotraits = models.ManyToManyField(EFOTrait, verbose_name='Traits', related_name='traitcategory')
+
+    # Link to the list of associated EFOTrait_Ontology models
+    efotraits_ontology = models.ManyToManyField(EFOTrait_Ontology, verbose_name='Parent Traits', related_name='traitcategory')
+
+    class Meta:
+        verbose_name_plural = "Trait categories"
+
+    def __str__(self):
+        return self.label
+
+    @property
+    def count_scores(self):
+        scores_count = 0
+        for trait in self.efotraits.all():
+            scores_count += trait.scores_count
+
+        return scores_count
 
 
 class Release(models.Model):

@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-import os, re
+import os, re, time
 
 class BrowseEndpointTest(TestCase):
     """ Test the REST endpoints """
@@ -18,11 +18,17 @@ class BrowseEndpointTest(TestCase):
     index_result_mutliplicity = 2
     index_example = 3
 
+    # Tuple: ( Endpoint name | Base URL | Flag for results multiplicity | Parameter examples* )
     endpoints = [
-        ('Cohors/SYMBOL', 'cohort', 1, {'path': ['ABCFS','ESTHER']}),
+        ('Cohort/SYMBOL', 'cohort', 1, {'path': ['ABCFS','ESTHER']}),
         ('EFO Traits', 'trait/all', 1),
-        ('EFO Trait/ID', 'trait', 0, {'path': ['EFO_0000305','EFO_0000378']}),
-        ('EFO Trait Search', 'trait/search', 1, {'query': ['term=Alzheimer','term=OMIM:605526']}),
+        ('EFO Trait/ID', 'trait', 0, {'path': ['EFO_0000305','EFO_0000378'], 'extra_query': 'include_children=0'}),
+        ('EFO Trait Search', 'trait/search', 1, {'query': [
+                                                            'term=Alzheimer', 'term=Alzheimer&include_children=0',
+                                                            'term=Neurological disorder',
+                                                            'term=OMIM:605526', 'term=OMIM:605526&exact=1', 'term=OMIM:605526&include_children=0&exact=1'
+                                                          ]
+        }),
         ('Performance metric/ID', 'performance', 0, {'path': ['PPM000001','PPM000010']}),
         ('Performances Search','performance/search', 1, {'query': ['pgs_id=PGS000001','pgs_id=PGS000018']}),
         ('Publications', 'publication/all', 1),
@@ -37,6 +43,7 @@ class BrowseEndpointTest(TestCase):
         ('Score/ID', 'score', 0, {'path': ['PGS000001','PGS000018']}),
         ('Scores Search', 'score/search', 1, {'query': ['pmid=25855707','trait_id=EFO_1000649']}),
         ('Scores IDs from a GWAS/ID', 'gwas/get_score_ids', 2, {'path': ['GCST001937','GCST004988']}),
+        ('Trait Category', 'trait_category/all', 1),
     ]
 
     client = Client()
@@ -77,7 +84,11 @@ class BrowseEndpointTest(TestCase):
                 # Endpoint with parameter within the URL path
                 if ('path' in endpoint[self.index_example]):
                     for example in endpoint[self.index_example]['path']:
-                        self.send_request(url_endpoint+'/'+example)
+                        request = url_endpoint+'/'+example
+                        self.send_request(request)
+                        if 'extra_query' in endpoint[self.index_example]:
+                            request_2 = request+'?'+endpoint[self.index_example]['extra_query']
+                            self.send_request(request_2)
                 # Endpoint with parameter as query
                 elif ('query' in endpoint[self.index_example]):
                     for example in endpoint[self.index_example]['query']:
@@ -88,17 +99,22 @@ class BrowseEndpointTest(TestCase):
 
 
     def test_endpoints_with_slash(self):
+        # Ugly way to avoid the REST API rate limit per min
+        time.sleep(60)
+
         """ Test the status code of each endpoint listed above, with a trailing slash """
         for endpoint in self.endpoints:
             url_endpoint = self.server+endpoint[1]+'/'
-
-            #print('# '+endpoint[0])
 
             if len(endpoint) > self.index_example:
                 # Endpoint with parameter within the URL path
                 if ('path' in endpoint[self.index_example]):
                     for example in endpoint[self.index_example]['path']:
-                        self.send_request(url_endpoint+example+'/')
+                        request = url_endpoint+example+'/'
+                        self.send_request(request)
+                        if 'extra_query' in endpoint[self.index_example]:
+                            request_2 = request+'?'+endpoint[self.index_example]['extra_query']
+                            self.send_request(request_2)
                 # Endpoint with parameter as query
                 elif ('query' in endpoint[self.index_example]):
                     for example in endpoint[self.index_example]['query']:
@@ -111,8 +127,6 @@ class BrowseEndpointTest(TestCase):
         """ Test the status code and empty response of each endpoint listed above """
         for endpoint in self.endpoints:
             url_endpoint   = self.server+endpoint[1]+'/'
-
-            #print('# '+endpoint[0])
 
             if len(endpoint) > self.index_example:
                 # Endpoint with parameter within the URL path

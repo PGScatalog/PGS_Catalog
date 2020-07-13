@@ -1,14 +1,23 @@
 language: python
 python:
   - "3.7"
+dist: bionic
 services:
   - postgresql
 env:
-  - DEBUG=False ALLOWED_HOSTS=localhost DATABASE_NAME=travis_ci_test DATABASE_USER=postgres DATABASE_PASSWORD=password DATABASE_HOST=localhost DATABASE_PORT=5432 REST_URL_ROOT=http://127.0.0.1/rest/ SECRET_KEY=1234
+  - DEBUG=False ALLOWED_HOSTS=localhost DATABASE_NAME=travis_ci_test DATABASE_USER=postgres DATABASE_PASSWORD=password DATABASE_HOST=localhost DATABASE_PORT=5432 REST_URL_ROOT=http://127.0.0.1/rest/ ELASTICSEARCH_URL_ROOT=http://localhost:9200 SECRET_KEY=1234
 install:
   - pip install -r requirements.txt
   - pip install requests
 before_script:
+  - curl -s -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.8.0-amd64.deb
+  - sudo dpkg -i --force-confnew elasticsearch-7.8.0-amd64.deb
+  - sudo sed -i.old 's/-Xms1g/-Xms256m/' /etc/elasticsearch/jvm.options
+  - sudo sed -i.old 's/-Xmx1g/-Xmx256m/' /etc/elasticsearch/jvm.options
+  - echo -e '-XX:+DisableExplicitGC\n-Djdk.io.permissionsUseCanonicalPath=true\n-Dlog4j.skipJansi=true\n-server\n' | sudo tee -a /etc/elasticsearch/jvm.options
+  - sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
+  - sudo systemctl start elasticsearch
+  - sleep 10
   - psql -c 'create database travis_ci_test;' -U postgres
 script:
   - python manage.py test catalog/tests rest_api/tests

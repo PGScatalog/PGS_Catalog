@@ -15,10 +15,14 @@ Including another URLconf
 """
 import os
 from django.urls import include, path
+from django.conf.urls import url
+
+from search import views as search_views
 
 urlpatterns = [
 	path('', include('catalog.urls')),
-    path('', include('rest_api.urls'))
+    path('', include('rest_api.urls')),
+    url(r'^search/', search_views.search, name="Search ES")
 ]
 if not 'PGS_LIVE_SITE' in os.environ:
     from django.contrib import admin

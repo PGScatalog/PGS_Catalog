@@ -30,22 +30,24 @@
             <td>Identifier</td>
             <td><b><a href="{{ trait.url }}">{{ trait.id }}</a></b></td>
           </tr>
-          <tr>
-            <td>Description</td>
-            <td>
-              {% if desc_list %}
-                <ul>
-                  {% for desc in desc_list %}
-                    <li>{{ desc }}</li>
-                  {% endfor %}
-                </ul>
-              {% else %}
-                <span class="more">{{ trait.description }}</span>
-              {% endif %}
-            </td>
-          </tr>
+          {% if trait.description %}
+            <tr>
+              <td>Description</td>
+              <td>
+                {% if desc_list %}
+                  <ul>
+                    {% for desc in desc_list %}
+                      <li>{{ desc }}</li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <span class="more">{{ trait.description }}</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
           <td>Trait category</td>
-          <td>
+          <td class="trait_categories">
             {% for category in trait.category_list %}
               <div>
                 <span class="trait_colour" style="background-color:{{ category.colour }}"></span>
@@ -91,12 +93,53 @@
               </td>
             </tr>
           {% endif %}
+          {% if trait.display_child_traits_list|length > 0 %}
+            <tr>
+              <td>Child trait(s)</td>
+              <td>
+                {% if trait.display_child_traits_list|length > 1 %}
+                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right"  data-delay="500" id="child_traits" title="Click to show/hide the list of the child traits in PGS Catalog"><b>{{ trait.display_child_traits_list|length }}</b> child traits <i class="fa fa-plus-circle"></i></a>
+                  <div class="toggle_list" id="list_child_traits">
+                    <ul>
+                    {% for child_trait in trait.display_child_traits_list %}
+                      <li>{{ child_trait|safe }}</li>
+                    {% endfor %}
+                    </ul>
+                  </div>
+                {% else %}
+                  {{ trait.display_child_traits_list.0|safe }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
         </tbody>
       </table>
     </section>
 
     <section>
     <h3>Associated Polygenic Score(s)</h3>
+    {% if trait_scores_child_count and trait_scores_direct_count %}
+      <div class="clearfix mb-2">
+        <div class="mt-2 float_left pgs_note pgs_note_1">
+          <div class="mb-2">
+            <span>Note: </span>This table shows all PGS for "<b>{{ trait.label }}</b>" and any child terms of this trait in the EFO hierarchy by default.
+          </div>
+          <span>
+            <input type="checkbox" {% if include_children %}checked{% endif %} id="include_children" name="include_children" value="{{ trait.id }}"/>
+            <label class="mb-0" for="include_children"> Include PGS Score(s) for child traits</label>
+          </span>
+        </div>
+      </div>
+    {% elif trait_scores_child_count  %}
+      <div class="clearfix mb-2">
+        <div class="mt-2 float_left pgs_note pgs_note_1">
+          <div>
+            <span>Note: </span>This table shows PGS for child terms of "<b>{{ trait.label }}</b>" in the EFO hierarchy.
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
     {% render_table table_scores %}
     </section>
 

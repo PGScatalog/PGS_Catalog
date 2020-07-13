@@ -1,3 +1,4 @@
+from datetime import date
 from django.test import TestCase, Client
 from django.urls import reverse
 from rest_framework import status
@@ -18,12 +19,12 @@ class PublicationRestTest(TestCase):
 
     def setUp(self):
         self.id = "PGP000001"
-        self.date_publication='2015-04-08'
-        self.publication = Publication(num=1, id=self.id, date_publication=self.date_publication)
-        self.publication.save()
+        self.date_pub = date.today()
+        self.new_publication = Publication.objects.create(num=1, id=self.id, date_publication=self.date_pub)
 
     def test_publication(self):
-        publication = Publication.objects.get(id=self.publication.id)
+        publication = Publication.objects.get(id=self.id)
+
         response = self.client.get(
                     reverse('getPublication', kwargs={'pgp_id': self.id}))
 
@@ -40,13 +41,11 @@ class ScoreRestTest(TestCase):
         self.id = "PGS000001"
         self.name = "PRS77_BC"
 
-        self.publication = Publication(num=1, id='PGP000001', date_publication='2015-04-08')
-        self.publication.save()
-        self.score = Score(num=1, id=self.id, name=self.name, publication_id=1, variants_number=1)
-        self.score.save()
+        new_publication = Publication.objects.create(num=2, id='PGP000002', date_publication=date.today())
+        self.new_score = Score.objects.create(num=1, id=self.id, name=self.name, publication_id=new_publication.num, variants_number=1)
 
     def test_score(self):
-        score = Score.objects.get(id=self.score.id)
+        score = Score.objects.get(id=self.id)
         response = self.client.get(
                     reverse('getScore', kwargs={'pgs_id': self.id}))
 
