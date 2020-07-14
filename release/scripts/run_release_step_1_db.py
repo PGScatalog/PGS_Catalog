@@ -9,6 +9,9 @@ def run():
     # Check that the publications are associated to at least a Score or a Performance Metric
     check_publications_associations()
 
+    # Check that the EFO Traits are associated to at least a Score or a Performance Metric
+    check_efotrait_associations()
+
     # Create release
     call_create_release()
 
@@ -40,6 +43,29 @@ def check_publications_associations():
         exit(1)
     else:
         print("Publications associations - OK: All the publications are associated to a Score or a Performance Metric!")
+
+
+def check_efotrait_associations():
+    """ Check the EFO Trait associations """
+
+    efo_traits = EFOTrait.objects.all().order_by('id')
+    traits_list = []
+
+    for efo_trait in efo_traits:
+        trait_id = efo_trait.id
+        is_associated = 0
+        if Score.objects.filter(trait_efo__in=[efo_trait]):
+            is_associated = 1
+        elif Performance.objects.filter(phenotyping_efo__in=[efo_trait]):
+            is_associated = 1
+        if not is_associated:
+            traits_list.append(trait_id)
+
+    if len(traits_list) > 0:
+        print("ERROR: The following PGS EFO Traits are not associated to a Score or a Performance Metric:\n"+'\n'.join(traits_list))
+        exit(1)
+    else:
+        print("EFOTrait associations - OK: All the traits are associated to a Score or a Performance Metric!")
 
 
 def call_create_release():
