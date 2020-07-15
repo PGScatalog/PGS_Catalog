@@ -31,7 +31,7 @@
 
   {% if not query %}
     <h2>Search</h2>
-    <p>Please enter a search term in the <i>"Search..."</i> form above, on the page header.</p>
+    <h5><i class="fa fa-info-circle pgs_color_1 mr-2"></i>Please enter a search term in the <i>"Search..."</i> form above, on the page header.</h5>
   {% else %}
     <h2 class="search_result_header pb-2">Search results for "<span class="pgs_color_1">{{ query }}</span>"</h2>
     {% if efo_traits_count or publications_count %}
