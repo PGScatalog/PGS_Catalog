@@ -244,6 +244,7 @@ h2 {
   width:100%;
 }
 .search_result_header {
+  color: $pgs_dark3 !important;
   border-bottom:1px solid $pgs_dark2;
 }
 .search_facet_container {
@@ -685,6 +686,17 @@ td > ul {
   i {
     font-size: 16px;
   }
+}
+.info-icon-title {
+  margin-left:0.5rem;
+  i {
+    font-size: 20px;
+    color: $pgs_colour_1;
+    &:hover {
+      color: $pgs_colour_1_lighter;
+    }
+  }
+
 }
 
 .pgs_no_icon_link {

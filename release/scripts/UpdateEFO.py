@@ -31,7 +31,8 @@ exclude_categories = [
     'Other measurement',
     'Other trait'
 ]
-
+entry_count = 0
+total_entries = 0
 
 def format_data(response):
     """ Format some parts of data to match the format in the database. """
@@ -166,9 +167,6 @@ def add_efo_parents_to_efotrait_ontology(trait):
                     else:
                         ontology_data[parent_id] = { child_key: [ontology_trait] }
 
-                    if parent_id == 'EFO_0005140':
-                        print("$$$$$$$$ ontology child data of 'EFO_0005140': "+str(ontology_data[parent_id][child_key]))
-
                     # Children trait / PGS score associations
                     if score_ids:
                         if not parent_id in ontology_data:
@@ -201,7 +199,8 @@ def add_efo_parents_to_efotrait_ontology(trait):
         print("  >> WARNING: Can't find parents for the trait '"+trait_id+"'.")
 
 
-def update_parent_child(ontology_id, entry_count, total_entries):
+def update_parent_child(ontology_id):
+    global entry_count, total_entries
 
     ontology_trait = EFOTrait_Ontology.objects.get(id=ontology_id)
     entry_count += 1
@@ -319,6 +318,7 @@ def update_efo_category_info(trait):
 
 def run():
     """ Update the EFO entries and add/update the Trait categories (from GWAS Catalog)."""
+    global total_entries
 
     print("Truncate EFOTrait_Ontology table")
     EFOTrait_Ontology.objects.all().delete()
@@ -337,11 +337,10 @@ def run():
 
     # Update parent entries
     total_entries = str(len(ontology_data.keys()))
-    entry_count = 0
     print("# Update EFOTrait ontology data ("+total_entries+" entries):")
     for ontology_id in ontology_data:
 
-        update_parent_child(ontology_id, entry_count, total_entries)
+        update_parent_child(ontology_id)
 
     # Update Trait categories
     print("# Update Trait category associations for EFOTrait and EFOTrait_Ontology:")
