@@ -73,7 +73,7 @@ def format_efo_traits_results(request, data):
         hmtl_results += '  </div>'
         hmtl_results += '</div>'
         hmtl_results += '<div class="more">{}</div>'.format(desc)
-        hmtl_results += '<div class="mt-1">Associated PGS scores <span class="badge badge-pill badge-pgs">{}</span> {}</div>'.format(len(scores), score_html)
+        hmtl_results += '<div class="mt-1">Associated PGS <span class="badge badge-pill badge-pgs">{}</span> {}</div>'.format(len(scores), score_html)
         hmtl_results += '</div>'
 
         result_score = d.meta.score
@@ -100,7 +100,7 @@ def format_publications_results(request, data):
         hmtl_results += '<div class="pgs_result_content">{} et al. ({}) - {}'.format(d.firstauthor, d.pub_year, d.journal)
         hmtl_results += '<span class="ml-2 pl-2"><b>PMID</b>:{}</span>'.format( d.PMID)
         hmtl_results += '<span class="ml-2 pl-2"><b>doi</b>:{}</span></div>'.format(d.doi)
-        hmtl_results += '<div class="mt-1">Associated PGS scores <span class="badge badge-pill badge-pgs">{}</span> {}</div>'.format(d.scores_count, score_html)
+        hmtl_results += '<div class="mt-1">Associated PGS <span class="badge badge-pill badge-pgs">{}</span> {}</div>'.format(d.scores_count, score_html)
         hmtl_results += '</div>'
 
         result_score = d.meta.score
@@ -111,7 +111,7 @@ def format_publications_results(request, data):
 
 
 def score_mini_table(id, scores):
-    """ Build the HTML table listing the associated PGS Scores. """
+    """ Build the HTML table listing the Associated PGS. """
 
     score_html = ''
 
