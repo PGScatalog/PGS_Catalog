@@ -49,13 +49,14 @@ class PGSFTPChecks:
                 label = key
             log_data_list = self.log_msg[key]
             report_content = ''
+            data_count = str(len(log_data_list))
             if len(log_data_list) == 0:
-                report_content = str(len(log_data_list))
+                report_content = 'no data'
             elif len(log_data_list) > 20:
                 report_content = '\n'+','.join(log_data_list)+'\n'
             else:
                 report_content = '\n - '+'\n - '.join(log_data_list)+'\n'
-            print("# "+label+": "+report_content)
+            print("# "+label+" ("+data_count+" entries): "+report_content)
 
 
     def check_directories(self):
