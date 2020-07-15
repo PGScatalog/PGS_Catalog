@@ -20,7 +20,6 @@ def search(request):
         efo_trait_search = EFOTraitSearch(q)
         efo_trait_results = efo_trait_search.search()
         efo_trait_count = efo_trait_search.count
-        print("COUNT: "+str(efo_trait_count)+" | "+str(len(efo_trait_results)))
         format_efo_traits_results(request, efo_trait_results)
 
         # Publications
@@ -50,15 +49,6 @@ def format_efo_traits_results(request, data):
     """ Convert the EFO Trait results into HTML. """
     results = []
     icon = '<span class="result_facet_type result_facet_type_1 mr-3"></span>'
-
-
-    max_score = 0;
-    for d in data:
-        if d.meta.score > max_score:
-            max_score = d.meta.score
-    print("MAX SCORE: "+str(max_score))
-    max_score_percent = max_score * 0.5;
-    print("50% SCORE: "+str(max_score_percent))
     for d in data:
         desc = d.description
         if desc:
