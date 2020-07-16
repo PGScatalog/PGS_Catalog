@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_elasticsearch_dsl'
 ]
+if os.environ['PGS_LIVE_SITE'] == 'False':
+    INSTALLED_APPS.append('release.apps.ReleaseConfig')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
