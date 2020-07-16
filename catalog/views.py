@@ -198,13 +198,14 @@ def pgp(request, pub_id):
         context['table_scores'] = table
 
     #Get PGS evaluated by the PGP
-    pquery = pub.publication_performance.defer(*pgs_defer['perf']).select_related('publication','score').all().prefetch_related(*pgs_prefetch['perf'])
+    pquery = pub.publication_performance.defer(*pgs_defer['perf']).select_related('publication','score').all().prefetch_related(*pgs_prefetch['perf'], 'score__trait_efo')
 
     # Check if there any of the PGS are externally developed + display their information
     external_scores = set()
     for perf in pquery:
-        if perf.score not in related_scores:
-            external_scores.add(perf.score)
+        perf_score = perf.score
+        if perf_score not in related_scores:
+            external_scores.add(perf_score)
     if len(external_scores) > 0:
         table = Browse_ScoreTable(external_scores)
         context['table_evaluated'] = table

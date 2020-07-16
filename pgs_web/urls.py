@@ -22,7 +22,7 @@ from search import views as search_views
 urlpatterns = [
 	path('', include('catalog.urls')),
     path('', include('rest_api.urls')),
-    url(r'^search/', search_views.search, name="Search ES")
+    url(r'^search/', search_views.search, name="PGS Catalog Search")
 ]
 if not 'PGS_LIVE_SITE' in os.environ:
     from django.contrib import admin
