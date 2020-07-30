@@ -20,3 +20,14 @@ class BrowseUrlTest(TestCase):
         for url in urls:
             resp = client.get(url)
             self.assertEqual(resp.status_code, 200)
+
+    def test_urls_redirection(self):
+        client = Client()
+
+        urls = [
+            '/docs/curation',
+            '/template/current'
+        ]
+        for url in urls:
+            resp = client.get(url)
+            self.assertEqual(resp.status_code, 302)
