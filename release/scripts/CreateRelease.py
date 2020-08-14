@@ -1,19 +1,19 @@
 import re
 from catalog.models import *
-from datetime import datetime
+from datetime import date
 from ftplib import FTP
 
 
 class CreateRelease:
 
     ftp_url  = 'ftp.ebi.ac.uk'
-    ftp_path = 'pub/databases/spot/pgs/ScoringFiles_formatted'
+    ftp_path = 'pub/databases/spot/pgs/scores'
 
     new_scores = {}
     new_performances = {}
 
     def __init__(self):
-        self.new_release_date = datetime.today().strftime('%Y-%m-%d')
+        self.new_release_date = date.today()
         self.new_publications = Publication.objects.filter(date_released__isnull=True, curation_status="C")
 
 
@@ -61,28 +61,40 @@ class CreateRelease:
     def check_ftp(self):
         """ Check that all the PGSs have a corresponding Scoring file in the PGS FTP. """
         files_list = []
-        pgs_ftp_list = []
-
-        ftp = FTP(self.ftp_url)     # connect to host, default port
-        ftp.login()                 # user anonymous, passwd anonymous@
-        ftp.cwd(self.ftp_path)      # change into "debian" directory
-
-        # Get the list of PGS files on FTP and extract the PGS IDs
-        ftp.retrlines('LIST', lambda x: files_list.append(x.split()))
-        for file_info in files_list:
-            file_name = file_info[-1]
-
-            pgs_re = re.compile('(PGS0+\d+)\D+')
-            file_match = pgs_re.match(file_name)
-            if (file_match and file_match[1]):
-                pgs_ftp_list.append(file_match[1])
-                print("FTP: "+file_match[1])
+        pgs_ftp_list_missing = []
 
         # Get the list of released PGS IDs
         for score in Score.objects.exclude(date_released__isnull=True):
             pgs_id = score.id
-            if (pgs_id not in pgs_ftp_list):
-                print("Scoring file missing on the FTP for "+pgs_id)
+
+            path = self.ftp_path+'/'+pgs_id+'/ScoringFiles/'
+
+            ftp = FTP(self.ftp_url)     # connect to host, default port
+            ftp.login()                 # user anonymous, passwd anonymous@
+            ftp.cwd(path)               # change into "debian" directory
+
+            files_list = []
+            file_found = 0
+
+            # Get the list of PGS files on FTP and extract the PGS IDs
+            ftp.retrlines('LIST', lambda x: files_list.append(x.split()))
+            for file_info in files_list:
+                file_name = file_info[-1]
+
+                pgs_re = re.compile('(PGS0+\d+)\D+')
+                file_match = pgs_re.match(file_name)
+                if (file_match and file_match[1]):
+                    file_found = 1
+            if not file_found:
+                pgs_ftp_list_missing.append(pgs_id)
+
+        if len(pgs_ftp_list_missing) != 0:
+            if (len(pgs_ftp_list_missing) == 1):
+                print("Scoring file missing on the FTP for "+pgs_ftp_list_missing[0])
+            else:
+                print("There are "+str(len(pgs_ftp_list_missing))+" missing scoring files on the FTP")
+                for id in pgs_ftp_list_missing:
+                    print("- "+pgs_id)
 
 
 ################################################################################
@@ -113,4 +125,4 @@ def run():
     print("Number of new Scores (direct fetch): "+str(scores_direct.count()))
     print("Number of new Performances (direct fetch): "+str(perfs_direct.count()))
 
-    release.check_ftp()
+    #release.check_ftp()

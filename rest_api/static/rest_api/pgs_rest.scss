@@ -1,0 +1,380 @@
+/* REST API Doc CSS */
+
+/* Variables */
+$pgs_petrol: #007C82; /* EBI petrol */
+$pgs_colour_1: $pgs_petrol;
+$pgs_colour_1_lighter: #00adb5;
+$pgs_colour_2: #BE4A81;
+$pgs_colour_2_lighter: #e83e8c;
+$pgs_dark2: #222; // Main font-color
+$pgs_dark3: #333; // Header & footer background-color
+$pgs_darkC: #CCC;
+$pgs_light_grey2: #FAFAFA;
+
+$header_height_with_margin: 60px;
+$header_height_with_margin_mobile: $header_height_with_margin + 58px;
+
+
+/* CSS classes */
+
+html {
+  box-sizing: border-box;
+  overflow: -moz-scrollbars-vertical;
+  overflow-y: scroll;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+body {
+  margin:0;
+  background: $pgs_light_grey2;
+}
+footer {
+  display: none;
+}
+code {
+  color: $pgs_colour_2 !important;
+  background-color: #FFF !important;
+}
+
+.nostyle {
+  border: none !important;
+}
+.colour_1 {
+  color: $pgs_colour_1 !important;
+}
+.colour_2 {
+  color: $pgs_colour_2 !important;
+}
+
+h2.title {
+  color: $pgs_colour_1 !important;
+  float:left;
+  padding-right: 2rem;
+  margin-right: 2rem !important;
+  border-right: 1px solid $pgs_dark3;
+  font-size:32px !important;
+  > span {
+    > small:first-child {
+      background-color: $pgs_colour_1 !important;
+    }
+  }
+}
+hgroup.main {
+  margin-bottom: 2rem !important;
+}
+hgroup > div {
+  > a {
+    float:left;
+    border:none !important;
+    > img {
+      max-height: 40px !important;
+    }
+  }
+}
+.link {
+  color:$pgs_dark2 !important;
+  &:hover {
+    color:$pgs_colour_1 !important;
+    text-decoration: none;
+  }
+}
+.try-out .btn, .btn-clear {
+  border-color: $pgs_colour_1 !important;
+  background-color: #FFF !important;
+  color: $pgs_colour_1 !important;
+  &:hover {
+    border-color: $pgs_colour_1_lighter !important;
+    color: $pgs_colour_1_lighter !important;
+  }
+}
+.try-out .btn.cancel {
+  border-color: $pgs_colour_2 !important;
+  color: $pgs_colour_2 !important;
+}
+
+#swagger-ui  {
+  padding-top: $header_height_with_margin;
+}
+.pgs_brand {
+  border: none !important;
+  margin-right: 2rem;
+}
+.pgs_hl {
+  color: $pgs_colour_2;
+}
+.pgs_title {
+  font-family: "Helvetica", "Helvetica Neue", "Arial", "sans-serif";
+  font-weight: normal;
+  padding-left:5px;
+  font-size: 28px;
+}
+.scheme-container {
+  padding-left: 15px !important;
+}
+.opblock-tag {
+  background-color: rgba(0,0,0,.05) !important;
+  border-radius: 4px;
+  border: 1px solid #dee2e6 !important;
+  margin-bottom: 1rem !important;
+}
+.opblock-tag-section {
+  margin-top:3rem !important;
+  margin-bottom: 1rem !important;
+}
+.swagger-ui .opblock.opblock-get {
+  background-color: #F1F8F8;
+  border-color: $pgs_colour_1 !important;
+}
+.swagger-ui .opblock.opblock-get .opblock-summary {
+  border-color: $pgs_colour_1 !important;
+}
+.swagger-ui .opblock.opblock-get:hover,
+.swagger-ui .opblock.opblock-get:hover > .opblock-summary {
+  border-color: $pgs_colour_1_lighter !important;
+}
+.swagger-ui .opblock.opblock-get .opblock-summary:hover > .opblock-summary-method,
+.download-contents:hover, .model-toggle:hover  {
+  background-color: $pgs_colour_1_lighter !important;
+}
+.opblock-summary-method,
+.download-contents,
+.model-toggle,
+.tab-item.active h4 span:after {
+  background-color: $pgs_colour_1 !important;
+}
+.toggle_btn {
+  color: #3b4151 !important;
+}
+.toggle_content {
+  background-color: #FFF;
+  border: 1px solid $pgs_colour_1;
+  padding: 0.5rem 1rem 0.4rem;
+}
+.renderedMarkdown > p {
+  margin-top: 0rem !important;
+  margin-bottom: 0.5rem !important;
+}
+.renderedMarkdown a {
+  color: #3b4151 !important;
+}
+.renderedMarkdown a:hover {
+  color: $pgs_colour_1 !important;
+}
+.renderedMarkdown pre > code {
+  margin-left: 2rem !important;
+  margin-right: 2rem !important;
+  max-width: 600px;
+  border: 1px solid  $pgs_darkC !important;
+  color: #3b4151 !important;
+  font-size: 12px !important;
+}
+
+small {
+  .renderedMarkdown {
+    line-height: 20px;
+    padding:4px 0px;
+    margin-left: 2.5rem;
+    > p {
+      margin-bottom: 0px !important;
+    }
+  }
+}
+.btn-group, .execute-wrapper {
+  padding: 20px 20vw !important;
+}
+.btn.execute {
+  background-color: $pgs_colour_1 !important;
+  color:#FFF !important;
+  border:none;
+  &:hover {
+    background-color: $pgs_colour_1_lighter !important;
+  }
+}
+.parameter__name {
+  font-weight: bold !important;
+}
+.parameters > tbody > tr:not(:first-child) > td {
+  border-top: 1px dashed rgba(59, 65, 81, 0.2) !important;
+}
+.parameters > tbody > tr:not(:last-child) > td.parameters-col_description {
+  padding-bottom: 10px !important;
+}
+.content-type {
+  border: 1px solid #41444e !important;
+}
+.required {
+  color: $pgs_colour_2 !important;
+}
+.tab-header {
+  flex: 0.23 !important;
+}
+.tab-item, .opblock-section-header > h4 {
+  background-color: #E2E9E9 !important;
+  height:30px;
+  padding:2px 6px !important;
+  border-radius: 4px 4px 0px 0px;
+  position: relative;
+  top:8px;
+}
+.tab-item.active h4 span:after {
+  width:0px !important;
+}
+.opblock-section-header {
+  min-height: 45px !important;
+}
+.opblock-section-header h4 {
+  line-height:26px;
+  font-weight: 600;
+  color: $pgs_colour_1 !important;
+}
+.opblock-section-header > h4 {
+  display: inline;
+  flex: 0 !important;
+  width: 86px !important;
+}
+.curl,
+.request-url pre.microlight,
+.swagger-ui .opblock-body .response-col_description pre.microlight {
+  color: #212529 !important;
+  border:1px solid $pgs_colour_1 !important;
+  background-color: #FFF !important;
+}
+.curl {
+  min-height: 50px !important;
+}
+.swagger-ui .opblock-body .response-col_description pre.microlight span {
+  color: #212529 !important;
+}
+.swagger-ui .opblock-body .model-example pre.microlight {
+  background-color: #212529 !important;
+}
+.swagger-ui .opblock-body .model-example pre.microlight span {
+  color: #FFF !important;
+}
+
+table.model {
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+  border-radius: 4px !important;
+  background-color: #FFF;
+}
+table.model > tbody > tr:first-child > td {
+  padding-top: 8px !important;
+}
+table.model > tbody > tr:last-child > td {
+  padding-bottom: 8px !important;
+}
+table.model > tbody > tr > td:last-child {
+  padding-right: 8px !important;
+}
+table.responses-table > tbody > tr:not(:last-child) > td {
+  border-bottom: 1px solid rgba(59, 65, 81, 0.2) !important;
+  padding-bottom: 2rem;
+}
+.response-col_status {
+  font-weight: bold;
+}
+.response-control-media-type__accept-message {
+  display: none !important;
+}
+.info__contact::before {
+  content: "Contact: ";
+  font-size: 14px;
+}
+.info__license::before {
+  content: "License: ";
+  font-size: 14px;
+}
+table.model td {
+  height: 24px !important;
+}
+.model-toggle {
+  border-radius: 50px !important;
+}
+table.model .model-toggle, table.model .model-toggle:after {
+  top:2px;
+  vertical-align: top !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+
+@media screen and (max-width: 499px) {
+  hgroup {
+    > div {
+      h2.title {
+        //border-right: none;
+        margin-right: 0rem !important;
+        //font-size:24px !important;
+        //margin-bottom: 1rem !important;
+        .version {
+          font-size:12px !important;
+        }
+      }
+      a > img {
+        border: 1px solid #F00;
+      }
+    }
+  }
+  .tab-header {
+    flex: 0.75 !important;
+  }
+  .opblock-body {
+    select {
+      min-width: 130px !important;
+    }
+  }
+}
+
+@media screen and (max-width: 610px) {
+  h2.title {
+    border-right: none;
+    font-size:24px !important;
+  }
+  span {
+    small {
+      top:0px !important;
+    }
+  }
+  ul {
+    padding-left: 1.5rem !important
+  }
+}
+
+
+/* Mobile phone display */
+@media screen and (max-width: 499px) {
+  #swagger-ui {
+    padding-top: $header_height_with_margin_mobile !important;
+  }
+  .swagger-ui .wrapper {
+    padding:0px !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  h2.title {
+    margin-bottom: 1rem !important;
+  }
+  .response-col_status {
+    min-width: 3rem !important;
+  }
+  .response-col_links {
+    padding-left: 1rem !important;
+    min-width: 5rem !important;
+  }
+  .renderedMarkdown pre > code {
+    max-width: 100%;
+    margin: 0px !important;
+  }
+  .curl {
+    min-width: 100% !important;
+  }
+}
+
+@media screen and (min-width: 500px) and (max-width: 900px) {
+  .tab-header {
+    flex: 0.5 !important;
+  }
+}

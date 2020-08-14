@@ -1,5 +1,7 @@
 {% load static %}
-{% load compress %}
+{% if is_pgs_app_on_gae == 0 %}
+  {% load compress %}
+{% endif %}
 <!doctype html>
 <html lang="en">
 
@@ -13,7 +15,7 @@
   <meta name="HandheldFriendly" content="true" />
   <meta name="MobileOptimized" content="width" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#70BDBD" /> <!-- Android Chrome mobile browser tab color -->
+  <meta name="theme-color" content="#007C82" /> <!-- Android Chrome mobile browser tab color -->
   <!-- Get suggested SEO and social metatags at:
        https://www.ebi.ac.uk/style-lab/websites/patterns/meta-copy.html -->
 
@@ -40,7 +42,7 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
   {% if has_table %}
-    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet"/>
   {% endif %}
 
   <!-- CSS: implied media=all -->
@@ -49,10 +51,14 @@
     <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
   {% endif %}
 
-  <!-- SCSS file -->
-  {% compress css %}
-    <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
-  {% endcompress %}
+  <!-- PGS (S)CSS file -->
+  {% if is_pgs_app_on_gae %}
+    <link rel="stylesheet" href="{% static 'catalog/pgs.min.css' %}" type="text/css" media="all" />
+  {% else %}
+    {% compress css %}
+      <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+  {% endif %}
 
   <!-- Chart.js -->
   {% if has_chart %}
@@ -71,49 +77,18 @@
     <script defer src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
   {% endif %}
 
-  {% compress js file pgs_min %}
-    <script defer src="{% static 'catalog/pgs.js' %}"></script>
-  {% endcompress %}
-
+  <!-- PGS Javascript file -->
+  {% if is_pgs_app_on_gae %}
+    <script defer src="{% static 'catalog/pgs.min.js' %}"></script>
+  {% else %}
+    {% compress js file pgs_min %}
+      <script defer src="{% static 'catalog/pgs.js' %}"></script>
+    {% endcompress %}
+  {% endif %}
 </head>
-<body><!-- add any of your classes or IDs -->
+<body>
 
-  <div>
-    <nav class="navbar fixed-top navbar-expand-md">
-      <!--<div class="container">-->
-        <a class="navbar-brand" href="../../" data-original-title="" title="Polygenic Score Catalog" style="margin-right:2rem;">
-            <img src="{% static 'catalog/imgs/PGS_Logo.png' %}" style="height:60px"/> <span style="padding-left:5px">PGS Catalog</span>
-        </a>
-        <!--/.navbar-collapse - begin -->
-        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- Horizontal menu -->
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <ul class="nav navbar-nav">
-            <li class="nav-item active"><a class="nav-link" href="../../">Home</a></li>
-              <li class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Browse</a>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="../../browse/all/">Polygenic Scores</a>
-                  <a class="dropdown-item" href="../../browse/traits/">Traits</a>
-                  <a class="dropdown-item" href="../../browse/studies/">Publications</a>
-                </div>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="../../downloads/">Downloads</a></li>
-              <li class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation</a>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="../../about/">About</a>
-                  <a class="dropdown-item" href="../../docs/">Data Description</a>
-                </div>
-              </li>
-            </ul>
-          </div>
-        <!--/.navbar-collapse - end -->
-    </nav>
-  </div>
-
+    {% include "catalog/includes/header.html" %}
 
     <div class="feedback">
       <a href="mailto:{{ pgs_contact }}" title="Feedback or contact us">
@@ -126,38 +101,7 @@
       {% endblock %}
     </div>
 
-
-    <footer class="footer font-small pt-3">
-
-      <div class="footer_first_row">
-        <div>Supported by:</div>
-        <div>
-          <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/UofCambridge_small.png' %}" alt="University of Cambridge"></a>
-        </div>
-        <div >
-          <a class="pgs_no_icon_link" href="{{ ebi_url }}" style="link:none"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/EMBL_EBI_small.png' %}" alt="EMBL-EBI"></a>
-        </div>
-        <div>
-          <a class="pgs_no_icon_link" href="{{ hdr_uk_cam_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/HDR-UK_small.png' %}" alt="HDR-UK (Cambridge)"></a>
-        </div>
-        <div>
-          <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid pgs_small_icons" src="{% static 'catalog/imgs/Baker_Logo_small.png' %}" alt="Baker Heart and Diabetes Institute"></a>
-        </div>
-        <div>
-          <div class="pgs_social">
-            <a class="pgs_no_icon_link fa fa-envelope" title="Contact us" href="mailto:{{ pgs_contact }}" target="_blank"></a>
-            <a class="pgs_no_icon_link fa fa-twitter" title="Twitter" href="{{ pgs_twitter_url }}" target="_blank"></a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Copyright -->
-      <div class="footer-copyright text-center py-3">
-        Copyright © EMBL-EBI 2020 | <a class="pgs_no_icon_link" href="{{ ebi_url }}">EMBL-EBI</a> is an Outstation of the <a class="pgs_no_icon_link" href="https://www.embl.org/">European Molecular Biology Laboratory</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/privacy">Privacy</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/cookies">Cookies</a> | <a class="pgs_no_icon_link" href="{{ ebi_url }}/about/terms-of-use">Terms of use</a>
-      </div>
-      <!-- Copyright -->
-    </footer>
-  </div>
+    {% include "catalog/includes/footer.html" %}
 
   <!-- Google Analytics details... -->
   <script type="text/javascript">!function(e,a,n,t,i,o,c){e.GoogleAnalyticsObject=i,e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},e[i].l=1*new Date,o=a.createElement(n),c=a.getElementsByTagName(n)[0],o.async=1,o.src="//www.google-analytics.com/analytics.js",c.parentNode.insertBefore(o,c)}(window,document,"script",0,"ga"),ga("create","UA-145149243-1",{cookieDomain:"auto"}),ga("require","linkid","linkid.js"),ga("set","anonymizeIp",!0),ga("send","pageview");</script>

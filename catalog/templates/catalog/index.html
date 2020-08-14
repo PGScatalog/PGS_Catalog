@@ -9,7 +9,7 @@
       <div class="release_label">
         <i class="fa fa-calendar pgs_color_1"></i> Latest release: <b>{{ release.date }}</b>
       </div>
-        <div class="mb-5" style="text-align:center">
+        <div class="pgs_centered mb-5">
           <h2><b>The Polygenic Score (PGS) Catalog</b></h2>
           <h5 class="mt-0">An open database of polygenic scores and the relevant metadata required for accurate application and evaluation.</h5>
         </div>
@@ -71,7 +71,7 @@
                 Each <b>PGS</b> in the <b>Catalog</b> is consistently annotated with relevant metadata; including scoring files (variants, effect alleles/weights), annotations of how the PGS was developed and applied, and evaluations of their predictive performance.
             </p>
             <p class="mb-0">
-              More about the PGS Catalog project, descriptions of the data, and publication eligibility criteria can be found in our <a href="/about"><b>documentation</b></a>.
+              More about the PGS Catalog project, descriptions of the data, and publication eligibility criteria can be found in our <a href="/about"><b>documentation</b></a> and recent <a href="{{catalog_publication_url}}"><b>preprint</b></a>.
             </p>
           </div>
         </div>
@@ -83,8 +83,15 @@
             <p>
               Bulk <b>downloads</b> of PGS metadata and scoring files (variants, effect alleles/weights) needed to calculate PGS on your own data are available from the website and FTP.
             </p>
+            <p class="mb-2">
+              <a class="link-with-btn" href="../../downloads/">
+                <i class="fa fa-download"></i><span>View available PGS Catalog <b>downloads</b>.</span>
+              </a>
+            </p>
             <p class="mb-0">
-              <a href="../../downloads/"><i class="fa fa-download"></i> View available PGS Catalog <b>downloads</b>.</a>
+              <a class="link-with-btn" href="../../rest/">
+                <i class="fa fa-code"></i><span>Programmatic access to the Catalog data through our <b>REST API</b>.</span>
+              </a>
             </p>
           </div>
           <div class="col-xs-10 col-md-6">
@@ -105,16 +112,16 @@
           </div>
         </div>
         <div class="row justify-content-center mb-5">
-          <div class="col" style="text-align:center">
+          <div class="col pgs_centered">
             <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/UofCambridge.png' %}" alt="University of Cambridge"></a>
           </div>
-          <div class="col" style="text-align:center">
-            <a class="pgs_no_icon_link" href="{{ ebi_url }}" style="link:none"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/EMBL_EBI.png' %}" alt="EMBL-EBI"></a>
+          <div class="col pgs_centered">
+            <a class="pgs_no_icon_link" href="{{ ebi_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/EMBL_EBI.png' %}" alt="EMBL-EBI"></a>
           </div>
-          <div class="col" style="text-align:center">
+          <div class="col pgs_centered">
             <a class="pgs_no_icon_link" href="{{ hdr_uk_cam_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/HDR-UK.png' %}" alt="HDR-UK (Cambridge)"></a>
           </div>
-          <div class="col" style="text-align:center">
+          <div class="col pgs_centered">
             <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/Baker_Logo.png' %}" alt="Baker Heart and Diabetes Institute"></a>
           </div>
         </div>

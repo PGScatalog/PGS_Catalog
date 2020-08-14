@@ -55,7 +55,8 @@ class PGSExport:
                 'variants_interactions',
                 'pub_id',
                 'pub_pmid_label',
-                'pub_doi_label'
+                'pub_doi_label',
+                'flag_asis'
             ],
         'Performance':
             [
@@ -110,6 +111,7 @@ class PGSExport:
 
     def __init__(self,filename):
         self.filename = filename
+        self.pgs_list = []
         self.writer   = pd.ExcelWriter(filename, engine='xlsxwriter')
         self.spreadsheets_conf = {
             'scores'     : ('Scores', self.create_scores_spreadsheet),
@@ -122,6 +124,14 @@ class PGSExport:
         self.spreadsheets_list = [
             'scores', 'perf', 'samplesets', 'samples_development', 'publications', 'efo_traits'
         ]
+
+    def set_pgs_list(self, pgs_list):
+        """ List the PGS IDs used to generate the metadata files """
+        if isinstance(pgs_list, list):
+            self.pgs_list = pgs_list
+        else:
+            print('Error: '+str(pgs_list)+" is not a list")
+
 
     def save(self):
         """ Close the Pandas Excel writer and output the Excel file """
@@ -242,7 +252,7 @@ class PGSExport:
     # Spreadsheet methods #
     #---------------------#
 
-    def create_scores_spreadsheet(self, pgs_list=[]):
+    def create_scores_spreadsheet(self):
         """ Score spreadsheet """
 
         # Fetch column labels an initialise data dictionary
@@ -252,10 +262,10 @@ class PGSExport:
             scores_data[label] = []
 
         scores = []
-        if len(pgs_list) == 0:
-            scores = Score.objects.all()
+        if len(self.pgs_list) == 0:
+            scores = Score.objects.all().order_by('id')
         else:
-            scores = Score.objects.filter(id__in=pgs_list)
+            scores = Score.objects.filter(id__in=self.pgs_list).order_by('id')
 
 
         for score in scores:
@@ -308,15 +318,17 @@ class PGSExport:
 
 
         performances = []
-        if len(pgs_list) == 0:
-            performances = Performance.objects.all()
+        if len(self.pgs_list) == 0:
+            performances = Performance.objects.all().order_by('id')
         else:
-            for pgs_id in pgs_list:
+            for pgs_id in self.pgs_list:
                 score = Score.objects.get(id__exact=pgs_id)
                 score_performances = Performance.objects.filter(score=score)
                 for score_perf in score_performances:
                     if score_perf not in performances:
                         performances.append(score_perf)
+            performances = list(performances)
+            performances.sort(key=lambda x: x.id, reverse=False)
 
         for perf in performances:
             # Publication
@@ -390,16 +402,19 @@ class PGSExport:
 
 
         samplesets = []
-        if len(pgs_list) == 0:
+        if len(self.pgs_list) == 0:
             samplesets = SampleSet.objects.all().prefetch_related('samples')
         else:
-            for pgs_id in pgs_list:
+            for pgs_id in self.pgs_list:
                 score = Score.objects.get(id__exact=pgs_id)
                 score_performances = Performance.objects.filter(score=score)
                 for score_perf in score_performances:
                     sampleset = SampleSet.objects.get(id__exact=score_perf.sampleset)
                     if sampleset not in samplesets:
                         samplesets.append(sampleset)
+
+            samplesets = list(samplesets)
+            samplesets.sort(key=lambda x: x.id, reverse=False)
 
         for pss in samplesets:
             performances = Performance.objects.filter(sampleset=pss)
@@ -426,7 +441,7 @@ class PGSExport:
 
 
 
-    def create_samples_development_spreadsheet(self, pgs_list=[]):
+    def create_samples_development_spreadsheet(self):
         """ Samples used for score development (GWAS and/or training) spreadsheet """
 
         # Fetch column labels an initialise data dictionary
@@ -436,10 +451,10 @@ class PGSExport:
             object_data[label] = []
 
         # Get the relevant scores
-        if len(pgs_list) == 0:
-            scores = Score.objects.all()
+        if len(self.pgs_list) == 0:
+            scores = Score.objects.all().order_by('id')
         else:
-            scores = Score.objects.filter(id__in=pgs_list)
+            scores = Score.objects.filter(id__in=self.pgs_list).order_by('id')
 
         #Loop through Scores to output their samples:
         for score in scores:
@@ -466,7 +481,8 @@ class PGSExport:
 
         return object_data
 
-    def create_publications_spreadsheet(self, pgs_list=[]):
+
+    def create_publications_spreadsheet(self):
         """ Publications spreadsheet """
 
         # Fetch column labels an initialise data dictionary
@@ -476,10 +492,10 @@ class PGSExport:
             object_data[label] = []
 
         publications = []
-        if len(pgs_list) == 0:
-            publications = Publication.objects.all()
+        if len(self.pgs_list) == 0:
+            publications = Publication.objects.all().order_by('id')
         else:
-            scores = Score.objects.filter(id__in=pgs_list)
+            scores = Score.objects.filter(id__in=self.pgs_list).order_by('id')
             for score in scores:
                 # Score publication
                 score_publication = score.publication
@@ -493,6 +509,9 @@ class PGSExport:
                     if perf_publication not in publications:
                         publications.append(perf_publication)
 
+            publications = list(publications)
+            publications.sort(key=lambda x: x.id, reverse=False)
+
         for publi in publications:
 
             for column in object_labels.keys():
@@ -503,7 +522,7 @@ class PGSExport:
         return object_data
 
 
-    def create_efo_traits_spreadsheet(self, pgs_list=[]):
+    def create_efo_traits_spreadsheet(self):
         """ EFO traits spreadsheet """
 
         # Fetch column labels an initialise data dictionary
@@ -513,10 +532,10 @@ class PGSExport:
             object_data[label] = []
 
         traits = []
-        if len(pgs_list) == 0:
-            traits = EFOTrait.objects.all()
+        if len(self.pgs_list) == 0:
+            traits = EFOTrait.objects.all().order_by('label')
         else:
-            scores = Score.objects.filter(id__in=pgs_list)
+            scores = Score.objects.filter(id__in=self.pgs_list).order_by('id')
             for score in scores:
                 score_traits = score.trait_efo
                 for score_trait in score_traits.all():
@@ -524,7 +543,6 @@ class PGSExport:
                         traits.append(score_trait)
 
         for trait in traits:
-
             for column in object_labels.keys():
                 if self.not_in_extra_fields_to_include(column):
                     object_method_name = getattr(trait, column)
