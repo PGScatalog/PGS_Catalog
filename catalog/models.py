@@ -415,7 +415,7 @@ class Sample(models.Model):
     sample_age = models.OneToOneField(Demographic, on_delete=models.CASCADE,related_name='ages_of', null=True)
 
     ## Description
-    phenotyping_free = models.TextField('Detailed Phenotype Description', null=True)
+    phenotyping_free = models.TextField('Phenotype Definitions and Methods', null=True)
     followup_time = models.OneToOneField(Demographic, on_delete=models.CASCADE,related_name='followuptime_of', null=True)
 
     ## Ancestry
