@@ -139,6 +139,8 @@ if os.getenv('GAE_APPLICATION', None):
 else:
     PGS_ON_GAE = 0
 
+PGS_ON_LIVE_SITE = os.environ['PGS_LIVE_SITE']
+
 WSGI_APPLICATION = 'pgs_web.wsgi.application'
 
 # Database
