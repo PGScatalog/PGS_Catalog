@@ -38,6 +38,9 @@ urlpatterns = [
     #ex: /template/current
     path('template/current', views.CurrentTemplateView.as_view(), name='Current Curation Template'),
 
+    #ex: /docs/curation
+    path('docs/curation', views.CurationDocView.as_view(), name='Curation documentation'),
+
     # Setup URL used to warmup the Django app in the Google App Engine
     path('_ah/warmup', views.warmup, name="Warmup"),
 

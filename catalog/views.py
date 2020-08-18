@@ -367,6 +367,9 @@ class DownloadView(TemplateView):
 class CurrentTemplateView(RedirectView):
     url = settings.USEFUL_URLS['TEMPLATEGoogleDoc_URL']
 
+class CurationDocView(RedirectView):
+    url = settings.USEFUL_URLS['CurationGoogleDoc_URL']
+
 
 # Method used for the App Engine warmup
 def warmup(request):

@@ -25,3 +25,7 @@
 __pycache__/
 # Ignored by the build system
 /setup.cfg
+
+# Other
+LICENSE.md
+README.md
