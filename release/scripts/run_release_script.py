@@ -1,9 +1,9 @@
-import sys, os.path
+import sys, os.path, shutil, glob
 from datetime import date
 import tarfile
 from catalog.models import *
 from release.scripts.CreateRelease import CreateRelease
-from release.scripts.UpdateEFO import *
+from release.scripts.UpdateEFO import UpdateEFO
 from release.scripts.GenerateBulkExport import PGSExportAllMetadata
 from release.scripts.PGSExport import PGSExport
 from release.scripts.PGSBuildFtp import PGSBuildFtp
@@ -146,9 +146,8 @@ def call_create_release():
 
 def call_efo_update():
     """ Update the EFO entries and add/update the Trait categories (from GWAS Catalog)."""
-    for trait in EFOTrait.objects.all():
-        update_efo_info(trait)
-        update_efo_category_info(trait)
+    efo_update = UpdateEFO()
+    efo_update.launch_efo_updates()
 
 
 #####  FTP methods  #####
