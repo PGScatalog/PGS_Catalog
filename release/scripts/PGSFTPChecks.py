@@ -32,8 +32,10 @@ class PGSFTPChecks:
     }
     directories_checked = False
 
-    def __init__(self, pgs_ids_list, ftp_root_path):
-        self.pgs_ids = pgs_ids_list
+    def __init__(self, pgs_ids_count, ftp_root_path):
+        self.pgs_ids = []
+        self.pgs_ids_count = pgs_ids_count
+        self.ftp_pgs_ids_count = 0
         # FTP root path, e.g. /ebi/ftp/pub/databases/spot/pgs/
         self.ftp_root_path = ftp_root_path
         self.ftp_scores_path = ftp_root_path+'scores/'
@@ -61,27 +63,26 @@ class PGSFTPChecks:
 
     def check_directories(self):
 
-        for pgs_id in self.pgs_ids:
+        for pgs_id in os.listdir(self.ftp_scores_path):
             ftp_pgs_dir = self.ftp_scores_path+pgs_id
+            if not os.path.isdir(self.ftp_scores_path+pgs_id):
+                continue
+            self.pgs_ids.append(pgs_id)
             ftp_score_dir = ftp_pgs_dir+"/ScoringFiles/"
             ftp_metadata_dir = ftp_pgs_dir+"/Metadata/"
 
-            # 1 - Test PGS directory exists
-            if not os.path.exists(ftp_pgs_dir):
-                #for key in log_msg.keys():
-                #    log_msg[key].append(pgs_id)
-                self.log_msg['missing_pgs_dir'].append(pgs_id)
-                continue
-
-            # 2 - Test PGS ScoringFile directory exists
+            # 1 - Test PGS ScoringFile directory exists
             if not os.path.exists(ftp_score_dir):
                 self.log_msg['missing_score_dir'].append(pgs_id)
                 continue
 
-            # 3 - Test PGS Metadata directory exists
+            # 2 - Test PGS Metadata directory exists
             if not os.path.exists(ftp_metadata_dir):
                 self.log_msg['missing_metadata_dir'].append(pgs_id)
                 continue
+
+        if len(self.pgs_ids) != self.pgs_ids_count:
+            self.log_msg['missing_pgs_dir'].append('The number of Score directories are different ('+str(len(self.pgs_ids))+' found vs '+str(self.pgs_ids_count)+' expected)!')
 
         # Missing PGS directories
         self.print_log_msg('missing_pgs_dir', 'Missing PGS directories')
@@ -214,19 +215,7 @@ def main():
             print("Error: The path to ftp root directory can't be found ("+args.dir+").")
             exit(1)
 
-    list_pgs_ids = []
-    max_numbers = 6
-    pgs_id_prefix = 'PGS'
-    for id in range(1,args.n+1):
-        id_str = str(id)
-        id_length = len(id_str)
-        pgs_id = pgs_id_prefix
-        for i in range(id_length,max_numbers):
-            pgs_id += "0"
-        pgs_id += id_str
-        list_pgs_ids.append(pgs_id)
-
-    pgs_ftp_checks = PGSFTPChecks(list_pgs_ids,args.dir)
+    pgs_ftp_checks = PGSFTPChecks(args.n,args.dir)
     pgs_ftp_checks.check_directories()
     pgs_ftp_checks.check_score_files()
     pgs_ftp_checks.check_metadata_files()

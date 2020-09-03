@@ -196,7 +196,7 @@ class Browse_ScoreTable(tables.Table):
             "id": "scores_table",
             "data-show-columns" : "true",
             "data-sort-name" : "id",
-            "data-page-size" : page_size,
+            "data-page-size" : page_size*2,
             "data-export-options" : '{"fileName": "pgs_scores_data"}'
         }
         fields = [
