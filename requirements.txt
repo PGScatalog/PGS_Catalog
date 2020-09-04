@@ -1,5 +1,5 @@
 #### Django library
-Django==3.0.8
+Django==3.0.9
 #### Extension for command lines
 django-extensions==3.0.3
 #### Compress SCSS/SASS files in CSS
