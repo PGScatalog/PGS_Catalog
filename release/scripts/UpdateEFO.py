@@ -35,6 +35,14 @@ class UpdateEFO:
         'Other measurement',
         'Other trait'
     ]
+    pgs_specific_categories = {
+        'Sex-specific PGS': { 'colour':'#00adb5', 'parent':'sex_specific_pgs' }
+    }
+    pgs_specific_traits = {
+        'sex'   : 'Sex-specific PGS',
+        'male'  : 'Sex-specific PGS',
+        'female': 'Sex-specific PGS'
+    }
 
 
     def __init__(self):
@@ -202,34 +210,32 @@ class UpdateEFO:
             print("  >> WARNING: Can't find parents for the trait '"+trait_id+"'.")
 
 
-    def update_parent_child(self, ontology_id):
+    def update_parent_child(self, ontology_trait):
         """ Build the parent/child relations before updating the EFOTrait_Ontology model"""
-        ontology_prefetch = ['child_traits','scores_direct_associations','scores_child_associations']
-        ontology_trait = EFOTrait_Ontology.objects.prefetch_related(*ontology_prefetch).get(id=ontology_id)
+        ontology_id = ontology_trait.id
         self.entry_count += 1
         # >>>>>>>>>>> PRINT <<<<<<<<<<<<<
         print("- "+ontology_id+" ("+ontology_trait.label+")"+" | "+str(self.entry_count)+'/'+str(self.total_entries))
 
-        # Update with child EFOTrait(s)
-        if self.child_key in self.ontology_data[ontology_id]:
-            for child_trait in self.ontology_data[ontology_id][self.child_key]:
-                ontology_trait.child_traits.add(child_trait)
+        if ontology_id in self.ontology_data.keys():
+            # Update with child EFOTrait(s)
+            if self.child_key in self.ontology_data[ontology_id]:
+                for child_trait in self.ontology_data[ontology_id][self.child_key]:
+                    ontology_trait.child_traits.add(child_trait)
 
-        # Update with direct trait/PGS Score IDs associations
-        if self.direct_pgs_ids_key in self.ontology_data[ontology_id]:
-            pgs_ids = sorted(list(self.ontology_data[ontology_id][self.direct_pgs_ids_key]))
-            pgs_scores = Score.objects.filter(id__in=pgs_ids).order_by('id')
-            for pgs_score in pgs_scores:
-                ontology_trait.scores_direct_associations.add(pgs_score)
+            # Update with direct trait/PGS Score IDs associations
+            if self.direct_pgs_ids_key in self.ontology_data[ontology_id]:
+                pgs_ids = sorted(list(self.ontology_data[ontology_id][self.direct_pgs_ids_key]))
+                pgs_scores = Score.objects.filter(id__in=pgs_ids).order_by('id')
+                for pgs_score in pgs_scores:
+                    ontology_trait.scores_direct_associations.add(pgs_score)
 
-        # Update with child trait/PGS Score IDs associations
-        if self.child_pgs_ids_key in self.ontology_data[ontology_id]:
-            child_pgs_ids = sorted(list(self.ontology_data[ontology_id][self.child_pgs_ids_key]))
-            child_pgs_scores = Score.objects.filter(id__in=child_pgs_ids).order_by('id')
-            for child_pgs_score in child_pgs_scores:
-                ontology_trait.scores_child_associations.add(child_pgs_score)
-
-        self.collect_efo_category_info(ontology_trait)
+            # Update with child trait/PGS Score IDs associations
+            if self.child_pgs_ids_key in self.ontology_data[ontology_id]:
+                child_pgs_ids = sorted(list(self.ontology_data[ontology_id][self.child_pgs_ids_key]))
+                child_pgs_scores = Score.objects.filter(id__in=child_pgs_ids).order_by('id')
+                for child_pgs_score in child_pgs_scores:
+                    ontology_trait.scores_child_associations.add(child_pgs_score)
 
         ontology_trait.save()
 
@@ -237,28 +243,44 @@ class UpdateEFO:
     def collect_efo_category_info(self, trait):
         """ Fetch the trait category from an EFO ID, using the GWAS REST API """
         trait_id = trait.id
-        response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%trait_id)
-        response_json = response.json()
-        if response_json and response_json['trait'] != 'None':
-            label  = response_json['colourLabel']
-            colour = response_json['colour']
-            parent = response_json['parent']
-            category = None
+        trait_label = trait.label
+        category = None
+        category_label = None
+        category_colour = None
+        category_parent = None
+
+        # Fetch category information
+        # PGS-specific category
+        if trait_label in self.pgs_specific_traits.keys():
+            category_label = self.pgs_specific_traits[trait_label]
+            category_colour = self.pgs_specific_categories[category_label]['colour']
+            category_parent = self.pgs_specific_categories[category_label]['parent']
+        # GWAS category
+        else:
+            response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%trait_id)
+            response_json = response.json()
+            if response_json and response_json['trait'] != 'None':
+                category_label  = response_json['colourLabel']
+                category_colour = response_json['colour']
+                category_parent = response_json['parent']
+
+        # Add/update category information
+        if category_label:
             # Update the trait category, if needed
             try:
-                category = TraitCategory.objects.get(label=label)
+                category = TraitCategory.objects.get(label=category_label)
                 cat_has_changed = 0
-                if (colour != category.colour):
-                    category.colour = colour
+                if (category_colour != category.colour):
+                    category.colour = category_colour
                     cat_has_changed = 1
-                if (parent != category.parent):
-                    category.parent = parent
+                if (category_parent != category.parent):
+                    category.parent = category_parent
                     cat_has_changed = 1
 
                 if cat_has_changed == 1:
                     category.save()
             except:
-                category = TraitCategory.objects.create(label=label,colour=colour,parent=parent)
+                category = TraitCategory.objects.create(label=category_label,colour=category_colour,parent=category_parent)
                 category.save()
 
             self.efo_categories[trait.id] = set()
@@ -337,16 +359,19 @@ class UpdateEFO:
             self.add_efo_parents_to_efotrait_ontology(trait)
 
         # Update parent entries
-        self.total_entries = str(len(self.ontology_data.keys()))
+        efotrait_ontology_list = EFOTrait_Ontology.objects.prefetch_related('child_traits','scores_direct_associations','scores_child_associations').all()
+        self.total_entries = str(len(efotrait_ontology_list))
         print("# Update EFOTrait ontology data ("+self.total_entries+" entries):")
-        for ontology_id in self.ontology_data:
+        for ontology_trait in efotrait_ontology_list:
+            # Update parent/child relation
+            self.update_parent_child(ontology_trait)
+            # Fetch trait category
+            self.collect_efo_category_info(ontology_trait)
 
-            self.update_parent_child(ontology_id)
 
         # Update Trait categories
         print("# Update Trait category associations for EFOTrait and EFOTrait_Ontology:")
-        for ontology_id in self.ontology_data:
-            ontology_trait = EFOTrait_Ontology.objects.prefetch_related('parent_traits').get(id=ontology_id)
+        for ontology_trait in EFOTrait_Ontology.objects.prefetch_related('parent_traits').all():
 
             self.update_efo_category_info(ontology_trait)
 
