@@ -196,8 +196,6 @@ class UpdateEFO:
                                 synonyms=parent_formatted_data['synonyms'],
                                 mapped_terms=parent_formatted_data['mapped_terms']
                             )
-                            parent_trait = EFOTrait_Ontology.objects.get(id=parent_id)
-
             else:
                 print("The script can't retrieve the parents of the trait '"+trait.label+"' ("+trait_id+"): the API returned "+str(len(response))+" results.")
         else:
@@ -206,7 +204,8 @@ class UpdateEFO:
 
     def update_parent_child(self, ontology_id):
         """ Build the parent/child relations before updating the EFOTrait_Ontology model"""
-        ontology_trait = EFOTrait_Ontology.objects.get(id=ontology_id)
+        ontology_prefetch = ['child_traits','scores_direct_associations','scores_child_associations']
+        ontology_trait = EFOTrait_Ontology.objects.prefetch_related(*ontology_prefetch).get(id=ontology_id)
         self.entry_count += 1
         # >>>>>>>>>>> PRINT <<<<<<<<<<<<<
         print("- "+ontology_id+" ("+ontology_trait.label+")"+" | "+str(self.entry_count)+'/'+str(self.total_entries))
@@ -244,11 +243,10 @@ class UpdateEFO:
             label  = response_json['colourLabel']
             colour = response_json['colour']
             parent = response_json['parent']
-
-            categories = TraitCategory.objects.filter(label=label)
+            category = None
             # Update the trait category, if needed
-            if len(categories) > 0:
-                category = categories[0]
+            try:
+                category = TraitCategory.objects.get(label=label)
                 cat_has_changed = 0
                 if (colour != category.colour):
                     category.colour = colour
@@ -259,8 +257,7 @@ class UpdateEFO:
 
                 if cat_has_changed == 1:
                     category.save()
-            # Create a new trait category and add the trait
-            else:
+            except:
                 category = TraitCategory.objects.create(label=label,colour=colour,parent=parent)
                 category.save()
 
@@ -302,7 +299,7 @@ class UpdateEFO:
 
         for category_label in category_labels:
             category_has_changed = 0
-            trait_category = TraitCategory.objects.get(label=category_label)
+            trait_category = TraitCategory.objects.prefetch_related('efotraits','efotraits_ontology').get(label=category_label)
             if trait_category:
                 # Creates TraitCategory association for EFOTrait
                 if efo_trait:
@@ -331,7 +328,7 @@ class UpdateEFO:
         TraitCategory.objects.all().delete()
 
         print("Process EFOTrait data")
-        for trait in EFOTrait.objects.all():
+        for trait in EFOTrait.objects.prefetch_related('associated_scores').all():
             # Update EFOTrait
             self.update_efo_info(trait)
 
@@ -349,7 +346,7 @@ class UpdateEFO:
         # Update Trait categories
         print("# Update Trait category associations for EFOTrait and EFOTrait_Ontology:")
         for ontology_id in self.ontology_data:
-            ontology_trait = EFOTrait_Ontology.objects.get(id=ontology_id)
+            ontology_trait = EFOTrait_Ontology.objects.prefetch_related('parent_traits').get(id=ontology_id)
 
             self.update_efo_category_info(ontology_trait)
 
