@@ -215,7 +215,7 @@ class UpdateEFO:
         ontology_id = ontology_trait.id
         self.entry_count += 1
         # >>>>>>>>>>> PRINT <<<<<<<<<<<<<
-        print("- "+ontology_id+" ("+ontology_trait.label+")"+" | "+str(self.entry_count)+'/'+str(self.total_entries))
+        print(" - "+ontology_id+" ("+ontology_trait.label+")"+" | "+str(self.entry_count)+'/'+str(self.total_entries))
 
         if ontology_id in self.ontology_data.keys():
             # Update with child EFOTrait(s)
@@ -343,36 +343,37 @@ class UpdateEFO:
     def launch_efo_updates(self):
         """ Method to run the full EFOTrait/EFOTrait_Ontology/TraitCategory update"""
 
-        print("Truncate EFOTrait_Ontology table")
+        print("> Truncate EFOTrait_Ontology table")
         EFOTrait_Ontology.objects.all().delete()
 
-        print("Truncate TraitCategory table")
+        print("> Truncate TraitCategory table")
         TraitCategory.objects.all().delete()
 
-        print("Process EFOTrait data")
-        for trait in EFOTrait.objects.prefetch_related('associated_scores').all():
+        print("> Update EFOTrait data and copy to EFOTrait_Ontology")
+        efotraits = EFOTrait.objects.prefetch_related('associated_scores').all()
+        for trait in efotraits:
             # Update EFOTrait
             self.update_efo_info(trait)
-
-            # Import EFOTrait_Ontology
+            # Copy to EFOTrait_Ontology
             self.add_efo_trait_to_efotrait_ontology(trait)
+
+        print("> Add EFOTrait parent data to EFOTrait_Ontology")
+        for trait in efotraits:
             self.add_efo_parents_to_efotrait_ontology(trait)
 
         # Update parent entries
         efotrait_ontology_list = EFOTrait_Ontology.objects.prefetch_related('child_traits','scores_direct_associations','scores_child_associations').all()
         self.total_entries = str(len(efotrait_ontology_list))
-        print("# Update EFOTrait ontology data ("+self.total_entries+" entries):")
+        print("> Update EFOTrait_Ontology data ("+self.total_entries+" entries):")
         for ontology_trait in efotrait_ontology_list:
             # Update parent/child relation
             self.update_parent_child(ontology_trait)
             # Fetch trait category
             self.collect_efo_category_info(ontology_trait)
 
-
         # Update Trait categories
-        print("# Update Trait category associations for EFOTrait and EFOTrait_Ontology:")
+        print("> Update Trait category associations for EFOTrait and EFOTrait_Ontology:")
         for ontology_trait in EFOTrait_Ontology.objects.prefetch_related('parent_traits').all():
-
             self.update_efo_category_info(ontology_trait)
 
 
