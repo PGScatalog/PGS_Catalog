@@ -200,7 +200,6 @@ def call_generate_studies_metadata_exports(dirpath,scores,debug):
     else:
         pgs_ids_list = [  x.id for x in scores ]
 
-
     for pgs_id in pgs_ids_list:
 
         print("\n# PGS "+pgs_id)
@@ -252,6 +251,12 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
     create_pgs_directory(dirpath_new)
     create_pgs_directory(temp_ftp_dir)
 
+    # Create temporary archive directory
+    tmp_archive = dirpath+'/pgs_archives/'
+    if os.path.isdir(tmp_archive):
+        shutil.rmtree(tmp_archive,ignore_errors=True)
+    create_pgs_directory(tmp_archive)
+
     # 1 - Add metadata for each PGS Score
     for score in scores:
         pgs_id = score.id
@@ -262,7 +267,7 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
 
         pgs_ftp = PGSBuildFtp(pgs_id, '_metadata.xlsx', 'metadata')
 
-        meta_file_tar = pgs_id+'_metadata.tar.gz'
+        meta_file_tar = pgs_id+'_metadata'+pgs_ftp.meta_file_extension
         meta_file_xls = pgs_id+pgs_ftp.file_extension
 
         # Build temporary FTP structure for the PGS Metadata
@@ -293,21 +298,49 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
         # 2 b) - PGS directory exist (Updated Metadata)
         #elif new_file_md5_checksum != ftp_file_md5_checksum:
         elif new_file_size != ftp_file_size:
-            # Archiving metadata from previous release
-            meta_archives = meta_file_dir+'archived_versions/'
-            create_pgs_directory(meta_archives)
-            meta_archives_file = meta_archives+pgs_id+'_metadata_'+previous_release+'.tar.gz'
+            # Fetch and Copy tar file from FTP
+            meta_archives_path = tmp_archive+pgs_id+'_metadata'
+            meta_archives_file_tar = pgs_id+'_metadata_'+previous_release+pgs_ftp.meta_file_extension
+            meta_archives_file = tmp_archive+'/'+meta_archives_file_tar
             # Fetch and Copy tar file to the archive
-            pgs_ftp.get_ftp_file(meta_archives_file)
-            shutil.copy2(temp_data_dir+meta_file_tar, meta_file_dir+meta_file_tar)
+            pgs_ftp.get_ftp_file(meta_file_tar,meta_archives_file)
 
-            # Copy new files
+            if meta_archives_file.endswith(pgs_ftp.meta_file_extension):
+                tar = tarfile.open(meta_archives_file, 'r')
+                tar.extractall(meta_archives_path)
+                tar.close()
+            else:
+                print("Error: can't extract the file '"+meta_archives_file+"'!")
+                exit(1)
+
+            # Copy CSV files and compare them with the FTP ones
+            has_difference = False
+            for csv_file in glob.glob(temp_meta_dir+'*.csv'):
+                csv_filepath = csv_file.split('/')
+                filename = csv_filepath[-1]
+                # Copy CSV file to the metadata directory
+                shutil.copy2(csv_file, meta_file_dir+filename)
+
+                # Compare CSV files
+                ftp_csv_file = meta_archives_path+'/'+filename
+                if os.path.exists(ftp_csv_file):
+                    new_csv = pgs_ftp.get_md5_checksum(csv_file)
+                    ftp_csv = pgs_ftp.get_md5_checksum(ftp_csv_file)
+                    if new_csv != ftp_csv:
+                        has_difference = True
+                else:
+                    has_difference = True
+
+            # Copy other new files
             shutil.copy2(temp_meta_dir+meta_file_xls, meta_file_dir+meta_file_xls)
             shutil.copy2(temp_data_dir+meta_file_tar, meta_file_dir+meta_file_tar)
-            for file in glob.glob(temp_meta_dir+'*.csv'):
-                csv_filepath = file.split('/')
-                filename = csv_filepath[-1]
-                shutil.copy2(file, meta_file_dir+filename)
+
+            # Archive metadata from previous release
+            if has_difference:
+                meta_archives = meta_file_dir+'archived_versions/'
+                create_pgs_directory(meta_archives)
+                # Copy tar file to the archive
+                shutil.copy2(meta_archives_file, meta_archives+meta_archives_file_tar)
 
 
 def build_bulk_metadata_ftp(dirpath,dirpath_new,previous_release,debug):
@@ -343,7 +376,7 @@ def build_bulk_metadata_ftp(dirpath,dirpath_new,previous_release,debug):
     meta_year_archives_dir = meta_archives_dir+previous_release_date[0]+'/'
     create_pgs_directory(meta_year_archives_dir)
 
-    pgs_ftp.get_ftp_file(meta_year_archives_dir+meta_archives_file)
+    pgs_ftp.get_ftp_file(meta_file,meta_year_archives_dir+meta_archives_file)
 
 
 def get_previous_release_date():

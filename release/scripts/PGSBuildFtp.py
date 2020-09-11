@@ -14,6 +14,7 @@ class PGSBuildFtp:
     data_dir = '/scores/'
     scoring_dir = '/ScoringFiles/'
     meta_dir    = '/Metadata/'
+    meta_file_extension = '.tar.gz'
 
 
     def __init__(self, pgs_id, file_extension ,type):
@@ -27,7 +28,7 @@ class PGSBuildFtp:
 
 
     def get_ftp_data_md5(self):
-        """ Check that all the PGSs have a corresponding Scoring file in the PGS FTP. """
+        """ Get the MD5 of the Excel spreadsheet on FTP to compare with current Excel spreadsheet. """
 
         ftp = FTP(self.ftp_root)     # connect to host, default port
         ftp.login()                  # user anonymous, passwd anonymous@
@@ -46,7 +47,26 @@ class PGSBuildFtp:
             print("Can't find or access FTP file: "+self.ftp_root+'/'+filepath)
 
 
-    def get_ftp_file(self,new_filename):
+    def get_ftp_data_size(self):
+        """ Get the size of the Excel spreadsheet on FTP to compare with current Excel spreadsheet. """
+
+        ftp = FTP(self.ftp_root)     # connect to host, default port
+        ftp.login()                  # user anonymous, passwd anonymous@
+
+        filepath = self.ftp_path+self.data_dir+self.pgs_id+'/'
+        if self.type == 'metadata':
+            filepath += self.meta_dir+self.pgs_id+self.file_extension
+        else:
+            filepath += self.score_dir+self.pgs_id+self.file_extension
+
+        try:
+            size = ftp.size(filepath)
+            return size
+        except:
+            print("Can't find or access FTP file: "+self.ftp_root+'/'+filepath)
+
+
+    def get_ftp_file(self,ftp_filename,new_filename):
         """ Download data file from the PGS FTP. """
 
         path = self.ftp_path
@@ -54,19 +74,19 @@ class PGSBuildFtp:
         if self.type == 'metadata':
             if self.pgs_id == 'all':
                 path += self.meta_dir.lower()
-                filename = self.all_meta_file
+                #filename = self.all_meta_file
             else:
                 path += self.data_dir+self.pgs_id+self.meta_dir
-                filename = self.pgs_id+self.file_extension
+                #filename = self.pgs_id+self.file_extension
         # Score file
         else:
             path += self.data_dir+self.pgs_id+'/'+self.score_dir
-            filename = self.pgs_id+self.file_extension
+            #filename = self.pgs_id+self.file_extension
 
         ftp = FTP(self.ftp_root)     # connect to host, default port
         ftp.login()                  # user anonymous, passwd anonymous@
         ftp.cwd(path)
-        ftp.retrbinary("RETR " + filename, open(new_filename, 'wb').write)
+        ftp.retrbinary("RETR " + ftp_filename, open(new_filename, 'wb').write)
         ftp.quit()
 
 
@@ -83,7 +103,7 @@ class PGSBuildFtp:
             print('File \'' + filename + '\' not found!')
             return None
         except:
-            print("Error: the script couldn't generate a MD5 checksum for '" + self.filename + "'!")
+            print("Error: the script couldn't generate a MD5 checksum for '" + filename + "'!")
             return None
 
         return md5.hexdigest()
