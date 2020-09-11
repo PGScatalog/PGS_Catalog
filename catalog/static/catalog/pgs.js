@@ -189,11 +189,11 @@ $(document).ready(function() {
 });
 
 function search_validator(){
-   //  ...bla bla bla... the checks
    if($('#q').val()){
       $('#search_form').submit();
       return(true);
-   }else{
+   }
+   else {
       return(false);
    }
 }
@@ -296,14 +296,14 @@ function add_search_term(term) {
   var elems = $('.search-input');
   if (elems.length > 0) {
     elem = elems[0];
-    elem.focus();
+    elem.focus({preventScroll: true});
     elem.value = term;
     elem.blur();
 
     setTimeout(function(){
       $('table.table[data-toggle="table"] tbody a[href^="http"]').attr('target','_blank');
       $('table.table[data-toggle="table"] tbody a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
-    }, 1000);
+    }, 500);
   }
 }
 
