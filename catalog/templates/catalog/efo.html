@@ -1,7 +1,7 @@
 {% extends 'catalog/base.html' %}
 {% load render_table from django_tables2 %}
 
-{% block title %}{{ trait.label }} (Polygenic Trait){% endblock %}
+{% block title %}{{ trait.label }} [{{ trait_id_with_colon }}] (Polygenic Trait){% endblock %}
 
 {% block content %}
     <nav aria-label="You are here:">
