@@ -17,9 +17,8 @@ class PGSBuildFtp:
     meta_file_extension = '.tar.gz'
 
 
-    def __init__(self, pgs_id, file_extension ,type):
+    def __init__(self, pgs_id, file_suffix ,type):
         self.pgs_id = pgs_id
-        self.file_extension = file_extension
         if type in self.allowed_types:
             self.type = type
         else:
@@ -36,9 +35,9 @@ class PGSBuildFtp:
         m = hashlib.md5()
         filepath = self.ftp_path+self.data_dir+self.pgs_id+'/'
         if self.type == 'metadata':
-            filepath += self.meta_dir+self.pgs_id+self.file_extension
+            filepath += self.meta_dir+self.pgs_id+self.file_suffix
         else:
-            filepath += self.score_dir+self.pgs_id+self.file_extension
+            filepath += self.score_dir+self.pgs_id+self.file_suffix
 
         try:
             ftp.retrbinary('RETR %s' % filepath, m.update)
@@ -55,9 +54,9 @@ class PGSBuildFtp:
 
         filepath = self.ftp_path+self.data_dir+self.pgs_id+'/'
         if self.type == 'metadata':
-            filepath += self.meta_dir+self.pgs_id+self.file_extension
+            filepath += self.meta_dir+self.pgs_id+self.file_suffix
         else:
-            filepath += self.score_dir+self.pgs_id+self.file_extension
+            filepath += self.score_dir+self.pgs_id+self.file_suffix
 
         try:
             size = ftp.size(filepath)
@@ -77,11 +76,11 @@ class PGSBuildFtp:
                 #filename = self.all_meta_file
             else:
                 path += self.data_dir+self.pgs_id+self.meta_dir
-                #filename = self.pgs_id+self.file_extension
+                #filename = self.pgs_id+self.file_suffix
         # Score file
         else:
             path += self.data_dir+self.pgs_id+'/'+self.score_dir
-            #filename = self.pgs_id+self.file_extension
+            #filename = self.pgs_id+self.file_suffix
 
         ftp = FTP(self.ftp_root)     # connect to host, default port
         ftp.login()                  # user anonymous, passwd anonymous@

@@ -287,10 +287,11 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
         if debug and score.num == debug:
             break
 
-        pgs_ftp = PGSBuildFtp(pgs_id, '_metadata.xlsx', 'metadata')
+        file_suffix = '_metadata.xlsx'
+        pgs_ftp = PGSBuildFtp(pgs_id, file_suffix, 'metadata')
 
         meta_file_tar = pgs_id+'_metadata'+pgs_ftp.meta_file_extension
-        meta_file_xls = pgs_id+pgs_ftp.file_suffix
+        meta_file_xls = pgs_id+file_suffix
 
         # Build temporary FTP structure for the PGS Metadata
         pgs_main_dir = temp_ftp_dir+pgs_id
@@ -301,14 +302,11 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
         temp_meta_dir = temp_data_dir+"/"+pgs_ftp.pgs_id+"/Metadata/"
 
         # 2 - Compare metadata files
-        #new_file_md5_checksum = pgs_ftp.get_md5_checksum(temp_meta_dir+meta_file_xls)
-        #ftp_file_md5_checksum = pgs_ftp.get_ftp_data_md5()
-        new_file_size = os.path.getsize(temp_meta_dir+meta_file_xls)
-        ftp_file_size = pgs_ftp.get_ftp_data_size()
+        new_file_md5_checksum = pgs_ftp.get_md5_checksum(temp_meta_dir+meta_file_xls)
+        ftp_file_md5_checksum = pgs_ftp.get_ftp_data_md5()
 
         # 2 a) - New published Score (PGS directory doesn't exist)
-        #if not ftp_file_md5_checksum:
-        if not ftp_file_size:
+        if not ftp_file_md5_checksum:
             # Copy new files
             shutil.copy2(temp_meta_dir+meta_file_xls, meta_file_dir+meta_file_xls)
             shutil.copy2(temp_data_dir+meta_file_tar, meta_file_dir+meta_file_tar)
@@ -318,8 +316,7 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
                 shutil.copy2(file, meta_file_dir+filename)
 
         # 2 b) - PGS directory exist (Updated Metadata)
-        #elif new_file_md5_checksum != ftp_file_md5_checksum:
-        elif new_file_size != ftp_file_size:
+        elif new_file_md5_checksum != ftp_file_md5_checksum:
             # Fetch and Copy tar file from FTP
             meta_archives_path = tmp_archive+pgs_id+'_metadata'
             meta_archives_file_tar = pgs_id+'_metadata_'+previous_release+pgs_ftp.meta_file_extension
