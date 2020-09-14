@@ -250,6 +250,7 @@ def efo(request, efo_id):
 
     context = {
         'trait': ontology_trait,
+        'trait_id_with_colon': ontology_trait.id.replace('_', ':'),
         'trait_scores_direct_count': len(related_direct_scores),
         'trait_scores_child_count': len(related_child_scores),
         'performance_disclaimer': performance_disclaimer(),
