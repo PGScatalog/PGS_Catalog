@@ -49,13 +49,18 @@ def run(*args):
     debug = 0
     scores_db = Score.objects.all().order_by('num')
     new_ftp_dir = '{}/../new_ftp_content/'.format(args[0])
+    create_pgs_directory(new_ftp_dir)
 
     archive_file_name = '{}/../pgs_ftp_{}.tar.gz'.format(args[0],today)
+    scores_list_file = new_ftp_dir+'/pgs_scores_list.txt'
 
-    # Generate all PGS metadata files
+    # Generate file listing all the released Scores
+    generate_scores_list_file(scores_list_file)
+
+    # Generate all PGS metadata export files
     call_generate_all_metadata_exports(args[0])
 
-    # Generate PGS studies metadata files
+    # Generate PGS metadata export files for each released studies
     call_generate_studies_metadata_exports(args[0],scores_db,debug)
 
     # Build FTP structure for metadata files
@@ -78,6 +83,7 @@ def run(*args):
 
 def check_publications_associations():
     """ Check the publications associations """
+    print("\t- Check the publications associations")
 
     publications = Publication.objects.all().order_by('num')
     pub_list = []
@@ -101,6 +107,7 @@ def check_publications_associations():
 
 def check_efotrait_associations():
     """ Check the EFO Trait associations """
+    print("\t- Check the EFO Trait associations")
 
     efo_traits = EFOTrait.objects.all().order_by('id')
     traits_list = []
@@ -124,6 +131,7 @@ def check_efotrait_associations():
 
 def call_create_release():
     """ Create a new PGS Catalog release """
+    print("\t- Create a new PGS Catalog release")
 
     lastest_release = Release.objects.latest('date').date
 
@@ -146,14 +154,26 @@ def call_create_release():
 
 def call_efo_update():
     """ Update the EFO entries and add/update the Trait categories (from GWAS Catalog)."""
+    print("\t- Update the EFO entries and add/update the Trait categories (from GWAS Catalog)")
     efo_update = UpdateEFO()
     efo_update.launch_efo_updates()
 
 
 #####  FTP methods  #####
 
+def generate_scores_list_file(scores_file):
+    """ Generate file listing all the released Scores """
+    print("\t- Generate file listing all the released Scores")
+    released_scores = Score.objects.filter(date_released__isnull=False).order_by('num')
+    file = open(scores_file, 'w')
+    for score in released_scores:
+        file.write(score.id+'\n')
+    file.close()
+
+
 def call_generate_all_metadata_exports(dirpath):
-    """ Generate all metadata export files """
+    """ Generate all PGS metadata export files """
+    print("\t- Generate all PGS metadata export files")
 
     datadir = dirpath+"all_metadata/"
     filename = datadir+'pgs_all_metadata.xlsx'
@@ -190,7 +210,8 @@ def call_generate_all_metadata_exports(dirpath):
 
 
 def call_generate_studies_metadata_exports(dirpath,scores,debug):
-    """ Generate metadata export files for each released studies """
+    """ Generate PGS metadata export files for each released studies """
+    print("\t- Generate PGS metadata export files for each released studies")
 
     if debug:
         pgs_ids_list = []
@@ -244,6 +265,7 @@ def call_generate_studies_metadata_exports(dirpath,scores,debug):
 
 def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
     """ Generates PGS specific metadata files (PGS by PGS) """
+    print("\t- Generates PGS specific metadata files (PGS by PGS)")
     temp_data_dir = dirpath
     temp_ftp_dir  = dirpath_new+'/scores/'
 
@@ -265,10 +287,11 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
         if debug and score.num == debug:
             break
 
-        pgs_ftp = PGSBuildFtp(pgs_id, '_metadata.xlsx', 'metadata')
+        file_suffix = '_metadata.xlsx'
+        pgs_ftp = PGSBuildFtp(pgs_id, file_suffix, 'metadata')
 
         meta_file_tar = pgs_id+'_metadata'+pgs_ftp.meta_file_extension
-        meta_file_xls = pgs_id+pgs_ftp.file_extension
+        meta_file_xls = pgs_id+file_suffix
 
         # Build temporary FTP structure for the PGS Metadata
         pgs_main_dir = temp_ftp_dir+pgs_id
@@ -279,14 +302,11 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
         temp_meta_dir = temp_data_dir+"/"+pgs_ftp.pgs_id+"/Metadata/"
 
         # 2 - Compare metadata files
-        #new_file_md5_checksum = pgs_ftp.get_md5_checksum(temp_meta_dir+meta_file_xls)
-        #ftp_file_md5_checksum = pgs_ftp.get_ftp_data_md5()
-        new_file_size = os.path.getsize(temp_meta_dir+meta_file_xls)
-        ftp_file_size = pgs_ftp.get_ftp_data_size()
+        new_file_md5_checksum = pgs_ftp.get_md5_checksum(temp_meta_dir+meta_file_xls)
+        ftp_file_md5_checksum = pgs_ftp.get_ftp_data_md5()
 
         # 2 a) - New published Score (PGS directory doesn't exist)
-        #if not ftp_file_md5_checksum:
-        if not ftp_file_size:
+        if not ftp_file_md5_checksum:
             # Copy new files
             shutil.copy2(temp_meta_dir+meta_file_xls, meta_file_dir+meta_file_xls)
             shutil.copy2(temp_data_dir+meta_file_tar, meta_file_dir+meta_file_tar)
@@ -296,8 +316,7 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
                 shutil.copy2(file, meta_file_dir+filename)
 
         # 2 b) - PGS directory exist (Updated Metadata)
-        #elif new_file_md5_checksum != ftp_file_md5_checksum:
-        elif new_file_size != ftp_file_size:
+        elif new_file_md5_checksum != ftp_file_md5_checksum:
             # Fetch and Copy tar file from FTP
             meta_archives_path = tmp_archive+pgs_id+'_metadata'
             meta_archives_file_tar = pgs_id+'_metadata_'+previous_release+pgs_ftp.meta_file_extension
@@ -345,6 +364,8 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
 
 def build_bulk_metadata_ftp(dirpath,dirpath_new,previous_release,debug):
     """ Generates the global metadata files (the ones containing all the PGS metadata) """
+    print("\t- Generates the global metadata files (the ones containing all the PGS metadata)")
+
     temp_data_dir = dirpath
     temp_ftp_dir = dirpath_new+'/metadata/'
 

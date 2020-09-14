@@ -1,4 +1,5 @@
 new_ftp_content='new_ftp_content'
+scores_list_file='pgs_scores_list.txt'
 
 if [ "$#" -eq 4 ]; then
   uploaded_file=$1
@@ -39,12 +40,29 @@ if [ "$#" -eq 4 ]; then
     echo "Production Scoring directory '${prod_scoring_dir}' can't be found"
     exit 1
   fi
+  # Extract the list of released PGS IDs
+  if [ ! -f "${new_ftp_content}/${scores_list_file}" ]; then
+    echo "File '${scores_list_file}' can't be found in ${new_ftp_content}!"
+    exit 1
+  else
+    score_list_string=$(cat "${new_ftp_content}/${scores_list_file}" | tr "\n" " ")
+    score_list_array=(${score_list_string})
+  fi
 
+  # Copy Scoring files
   count_new_pgs=0
   count_updated_pgs=0
+  count_skipped_pgs=0
+
   for pgs_file_path in ${uploaded_scoring_dir}/*.txt.gz
   do
     file_name=`basename "${pgs_file_path}"`
+    score_id=`echo $file_name | cut -f 1 -d '.'`
+    if [[ ! " ${score_list_array[@]} " =~ " ${score_id} " ]]; then
+      echo "> File '${file_name}' has been skipped: not present in the list of released scores!"
+      ((count_skipped_pgs++))
+      continue
+    fi
     prod_file="${prod_scoring_dir}/${file_name}"
     if [ ! -f "${prod_file}" ]; then
       cp $pgs_file_path $prod_scoring_dir/
@@ -68,8 +86,8 @@ if [ "$#" -eq 4 ]; then
       fi
     fi
   done
-  total_count=${count_new_pgs}+${count_updated_pgs}
-  echo "Number of PGS files successfully copied: ${total_count} (New: ${count_new_pgs} | Updated: ${count_updated_pgs})"
+  total_count=$((${count_new_pgs}+${count_updated_pgs}))
+  echo "Number of PGS files successfully copied: ${total_count} (New: ${count_new_pgs} | Updated: ${count_updated_pgs} | Skipped: ${count_skipped_pgs})"
   chmod g+w ${prod_scoring_dir}/*
 
 else
