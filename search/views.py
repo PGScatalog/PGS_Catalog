@@ -123,6 +123,7 @@ def score_mini_table(id, scores):
             <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
           </thead>
           <tbody>"""
+        scores.sort(key=lambda x: x.trait_reported, reverse=False)
         for score in scores:
             score_html += '<tr><td><a href="/score/{}">{}</a></td><td>{}</td><td>{}</td></tr>'.format(score.id, score.id, score.name, score.trait_reported)
         score_html += '</tbody></table></div>'
