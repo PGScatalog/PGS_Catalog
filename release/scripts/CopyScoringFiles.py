@@ -53,7 +53,7 @@ class CopyScoringFiles:
 
     def copy_scoring_files(self):
 
-        for score_id in os.listdir(self.new_ftp_scores_dir):
+        for score_id in sorted(os.listdir(self.new_ftp_scores_dir)):
             score_release_dir = self.new_ftp_scores_dir+'/'+score_id+'/ScoringFiles/'
 
             score_filename = score_id+self.ftp_std_scoringfile_suffix
