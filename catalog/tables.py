@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils.html import format_html
 from .models import *
 from django.utils.crypto import get_random_string
+import re
 
 relative_path = '../..'
 publication_path = relative_path+'/publication'
@@ -196,7 +197,7 @@ class Browse_ScoreTable(tables.Table):
             "id": "scores_table",
             "data-show-columns" : "true",
             "data-sort-name" : "id",
-            "data-page-size" : page_size*2,
+            "data-page-size" : page_size,
             "data-export-options" : '{"fileName": "pgs_scores_data"}'
         }
         fields = [
@@ -271,32 +272,6 @@ class Browse_SampleSetTable(tables.Table):
         return format_html('<span class="more">{}</span>', value)
 
 
-class SampleTable_variants_details(tables.Table):
-    sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
-    sources = Column_joinlist(accessor='display_sources', verbose_name='PubMed ID', orderable=False)
-    sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
-
-    class Meta:
-        model = Sample
-        attrs = {
-            "data-show-columns" : "true",
-            "data-sort-name" : "display_ancestry",
-            "data-export-options" : '{"fileName": "pgs_sample_variants_data"}'
-        }
-        fields = [
-            'sources',
-            'sample_merged', 'sample_ancestry', 'ancestry_country'
-        ]
-        template_name = 'catalog/pgs_catalog_django_table.html'
-
-
-    def render_sources(self, value):
-        pmid = ''
-        if 'PMID' in value and value['PMID']:
-            pmid = '<a href="https://europepmc.org/search?query={}">{}</a>'.format(value['PMID'], value['PMID'])
-        return format_html(pmid)
-
-
 class SampleTable_variants(tables.Table):
     '''Table on PGS page - displays information about the GWAS samples used'''
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
@@ -321,7 +296,17 @@ class SampleTable_variants(tables.Table):
         if 'GCST' in value:
             l.append('GWAS Catalog: <a href="https://www.ebi.ac.uk/gwas/studies/{}">{}</a>'.format(value['GCST'], value['GCST']))
         if 'PMID' in value and value['PMID']:
-            l.append('EuropePMC: <a href="https://europepmc.org/search?query={}">{}</a>'.format(value['PMID'], value['PMID']))
+            publication_id = value['PMID']
+            url = ""
+            # PubMed ID
+            if re.match(r'^\d+$', publication_id):
+                url = "https://europepmc.org/article/MED/{}".format(publication_id)
+            # DOI or other
+            else:
+                if re.match(r'^10\.',publication_id):
+                    publication_id = "DOI:"+publication_id
+                url = "https://europepmc.org/search?query={}".format(publication_id)
+            l.append('EuropePMC: <a href="{}">{}</a>'.format(url, value['PMID']))
         return format_html('<br>'.join(l))
 
 

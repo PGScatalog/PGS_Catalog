@@ -35,6 +35,9 @@ urlpatterns = [
     # ex: /downloads/
     path('downloads/', views.DownloadView.as_view(), name='Downloads'),
 
+    # ex: /report_study/
+    path('report_study/', views.ReportStudyView.as_view(), name='Report missing PGS study'),
+
     #ex: /template/current
     path('template/current', views.CurrentTemplateView.as_view(), name='Current Curation Template'),
 
