@@ -1,6 +1,6 @@
 import requests
 from catalog.models import EFOTrait, TraitCategory, EFOTrait_Ontology, Score
-
+from release.scripts.GWASMapping import GWASMapping
 
 class UpdateEFO:
 
@@ -43,6 +43,7 @@ class UpdateEFO:
         'male'  : 'Sex-specific PGS',
         'female': 'Sex-specific PGS'
     }
+    force_gwas_rest_api = ['EFO_0000319','EFO_0000405','EFO_0000540','EFO_0004298','EFO_0004324','EFO_0004503','EFO_0004872','EFO_0005105']
 
 
     def __init__(self):
@@ -50,6 +51,10 @@ class UpdateEFO:
         self.efo_categories = {}
         self.entry_count = 0
         self.total_entries = 0
+        self.gwas_mapping = GWASMapping()
+        self.gwas_mapping.get_gwas_mapping()
+        # For debugging
+        self.gwas_rest_count = 0
 
 
     def format_data(self, response):
@@ -255,14 +260,24 @@ class UpdateEFO:
             category_label = self.pgs_specific_traits[trait_label]
             category_colour = self.pgs_specific_categories[category_label]['colour']
             category_parent = self.pgs_specific_categories[category_label]['parent']
-        # GWAS category
+        # GWAS category from file
+        elif trait_id in self.gwas_mapping.trait_mapping and not trait_id in self.force_gwas_rest_api:
+            category_label = self.gwas_mapping.trait_mapping[trait_id]
+            category_colour = self.gwas_mapping.categories[category_label]['colour']
+            category_parent = self.gwas_mapping.categories[category_label]['parent']
+        # GWAS category not in file
         else:
+            # For debugging
+            print(">>>> Category fetch from REST - "+trait_id)
+            self.gwas_rest_count += 1
+
             response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%trait_id)
             response_json = response.json()
             if response_json and response_json['trait'] != 'None':
                 category_label  = response_json['colourLabel']
                 category_colour = response_json['colour']
                 category_parent = response_json['parent']
+
 
         # Add/update category information
         if category_label:
@@ -371,11 +386,13 @@ class UpdateEFO:
             # Fetch trait category
             self.collect_efo_category_info(ontology_trait)
 
+        # For debugging
+        print("COUNT GWAS REST CALLS: "+str(self.gwas_rest_count))
+
         # Update Trait categories
         print("> Update Trait category associations for EFOTrait and EFOTrait_Ontology:")
         for ontology_trait in EFOTrait_Ontology.objects.prefetch_related('parent_traits').all():
             self.update_efo_category_info(ontology_trait)
-
 
 def run():
     """ Update the EFO entries and add/update the Trait categories (from GWAS Catalog)."""

@@ -19,6 +19,7 @@ class PGSBuildFtp:
 
     def __init__(self, pgs_id, file_suffix ,type):
         self.pgs_id = pgs_id
+        self.file_suffix = file_suffix
         if type in self.allowed_types:
             self.type = type
         else:
