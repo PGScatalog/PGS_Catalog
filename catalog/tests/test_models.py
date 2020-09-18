@@ -5,21 +5,46 @@ from datetime import datetime
 test_sample_number = 5
 test_sample_count  = 7
 
+default_num = 1
+
+efo_id   = 'EFO_0000305'
+efo_name = 'breast carcinoma'
+efo_desc = 'A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]'
+efo_synonyms_list = ['CA - Carcinoma of breast','Carcinoma of breast NOS','Mammary Carcinoma, Human']
+efo_synonyms = ' | '.join(efo_synonyms_list)
+efo_mapped_terms_list = ['OMIM:615554','NCIT:C4872','UMLS:C0678222']
+efo_mapped_terms = ' | '.join(efo_mapped_terms_list)
+
+efo_id_2   = 'EFO_1000649'
+efo_name_2 = 'estrogen-receptor positive breast cancer'
+efo_desc_2 = 'a subtype of breast cancer that is estrogen-receptor positive [EFO: 1000649]'
+
+cohort_name = "ABC"
+cohort_desc = "Cohort description"
+cohort_name_2 = "DEF"
+cohort_desc_2 = "Cohort description"
+
+
 class CohortTest(TestCase):
     """ Test the Cohort model """
-    name = "ABC"
-    desc = "Cohort description"
 
-    def create_cohort(self, name_short=name,name_full=desc):
+    def create_cohort(self, name_short=cohort_name,name_full=cohort_desc):
         return Cohort.objects.create(name_short=name_short,name_full=name_full)
 
+    def get_cohort(self,name_short,name_full):
+        try:
+            cohort = Cohort.objects.get(name_short=name_short)
+        except Cohort.DoesNotExist:
+            cohort = self.create_cohort(name_short=name_short,name_full=name_full)
+        return cohort
+
     def test_cohort(self):
-        cohort= self.create_cohort()
+        cohort= self.get_cohort(cohort_name, cohort_desc)
         # Instance
         self.assertTrue(isinstance(cohort, Cohort))
         # Variables
-        self.assertEqual(cohort.name_short, self.name)
-        self.assertEqual(cohort.name_full, self.desc)
+        self.assertEqual(cohort.name_short, cohort_name)
+        self.assertEqual(cohort.name_full,cohort_desc)
         # Other methods
         self.assertEqual(cohort.__str__(), cohort.name_short)
         name_url =  r'^\<a\s.*href=.+\/cohort\/'+cohort.name_short+'_'+str(cohort.id)+r'.*\>'+cohort.name_short+r'\<\/a\>$'
@@ -137,41 +162,42 @@ class DemographicTest(TestCase):
 
 class EFOTraitTest(TestCase):
     """ Test the EFOTrait model """
-    efo_id   = 'EFO_0000305'
-    efo_name = 'breast carcinoma'
-    efo_desc = 'A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]'
-    efo_synonyms_list = ['CA - Carcinoma of breast','Carcinoma of breast NOS','Mammary Carcinoma, Human']
-    efo_synonyms = ' | '.join(efo_synonyms_list)
-    efo_mapped_terms_list = ['OMIM:615554','NCIT:C4872','UMLS:C0678222']
-    efo_mapped_terms = ' | '.join(efo_mapped_terms_list)
 
     def create_efo_trait(self, efo_id=efo_id,label=efo_name, desc=efo_desc, syn=efo_synonyms, terms=efo_mapped_terms):
         return EFOTrait.objects.create(id=efo_id,label=label,description=desc,synonyms=syn,mapped_terms=terms)
 
+    def get_efo_trait(self, efo_trait_id, efo_trait_label, efo_trait_desc):
+        try:
+            efo_trait = EFOTrait.objects.get(id=efo_trait_id)
+        except EFOTrait.DoesNotExist:
+            efo_trait = self.create_efo_trait(efo_id=efo_trait_id,label=efo_trait_label, desc=efo_trait_desc)
+        return efo_trait
+
+
     def test_efo_trait(self):
-        efo_trait_1 = self.create_efo_trait()
+        efo_trait_1 = self.get_efo_trait(efo_id,efo_name,efo_desc)
         # Instance
         self.assertTrue(isinstance(efo_trait_1, EFOTrait))
         # Variables
         self.assertIsNotNone(efo_trait_1.label)
         self.assertIsNotNone(efo_trait_1.url)
         self.assertIsNotNone(efo_trait_1.description)
-        self.assertEqual(efo_trait_1.id, self.efo_id)
-        self.assertEqual(efo_trait_1.label, self.efo_name)
-        self.assertEqual(efo_trait_1.description, self.efo_desc)
-        self.assertEqual(efo_trait_1.synonyms, self.efo_synonyms)
-        self.assertEqual(efo_trait_1.mapped_terms, self.efo_mapped_terms)
-        self.assertEqual(efo_trait_1.synonyms_list, self.efo_synonyms_list)
-        self.assertEqual(efo_trait_1.mapped_terms_list, self.efo_mapped_terms_list)
+        self.assertEqual(efo_trait_1.id, efo_id)
+        self.assertEqual(efo_trait_1.label, efo_name)
+        self.assertEqual(efo_trait_1.description, efo_desc)
+        self.assertEqual(efo_trait_1.synonyms, efo_synonyms)
+        self.assertEqual(efo_trait_1.mapped_terms, efo_mapped_terms)
+        self.assertEqual(efo_trait_1.synonyms_list, efo_synonyms_list)
+        self.assertEqual(efo_trait_1.mapped_terms_list, efo_mapped_terms_list)
         # Other methods
-        self.assertEqual(efo_trait_1.__str__(), self.efo_id+' | '+self.efo_name+' ')
-        label_url =  r'^\<a\s.*href=.+\/trait\/'+self.efo_id+r'.*\>'+self.efo_name+r'\<\/a\>$'
+        self.assertEqual(efo_trait_1.__str__(), efo_id+' | '+efo_name+' ')
+        label_url =  r'^\<a\s.*href=.+\/trait\/'+efo_id+r'.*\>'+efo_name+r'\<\/a\>$'
         self.assertRegexpMatches(efo_trait_1.display_label, label_url)
-        id_url = r'^\<a\s.*href=.+\>'+self.efo_id+r'</a>.+$'
+        id_url = r'^\<a\s.*href=.+\>'+efo_id+r'</a>.+$'
         self.assertRegexpMatches(efo_trait_1.display_id_url(), id_url)
         efo_trait_1.parse_api()
-        self.assertEqual(efo_trait_1.label, self.efo_name)
-        self.assertEqual(efo_trait_1.description, self.efo_desc)
+        self.assertEqual(efo_trait_1.label, efo_name)
+        self.assertEqual(efo_trait_1.description, efo_desc)
         self.assertIsNotNone(efo_trait_1.url)
 
         # Test empty synonyms & mapped_terms
@@ -188,7 +214,7 @@ class MetricTest(TestCase):
 
     def create_performance(self, num):
         performancetest = PerformanceTest()
-        performance = performancetest.create_performance(num)
+        performance = performancetest.get_performance(num)
         return performance
 
     def create_metric(self, performance_id, type, name, name_short, estimate, unit, se, ci):
@@ -206,8 +232,8 @@ class MetricTest(TestCase):
 
     def test_metric(self):
         # Create Performance object
-        id = 500
-        performance = self.create_performance(id)
+        performancetest = PerformanceTest()
+        performance = performancetest.get_performance(default_num)
 
         # Type "Effect size"
         e_type = 'Effect Size'
@@ -279,37 +305,42 @@ class PerformanceTest(TestCase):
 
     def create_performance(self, num):
         # Score
-        extra_num = num
         scoretest = ScoreTest()
-        score = scoretest.create_score(num=extra_num)
+        score = scoretest.get_score(default_num)
 
         # Publication
-        extra_num += 1
         pubtest = PublicationTest()
-        pub = pubtest.create_publication_by_doi(num=extra_num)
+        pub = pubtest.get_publication_doi(default_num+2)
 
         # Sample Set
-        extra_num += 1
+        extra_num = num
         samplesettest = SampleSetTest()
         sampleset = samplesettest.create_sampleset(num=extra_num)
 
         performance = Performance.objects.create(num=num, score=score, publication=pub, sampleset=sampleset)
 
         # EFO trait
-        extra_num += 1
         efotraittest = EFOTraitTest()
-        efotrait = efotraittest.create_efo_trait('EFO_0000'+str(extra_num),'efotrait','This is an EFO trait')
+        efotrait = efotraittest.get_efo_trait(efo_id, efo_name, efo_desc)
         performance.phenotyping_efo.add(efotrait)
+
+        performance.set_performance_id(num)
 
         performance.phenotyping_reported = self.phenotype_reported
 
         return performance
 
+    def get_performance(self, num_id):
+        try:
+            performance = Performance.objects.get(num=num_id)
+        except Performance.DoesNotExist:
+            performance = self.create_performance(num_id)
+        return performance
+
     def test_performance(self):
         id = 1
 
-        performance = self.create_performance(id)
-        performance.set_performance_id(id)
+        performance = self.get_performance(id)
         # Instance
         self.assertTrue(isinstance(performance, Performance))
         # Variables
@@ -327,13 +358,13 @@ class PerformanceTest(TestCase):
         self.assertTrue(isinstance(performance.publication, Publication))
         self.assertEqual(performance.publication.scores_evaluated, 1)
         self.assertEqual(performance.associated_pgs_id, performance.score.id)
-        cohort = CohortTest.create_cohort('HIJ', 'Example of cohort')
+        cohorttest = CohortTest()
+        cohort = cohorttest.get_cohort(cohort_name, cohort_desc)
         sampleset.samples.all()[0].cohorts.add(cohort)
         self.assertEqual(cohort.associated_pgs_ids, { 'development': [], 'evaluation': [performance.score.id] })
 
         id = 2000
-        performance_2 = self.create_performance(id)
-        performance_2.set_performance_id(id)
+        performance_2 = self.get_performance(id)
         # Instance
         self.assertTrue(isinstance(performance_2, Performance))
         # Other methods
@@ -364,10 +395,16 @@ class PublicationTest(TestCase):
         pub.set_publication_ids(num)
         return pub
 
+    def get_publication_doi(self, num_id):
+        try:
+            publication = Publication.objects.get(num=num_id)
+        except Publication.DoesNotExist:
+            publication = self.create_publication_by_doi(num_id)
+        return publication
+
+
     def test_publication(self):
-        id = 1
-        pub_doi = self.create_publication_by_doi(id)
-        pub_doi.set_publication_ids(id)
+        pub_doi = self.get_publication_doi(default_num)
         # Instance
         self.assertTrue(isinstance(pub_doi, Publication))
         # Variables
@@ -380,9 +417,7 @@ class PublicationTest(TestCase):
         pub_doi.parse_EuropePMC(doi=pub_doi.doi)
         self.assertEqual(pub_doi.PMID, '30309464')
 
-        id = 2
-        pub_pmid = self.create_publication_by_pmid(id)
-        pub_pmid.set_publication_ids(id)
+        pub_pmid = self.create_publication_by_pmid(default_num+1)
         # Instance
         self.assertTrue(isinstance(pub_pmid, Publication))
         # Variables
@@ -418,31 +453,27 @@ class ReleaseTest(TestCase):
         ids_list = { 'score':[], 'perf':[], 'pub':[] }
         # Scores
         # - Score 1
-        extra_num = 100
         scoretest = ScoreTest()
-        score1 = scoretest.create_score(num=extra_num)
+        score1 = scoretest.get_score(default_num)
         score1.date_released = self.date_formated
         score1.save()
         ids_list['score'].append(score1.id)
         # - Score 2
-        extra_num += 5
-        score2 = scoretest.create_score(num=extra_num)
+        score2 = scoretest.get_score(default_num+1)
         score2.date_released = self.date_formated
         score2.save()
         ids_list['score'].append(score2.id)
 
         # Performance
-        extra_num += 5
         perftest = PerformanceTest()
-        perf = perftest.create_performance(num=extra_num)
+        perf = perftest.get_performance(default_num)
         perf.date_released = self.date_formated
         perf.save()
         ids_list['perf'].append(perf.id)
 
-        # Publication
-        extra_num += 5
+        # Publications
         pubtest = PublicationTest()
-        pub = pubtest.create_publication_by_doi(num=extra_num)
+        pub = pubtest.get_publication_doi(default_num)
         pub.date_released = self.date_formated
         pub.save()
         ids_list['pub'].append(pub.id)
@@ -474,9 +505,15 @@ class SampleTest(TestCase):
     a_free_2 = 'Cambridgeshire'
     a_country = 'France, Germany, Netherlands, Estonia, Finland, Sweden, U.K., NR, U.S.'
     a_additional = 'White European'
-    cohort_range = 2
     gwas_id = 'GCST001937'
     pmid = '23535729'
+
+    def get_sample(self,sample_number):
+        try:
+            sample = Sample.objects.get(sample_number=sample_number)
+        except Sample.DoesNotExist:
+            sample = self.create_sample(sample_number=sample_number)
+        return sample
 
     def create_sample(self, sample_number=number):
         return Sample.objects.create(sample_number=sample_number)
@@ -496,10 +533,10 @@ class SampleTest(TestCase):
     def create_sample_cohorts(self, sample_number=number):
         sample = Sample.objects.create(sample_number=sample_number)
         cohorttest = CohortTest()
-        for i in range(1, self.cohort_range+1):
-            c_name = 'CS'+str(i)
-            cohort = cohorttest.create_cohort(c_name)
-            sample.cohorts.add(cohort)
+        cohort = cohorttest.get_cohort(cohort_name,cohort_desc)
+        sample.cohorts.add(cohort)
+        cohort_2 = cohorttest.get_cohort(cohort_name_2,cohort_desc_2)
+        sample.cohorts.add(cohort_2)
         return sample
 
     def create_sample_sources(self, sample_number=number,gwas=gwas_id,pmid=pmid):
@@ -511,7 +548,7 @@ class SampleTest(TestCase):
 
     def test_sample(self):
         ## Simple Sample object
-        sample_1 = self.create_sample(test_sample_number)
+        sample_1 = self.get_sample(test_sample_number)
         # Instance
         self.assertTrue(isinstance(sample_1, Sample))
         # Variables
@@ -549,7 +586,7 @@ class SampleTest(TestCase):
         # Other methods
         self.assertEqual(sample_3.display_ancestry, self.a_broad)
         self.assertEqual(sample_3.display_ancestry_inline, self.a_broad)
-        sample_3.ancestry_free = 'Cambridgeshire'
+        sample_3.ancestry_free = self.a_free_2
         self.assertEqual(sample_3.display_ancestry, '{}<br/>({})'.format(self.a_broad, self.a_free_2))
         self.assertEqual(sample_3.display_ancestry_inline, '{} ({})'.format(self.a_broad, self.a_free_2))
 
@@ -558,10 +595,7 @@ class SampleTest(TestCase):
         # Instance
         self.assertTrue(isinstance(sample_4, Sample))
         # Other methods
-        list_cohort_names = []
-        for i in range(1, self.cohort_range+1):
-            c_name = 'CS'+str(i)
-            list_cohort_names.append(c_name)
+        list_cohort_names = [cohort_name, cohort_name_2]
         self.assertEqual(sample_4.list_cohortids(),list_cohort_names)
 
         ## Sample with sources
@@ -585,7 +619,7 @@ class SampleSetTest(TestCase):
         samples = []
         # Create samples objects
         for i in range(1,test_sample_count+1):
-            sample = sampletest.create_sample(i)
+            sample = sampletest.get_sample(300+i)
             samples.append(sample)
         # Create SampleSet object and add list of Samples
         sampleset = SampleSet.objects.create(num=num)
@@ -641,13 +675,11 @@ class ScoreTest(TestCase):
     v_build = 'GRCh38'
     m_name = 'SNP'
     m_params = 'method params'
-    trait_range = 2
-    trait_prefix = 'EFO_000'
-    trait_label_prefix = 'trait '
+    trait_count = 2
 
     def create_score(self, num, name=name, var_number=v_number, build=v_build, m_name=m_name, m_params=m_params):
         pubtest = PublicationTest()
-        pub = pubtest.create_publication_by_doi(num=num)
+        pub = pubtest.get_publication_doi(num)
 
         score = Score.objects.create(
             num=num,
@@ -663,27 +695,34 @@ class ScoreTest(TestCase):
 
         # EFO Trait
         efotraittest = EFOTraitTest()
-        for i in range(1, self.trait_range+1):
-            e_id = self.trait_prefix+str(i)+str(num)
-            trait = efotraittest.create_efo_trait(efo_id=e_id,label=self.trait_label_prefix+str(i))
-            score.trait_efo.add(trait)
+        trait_1 = efotraittest.get_efo_trait(efo_id, efo_name, efo_desc)
+        score.trait_efo.add(trait_1)
+        trait_2 = efotraittest.get_efo_trait(efo_id_2, efo_name_2, efo_desc_2)
+        score.trait_efo.add(trait_2)
 
         # Samples
         sampletest = SampleTest()
         # Sample variants
-        sample_1 = sampletest.create_sample()
+        sample_1 = sampletest.get_sample(test_sample_number)
         score.samples_variants.add(sample_1)
         # Sample training
-        sample_2 = sampletest.create_sample()
+        sample_2 = sampletest.get_sample(test_sample_number)
         score.samples_training.add(sample_2)
 
         return score
 
+    def get_score(self, num_id):
+        try:
+            score = Score.objects.get(num=num_id)
+        except Score.DoesNotExist:
+            score = self.create_score(num_id)
+        return score
+
+
     def test_score(self):
-        id = 1
+        id = default_num
         # Score creation
-        score = self.create_score(id)
-        score.set_score_ids(id)
+        score = self.get_score(id)
         # Instance
         self.assertTrue(isinstance(score, Score))
         # Variables
@@ -707,12 +746,8 @@ class ScoreTest(TestCase):
         efo = score.trait_efo.all()
         self.assertEqual(efo[0].scores_count, 1)
         self.assertEqual(efo[0].associated_pgs_ids, [score.id])
-        self.assertEqual(len(score.trait_efo.all()), self.trait_range)
-        list_traits = []
-        for i in range(1, self.trait_range+1):
-            e_id = self.trait_prefix+str(i)+str(id)
-            e_label = self.trait_label_prefix+str(i)
-            list_traits.append((e_id,e_label))
+        self.assertEqual(len(score.trait_efo.all()), self.trait_count)
+        list_traits = [(efo_id,efo_name),(efo_id_2,efo_name_2)]
         self.assertListEqual(score.list_traits, list_traits)
 
         # Test sample/score association
@@ -724,7 +759,8 @@ class ScoreTest(TestCase):
         self.assertRegexpMatches(sample_t.__str__(), r'^Sample:\s\d+ | '+score.id+r'$')
 
         # Test cohort/score association
-        cohort = CohortTest.create_cohort('DEF', 'Example of cohort')
+        cohorttest = CohortTest()
+        cohort = cohorttest.get_cohort(cohort_name, cohort_desc)
         sample_t.cohorts.add(cohort)
         self.assertEqual(cohort.associated_pgs_ids, { 'development': [score.id], 'evaluation': [] })
 
@@ -751,7 +787,7 @@ class TraitCategoryTest(TestCase):
 
         # Test to link Trait category to an EFOTrait
         efotraittest = EFOTraitTest()
-        trait = efotraittest.create_efo_trait('EFO_0000292','bladder carcinoma','A carcinoma that arises from epithelial cells of the urinary bladder')
+        trait = efotraittest.get_efo_trait(efo_id, efo_name, efo_desc)
         trait_category.efotraits.add(trait)
         self.assertEqual(trait.category_labels, trait_category.label)
         self.assertNotEqual(trait.display_category_labels, '')
@@ -764,9 +800,9 @@ class TraitCategoryTest(TestCase):
         # Test to count scores per trait category
         scoretest = ScoreTest()
         score_range = 2
-        score_id = 200
+        score_id = default_num
         for i in range(score_range):
-            score = scoretest.create_score(num=score_id)
+            score = scoretest.get_score(score_id)
             score.trait_efo.add(trait)
             score_id += 1
         self.assertEqual(trait_category.count_scores, score_range)
@@ -775,37 +811,19 @@ class TraitCategoryTest(TestCase):
 class EFOTrait_OntologyTest(TestCase):
     """ Test the EFOTrait_Ontology model """
 
-    efo_id_1   = 'EFO_0000305'
-    efo_name_1 = 'breast carcinoma'
-    efo_desc_1 = 'A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]'
-    efo_synonyms_list_1 = ['CA - Carcinoma of breast','Carcinoma of breast NOS','Mammary Carcinoma, Human']
-    efo_synonyms_1 = ' | '.join(efo_synonyms_list_1)
-    efo_mapped_terms_list_1 = ['OMIM:615554','NCIT:C4872','UMLS:C0678222']
-    efo_mapped_terms_1 = ' | '.join(efo_mapped_terms_list_1)
-
-    efo_id_2   = 'EFO_1000649'
-    efo_name_2 = 'estrogen-receptor positive breast cancer'
-    efo_desc_2 = 'a subtype of breast cancer that is estrogen-receptor positive [EFO: 1000649]'
-
     def create_efo_trait_ontology(self, efo_id ,label, desc, syn, terms):
         return EFOTrait_Ontology.objects.create(id=efo_id,label=label,description=desc,synonyms=syn,mapped_terms=terms)
 
     def test_efo_trait_ontology(self):
 
         scoretest = ScoreTest()
-        score_num = 825
-        score_1 = scoretest.create_score(num=score_num,name="Score_1_for_EFOTrait_OntologyTest", var_number=1)
-        score_1.set_score_ids(score_num)
-        score_2a = scoretest.create_score(num=score_num+1,name="Score_2a_for_EFOTrait_OntologyTest", var_number=1)
-        score_2a.set_score_ids(score_num+1)
-        score_2b = scoretest.create_score(num=score_num+2,name="Score_2b_for_EFOTrait_OntologyTest", var_number=1)
-        score_2b.set_score_ids(score_num+2)
+        score_1 = scoretest.get_score(default_num)
+        score_2a = scoretest.get_score(default_num+1)
+        score_2b = scoretest.get_score(default_num+2)
         associated_pgs_1 = [score_1]
         associated_pgs_2 = [score_2a,score_2b]
 
-        efo_trait_1 = self.create_efo_trait_ontology(
-            efo_id=self.efo_id_1,label=self.efo_name_1, desc=self.efo_desc_1, syn=self.efo_synonyms_1,
-            terms=self.efo_mapped_terms_1)
+        efo_trait_1 = self.create_efo_trait_ontology(efo_id=efo_id,label=efo_name, desc=efo_desc, syn=efo_synonyms, terms=efo_mapped_terms)
         for score in associated_pgs_1:
             efo_trait_1.scores_direct_associations.add(score)
 
@@ -815,26 +833,26 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertIsNotNone(efo_trait_1.label)
         self.assertIsNotNone(efo_trait_1.url)
         self.assertIsNotNone(efo_trait_1.description)
-        self.assertEqual(efo_trait_1.id, self.efo_id_1)
-        self.assertEqual(efo_trait_1.label, self.efo_name_1)
-        self.assertEqual(efo_trait_1.description, self.efo_desc_1)
-        self.assertEqual(efo_trait_1.synonyms, self.efo_synonyms_1)
-        self.assertEqual(efo_trait_1.mapped_terms, self.efo_mapped_terms_1)
-        self.assertEqual(efo_trait_1.synonyms_list, self.efo_synonyms_list_1)
-        self.assertEqual(efo_trait_1.mapped_terms_list, self.efo_mapped_terms_list_1)
+        self.assertEqual(efo_trait_1.id, efo_id)
+        self.assertEqual(efo_trait_1.label, efo_name)
+        self.assertEqual(efo_trait_1.description, efo_desc)
+        self.assertEqual(efo_trait_1.synonyms, efo_synonyms)
+        self.assertEqual(efo_trait_1.mapped_terms, efo_mapped_terms)
+        self.assertEqual(efo_trait_1.synonyms_list, efo_synonyms_list)
+        self.assertEqual(efo_trait_1.mapped_terms_list, efo_mapped_terms_list)
         self.assertEqual(len(efo_trait_1.scores_direct_associations.all()), len(associated_pgs_1))
-        self.assertEqual(efo_trait_1.scores_direct_associations.all()[0].num, score_num)
+        self.assertEqual(efo_trait_1.scores_direct_associations.all()[0].num, default_num)
         self.assertEqual(efo_trait_1.associated_pgs_ids, [x.id for x in associated_pgs_1])
         # Other methods
-        self.assertEqual(efo_trait_1.__str__(), self.efo_id_1+' | '+self.efo_name_1+' ')
-        label_url =  r'^\<a\s.*href=.+\/trait\/'+self.efo_id_1+r'.*\>'+self.efo_name_1+r'\<\/a\>$'
+        self.assertEqual(efo_trait_1.__str__(), efo_id+' | '+efo_name+' ')
+        label_url =  r'^\<a\s.*href=.+\/trait\/'+efo_id+r'.*\>'+efo_name+r'\<\/a\>$'
         self.assertRegexpMatches(efo_trait_1.display_label, label_url)
-        id_url = r'^\<a\s.*href=.+\>'+self.efo_id_1+r'</a>.+$'
+        id_url = r'^\<a\s.*href=.+\>'+efo_id+r'</a>.+$'
         self.assertRegexpMatches(efo_trait_1.display_id_url(), id_url)
 
 
         # Test empty synonyms & mapped_terms
-        efo_trait_2 = self.create_efo_trait_ontology(efo_id=self.efo_id_2,label=self.efo_name_2, desc=self.efo_desc_2, syn=None,terms=None)
+        efo_trait_2 = self.create_efo_trait_ontology(efo_id=efo_id_2,label=efo_name_2, desc=efo_desc_2, syn=None,terms=None)
         for score in associated_pgs_2:
             efo_trait_2.scores_direct_associations.add(score)
 
@@ -846,7 +864,7 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertEqual(efo_trait_2.mapped_terms_list, [])
         self.assertEqual(efo_trait_2.parent_traits.all()[0], efo_trait_1)
         self.assertEqual(len(efo_trait_2.scores_direct_associations.all()), len(associated_pgs_2))
-        self.assertEqual(efo_trait_2.scores_direct_associations.all()[0].num, score_num+1)
+        self.assertEqual(efo_trait_2.scores_direct_associations.all()[0].num, default_num+1)
         self.assertEqual(efo_trait_2.associated_pgs_ids, [x.id for x in associated_pgs_2])
         self.assertEqual(efo_trait_2.display_child_traits_list, [])
 
@@ -855,7 +873,7 @@ class EFOTrait_OntologyTest(TestCase):
             efo_trait_1.scores_child_associations.add(score)
         self.assertEqual(efo_trait_1.child_traits.all()[0], efo_trait_2)
         self.assertEqual(len(efo_trait_1.scores_child_associations.all()), len(associated_pgs_2))
-        self.assertEqual(efo_trait_1.scores_child_associations.all()[0].num, score_num+1)
+        self.assertEqual(efo_trait_1.scores_child_associations.all()[0].num, default_num+1)
         self.assertEqual(efo_trait_1.child_associated_pgs_ids, [x.id for x in associated_pgs_2])
-        display_child = r'^\<a\s.*href=".+'+self.efo_id_2+'"\s*>'+self.efo_name_2+r'</a>$'
+        display_child = r'^\<a\s.*href=".+'+efo_id_2+'"\s*>'+efo_name_2+r'</a>$'
         self.assertRegexpMatches(efo_trait_1.display_child_traits_list[0], display_child)

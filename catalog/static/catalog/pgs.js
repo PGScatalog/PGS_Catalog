@@ -186,6 +186,12 @@ $(document).ready(function() {
         $('#search_form_2').submit();
       }
     })
+
+    // Load google from iframe
+    $('#g_iframe').on("load", function () {
+      $('#iframe_loading').removeClass('d-flex');
+      $('#iframe_loading').css('display', 'none');
+    });
 });
 
 function search_validator(){
