@@ -16,7 +16,9 @@ pgs_defer = {
 }
 pgs_prefetch = {
     'trait': Prefetch('trait_efo', queryset=EFOTrait.objects.only('id','label').all()),
-    'perf' : ['score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric']
+    'perf' : ['score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric'],
+    'publication_score': Prefetch('publication_score', queryset=Score.objects.only('id', 'publication').all()),
+    'publication_performance': Prefetch('publication_performance', queryset=Performance.objects.only('id', 'publication', 'score').all().prefetch_related(Prefetch('score', queryset=Score.objects.only('id', 'publication').all()))),
 }
 
 def disclaimer_formatting(content):
@@ -109,7 +111,7 @@ def browseby(request, view_selection):
     elif view_selection == 'studies':
         context['view_name'] = 'Publications'
         publication_defer = ['authors','curation_status','curation_notes','date_released']
-        publication_prefetch_related = ['publication_score', 'publication_performance', 'publication_performance__score']
+        publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
         table = Browse_PublicationTable(Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related), order_by="num")
         context['table'] = table
     elif view_selection == 'sample_set':
