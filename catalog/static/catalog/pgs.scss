@@ -326,6 +326,7 @@ h2 {
   font-size:18px;
   color: white;
   display: inline-block;
+  margin-right: 1rem;
   vertical-align: middle;
   border-radius: 50%;
 }
@@ -1483,6 +1484,22 @@ footer {
     .badge-pgs {
       padding-left: 0.4em;
       padding-right: 0.4em;
+    }
+  }
+  .result_facet_type {
+    font-size:14px;
+    margin-right: 0.5rem;
+  }
+  .result_facet_type_1 {
+    padding: 4.5px 8px 4px;
+  }
+  .result_facet_type_2 {
+    //padding: 4px 8.5px;
+    padding: 4.5px 7.5px 4px;
+  }
+  .pgs_result_title {
+    h4 {
+      font-size: 16px;
     }
   }
   .pgs_result_subtitles {
