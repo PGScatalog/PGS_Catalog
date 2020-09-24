@@ -554,7 +554,7 @@ class SampleTest(TestCase):
         # Variables
         self.assertEqual(sample_1.sample_number, test_sample_number)
         # Other methods
-        self.assertRegexpMatches(sample_1.__str__(), r'^Sample:\s\d+$')
+        self.assertRegexpMatches(sample_1.__str__(), r'^Sample\s\d+')
         self.assertIsNotNone(sample_1.display_samples_for_table)
 
         ## Sample object with numbers
@@ -654,7 +654,7 @@ class SampleSetTest(TestCase):
         self.assertEqual(sampleset.__str__(),  self.sample_set_id)
         self.assertEqual(sampleset.count_samples, test_sample_count)
         sample = sampleset.samples.all()[0]
-        self.assertRegexpMatches(sample.__str__(), r'^Sample:\s\d+ | '+sampleset.id+r'$')
+        self.assertRegexpMatches(sample.__str__(), r'^Sample\s\d+')
         self.assertTrue(isinstance(sample.display_sampleset, SampleSet))
         self.assertEqual(sample.display_sampleset, sampleset)
 
@@ -753,10 +753,10 @@ class ScoreTest(TestCase):
         # Test sample/score association
         self.assertEqual(len(score.samples_variants.all()), 1)
         sample_v = score.samples_variants.all()[0]
-        self.assertRegexpMatches(sample_v.__str__(), r'^Sample:\s\d+ | '+score.id+r'$')
+        self.assertRegexpMatches(sample_v.__str__(), r'^Sample\s\d+')
         self.assertEqual(len(score.samples_training.all()), 1)
         sample_t = score.samples_training.all()[0]
-        self.assertRegexpMatches(sample_t.__str__(), r'^Sample:\s\d+ | '+score.id+r'$')
+        self.assertRegexpMatches(sample_t.__str__(), r'^Sample\s\d+')
 
         # Test cohort/score association
         cohorttest = CohortTest()

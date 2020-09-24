@@ -431,16 +431,10 @@ class Sample(models.Model):
     cohorts_additional = models.TextField('Additional Sample/Cohort Information', null=True)
 
     def __str__(self):
-        s = 'Sample: {}'.format(str(self.pk))
-
-        #Check if any PGS
-        ids = self.associated_PGS()
-        if len(ids) > 0:
-            s += ' | {}'.format(' '.join(ids))
-        # Check if any PSS
-        ids = self.associated_PSS()
-        if len(ids) > 0:
-            s += ' | {}'.format(' '.join(ids))
+        s = 'Sample {}'.format(str(self.pk))
+        if self.ancestry_broad:
+            s += ' - {}'.format(self.ancestry_broad)
+        s += ' ({} individuals)'.format(self.sample_number)
         return s
 
     def associated_PGS(self):
@@ -466,7 +460,11 @@ class Sample(models.Model):
 
     @property
     def display_sampleset(self):
-        return self.sampleset.all()[0]
+        samplesets = self.sampleset.all()
+        if samplesets:
+            return samplesets[0]
+        else:
+            return None
 
     @property
     def display_samples(self):
