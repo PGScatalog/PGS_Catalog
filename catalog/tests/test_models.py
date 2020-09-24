@@ -554,7 +554,7 @@ class SampleTest(TestCase):
         # Variables
         self.assertEqual(sample_1.sample_number, test_sample_number)
         # Other methods
-        self.assertRegexpMatches(sample_1.__str__(), r'^Sample:\s\d+$')
+        self.assertRegexpMatches(sample_1.__str__(), r'^Sample\s\d+$')
         self.assertIsNotNone(sample_1.display_samples_for_table)
 
         ## Sample object with numbers
