@@ -6,7 +6,7 @@
 {% block content %}
     <nav aria-label="You are here:">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
         <li class="breadcrumb-item">Browse</li>
         <li class="breadcrumb-item">{{ view_name }}</li>
       </ol>
@@ -17,7 +17,7 @@
         {% if scores_list %}
             <ul>
                 {% for score in scores_list %}
-                    <li><a href="../../pgs/{{ score.PGS_id }}/">{{ score }}</a></li>
+                    <li><a href="/pgs/{{ score.PGS_id }}/">{{ score }}</a></li>
                 {% endfor %}
             </ul>
         {% elif table %}

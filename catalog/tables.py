@@ -225,7 +225,7 @@ class Browse_ScoreTable(tables.Table):
     def render_list_traits(self, value):
         l = []
         for x in value:
-            l.append('<a href=../../trait/{}>{}</a>'.format(x[0], x[1]))
+            l.append('<a href=/trait/{}>{}</a>'.format(x[0], x[1]))
         return format_html('<br>'.join(l))
 
     def render_ftp_link(self, value):
@@ -263,7 +263,7 @@ class Browse_SampleSetTable(tables.Table):
         template_name = 'catalog/pgs_catalog_django_table.html'
 
     def render_sampleset(self, value):
-         return format_html('<a href="../../sampleset/{}">{}</span>', value, value)
+         return format_html('<a href="/sampleset/{}">{}</span>', value, value)
 
     def render_phenotyping_free(self, value):
         return format_html('<span class="more">{}</span>', value)
@@ -372,7 +372,7 @@ class SampleTable_performance(tables.Table):
         template_name = 'catalog/pgs_catalog_django_table.html'
 
     def render_sampleset(self, value):
-         return format_html('<a id="{}" href="../../sampleset/{}">{}</span>', value, value, value)
+         return format_html('<a id="{}" href="/sampleset/{}">{}</span>', value, value, value)
 
     def render_phenotyping_free(self, value):
         return format_html('<span class="more">{}</span>', value)
@@ -412,7 +412,7 @@ class PerformanceTable(tables.Table):
         return format_html('<a href="#{}">{}</a>', value, value)
 
     def render_score(self, value):
-        return format_html('<a href="../../score/{}">{}</a> (<i>{}</i>)', value.id, value.id, value.name)
+        return format_html('<a href="/score/{}">{}</a> (<i>{}</i>)', value.id, value.id, value.name)
 
 
 class CohortTable(tables.Table):

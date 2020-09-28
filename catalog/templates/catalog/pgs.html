@@ -6,8 +6,8 @@
 {% block content %}
     <nav aria-label="You are here:">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
-        <li class="breadcrumb-item"><a href="../../browse/all/">Polygenic Scores</a></li>
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="/browse/all/">Polygenic Scores</a></li>
         <li class="breadcrumb-item">{{ pgs_id }}</li>
       </ol>
     </nav>
@@ -40,13 +40,13 @@
             <td>Mapped Trait(s)</td>
             <td>
              {% if efos|length == 1 %}
-              <a class="mr-2" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
+              <a class="mr-2" href="/trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
               (<a href="{{ efos.0.url }}">{{ efos.0.id }}</a>)
              {% else %}
               <ul class="mb-0">
                {% for trait in efos %}
                 <li>
-                 <a class="mr-2" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
+                 <a class="mr-2" href="/trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
                  (<a href="{{ trait.url }}">{{ trait.id }}</a>)
                 </li>
                {% endfor %}
@@ -129,7 +129,7 @@
                   </tr>
                   <tr>
                     <td>PGS Catalog Publication (PGP) ID</td>
-                    <td><a href=../../publication/{{ score.publication.id }}>{{ score.publication.id }}</a></td>
+                    <td><a href=/publication/{{ score.publication.id }}>{{ score.publication.id }}</a></td>
                   </tr>
 
                   <tr>

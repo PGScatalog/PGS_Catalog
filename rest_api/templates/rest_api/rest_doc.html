@@ -51,7 +51,8 @@
           deepLinking: true,
           presets: [ SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset ],
           plugins: [ SwaggerUIBundle.plugins.DownloadUrl ],
-          layout: "StandaloneLayout"
+          layout: "StandaloneLayout",
+          useUnsafeMarkdown: true
         })
         // End Swagger UI call region
         window.ui = ui
