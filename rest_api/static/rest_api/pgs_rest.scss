@@ -10,6 +10,9 @@ $pgs_dark2: #222; // Main font-color
 $pgs_dark3: #333; // Header & footer background-color
 $pgs_darkC: #CCC;
 $pgs_light_grey2: #FAFAFA;
+$pgs_rest_light_bg: #E2E9E9;
+$status_ok: #89bf04;
+$status_error: #ff4c4c;
 
 $header_height_with_margin: 60px;
 $header_height_with_margin_mobile: $header_height_with_margin + 58px;
@@ -31,10 +34,6 @@ body {
 }
 footer {
   display: none;
-}
-code {
-  color: $pgs_colour_2 !important;
-  background-color: #FFF !important;
 }
 
 .nostyle {
@@ -144,29 +143,35 @@ hgroup > div {
   background-color: $pgs_colour_1 !important;
 }
 .toggle_btn {
-  color: #3b4151 !important;
+  color: $pgs_dark2 !important;
 }
 .toggle_content {
   background-color: #FFF;
   border: 1px solid $pgs_colour_1;
   padding: 0.5rem 1rem 0.4rem;
 }
+
 .renderedMarkdown > p {
   margin-top: 0rem !important;
   margin-bottom: 0.5rem !important;
 }
 .renderedMarkdown a {
-  color: #3b4151 !important;
+  color: $pgs_dark2 !important;
 }
 .renderedMarkdown a:hover {
   color: $pgs_colour_1 !important;
+}
+.renderedMarkdown li code {
+  color: $pgs_colour_2 !important;
+  background-color: #FFF !important;
 }
 .renderedMarkdown pre > code {
   margin-left: 2rem !important;
   margin-right: 2rem !important;
   max-width: 600px;
   border: 1px solid  $pgs_darkC !important;
-  color: #3b4151 !important;
+  color: $pgs_dark2 !important;
+  background-color: #FFF !important;
   font-size: 12px !important;
 }
 
@@ -210,7 +215,7 @@ small {
   flex: 0.23 !important;
 }
 .tab-item, .opblock-section-header > h4 {
-  background-color: #E2E9E9 !important;
+  background-color: $pgs_rest_light_bg !important;
   height:30px;
   padding:2px 6px !important;
   border-radius: 4px 4px 0px 0px;
@@ -236,20 +241,24 @@ small {
 .curl,
 .request-url pre.microlight,
 .swagger-ui .opblock-body .response-col_description pre.microlight {
-  color: #212529 !important;
   border:1px solid $pgs_colour_1 !important;
   background-color: #FFF !important;
+  color: $pgs_dark2 !important;
 }
 .curl {
   min-height: 50px !important;
 }
-.swagger-ui .opblock-body .response-col_description pre.microlight span {
-  color: #212529 !important;
+.swagger-ui .opblock-body .response-col_description pre .model-example .example .microlight code {
+  color: #FFF !important;
 }
-.swagger-ui .opblock-body .model-example pre.microlight {
+.swagger-ui .opblock-body .response-col_description pre .model-example .example .microlight span {
+  color: #FFF;
+}
+.swagger-ui .opblock-body .response-col_description pre .model-example  .example .microlight span.hljs-attr {
+  color: #FFF !important;
+}
+.swagger-ui .opblock-body .model-example pre.example {
   background-color: #212529 !important;
-}
-.swagger-ui .opblock-body .model-example pre.microlight span {
   color: #FFF !important;
 }
 
@@ -268,9 +277,26 @@ table.model > tbody > tr:last-child > td {
 table.model > tbody > tr > td:last-child {
   padding-right: 8px !important;
 }
+table.parameters th,
+table.responses-table th,
+table.responses-table td.col_header {
+  background-color: $pgs_rest_light_bg;
+}
+table.parameters th,
+table.responses-table th,
+table.parameters td,
+table.responses-table td {
+  padding-left: 0.5em !important;
+}
 table.responses-table > tbody > tr:not(:last-child) > td {
   border-bottom: 1px solid rgba(59, 65, 81, 0.2) !important;
   padding-bottom: 2rem;
+}
+table.responses-table > tbody > tr:first-child td.response-col_status {
+  color: $status_ok !important;
+}
+table.responses-table > tbody > tr:not(:first-child) td.response-col_status {
+  color: $status_error !important;
 }
 .response-col_status {
   font-weight: bold;
@@ -299,21 +325,31 @@ table.model .model-toggle, table.model .model-toggle:after {
   height: 18px !important;
 }
 
+.execute::before {
+  font-family: 'FontAwesome';
+  content:"\f04b";
+  vertical-align: baseline;
+  padding-right:0.5em;
+}
+.btn-clear::before {
+  font-family: 'FontAwesome';
+  content:"\f12d";
+  vertical-align: baseline;
+  padding-right:0.5em;
+}
+
 
 @media screen and (max-width: 499px) {
   hgroup {
     > div {
       h2.title {
-        //border-right: none;
         margin-right: 0rem !important;
-        //font-size:24px !important;
-        //margin-bottom: 1rem !important;
         .version {
           font-size:12px !important;
         }
       }
       a > img {
-        border: 1px solid #F00;
+        border: 1px solid $status_ok;
       }
     }
   }
