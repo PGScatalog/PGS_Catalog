@@ -1,7 +1,8 @@
-openapi: 3.0.2
+openapi: 3.0.3
 servers:
   - url: https://www.pgscatalog.org/
 info:
+
   title: PGS Catalog REST API
   version: '1.2'
   description: |
@@ -634,6 +635,12 @@ paths:
                 ---
 
                 __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/sample_set/{pss_id}':
     get:
@@ -669,6 +676,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/SampleSet'
           description: 'List of samples used evaluate a PGS Score'
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/sample_set/search':
     get:
@@ -717,6 +730,12 @@ paths:
               ---
 
               __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
 
   # Performance endpoints
@@ -756,6 +775,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/PerformanceMetric'
           description: 'Performance Metric + PGS Score + Publication + Sample Set'
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/performance/search':
     get:
@@ -806,6 +831,12 @@ paths:
               ---
 
               __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
 
   # Publication endpoints
@@ -845,6 +876,12 @@ paths:
                   ---
 
                   __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/publication/{pgp_id}':
     get:
@@ -880,6 +917,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Publication_extended'
           description: 'Publication information'
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/publication/search':
     get:
@@ -956,6 +999,12 @@ paths:
                   ---
 
                   __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
 
   # Release endpoints
@@ -995,6 +1044,12 @@ paths:
                   ---
 
                   __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/release/{release_date}':
     get:
@@ -1030,6 +1085,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Release'
           description: 'Release information'
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/release/current':
     get:
@@ -1054,6 +1115,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Release'
           description: 'Release information'
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
 
   # Score endpoints
@@ -1271,6 +1338,12 @@ paths:
                   ---
 
                   __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/trait/{trait_id}':
     get:
@@ -1323,7 +1396,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/EFOTrait_OntologyChild'
           description: 'Trait information'
-
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   '/rest/trait/search':
     get:
@@ -1401,6 +1479,12 @@ paths:
                   ---
 
                   __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
   # TraitCategory endpoint
   '/rest/trait_category/all':
@@ -1440,6 +1524,12 @@ paths:
                   ---
 
                   __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
 
   # Other endpoints
@@ -1477,3 +1567,9 @@ paths:
                 items:
                   type: string
           description: ''
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
