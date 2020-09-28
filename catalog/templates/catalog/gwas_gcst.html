@@ -7,14 +7,11 @@
 {% block content %}
   <nav aria-label="You are here:">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+      <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
       <li class="breadcrumb-item">NHGRI-EBI GWAS Catalog</li>
       <li class="breadcrumb-item">{{ gwas_id }}</li>
     </ol>
   </nav>
-
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script defer src="{% static 'catalog/pgs_gwas.js' %}"></script>
 
   <section>
     <h2>NHGRI-EBI GWAS Catalog Study: <span id="gwas_id" class="pgs_title">{{ gwas_id }}</span></h2>

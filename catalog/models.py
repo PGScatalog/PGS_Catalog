@@ -197,7 +197,7 @@ class EFOTrait_Base(models.Model):
 
     @property
     def display_label(self):
-        return '<a href="../../trait/%s">%s</a>'%(self.id, self.label)
+        return '<a href="/trait/%s">%s</a>'%(self.id, self.label)
 
     def display_id_url(self):
         return '<a href="%s">%s</a><span class="only_export">: %s</span>'%(self.url, self.id, self.url)

@@ -298,7 +298,8 @@ def gwas_gcst(request, gcst_id):
         'gwas_id': gcst_id,
         'performance_disclaimer': performance_disclaimer(),
         'table_scores' : Browse_ScoreTable(related_scores),
-        'has_table': 1
+        'has_table': 1,
+        'use_gwas_api': 1
     }
 
     pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
