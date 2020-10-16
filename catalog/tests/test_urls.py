@@ -26,6 +26,7 @@ class BrowseUrlTest(TestCase):
 
         urls = [
             '/docs/curation',
+            '/submit/',
             '/template/current'
         ]
         for url in urls:

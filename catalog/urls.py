@@ -1,5 +1,5 @@
 from django.urls import path
-from django.views.generic.base import TemplateView
+from django.views.generic.base import RedirectView, TemplateView
 
 from . import views
 
@@ -34,6 +34,9 @@ urlpatterns = [
 
     # ex: /downloads/
     path('downloads/', views.DownloadView.as_view(), name='Downloads'),
+
+    # e.g.: /submit/
+    path('submit/', RedirectView.as_view(url='/about/#submission')),
 
     # ex: /report_study/
     path('report_study/', views.ReportStudyView.as_view(), name='Report missing PGS study'),
