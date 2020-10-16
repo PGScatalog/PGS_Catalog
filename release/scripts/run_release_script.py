@@ -40,6 +40,7 @@ def run(*args):
     # Update EFO data
     call_efo_update()
 
+
     #---------------#
     #  FTP release  #
     #---------------#
@@ -65,6 +66,9 @@ def run(*args):
 
     # Build FTP structure for metadata files
     build_metadata_ftp(args[0],new_ftp_dir,scores_db,previous_release_date,debug)
+
+    # Check that the new entries have a PGS directory
+    check_new_data_entry_in_metadata(new_ftp_dir,today)
 
     # Build FTP structure for the bulk metadata files
     build_bulk_metadata_ftp(args[0],new_ftp_dir,previous_release_date,debug)
@@ -404,6 +408,34 @@ def get_previous_release_date():
     """ Fetch the previous release date (i.e. the release date of the current live database) """
     releases = Release.objects.all().order_by('-date')
     return str(releases[1].date)
+
+
+def check_new_data_entry_in_metadata(dirpath_new,release_date):
+    """ Check that the metadata directory for the new Scores and Performance Metrics exists """
+    scores_dir = dirpath_new+'/scores/'
+
+    # Score(s)
+    missing_score_dir = set()
+    for score in Score.objects.filter(date_released=release_date).order_by('num'):
+        score_id = score.id
+        if not os.path.isdir(scores_dir+score_id):
+            missing_score_dir.add(score_dir)
+    # Performance Metric(s)
+    missing_perf_dir = set()
+    for perf in Performance.objects.select_related('score').filter(date_released=release_date).order_by('score__id'):
+        score_id = perf.score.id
+        if not os.path.isdir(scores_dir+score_id):
+            missing_perf_dir.add(score_dir)
+
+    if len(missing_score_dir) != 0 or len(missing_perf_dir) != 0:
+        if len(missing_score_dir) != 0:
+            print("/!\ Missing PGS directories for the new entry(ies):\n - "+'\n - '.join(list(missing_score_dir)))
+        if len(missing_perf_dir) != 0:
+            print("/!\ Missing PGS directories for the new associated Performance Metric entry(ies):\n - "+'\n - '.join(list(missing_perf_dir)))
+        exit(1)
+    else:
+        print("OK - No missing PGS directory for the new  entry(ies)")
+
 
 
 def create_pgs_directory(path):
