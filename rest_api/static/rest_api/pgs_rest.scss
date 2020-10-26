@@ -133,15 +133,34 @@ hgroup > div {
   border-color: $pgs_colour_1_lighter !important;
 }
 .swagger-ui .opblock.opblock-get .opblock-summary:hover > .opblock-summary-method,
-.download-contents:hover, .model-toggle:hover  {
+.download-contents:hover,
+.copy-to-clipboard:hover,
+.model-toggle:hover  {
   background-color: $pgs_colour_1_lighter !important;
 }
 .opblock-summary-method,
 .download-contents,
+.copy-to-clipboard,
 .model-toggle,
 .tab-item.active h4 span:after {
   background-color: $pgs_colour_1 !important;
 }
+
+.curl-command .copy-to-clipboard {
+  height: 22px !important;
+  width: 22px !important;
+}
+.curl-command .copy-to-clipboard button {
+  height: 22px !important;
+  width: 22px !important;
+  padding: 2px !important;
+}
+.highlight-code .copy-to-clipboard button {
+  height: 30px !important;
+  width: 30px !important;
+  padding: 5px !important;
+}
+
 .toggle_btn {
   color: $pgs_dark2 !important;
 }
