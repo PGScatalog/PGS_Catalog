@@ -51,7 +51,6 @@ def custom_exception_handler(exc, context):
             'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR,
             'message': 'Internal Server Error'
         }
-
     return response
 
 
@@ -71,6 +70,7 @@ class RestPublication(APIView):
     """
 
     def get(self, request, pgp_id):
+        pgp_id = pgp_id.upper()
         try:
             queryset = Publication.objects.defer(*related_dict['publication_defer']).prefetch_related(*related_dict['publication_score_prefetch']).get(id=pgp_id)
         except Publication.DoesNotExist:
@@ -92,6 +92,7 @@ class RestPublicationSearch(generics.ListAPIView):
         # Search by Score ID
         pgs_id = self.request.query_params.get('pgs_id')
         if pgs_id and pgs_id is not None:
+            pgs_id = pgs_id.upper()
             try:
                 score = Score.objects.only('id','publication__id').select_related('publication').get(id=pgs_id)
                 queryset = queryset.filter(id=score.publication.id)
@@ -134,6 +135,7 @@ class RestScore(APIView):
     """
 
     def get(self, request, pgs_id):
+        pgs_id = pgs_id.upper()
         try:
             queryset = Score.objects.defer(*related_dict['score_defer']).select_related('publication').prefetch_related(*related_dict['score_prefetch']).get(id=pgs_id)
         except Score.DoesNotExist:
@@ -159,6 +161,7 @@ class RestScoreSearch(generics.ListAPIView):
         # Search by list of Score IDs
         pgs_ids = self.request.query_params.get('pgs_ids')
         if pgs_ids and pgs_ids is not None:
+            pgs_ids = pgs_ids.upper()
             pgs_ids_list = pgs_ids.split(',')
             queryset = queryset.filter(id__in=pgs_ids_list)
             params += 1
@@ -172,6 +175,7 @@ class RestScoreSearch(generics.ListAPIView):
         # Search by Trait ID
         trait_id = self.request.query_params.get('trait_id')
         if trait_id and trait_id is not None:
+            trait_id = trait_id.upper().replace(':','_')
             queryset = queryset.filter(trait_efo__id=trait_id)
             params += 1
 
@@ -196,6 +200,7 @@ class RestPerformanceSearch(generics.ListAPIView):
         # Search by Score ID
         pgs_id = self.request.query_params.get('pgs_id')
         if pgs_id and pgs_id is not None:
+            pgs_id = pgs_id.upper()
             try:
                 queryset = queryset.filter(score__id=pgs_id)
             except Score.DoesNotExist:
@@ -212,6 +217,7 @@ class RestPerformance(APIView):
     """
 
     def get(self, request, ppm_id):
+        ppm_id = ppm_id.upper()
         try:
             queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).prefetch_related('sampleset__samples','sampleset__samples__cohorts','performance_metric').get(id=ppm_id)
         except Performance.DoesNotExist:
@@ -236,7 +242,7 @@ class RestEFOTrait(APIView):
     """
 
     def get(self, request, trait_id):
-        trait_id = trait_id.replace(':', '_')
+        trait_id = trait_id.upper().replace(':', '_')
 
         try:
             queryset = EFOTrait_Ontology.objects.prefetch_related(*related_dict['ontology_associated_scores_prefetch'], *related_dict['traitcategory_ontology_prefetch']).get(id=trait_id)
@@ -330,6 +336,7 @@ class RestSampleSet(APIView):
     """
 
     def get(self, request, pss_id):
+        pss_id = pss_id.upper()
         try:
             queryset = SampleSet.objects.prefetch_related('samples', 'samples__cohorts').get(id=pss_id)
         except SampleSet.DoesNotExist:
@@ -351,6 +358,7 @@ class RestSampleSetSearch(generics.ListAPIView):
         # Search by Score ID
         pgs_id = self.request.query_params.get('pgs_id')
         if pgs_id and pgs_id is not None:
+            pgs_id = pgs_id.upper()
             try:
                 perfs = Performance.objects.select_related('sampleset').filter(score__id=pgs_id).prefetch_related('sampleset__samples','sampleset__samples__cohorts')
                 for perf in perfs.all():
@@ -376,6 +384,7 @@ class RestCohorts(generics.ListAPIView):
         # Fetch Cohort model(s)
         try:
             cohort_symbol = self.kwargs['cohort_symbol']
+            cohort_symbol = cohort_symbol.upper()
             queryset = Cohort.objects.filter(name_short=cohort_symbol).prefetch_related('sample_set', 'sample_set__sampleset', 'sample_set__score_variants', 'sample_set__score_training')
         except Cohort.DoesNotExist:
             queryset = []
@@ -422,6 +431,7 @@ class RestGCST(APIView):
     """
 
     def get(self, request, gcst_id):
+        gcst_id = gcst_id.upper()
         samples = Sample.objects.filter(source_GWAS_catalog=gcst_id).distinct()
 
         try:

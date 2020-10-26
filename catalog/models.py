@@ -459,6 +459,14 @@ class Sample(models.Model):
         return [x.name_short for x in self.cohorts.all()]
 
     @property
+    def sample_cases_percent(self):
+        if self.sample_cases != None:
+            percent = (self.sample_cases / self.sample_number) * 100
+            return round(percent,2)
+        else:
+            return None
+
+    @property
     def display_sampleset(self):
         samplesets = self.sampleset.all()
         if samplesets:
@@ -834,10 +842,11 @@ class Metric(models.Model):
             return '%s: %s'%(self.name, s)
 
     def display_value(self):
+        estimate_value = round(self.estimate, 5)
         if self.ci != None:
-            s = '{} {}'.format(self.estimate, self.ci)
+            s = '{} {}'.format(estimate_value, self.ci)
         else:
-            s = '{}'.format(self.estimate)
+            s = '{}'.format(estimate_value)
         return s
 
     def name_tuple(self):

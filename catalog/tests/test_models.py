@@ -553,9 +553,10 @@ class SampleTest(TestCase):
         self.assertTrue(isinstance(sample_1, Sample))
         # Variables
         self.assertEqual(sample_1.sample_number, test_sample_number)
+        self.assertIsNotNone(sample_1.display_samples)
         # Other methods
         self.assertRegexpMatches(sample_1.__str__(), r'^Sample\s\d+')
-        self.assertIsNotNone(sample_1.display_samples_for_table)
+        self.assertIsNone(sample_1.sample_cases_percent)
 
         ## Sample object with numbers
         sample_2 = self.create_sample_numbers()
@@ -566,6 +567,7 @@ class SampleTest(TestCase):
         self.assertEqual(sample_2.sample_cases, self.cases)
         self.assertEqual(sample_2.sample_controls, self.controls)
         self.assertEqual(sample_2.sample_percent_male, self.male)
+        self.assertEqual(sample_2.sample_cases_percent, round((self.cases/self.number)*100,2))
         # Other methods
         self.assertIsNotNone(sample_2.display_samples)
         self.assertIsNotNone(sample_2.display_samples_for_table)

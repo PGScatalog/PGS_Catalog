@@ -130,6 +130,10 @@ def browseby(request, view_selection):
 
 
 def pgs(request, pgs_id):
+    # If ID in lower case, redirect with the ID in upper case
+    if not pgs_id.isupper():
+        return redirect_with_upper_case_id(request, '/score/', pgs_id)
+
     try:
         score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
     except Score.DoesNotExist:
@@ -175,12 +179,22 @@ def pgs(request, pgs_id):
     return render(request, 'catalog/pgs.html', context)
 
 
+def redirect_with_upper_case_id(request, dir, id):
+    id = id.upper()
+    response = redirect(dir+str(id), permanent=True)
+    return response
+
+
 def redirect_pgs_to_score(request, pgs_id):
-    response = redirect('/score/'+str(pgs_id), permanent=True)
+    response = redirect_with_upper_case_id(request, '/score/', pgs_id)
     return response
 
 
 def pgp(request, pub_id):
+    # If ID in lower case, redirect with the ID in upper case
+    if not pub_id.isupper():
+        return redirect_with_upper_case_id(request, '/publication/', pub_id)
+
     try:
         pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
     except Publication.DoesNotExist:
@@ -227,6 +241,11 @@ def pgp(request, pub_id):
 
 
 def efo(request, efo_id):
+    # If ID in lower case, redirect with the ID in upper case
+    # If ID with ':', redirect using the ID with '_'
+    if not efo_id.isupper() or ':' in efo_id:
+        efo_id = efo_id.replace(':','_')
+        return redirect_with_upper_case_id(request, '/trait/', efo_id)
 
     exclude_children = False
     include_children = request.GET.get('include_children');
@@ -286,6 +305,10 @@ def efo(request, efo_id):
 
 
 def gwas_gcst(request, gcst_id):
+    # If ID in lower case, redirect with the ID in upper case
+    if not gcst_id.isupper():
+        return redirect_with_upper_case_id(request, '/gwas/', gcst_id)
+
     samples = Sample.objects.filter(source_GWAS_catalog__exact=gcst_id).distinct()
     if len(samples) == 0:
         raise Http404("No PGS Samples are associated with the NHGRI-GWAS Catalog Study: \"{}\"".format(gcst_id))
@@ -318,6 +341,10 @@ def gwas_gcst(request, gcst_id):
 
 
 def pss(request, pss_id):
+    # If ID in lower case, redirect with the ID in upper case
+    if not pss_id.isupper():
+        return redirect_with_upper_case_id(request, '/sampleset/', pss_id)
+
     try:
         sample_set = SampleSet.objects.prefetch_related('samples', 'samples__cohorts', 'samples__sample_age', 'samples__followup_time').get(id__exact=pss_id)
     except SampleSet.DoesNotExist:
