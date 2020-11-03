@@ -1,5 +1,7 @@
 {% load static %}
-{% load compress %}
+{% if is_pgs_app_on_gae == 0 %}
+  {% load compress %}
+{% endif %}
 <!doctype html>
 <html lang="en">
 
@@ -37,10 +39,10 @@
 
 
   <!-- Boostrap CSS libraries -->
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
   {% if has_table %}
-    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/bootstrap-table@1.17.1/dist/bootstrap-table.min.css" rel="stylesheet"/>
   {% endif %}
 
   <!-- CSS: implied media=all -->
@@ -49,10 +51,14 @@
     <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
   {% endif %}
 
-  <!-- SCSS file -->
-  {% compress css %}
-    <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
-  {% endcompress %}
+  <!-- PGS (S)CSS file -->
+  {% if is_pgs_app_on_gae %}
+    <link rel="stylesheet" href="{% static 'catalog/pgs.min.css' %}" type="text/css" media="all" />
+  {% else %}
+    {% compress css %}
+      <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+  {% endif %}
 
   <!-- Chart.js -->
   {% if has_chart %}
@@ -60,21 +66,36 @@
     <script defer type="text/javascript" src="{% static 'catalog/Chart.bundle.min.js' %}"></script>
   {% endif %}
 
+
   <!-- jQuery, bootstrap, bootstrap-table (and extensions), table-export libraries -->
-  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-  <!-- Bootstrap bundle include Popper.js and Bootstrap JS -->
-  <script defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
-  {% if has_table %}
-    <script defer src="https://unpkg.com/tableexport.jquery.plugin@1.10.16/tableExport.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/export/bootstrap-table-export.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+
+  <!-- jQuery -->
+  <!-- Use of GWAS API - Javascript file -->
+  {% if use_gwas_api %}
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script defer src="{% static 'catalog/pgs_gwas.js' %}"></script>
+  {% else %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
   {% endif %}
 
-  {% compress js file pgs_min %}
-    <script defer src="{% static 'catalog/pgs.js' %}"></script>
-  {% endcompress %}
+  <!-- Bootstrap bundle include Popper.js and Bootstrap JS -->
+  <script defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+  {% if has_table %}
+    <script defer src="https://unpkg.com/tableexport.jquery.plugin@1.10.20/tableExport.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.17.1/dist/bootstrap-table.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.17.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <script defer src="https://unpkg.com/bootstrap-table@1.17.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+  {% endif %}
 
+
+  <!-- PGS Javascript file -->
+  {% if is_pgs_app_on_gae %}
+    <script defer src="{% static 'catalog/pgs.min.js' %}"></script>
+  {% else %}
+    {% compress js file pgs_min %}
+      <script defer src="{% static 'catalog/pgs.js' %}"></script>
+    {% endcompress %}
+  {% endif %}
 </head>
 <body>
 
@@ -92,10 +113,5 @@
     </div>
 
     {% include "catalog/includes/footer.html" %}
-
-  </div>
-
-  <!-- Google Analytics details... -->
-  <script type="text/javascript">!function(e,a,n,t,i,o,c){e.GoogleAnalyticsObject=i,e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},e[i].l=1*new Date,o=a.createElement(n),c=a.getElementsByTagName(n)[0],o.async=1,o.src="//www.google-analytics.com/analytics.js",c.parentNode.insertBefore(o,c)}(window,document,"script",0,"ga"),ga("create","UA-145149243-1",{cookieDomain:"auto"}),ga("require","linkid","linkid.js"),ga("set","anonymizeIp",!0),ga("send","pageview");</script>
 
 </body>

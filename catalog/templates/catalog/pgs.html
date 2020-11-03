@@ -6,8 +6,8 @@
 {% block content %}
     <nav aria-label="You are here:">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
-        <li class="breadcrumb-item"><a href="../../browse/all/">Polygenic Scores</a></li>
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="/browse/all/">Polygenic Scores</a></li>
         <li class="breadcrumb-item">{{ pgs_id }}</li>
       </ol>
     </nav>
@@ -19,7 +19,7 @@
           title="Variants and weights data file for {{ score.id }}" download>
           <span class="fa fa-download"></span> Download Score
         </a>
-        <a class="btn btn-pgs pgs_no_icon_link pgs_helptip pgs-ftp-btn mb-3" target="_blank" href="{{ pgs_ftp_root }}/scores/{{ score.id }}"
+        <a class="btn btn-pgs pgs_no_icon_link pgs_helptip pgs-ftp-btn mb-3" target="_blank" href="{{ pgs_ftp_http_root }}/scores/{{ score.id }}/"
           title="Score and metadata files for {{ score.id }}">
           <span class="fa fa-folder"></span> FTP directory
         </a>
@@ -40,13 +40,13 @@
             <td>Mapped Trait(s)</td>
             <td>
              {% if efos|length == 1 %}
-              <a class="mr-2" href="../../trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
-              (<a href="https://www.ebi.ac.uk/efo/{{ efos.0.id }}">{{ efos.0.id }}</a>)
+              <a class="mr-2" href="/trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
+              (<a href="{{ efos.0.url }}">{{ efos.0.id }}</a>)
              {% else %}
               <ul class="mb-0">
                {% for trait in efos %}
                 <li>
-                 <a class="mr-2" href="../../trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
+                 <a class="mr-2" href="/trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
                  (<a href="{{ trait.url }}">{{ trait.id }}</a>)
                 </li>
                {% endfor %}
@@ -68,7 +68,10 @@
     </section>
 
     <section>
-        <h3 class="mb-0">Score  Details</h3>
+        <h3 class="mb-0">Score Details</h3>
+        {% if score_disclaimer %}
+          {{ score_disclaimer|safe }}
+        {% endif %}
         <div class="row">
             <div class="col">
                 <table class="table table-bordered table_pgs_h mt-4">
@@ -126,12 +129,17 @@
                   </tr>
                   <tr>
                     <td>PGS Catalog Publication (PGP) ID</td>
-                    <td><a href=../../publication/{{ score.publication.id }}>{{ score.publication.id }}</a></td>
+                    <td><a href=/publication/{{ score.publication.id }}>{{ score.publication.id }}</a></td>
                   </tr>
 
                   <tr>
                     <td>Citation (<i>link to publication</i>)</td>
-                    <td>{{ citation }}</td>
+                    <td>
+                      {{ citation }}
+                      {% if score.publication.is_preprint %}
+                        <span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Preprint</span>
+                      {% endif %}
+                    </td>
                   </tr>
 
                 </tbody>
@@ -155,7 +163,7 @@
     </section>
 
     <section>
-        <h3>Performance Metrics</h3>
+        <h3 class="mb-0">Performance Metrics</h3>
         <p>{{ performance_disclaimer|safe }}</p>
         {% render_table table_performance %}
         <h4>Evaluated Samples</h4>

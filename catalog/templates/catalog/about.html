@@ -6,7 +6,7 @@
 {% block content %}
     <nav aria-label="You are here:">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
         <li class="breadcrumb-item">Documentation</li>
         <li class="breadcrumb-item">About</li>
       </ol>
@@ -56,7 +56,7 @@
       <h3 id="score">What is a Polygenic Score?</h3>
         <p>
             <b>A polygenic score (PGS)</b> aggregates the effects of many genetic variants into a single number which predicts genetic predisposition for a phenotype.
-            <b>PGS</b> are typically composed of hundreds-to-millions of genetic variants (usually <span title="SNPs" data-content="Single Nucleotide Polymorphisms" class="pgs_helpover">SNPs</span>) which are combined using a weighted sum of allele dosages multiplied their corresponding effect sizes, as estimated from a relevant genome-wide association study (<span title="GWAS" data-content="Genome-wide association studies" class="pgs_helpover">GWAS</span>).
+            <b>PGS</b> are typically composed of hundreds-to-millions of genetic variants (usually <span title="SNPs" data-content="Single Nucleotide Polymorphisms" class="pgs_helpover">SNPs</span>) which are combined using a weighted sum of allele dosages multiplied by their corresponding effect sizes, as estimated from a relevant genome-wide association study (<span title="GWAS" data-content="Genome-wide association studies" class="pgs_helpover">GWAS</span>).
         </p>
         <p>
             <b>PGS</b> nomenclature is heterogeneous: they can also be referred to as <b>genetic scores</b> or <b>genomic scores</b>, and as <b>polygenic risk scores (PRS)</b> or <b>genomic risk scores (GRS)</b> if they predict a discrete phenotype, such as a disease.
@@ -67,7 +67,7 @@
     <section>
       <h3 id="project">The PGS Catalog Project</h3>
         <p>
-            The <span title="PGS Catalog" data-content="Polygenic Score (PGS) Catalog" class="pgs_helpover"><b>PGS Catalog</b></span> is an open database of published <b>polygenic scores (PGS)</b>.
+            The <span title="Polygenic Score (PGS) Catalog" class="pgs_helptip"><b>PGS Catalog</b></span> is an open database of published <b>polygenic scores (PGS)</b>.
             Each <b>PGS</b> in the <b>Catalog</b> is consistently annotated with relevant metadata; including scoring files (variants, effect alleles/weights), annotations of how the PGS was developed and applied, and evaluations of their predictive performance.
             See the <a href="../docs/">PGS Catalog Data Description</a> page for a complete description of the metadata captured for PGS, Samples, Performance Metrics, Traits, and Publications.
         </p>
@@ -76,12 +76,12 @@
     <p>The PGS Catalog development is led by <a href="https://www.ebi.ac.uk/about/people/samuel-lambert">Samuel Lambert</a>
         under the supervision of <a href="http://www.inouyelab.org/home/people">Michael Inouye</a> (<a href="https://sysgenresearch.org/">University of Cambridge & Baker Institute</a>)
         and <a href="https://www.ebi.ac.uk/about/people/jackie-macarthur">Jackie MacArthur</a> (<a href="https://www.ebi.ac.uk/gwas/">NHGRI-EBI GWAS Catalog</a>).</p>
-    <p>The Catalog is under active development, and a flagship publication is in preparation for early 2020. If you use the catalog before then we ask that you cite it as:
+    <p>The Catalog is under active development, and we continue to add new features and curate new data. If you use the Catalog in your research we ask that you cite our recent preprint:
     <div class="clearfix mb-3">
       <div class="highlight_content">
-        <p>Samuel A. Lambert, Laurent Gil, Simon Jupp, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A.L. MacArthur, and Michael Inouye. (2019)</p>
-        <p><u>The Polygenic Score (PGS) Catalog: an open database to enable reproducibility and systematic evaluation</u>
-        [<a href="http://www.pgscatalog.org">www.pgscatalog.org</a>]</p>
+        <p>Samuel A. Lambert, Laurent Gil, Simon Jupp, Scott C. Ritchie, Yu Xu, Annalisa Buniello, Gad Abraham, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A.L. MacArthur, and Michael Inouye.</p>
+        <p><u>The Polygenic Score Catalog: an open database for reproducibility and systematic evaluation</u></p>
+        <p><span class="with_sep_right">Preprint at <i>medRxiv</i></span>doi: <a href="https://doi.org/10.1101/2020.05.20.20108217">10.1101/2020.05.20.20108217</a> (2020).</p>
       </div>
     </div>
     <p>Individual PGS obtained from the database should also be cited appropriately, and used in accordance with any licensing restrictions set by the authors (see our <a href="https://www.ebi.ac.uk/about/terms-of-use">Terms of Use</a> for more information).</p>
@@ -89,37 +89,45 @@
 
 
     <section>
-    <h3 id="eligibility">PGS Catalog Inclusion Criteria</h3>
-    <p>For a publication's data to be included in the PGS Catalog it must contain one of the following:<ul>
-        <li><b>A newly developed PGS.</b> This includes the following information about the score and its predictive ability (<u>evaluated on samples not used in training</u>):</li>
+      <h3 id="eligibility">PGS Catalog Inclusion Criteria</h3>
+      <p>For a publication's data to be included in the PGS Catalog it must contain one of the following:
         <ul>
-            <li>Variant information necessary to apply the PGS to new samples (variant rsID and/or genomic position, weights/effect sizes, effect allele, genome build).</li>
-            <li>Information about how the PGS was developed (computational method, variant selection, relevant parameters).</li>
-            <li>Descriptions of the samples used for training (e.g. discovery of the variant associations (<i>these can usually be extracted directly from the GWAS Catalog using GCST IDs</i>), as well as fitting the PGS) and external evaluation.</li>
-            <li>Establishment of the PGS' analytic validity, and a description of its predictive performance (e.g. effect sizes [beta, OR, HR, etc.], classification accuracy, proportion of the variance explained (R<sup>2</sup>), and/or covariates evaluated in the PGS prediction).</li>
+          <li><b>A newly developed PGS.</b> This includes the following information about the score and its predictive ability (<u>evaluated on samples not used in training</u>):</li>
+            <ul>
+                <li>Variant information necessary to apply the PGS to new samples (variant rsID and/or genomic position, weights/effect sizes, effect allele, genome build).</li>
+                <li>Information about how the PGS was developed (computational method, variant selection, relevant parameters).</li>
+                <li>Descriptions of the samples used for training (e.g. discovery of the variant associations (<i>these can usually be extracted directly from the GWAS Catalog using GCST IDs</i>), as well as fitting the PGS) and external evaluation.</li>
+                <li>Establishment of the PGS' analytic validity, and a description of its predictive performance (e.g. effect sizes [beta, OR, HR, etc.], classification accuracy, proportion of the variance explained (R<sup>2</sup>), and/or covariates evaluated in the PGS prediction).</li>
+            </ul>
+          <li class="mt-2"><b>An evaluation of a previously developed PGS.</b> This would include the evaluation of PGS already present in the catalog (or eligible for inclusion), on samples not used for PGS training. The requirements for description would be the same as for the evaluation of a new PGS.</li>
         </ul>
-        <li class="mt-2"><b>An evaluation of a previously developed PGS.</b> This would include the evaluation of PGS already present in the catalog (or eligible for inclusion), on samples not used for PGS training. The requirements for description would be the same as for the evaluation of a new PGS.</li>
-    </ul></p>
-    <p>
-        A complete description of the data captured for each PGS and publication can be found <a href="../docs/">here</a>.
-    </p>
-    <p>In the pilot PGS Catalog (presented at ASHG 2019) we focused on curating PGS developed after 2010, and included well-studied scores for the following traits: coronary artery disease (CAD), diabetes (types 1 and 2), obesity / body mass index (BMI), breast cancer, prostate cancer and Alzheimer’s disease.
-        The catalog however is not limited to these traits, and since then we have focused on broadening the coverage of traits and scores. Researchers are invited to <a href="#submission">submit</a> their PGS and evaluations to us by e-mail for curation and inclusion in the PGS Catalog - we plan to provide a streamlined interface to submit these data in the future.</p>
+      </p>
+      <p>
+          A complete description of the data captured for each PGS and publication can be found <a href="../docs/">here</a>.
+      </p>
+      <p>In the pilot PGS Catalog (presented at ASHG 2019) we focused on curating PGS developed after 2010, and included well-studied scores for the following traits: coronary artery disease (CAD), diabetes (types 1 and 2), obesity / body mass index (BMI), breast cancer, prostate cancer and Alzheimer’s disease.
+          The catalog however is not limited to these traits, and since then we have focused on broadening the coverage of traits and scores. Researchers are invited to <a href="#submission">submit</a> their PGS and evaluations to us by e-mail for curation and inclusion in the PGS Catalog - we plan to provide a streamlined interface to submit these data in the future.</p>
     </section>
 
 
     <section>
       <h4 id="submission"><i class="fa fa-upload pr-2 pgs_color_2"></i>Data Submission</h4>
-        <p>If you have a PGS or publication that meets the Catalog's eligibility requirements we invite you to submit your data by e-mail (<a href="mailto:{{ pgs_contact }}"><span class="fa fa-envelope"></span> {{ pgs_contact }}</a>).
-            To ensure a speedy curation and inclusion into the catalog it would be helpful if you provide the following information about your study:</p>
-            <ul>
-                <li><b>Source Publication.</b> PubMed identifier and/or publication doi.</li>
-                <li><b>The Polygenic Score(s).</b> If you've developed a new PGS we'll need the variant-level information required to calculate the score on new samples (<i>see our <a href="../downloads/#dl_ftp">Scoring File documentation</a> for more description</i>).
-                    If an existing PGS was used it would be helpful if you provided it's PGS ID, or links to the original publication.</li>
-                <li><b><i>Optional:</i> A completed PGS Catalog Curation Template.</b> You can view and download the current <a href="../template/current" target="_blank">PGS Catalog Curation Template <span class="fa fa-file-excel-o"></span></a> on GoogleDocs - this sheet forms the basis of our curation pipeline and future PGS deposition framework.
-                    We will be releasing a detailed set of guidelines and instructions on how to record your data in the template mid-2020.
-                </li>
-            </ul>
+      <p>If you have a PGS or publication that meets the Catalog's eligibility requirements we invite you to submit your data by e-mail (<a href="mailto:{{ pgs_contact }}"><span class="fa fa-envelope"></span> {{ pgs_contact }}</a>).
+          To ensure a speedy curation and inclusion into the catalog it would be helpful if you provide the following information about your study:</p>
+      <ul>
+        <li><b>Source Publication.</b> PubMed identifier and/or publication doi.</li>
+        <li>
+          <b>The Polygenic Score(s).</b> If you've developed a new PGS we'll need the variant-level information required to calculate the score on new samples (<i>see our <a href="../downloads/#dl_ftp">Scoring File documentation</a> for more description</i>).
+          If an existing PGS was used it would be helpful if you provided it's PGS ID, or links to the original publication.
+        </li>
+        <li>
+          <b><i>Optional:</i> A completed PGS Catalog Curation Template.</b> You can view and download the current <a class="btn btn-pgs-small pgs_no_icon_link" href="../template/current" target="_blank"><span class="fa fa-download"></span> PGS Catalog Curation Template <span class="badge badge-pill badge-pgs-white ml-1">.xlsx</span></a> on GoogleDocs - this template forms the basis of our curation pipeline and future PGS deposition framework.
+          We also provide a set of <a class="btn btn-pgs-small pgs_no_icon_link" href="../docs/curation" target="_blank"><span class="fa fa-download"></span> PGS Catalog Curation Guidelines <span class="badge badge-pill badge-pgs-white ml-1">.docx</span></a> with detailed instructions, and examples of how to record your data in the PGS Catalog template. Filled out curation templates and scoring files can be e-mailed to us at <a href="mailto:{{ pgs_contact }}"><span class="fa fa-envelope"></span> {{ pgs_contact }}</a>.
+        </li>
+      </ul>
+      <p>
+        You can also report/recommend studies for inclusion in the PGS Catalog using this form: <a class="btn btn-pgs-small pgs_no_icon_link" href="../report_study"><span class="fa fa-wpforms"></span> Report missing PGS study</a>. However, please send us the PGS by e-mail if you are the paper’s author and can share the variant-level score information.
+      </p>
     </section>
 
 
@@ -127,10 +135,7 @@
       <h3 id="under_dev">Features Under Development</h3>
       <ul>
           <li><b>Including more PGS & developing a deposition interface.</b><br />We are actively curating more PGS for inclusion in the Catalog, responding to submissions from authors, and are committed to increasing the diversity of traits. We are also developing an interface so that authors can easily deposit PGS or PGS evaluations into the PGS Catalog using a standard template.</li>
-          <li style="margin-top:6px"><b>Search functionality and better integration of the trait ontology.</b><br />The catalog will be fully searchable, and use the trait ontology to provide PGS for related traits.</li>
-          <li style="margin-top:6px"><b>Programmatic access to the catalog.</b><br />The main goal of the catalog is to distribute the scores and their annotations in a consistent and easy to use format.
-              We are currently providing both single PGS and bulk catalog downloads of scoring files and metadata. We are currently working towards building a REST API to enable programmatic access to the PGS Catalog and files.</li>
-          <li style="margin-top:6px"><b>PGS Harmonized to Current Genome Builds.</b><br />Currently PGS provided through the database are described
+          <li class="mt-2"><b>PGS Harmonized to Current Genome Builds.</b><br />Currently PGS provided through the database are described
               by standard column names & descriptions, along with the genome build it was developed with (<i>if known</i>).
               In the future we plan to harmonize all PGS to common genome builds (GRCh37 and GRCh38) based on the ENSEMBL variation database to reduce ambiguity.</li>
       </ul>
@@ -153,18 +158,18 @@
         </ul>
       </p>
       <p>The development of the <b>PGS Catalog</b> is supported by:</p>
-      <div class="row justify-content-center" style="margin-bottom:25px">
+      <div class="row justify-content-center mb-4">
         <div class="col">
-          <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid" src="{% static 'catalog/imgs/UofCambridge.png' %}" alt="University of Cambridge" style="max-height:70px"></a>
+          <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/UofCambridge.png' %}" alt="University of Cambridge"></a>
         </div>
         <div class="col">
-          <a class="pgs_no_icon_link" href="{{ ebi_url }}" style="link:none"><img class="img-fluid" src="{% static 'catalog/imgs/EMBL_EBI.png' %}" alt="EMBL-EBI" style="max-height:70px"></a>
+          <a class="pgs_no_icon_link" href="{{ ebi_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/EMBL_EBI.png' %}" alt="EMBL-EBI"></a>
         </div>
         <div class="col">
-          <a class="pgs_no_icon_link" href="{{ hdr_uk_cam_url }}"><img class="img-fluid" src="{% static 'catalog/imgs/HDR-UK.png' %}" alt="HDR-UK (Cambridge)" style="max-height:70px"></a>
+          <a class="pgs_no_icon_link" href="{{ hdr_uk_cam_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/HDR-UK.png' %}" alt="HDR-UK (Cambridge)"></a>
         </div>
         <div class="col">
-          <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid" src="{% static 'catalog/imgs/Baker_Logo.png' %}" alt="Baker Heart and Diabetes Institute" style="max-height:70px"></a>
+          <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/Baker_Logo.png' %}" alt="Baker Heart and Diabetes Institute"></a>
         </div>
       </div>
     </section>

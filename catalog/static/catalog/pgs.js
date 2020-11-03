@@ -16,7 +16,6 @@ $(document).ready(function() {
     // Shorten content having long text
     shorten_displayed_content();
 
-
     $('body').on("click", 'span.morelink', function(){
         if($(this).hasClass("link_less")) {
           $(this).html(moretext);
@@ -65,15 +64,16 @@ $(document).ready(function() {
       ebiFrameworkRunDataProtectionBanner(localFrameworkVersion); // invoke the banner
     };
 
-
     function pgs_toggle_btn(el) {
       el.find('i').toggleClass("fa-plus-circle fa-minus-circle");
       id = el.attr('id');
-      $('#list_'+id).toggle();
-      if ($('#list_'+id).is(":visible")) {
-        fadeIn($('#list_'+id));
+      prefix = '#list_';
+      $(prefix+id).toggle();
+      if ($(prefix+id).is(":visible")) {
+        fadeIn($(prefix+id));
       }
     }
+
     // Button toggle
     $('.toggle_btn').click(function() {
       pgs_toggle_btn($(this));
@@ -162,10 +162,47 @@ $(document).ready(function() {
     $('.pgs-ftp-btn').hover(function() {
       $(this).children('span').toggleClass('fa-folder fa-folder-open');
     });
+
+    $('body').on("click", '#include_children', function(){
+      console.log("Clicked!");
+      if ($(this).prop("checked") == true) {
+        $(location).attr('href','/trait/'+$(this).val());
+      }
+      else {
+        $(location).attr('href','/trait/'+$(this).val()+'?include_children=false');
+      }
+    });
+
+    // Control on search form(s)
+    $('#search_btn').click(function() {
+      console.log("Clicked");
+      if ($('#q').val() && $('#q').val() != ''){
+        $('#search_form').submit();
+      }
+    })
+    $('#search_btn_2').click(function() {
+      console.log("Clicked");
+      if ($('#q2').val() && $('#q2').val() != ''){
+        $('#search_form_2').submit();
+      }
+    })
+
+    // Load google from iframe
+    $('#g_iframe').on("load", function () {
+      $('#iframe_loading').removeClass('d-flex');
+      $('#iframe_loading').css('display', 'none');
+    });
 });
 
-
-
+function search_validator(){
+   if($('#q').val()){
+      $('#search_form').submit();
+      return(true);
+   }
+   else {
+      return(false);
+   }
+}
 
 /*
  * Function to shorten content having long text
@@ -188,6 +225,7 @@ function shorten_displayed_content() {
       }
   });
 }
+
 
 
 /*
@@ -260,18 +298,44 @@ function showhide_trait(id, term) {
 
 
 function add_search_term(term) {
+
   var elems = $('.search-input');
   if (elems.length > 0) {
     elem = elems[0];
-    elem.focus();
+    elem.focus({preventScroll: true});
     elem.value = term;
     elem.blur();
+
     setTimeout(function(){
       $('table.table[data-toggle="table"] tbody a[href^="http"]').attr('target','_blank');
       $('table.table[data-toggle="table"] tbody a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
-    }, 1000);
+    }, 500);
   }
 }
+
+
+// Buttons in the Search page results
+$('.search_facet').click(function(){
+  if ($(this).find('i.fa-circle-o')) {
+    id = $(this).attr('id');
+    type = id.replace('_facet', '');
+    if (type == 'all') {
+      $('.pgs_result').show();
+    }
+    else {
+      entry_class = type+'_entry';
+      $('.'+entry_class).show();
+      $('.pgs_result').not('.'+entry_class).hide();
+    }
+    title = type.charAt(0).toUpperCase() + type.slice(1);
+
+    $('.search_facet.selected').find('i').removeClass("fa-check-circle").addClass("fa-circle-o");
+    $('.search_facet.selected').removeClass("selected");
+
+    $(this).find('i').removeClass("fa-circle-o").addClass("fa-check-circle");
+    $(this).addClass("selected");
+  }
+});
 
 
 // Build and draw the Trait category piechart

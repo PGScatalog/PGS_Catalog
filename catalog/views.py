@@ -1,30 +1,49 @@
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.conf import settings
+from django.db.models import Prefetch
 from django.db.models.functions import Lower
-import re
 
 from .tables import *
 
 
+generic_attributes =[ 'curation_notes','publication__title','publication__PMID','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released']
+pgs_defer = {
+    'generic': generic_attributes,
+    'perf'   : [*generic_attributes,'date_released','score__curation_notes','score__date_released']
+}
+pgs_prefetch = {
+    'trait': Prefetch('trait_efo', queryset=EFOTrait.objects.only('id','label').all()),
+    'perf' : ['score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric'],
+    'publication_score': Prefetch('publication_score', queryset=Score.objects.only('id', 'publication').all()),
+    'publication_performance': Prefetch('publication_performance', queryset=Performance.objects.only('id', 'publication', 'score').all().prefetch_related(Prefetch('score', queryset=Score.objects.only('id', 'publication').all()))),
+}
+
+def disclaimer_formatting(content):
+    return '<div class="clearfix"><div class="mt-2 float_left pgs_note pgs_note_2"><div><span>Disclaimer: </span>{}</div></div></div>'.format(content)
+
 def performance_disclaimer():
-    return """<span class="pgs_note_title">Disclaimer: </span>
-        The performance metrics are displayed as reported by the source studies.
+    return disclaimer_formatting("""The performance metrics are displayed as reported by the source studies.
         It is important to note that metrics are not necessarily comparable with
         each other. For example, metrics depend on the sample characteristics
         (described by the PGS Catalog Sample Set [PSS] ID), phenotyping, and
         statistical modelling. Please refer to the source publication for additional
-        guidance on performance."""
+        guidance on performance.""")
+
+def score_disclaimer(publication_url):
+    return disclaimer_formatting("""The original published polygenic score is unavailable.
+    The authors have provided an alternative polygenic for the Catalog.
+    Please note some details and performance metrics may differ from the <a href="https://doi.org/{}">publication</a>.""".format(publication_url))
 
 
 def get_efo_traits_data():
     """ Generate the list of traits and trait categories in PGS."""
     data = []
-    traits_list = []
-
-    for category in TraitCategory.objects.all().prefetch_related('efotraits__score_set','efotraits__traitcategory_set').order_by('label'):
+    # Use set() to avoid duplication when an entry belongs to several categories
+    traits_list = set()
+    for category in TraitCategory.objects.all().prefetch_related('efotraits__associated_scores','efotraits__traitcategory').order_by('label'):
         cat_scores_count = 0
         cat_id = category.parent.replace(' ', '_')
 
@@ -41,7 +60,8 @@ def get_efo_traits_data():
                 "id": trait.id
             }
             cat_traits.append(trait_entry)
-            traits_list.append(trait)
+            # Traits table
+            traits_list.add(trait)
 
         if cat_scores_count == 0:
             continue
@@ -57,6 +77,7 @@ def get_efo_traits_data():
         }
         data.append(cat_data)
 
+    traits_list = list(traits_list)
     traits_list.sort(key=lambda x: x.label)
 
     return [traits_list, data]
@@ -89,7 +110,9 @@ def browseby(request, view_selection):
         }
     elif view_selection == 'studies':
         context['view_name'] = 'Publications'
-        table = Browse_PublicationTable(Publication.objects.all().prefetch_related('publication_score', 'publication_performance', 'publication_performance__score'), order_by="num")
+        publication_defer = ['authors','curation_status','curation_notes','date_released']
+        publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
+        table = Browse_PublicationTable(Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related), order_by="num")
         context['table'] = table
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
@@ -97,7 +120,8 @@ def browseby(request, view_selection):
         context['table'] = table
     else:
         context['view_name'] = 'Polygenic Scores (PGS)'
-        table = Browse_ScoreTable(Score.objects.select_related('publication').all().prefetch_related('trait_efo'), order_by="num")
+        score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
+        table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').all().prefetch_related(pgs_prefetch['trait']), order_by="num")
         context['table'] = table
 
     context['has_table'] = 1
@@ -106,8 +130,12 @@ def browseby(request, view_selection):
 
 
 def pgs(request, pgs_id):
+    # If ID in lower case, redirect with the ID in upper case
+    if not pgs_id.isupper():
+        return redirect_with_upper_case_id(request, '/score/', pgs_id)
+
     try:
-        score = Score.objects.select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
+        score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
     except Score.DoesNotExist:
         raise Http404("Polygenic Score (PGS): \"{}\" does not exist".format(pgs_id))
 
@@ -123,6 +151,8 @@ def pgs(request, pgs_id):
         'num_variants_pretty' : '{:,}'.format(score.variants_number),
         'has_table': 1
     }
+    if not score.flag_asis:
+        context['score_disclaimer'] = score_disclaimer(score.publication.doi)
 
     # Extract and display Sample Tables
     if score.samples_variants.count() > 0:
@@ -133,9 +163,9 @@ def pgs(request, pgs_id):
         context['table_sample_training'] = table
 
     # Extract + display Performance + associated samples
-    pquery = Performance.objects.select_related('score', 'publication').filter(score=score).prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
+    pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('score', 'publication').filter(score=score).prefetch_related(*pgs_prefetch['perf'])
     table = PerformanceTable(pquery)
-    table = PerformanceTable(pquery)
+    table.exclude = ('score')
     context['table_performance'] = table
 
     pquery_samples = set()
@@ -149,7 +179,22 @@ def pgs(request, pgs_id):
     return render(request, 'catalog/pgs.html', context)
 
 
+def redirect_with_upper_case_id(request, dir, id):
+    id = id.upper()
+    response = redirect(dir+str(id), permanent=True)
+    return response
+
+
+def redirect_pgs_to_score(request, pgs_id):
+    response = redirect_with_upper_case_id(request, '/score/', pgs_id)
+    return response
+
+
 def pgp(request, pub_id):
+    # If ID in lower case, redirect with the ID in upper case
+    if not pub_id.isupper():
+        return redirect_with_upper_case_id(request, '/publication/', pub_id)
+
     try:
         pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
     except Publication.DoesNotExist:
@@ -160,26 +205,27 @@ def pgp(request, pub_id):
         'has_table': 1
     }
 
-    #Display scores that were developed by this publication
-    related_scores = pub.publication_score.all().prefetch_related('trait_efo', 'publication')
+    # Display scores that were developed by this publication
+    related_scores = pub.publication_score.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
     if related_scores.count() > 0:
         table = Browse_ScoreTable(related_scores)
         context['table_scores'] = table
 
     #Get PGS evaluated by the PGP
-    pquery = pub.publication_performance.select_related('publication','score').all().prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
+    pquery = pub.publication_performance.defer(*pgs_defer['perf']).select_related('publication','score').all().prefetch_related(*pgs_prefetch['perf'], 'score__trait_efo')
 
     # Check if there any of the PGS are externally developed + display their information
     external_scores = set()
     for perf in pquery:
-        if perf.score not in related_scores:
-            external_scores.add(perf.score)
+        perf_score = perf.score
+        if perf_score not in related_scores:
+            external_scores.add(perf_score)
     if len(external_scores) > 0:
         table = Browse_ScoreTable(external_scores)
         context['table_evaluated'] = table
 
     #Find + table the evaluations
-    table = PerformanceTable_PubTrait(pquery)
+    table = PerformanceTable(pquery)
     context['table_performance'] = table
 
     pquery_samples = set()
@@ -195,30 +241,56 @@ def pgp(request, pub_id):
 
 
 def efo(request, efo_id):
+    # If ID in lower case, redirect with the ID in upper case
+    # If ID with ':', redirect using the ID with '_'
+    if not efo_id.isupper() or ':' in efo_id:
+        efo_id = efo_id.replace(':','_')
+        return redirect_with_upper_case_id(request, '/trait/', efo_id)
+
+    exclude_children = False
+    include_children = request.GET.get('include_children');
+    if include_children:
+        if include_children.lower() == 'false':
+            exclude_children = True
+
     try:
-        trait = EFOTrait.objects.prefetch_related('score_set').get(id__exact=efo_id)
-    except EFOTrait.DoesNotExist:
+        ontology_trait = EFOTrait_Ontology.objects.prefetch_related('scores_direct_associations','scores_child_associations','child_traits').get(id__exact=efo_id)
+    except EFOTrait_Ontology.DoesNotExist:
         raise Http404("Trait: \"{}\" does not exist".format(efo_id))
 
-    related_scores = trait.score_set.select_related('publication').all().prefetch_related('trait_efo')
+    # Get list of PGS Scores
+    related_direct_scores = ontology_trait.scores_direct_associations.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+    related_child_scores = ontology_trait.scores_child_associations.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+    if exclude_children:
+        related_scores = related_direct_scores
+    else:
+        related_scores = list(related_direct_scores) + list(related_child_scores)
+        related_scores.sort(key=lambda x: x.id)
+
     context = {
-        'trait': trait,
+        'trait': ontology_trait,
+        'trait_id_with_colon': ontology_trait.id.replace('_', ':'),
+        'trait_scores_direct_count': len(related_direct_scores),
+        'trait_scores_child_count': len(related_child_scores),
         'performance_disclaimer': performance_disclaimer(),
-        'table_scores' : Browse_ScoreTable(related_scores),
+        'table_scores': Browse_ScoreTable(related_scores),
+        'include_children': False if exclude_children else True,
         'has_table': 1
     }
 
     # Check if there are multiple descriptions
     try:
-        desc_list = eval(trait.description)
+        desc_list = eval(ontology_trait.description)
         if type(desc_list) == list:
             context['desc_list'] = desc_list
     except:
         pass
 
-    #Find the evaluations of these scores
-    pquery = Performance.objects.select_related('publication','score').filter(score__in=related_scores).prefetch_related('score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric')
-    table = PerformanceTable_PubTrait(pquery)
+
+    # Find the evaluations of these scores
+    pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
+
+    table = PerformanceTable(pquery)
     context['table_performance'] = table
 
     pquery_samples = set()
@@ -232,7 +304,47 @@ def efo(request, efo_id):
     return render(request, 'catalog/efo.html', context)
 
 
+def gwas_gcst(request, gcst_id):
+    # If ID in lower case, redirect with the ID in upper case
+    if not gcst_id.isupper():
+        return redirect_with_upper_case_id(request, '/gwas/', gcst_id)
+
+    samples = Sample.objects.filter(source_GWAS_catalog__exact=gcst_id).distinct()
+    if len(samples) == 0:
+        raise Http404("No PGS Samples are associated with the NHGRI-GWAS Catalog Study: \"{}\"".format(gcst_id))
+
+    related_scores = Score.objects.defer(*pgs_defer['generic']).select_related('publication').filter(samples_variants__in=samples).prefetch_related(pgs_prefetch['trait']).distinct()
+    if len(related_scores) == 0:
+        raise Http404("No PGS Scores are associated with the NHGRI-GWAS Catalog Study: \"{}\"".format(gcst_id))
+
+    context = {
+        'gwas_id': gcst_id,
+        'performance_disclaimer': performance_disclaimer(),
+        'table_scores' : Browse_ScoreTable(related_scores),
+        'has_table': 1,
+        'use_gwas_api': 1
+    }
+
+    pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
+    table = PerformanceTable(pquery)
+    context['table_performance'] = table
+
+    pquery_samples = set()
+    for q in pquery:
+        for sample in q.samples():
+            pquery_samples.add(sample)
+
+    table = SampleTable_performance(pquery_samples)
+    context['table_performance_samples'] = table
+
+    return render(request, 'catalog/gwas_gcst.html', context)
+
+
 def pss(request, pss_id):
+    # If ID in lower case, redirect with the ID in upper case
+    if not pss_id.isupper():
+        return redirect_with_upper_case_id(request, '/sampleset/', pss_id)
+
     try:
         sample_set = SampleSet.objects.prefetch_related('samples', 'samples__cohorts', 'samples__sample_age', 'samples__followup_time').get(id__exact=pss_id)
     except SampleSet.DoesNotExist:
@@ -256,6 +368,19 @@ def pss(request, pss_id):
         'has_table': 1,
         'has_chart': 1
     }
+
+    related_performance = Performance.objects.defer(*pgs_defer['perf']).select_related('score', 'publication').filter(sampleset=sample_set).prefetch_related('score__publication', 'score__trait_efo', 'sampleset', 'phenotyping_efo', 'performance_metric')
+    if related_performance.count() > 0:
+        # Scores
+        related_scores = [x.score for x in related_performance]
+        table_scores = Browse_ScoreTable(related_scores)
+        context['table_scores'] = table_scores
+        # Display performance metrics associated with this sample set
+        table_performance = PerformanceTable(related_performance)
+        table_performance.exclude = ('sampleset')
+        context['table_performance'] = table_performance
+        context['performance_disclaimer'] = performance_disclaimer()
+
     return render(request, 'catalog/pss.html', context)
 
 
@@ -268,8 +393,14 @@ class DocsView(TemplateView):
 class DownloadView(TemplateView):
     template_name = "catalog/download.html"
 
+class ReportStudyView(TemplateView):
+    template_name = "catalog/report_study.html"
+
 class CurrentTemplateView(RedirectView):
     url = settings.USEFUL_URLS['TEMPLATEGoogleDoc_URL']
+
+class CurationDocView(RedirectView):
+    url = settings.USEFUL_URLS['CurationGoogleDoc_URL']
 
 
 # Method used for the App Engine warmup

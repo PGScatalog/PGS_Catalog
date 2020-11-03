@@ -13,11 +13,16 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 
 if not os.getenv('GAE_APPLICATION', None):
-    import yaml
-    with open(os.path.join('./', 'app.yaml')) as secrets_file:
-        secrets = yaml.load(secrets_file, Loader=yaml.FullLoader)
-        for keyword in secrets['env_variables']:
-            os.environ[keyword] = secrets['env_variables'][keyword]
+    app_settings = os.path.join('./', 'app.yaml')
+    if os.path.exists(app_settings):
+        import yaml
+        with open(app_settings) as secrets_file:
+            secrets = yaml.load(secrets_file, Loader=yaml.FullLoader)
+            for keyword in secrets['env_variables']:
+                os.environ[keyword] = secrets['env_variables'][keyword]
+    elif not os.environ['SECRET_KEY']:
+        print("Error: missing secret key")
+        exit(1)
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -34,7 +39,6 @@ DEBUG = False
 if os.environ['DEBUG'] == 'True':
     DEBUG = True
 
-#ALLOWED_HOSTS = []
 ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
 
 
@@ -42,7 +46,8 @@ ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
 
 INSTALLED_APPS = [
 	'catalog.apps.CatalogConfig',
-    'release.apps.ReleaseConfig',
+    'rest_api.apps.RestApiConfig',
+    'search.apps.SearchConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,8 +55,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_tables2',
-    'django_extensions'
+    'django_extensions',
+    'compressor',
+    'rest_framework',
+    'django_elasticsearch_dsl'
 ]
+if os.environ['PGS_LIVE_SITE'] == 'False':
+    INSTALLED_APPS.append('release.apps.ReleaseConfig')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,6 +72,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'pgs_web.urls'
 
@@ -76,7 +87,9 @@ if os.getenv('GAE_APPLICATION', None) and DEBUG==False:
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
-                    'catalog.context_processors.pgs_urls'
+                    'catalog.context_processors.pgs_urls',
+                    'catalog.context_processors.pgs_settings',
+                    'catalog.context_processors.pgs_search_examples'
                 ],
                 'loaders': [
                     ('django.template.loaders.cached.Loader', [
@@ -99,7 +112,9 @@ else:
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
-                    'catalog.context_processors.pgs_urls'
+                    'catalog.context_processors.pgs_urls',
+                    'catalog.context_processors.pgs_settings',
+                    'catalog.context_processors.pgs_search_examples'
                 ],
             },
         },
@@ -107,15 +122,24 @@ else:
 
 
 USEFUL_URLS = {
-    'BAKER_URL'      : 'https://baker.edu.au',
-    'EBI_URL'        : 'https://www.ebi.ac.uk',
-    'HDR_UK_CAM_URL' : 'https://www.hdruk.ac.uk/about/structure/hdr-uk-cambridge/',
-    'PGS_CONTACT'    : 'pgs-info@ebi.ac.uk',
-    'PGS_FTP_ROOT'   : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
-    'PGS_TWITTER_URL': 'https://www.twitter.com/pgscatalog',
-    'UOC_URL'        : 'https://www.phpc.cam.ac.uk/',
-    'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing'
+    'BAKER_URL'         : 'https://baker.edu.au',
+    'EBI_URL'           : 'https://www.ebi.ac.uk',
+    'HDR_UK_CAM_URL'    : 'https://www.hdruk.ac.uk/about/structure/hdr-uk-cambridge/',
+    'PGS_CONTACT'       : 'pgs-info@ebi.ac.uk',
+    'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
+    'PGS_FTP_HTTP_ROOT' : 'http://ftp.ebi.ac.uk/pub/databases/spot/pgs',
+    'PGS_TWITTER_URL'   : 'https://www.twitter.com/pgscatalog',
+    'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',
+    'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing',
+    'CurationGoogleDoc_URL' : 'https://drive.google.com/file/d/1iYoa0R3um7PtyfVO37itlGbK1emoZmD-/view',
+    'CATALOG_PUBLICATION_URL' : 'https://doi.org/10.1101/2020.05.20.20108217'
 }
+if os.getenv('GAE_APPLICATION', None):
+    PGS_ON_GAE = 1
+else:
+    PGS_ON_GAE = 0
+
+PGS_ON_LIVE_SITE = os.environ['PGS_LIVE_SITE']
 
 WSGI_APPLICATION = 'pgs_web.wsgi.application'
 
@@ -133,7 +157,7 @@ if os.getenv('GAE_APPLICATION', None):
             'USER': os.environ['DATABASE_USER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': os.environ['DATABASE_HOST'],
-            'PORT': 5432
+            'PORT': os.environ['DATABASE_PORT']
         }
     }
 else:
@@ -148,7 +172,7 @@ else:
             'USER': os.environ['DATABASE_USER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': 'localhost',
-            'PORT': 5430
+            'PORT': os.environ['DATABASE_PORT']
         }
     }
 # [END db_setup]
@@ -197,14 +221,64 @@ STATICFILES_FINDERS = [
 	'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 ]
+if not os.getenv('GAE_APPLICATION', None):
+    STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
 
 
 COMPRESS_PRECOMPILERS = ''
 COMPRESS_ROOT = os.path.join(BASE_DIR, "static/")
 
-if not os.getenv('GAE_APPLICATION', None):
-    INSTALLED_APPS.append('compressor')
-    STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
-    COMPRESS_PRECOMPILERS = (
-        ('text/x-scss', 'django_libsass.SassCompiler'),
-    )
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
+
+
+#---------------------#
+#  REST API Settings  #
+#---------------------#
+
+#REST_SAFELIST_IPS = [
+#    '127.0.0.1'
+#]
+REST_BLACKLIST_IPS = [
+    #'127.0.0.1'
+]
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_api.rest_permissions.BlacklistPermission', # see REST_BLACKLIST_IPS
+        #'rest_api.rest_permissions.SafelistPermission', # see REST_SAFELIST_IPS
+        #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 50,
+    'EXCEPTION_HANDLER': 'rest_api.views.custom_exception_handler',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES' : {
+        'anon': '100/min',
+        'user': '100/min'
+    }
+}
+
+# Elasticsearch configuration
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': os.environ['ELASTICSEARCH_URL_ROOT']
+    }
+}
+
+# Name of the Elasticsearch index
+ELASTICSEARCH_INDEX_NAMES = {
+    'search.documents.efo_trait': 'efo_trait',
+    'search.documents.publication': 'publication'
+}

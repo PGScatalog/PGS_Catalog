@@ -6,7 +6,7 @@
 {% block content %}
     <nav aria-label="You are here:">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
         <li class="breadcrumb-item">Documentation</li>
         <li class="breadcrumb-item">Data Description</li>
       </ol>
@@ -136,7 +136,7 @@
                   <tbody>
                     <tr>
                       <td><b>Source of Variant Associations</b> (GWAS)</td>
-                      <td>A table describing the samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the GWAS Catalog when a study ID (GCST) is available.</td>
+                      <td>A table describing the samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available.</td>
                     </tr>
                     <tr>
                       <td><b>Score Development/Training</b></td>
@@ -158,8 +158,8 @@
 
         <br />
         <h4 id="desc_trait">Trait</h4>
-        <p>Traits in the Catalog are displayed/grouped according to the <u>Mapped Traits</u> rather than the author <u>Reported Traits</u> to facilitate comparability, similar to the GWAS Catalog.
-        For a complete description of why the trait ontology is employed please refer to <a href="https://www.ebi.ac.uk/gwas/docs/ontology">related documentation</a> from the GWAS Catalog.
+        <p>Traits in the Catalog are displayed/grouped according to the <u>Mapped Traits</u> rather than the author <u>Reported Traits</u> to facilitate comparability, similar to the NHGRI-EBI GWAS Catalog.
+        For a complete description of why the trait ontology is employed please refer to <a href="https://www.ebi.ac.uk/gwas/docs/ontology">related documentation</a> from the NHGRI-EBI GWAS Catalog.
         The Experimental Factor Ontology is hosted and described here: <a href="https://www.ebi.ac.uk/efo/">Experimental Factor Ontology (EFO)</a>. The information for each EFO trait ID that is stored in the PGS catalog is:</p>
 
         <table class="table table-bordered table-left-col-filled">
@@ -170,7 +170,7 @@
             </tr>
             <tr>
               <td><b>Identifier</b></td>
-              <td>The Experimental Factor Ontology ID (EFO_ID) identifier to consistently refer to traits using the <a href="https://www.ebi.ac.uk/efo/">EFO</a>, and to other resources like the <a href="https://www.ebi.ac.uk/gwas">GWAS Catalog</a>.</td>
+              <td>The Experimental Factor Ontology ID (EFO_ID) identifier to consistently refer to traits using the <a href="https://www.ebi.ac.uk/efo/">EFO</a>, and to other resources like the <a href="https://www.ebi.ac.uk/gwas">NHGRI-EBI GWAS Catalog</a>.</td>
             </tr>
 
             <tr>
@@ -199,7 +199,7 @@
               <td>PSS IDs are assigned to describe samples used in PGS evaluations (<i>e.g.</i> Performance Metrics). PSS IDs are not uniquely associated with a single PGS, multiple PGS can be evaluated on the sample sets (PSS ID).</td>
             </tr>
             <tr>
-              <td><b>Detailed Phenotype Description</b></td>
+              <td><b>Phenotype Definitions and Methods</b></td>
               <td>A description of how the phenotype was measured or defined (<i>e.g.</i> ICD codes used to identify cases/phenotypes in EHR data). </td>
             </tr>
             <tr>
@@ -209,7 +209,7 @@
             <tr>
             <tr>
               <td><b>Study Identifiers</b></td>
-              <td>Identifiers used to link the samples to their initial descriptions (<i>e.g.</i> using PubMed IDs) and if they were used for variant associations to their associated GWAS studies (using GWAS Catalog GCST IDs).</td>
+              <td>Identifiers used to link the samples to their initial descriptions (<i>e.g.</i> using PubMed IDs) and if they were used for variant associations to their associated GWAS studies (using NHGRI-EBI GWAS Catalog GCST IDs).</td>
             </tr>
             <tr>
               <td><b>Sample Numbers</b></td>
@@ -221,12 +221,12 @@
             </tr>
             <tr>
               <td><b>Ancestry fields:</b></td>
-              <td><p>Fields describing sample ancestry are curated according to the <a href="https://www.ebi.ac.uk/gwas/docs/ancestry">framework</a> used to record ancestry data in the GWAS Catalog that was defined in <a href="https://doi.org/10.1186/s13059-018-1396-2">Morales <i>et al. Genome Biology</i> (2018)</a>:</p>
+              <td><p>Fields describing sample ancestry are curated according to the <a href="https://www.ebi.ac.uk/gwas/docs/ancestry">framework</a> used to record ancestry data in the NHGRI-EBI GWAS Catalog that was defined in <a href="https://doi.org/10.1186/s13059-018-1396-2">Morales <i>et al. Genome Biology</i> (2018)</a>:</p>
                 <table class="table table-bordered table-left-col-filled">
                   <tbody>
                     <tr>
                       <td><b>Broad Ancestry Category</b></td>
-                      <td>Author reported ancestry is mapped to the best matching ancestry category from the GWAS Catalog framework (<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5815218/table/Tab1/?report=objectonly">Table 1, Morales <i>et al.</i> (2018)</a>).</td>
+                      <td>Author reported ancestry is mapped to the best matching ancestry category from the NHGRI-EBI GWAS Catalog framework (<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5815218/table/Tab1/?report=objectonly">Table 1, Morales <i>et al.</i> (2018)</a>).</td>
                     </tr>
                     <tr>
                       <td><b>Ancestry</b></td>
@@ -300,7 +300,7 @@
             </tr>
                <tr>
               <td><b>Covariates Included in PGS Model</b></td>
-              <td>A comma-separated list of covariates used in the prediction model used to evaluate the PGS. Examples include: age, sex, smoking habits, etc.</td>
+              <td>A comma-separated list of covariates used in the prediction model to evaluate the PGS. Examples include: age, sex, smoking habits, etc.</td>
             </tr>
             <tr>
               <td><b>PGS Performance: Other Relevant Information</b></td>

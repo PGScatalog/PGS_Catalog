@@ -1,0 +1,139 @@
+{% load static %}
+{% if is_pgs_app_on_gae == 0 %}
+  {% load compress %}
+{% endif %}
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>PGS Catalog REST API documentation</title>
+    <meta name="keywords" content="polygenic score, polygenic risk score, pgs, prs, catalog, catalogue, database, genetic, genomic, prediction, disease, gwas, ebi" /><!-- 3 to 10 keywords about the content of this page (not the whole project) -->
+    <meta name="author" content="PGS Catalog" /><!-- Your [project-name] here -->
+    <meta name="description" content="The Polygenic Score (PGS) Catalog is an open database of published PGS and the relevant metadata needed to apply and evaluate them correctly.">
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="width" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#007C82" /> <!-- Android Chrome mobile browser tab color -->
+
+    <link rel="stylesheet" type="text/css" href="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui.css' %}" >
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+    <!-- PGS (S)CSS file -->
+    {% if is_pgs_app_on_gae %}
+      <link rel="stylesheet" href="{% static 'catalog/pgs.min.css' %}" type="text/css" media="all" />
+      <link rel="stylesheet" href="{% static 'rest_api/pgs_rest.min.css' %}" type="text/css" media="all" />
+    {% else %}
+      {% compress css %}
+        <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
+        <link type="text/x-scss" href="{% static 'rest_api/pgs_rest.scss' %}" rel="stylesheet" media="screen">
+      {% endcompress %}
+    {% endif %}
+
+    <link rel="icon" type="image/x-icon" href="{% static 'catalog/imgs/favicons/favicon.ico' %}" />
+    <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-16x16.png' %}" />
+    <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-32x32.png' %}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'catalog/imgs/favicons/android-chrome-192x192.png' %}" /> <!-- Android (192px) -->
+    <link rel="icon" type="image/png" sizes="384x384" href="{% static 'catalog/imgs/favicons/android-chrome-384x384.png' %}" /> <!-- Android (384px) -->
+    <meta name="msapplication-TileImage" content="{% static 'catalog/imgs/favicons/mstile-150x150.png' %}" />
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
+    <script src="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui-bundle.js' %}"></script>
+    <script src="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui-standalone-preset.js' %}"></script>
+    <script>
+      window.onload = function() {
+        // Begin Swagger UI call region
+        const ui = SwaggerUIBundle({
+          url: "{% static 'rest_api/openapi/openapi-schema.yml' %}",
+          dom_id: '#swagger-ui',
+          deepLinking: true,
+          presets: [ SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset ],
+          plugins: [ SwaggerUIBundle.plugins.DownloadUrl ],
+          layout: "StandaloneLayout",
+          useUnsafeMarkdown: true
+        })
+        // End Swagger UI call region
+        window.ui = ui
+
+
+        //-----------------------------------//
+        // Update default display of Swagger //
+        //-----------------------------------//
+
+        // Remove Swagger header
+        var topbar = document.getElementsByClassName("topbar")[0];
+        topbar.parentNode.removeChild(topbar);
+
+        // Remove the list of servers
+        setTimeout(function(){
+
+          // Add Swagger logo
+          var hgroup = document.getElementsByTagName("hgroup")[0];
+          // Create 'div' class and add it ti the hgroup
+          var title_div = document.createElement("div");
+          title_div.classList.add('clearfix');
+          hgroup.insertBefore(title_div,hgroup.firstChild);
+          // Move title within the 'div'
+          var title = hgroup.getElementsByClassName("title")[0];
+          title_div.appendChild(title);
+          // Create link node for Swagger
+          var swagger_link =  document.createElement("a");
+          swagger_link.href = 'https://swagger.io/tools/swagger-ui/';
+          swagger_link.setAttribute('target', '_blank');
+          // Create image node for Swagger
+          var swagger_logo = document.createElement("img");
+          swagger_logo.src = "{% static 'rest_api/openapi/swagger-dist-ui/swagger-logo.png' %}";
+          swagger_link.appendChild(swagger_logo);
+          title_div.appendChild(swagger_link);
+
+          // Remove openapi link
+          var oa_link = hgroup.getElementsByClassName("link")[0];
+          oa_link.parentNode.removeChild(oa_link);
+
+          // Remove the list of servers
+          var servers_list = document.getElementsByClassName("scheme-container")[0];
+          servers_list.parentNode.removeChild(servers_list);
+
+          // Replace content
+          var endpoints_list = document.getElementsByClassName("opblock-summary-path");
+          for (i=0; i < endpoints_list.length; i++) {
+            span = endpoints_list[i].getElementsByTagName("span")[0];
+            span.innerHTML = span.innerHTML.replace(/(\/)/g, "<span class=\"colour_1\">$1</span>");
+            span.innerHTML = span.innerHTML.replace(/(\{|\})/g, "<span class=\"colour_2\">$1</span>");
+          }
+
+          // Remove website URL
+          contact_elem = document.getElementsByClassName("info__contact");
+          url_elem = contact_elem[0].getElementsByTagName("div")[0];
+          url_elem.parentNode.removeChild(url_elem);
+
+          // Remove from schema
+          models_to_remove = ['Pagination','Error_4XX', 'Demographic'];
+          for (i=0;i<models_to_remove.length;i++) {
+            model_elem = document.getElementById("model-"+models_to_remove[i]);
+            model_elem.parentNode.removeChild(model_elem);
+          }
+
+          document.getElementsByTagName("footer")[0].style.display='block';
+
+          $('.toggle_btn').click(function() {
+            $(this).find('i').toggleClass("fa-plus-circle fa-minus-circle");
+            id = $(this).attr('id');
+            $('#content_'+id).toggle();
+          });
+        }, 150);
+      }
+    </script>
+  </head>
+  <body>
+
+    {% include "catalog/includes/header.html" %}
+
+    <div id="swagger-ui"></div>
+
+    {% include "catalog/includes/footer.html" %}
+
+  </body>
+</html>

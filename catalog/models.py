@@ -51,6 +51,10 @@ class Publication(models.Model):
         return self.PMID != None
 
     @property
+    def is_preprint(self):
+        return 'bioRxiv' in self.journal or 'medRxiv' in self.journal
+
+    @property
     def pub_year(self):
         return self.date_publication.strftime('%Y')
 
@@ -66,8 +70,16 @@ class Publication(models.Model):
             score_ids_set.add(performance.score.id)
         return len(list(score_ids_set))
 
+    @property
+    def associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.publication_score.all():
+            score_ids_set.add(score.id)
+        return sorted(list(score_ids_set))
+
     def parse_EuropePMC(self, doi=None, PMID=None):
-        '''Function to get the citation information from the EuropePMC API'''
+        """Function to get the citation information from the EuropePMC API"""
         import requests
 
         payload = {'format': 'json'}
@@ -106,9 +118,46 @@ class Cohort(models.Model):
         return self.name_short
 
 
-class EFOTrait(models.Model):
-    '''Class to hold information related to controlled trait vocabulary
-    (mainly to link multiple EFO to a single score)'''
+    @property
+    def associated_pgs_ids(self):
+
+        list_dev_associated_pgs_ids  = set()
+        list_eval_associated_pgs_ids = set()
+        sample_ids_list = set()
+        pss_ids_list = set()
+
+        for sample in self.sample_set.all():
+            if sample.id in sample_ids_list:
+                continue
+            list_pgs_ids = sample.associated_PGS()
+            for pgs_id in list_pgs_ids:
+                if pgs_id != '':
+                    list_dev_associated_pgs_ids.add(pgs_id)
+
+            pss_ids = sample.associated_PSS()
+            for pss_id in pss_ids:
+                pss_ids_list.add(pss_id)
+
+            sample_ids_list.add(sample.id)
+
+        list_dev_associated_pgs_ids = list(list_dev_associated_pgs_ids)
+        list_dev_associated_pgs_ids.sort()
+
+        sample_sets = SampleSet.objects.filter(id__in=list(pss_ids_list)).distinct()
+        perfs = Performance.objects.select_related('score').values('score__id').filter(sampleset__in=sample_sets).distinct()
+
+        for perf in perfs:
+            list_eval_associated_pgs_ids.add(perf['score__id'])
+
+        list_eval_associated_pgs_ids = list(list_eval_associated_pgs_ids)
+        list_eval_associated_pgs_ids.sort()
+
+        return { 'development': list_dev_associated_pgs_ids, 'evaluation': list_eval_associated_pgs_ids}
+
+
+class EFOTrait_Base(models.Model):
+    """Abstract class to hold information related to controlled trait vocabulary
+    (mainly to link multiple EFO to a single score)"""
     id = models.CharField('Ontology Trait ID', max_length=30, primary_key=True)
     label = models.CharField('Ontology Trait Label', max_length=500, db_index=True)
     description = models.TextField('Ontology Trait Description', null=True)
@@ -116,6 +165,8 @@ class EFOTrait(models.Model):
     synonyms = models.TextField('Synonyms', null=True)
     mapped_terms = models.TextField('Mapped terms', null=True)
 
+    class Meta:
+        abstract = True
 
     def parse_api(self):
         import requests
@@ -141,26 +192,12 @@ class EFOTrait(models.Model):
                 self.description = response['description']
 
 
-    def get_category(self):
-        """ Test to fetch the GWAS trait category from an EFO ID """
-        import requests
-
-        response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%self.id)
-        response_json = response.json()
-        print("Response JSON:")
-        print(response_json)
-        if response_json and response_json['trait'] != 'None':
-            print(response_json['parent'])
-            print(response_json['colourLabel'])
-            print(response_json['colour'])
-
-
     def __str__(self):
         return '%s | %s '%(self.id, self.label)
 
     @property
     def display_label(self):
-        return '<a href="../../trait/%s">%s</a>'%(self.id, self.label)
+        return '<a href="/trait/%s">%s</a>'%(self.id, self.label)
 
     def display_id_url(self):
         return '<a href="%s">%s</a><span class="only_export">: %s</span>'%(self.url, self.id, self.url)
@@ -180,46 +217,67 @@ class EFOTrait(models.Model):
             return []
 
     @property
-    def scores_count(self):
-        return self.score_set.count()
+    def category_list(self):
+        return sorted(self.traitcategory.all(), key=lambda y: y.label)
+
+    @property
+    def category_labels_list(self):
+        categories = self.category_list
+        if len(categories) > 0:
+            return [x.label for x in categories]
+        else:
+            return []
+
+    @property
+    def category_list(self):
+        return sorted(self.traitcategory.all(), key=lambda y: y.label)
+
+    @property
+    def category_labels_list(self):
+        categories = self.category_list
+        if len(categories) > 0:
+            return [x.label for x in categories]
+        else:
+            return []
 
     @property
     def category_labels(self):
-        categories = self.traitcategory_set.all()
+        category_labels = self.category_labels_list
         categories_data = ''
-        if len(categories) > 0:
-            category_labels = [x.label for x in categories]
+        if len(category_labels) > 0:
             categories_data = ', '.join(category_labels)
 
         return categories_data
 
     @property
-    def category_list(self):
-        return self.traitcategory_set.all()
+    def display_category_labels(self):
+        categories = self.category_list
+        categories_data = ''
+        if len(categories) > 0:
+            category_labels = []
+            for category in categories:
+                v_spacing = ' class="mt-1"' if len(category_labels) > 0 else ''
+                category_labels.append('<div{}><span class="trait_colour" style="background-color:{}"></span>{}</div>'.format(v_spacing,category.colour,category.label))
+            categories_data = ''.join(category_labels)
+
+        return categories_data
 
 
-class TraitCategory(models.Model):
-    # Stable identifiers for declaring a set of traits
-    label = models.CharField('Trait category', max_length=50, db_index=True)
-    colour = models.CharField('Trait category colour', max_length=30)
-    parent = models.CharField('Trait category (parent term)', max_length=50)
-
-    # Link to the description of the sample(s) in the other table
-    efotraits = models.ManyToManyField(EFOTrait, verbose_name='Traits')
-
-    class Meta:
-        verbose_name_plural = "Trait categories"
-
-    def __str__(self):
-        return self.label
+class EFOTrait(EFOTrait_Base):
+    """Implementation of the abstract class 'EFOTrait_Base' to hold information related to controlled trait vocabulary
+    (mainly to link multiple EFO to a single score)"""
 
     @property
-    def count_scores(self):
-        scores_count = 0
-        for trait in self.efotraits.all():
-            scores_count += trait.scores_count
+    def associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.associated_scores.all():
+            score_ids_set.add(score.id)
+        return sorted(list(score_ids_set))
 
-        return scores_count
+    @property
+    def scores_count(self):
+        return self.associated_scores.count()
 
 
 class Demographic(models.Model):
@@ -236,12 +294,8 @@ class Demographic(models.Model):
 
     def format_estimate(self):
         if self.estimate != None:
-            e = '{}:{}'.format(self.estimate_type, self.estimate)
-            if self.range != None and self.range_type.lower() == 'ci':
-                e += ' {}'.format(str(self.range))
-            return e
-        else:
-            return None
+            return '{}:{}'.format(self.estimate_type, self.estimate)
+        return None
 
     def format_range(self):
         if self.estimate == None and self.range != None:
@@ -304,6 +358,32 @@ class Demographic(models.Model):
         else:
             return ''
 
+    def display_values_dict(self):
+        l = {}
+
+        # Estimate
+        estimate = ''
+        if self.estimate != None:
+            estimate = str(self.estimate)
+            if self.range != None and self.range_type.lower() == 'ci':
+                estimate += str(self.range)
+            if estimate:
+                l[self.estimate_type] = estimate
+
+        # Range
+        if self.range != None and '[' not in estimate:
+            l[self.range_type] = str(self.range)
+
+        # Variability
+        if self.variability != None:
+            l[self.variability_type] = self.variability
+
+        # Unit
+        if self.unit != None:
+            l['unit'] = self.unit
+
+        return l
+
 
     def range_type_desc(self):
         desc_list = {
@@ -335,7 +415,7 @@ class Sample(models.Model):
     sample_age = models.OneToOneField(Demographic, on_delete=models.CASCADE,related_name='ages_of', null=True)
 
     ## Description
-    phenotyping_free = models.TextField('Detailed Phenotype Description')
+    phenotyping_free = models.TextField('Phenotype Definitions and Methods', null=True)
     followup_time = models.OneToOneField(Demographic, on_delete=models.CASCADE,related_name='followuptime_of', null=True)
 
     ## Ancestry
@@ -345,22 +425,16 @@ class Sample(models.Model):
     ancestry_additional = models.TextField('Additional Ancestry Description', null=True)
 
     ## Cohorts/Sources
-    source_GWAS_catalog = models.CharField('GWAS Catalog Study ID (GCST...)', max_length=20)
-    source_PMID = models.CharField('Source PubMed ID (PMID)', max_length=20)
+    source_GWAS_catalog = models.CharField('GWAS Catalog Study ID (GCST...)', max_length=20, null=True)
+    source_PMID = models.CharField('Source PubMed ID (PMID) or doi', max_length=100, null=True)
     cohorts = models.ManyToManyField(Cohort, verbose_name='Cohort(s)')
     cohorts_additional = models.TextField('Additional Sample/Cohort Information', null=True)
 
     def __str__(self):
-        s = 'Sample: {}'.format(str(self.pk))
-
-        #Check if any PGS
-        ids = self.associated_PGS()
-        if len(ids) > 0:
-            s += ' | {}'.format(' '.join(ids))
-        # Check if any PSS
-        ids = self.associated_PSS()
-        if len(ids) > 0:
-            s += ' | {}'.format(' '.join(ids))
+        s = 'Sample {}'.format(str(self.pk))
+        if self.ancestry_broad:
+            s += ' - {}'.format(self.ancestry_broad)
+        s += ' ({} individuals)'.format(self.sample_number)
         return s
 
     def associated_PGS(self):
@@ -382,11 +456,23 @@ class Sample(models.Model):
         return ids
 
     def list_cohortids(self):
-        return [x.name_full for x in self.cohorts.all()]
+        return [x.name_short for x in self.cohorts.all()]
+
+    @property
+    def sample_cases_percent(self):
+        if self.sample_cases != None:
+            percent = (self.sample_cases / self.sample_number) * 100
+            return round(percent,2)
+        else:
+            return None
 
     @property
     def display_sampleset(self):
-        return self.sampleset.all()[0]
+        samplesets = self.sampleset.all()
+        if samplesets:
+            return samplesets[0]
+        else:
+            return None
 
     @property
     def display_samples(self):
@@ -468,9 +554,9 @@ class Sample(models.Model):
     @property
     def display_sources(self):
         d = {}
-        if self.source_GWAS_catalog.startswith('GCST'):
+        if self.source_GWAS_catalog:
             d['GCST'] = self.source_GWAS_catalog
-        if self.source_PMID != None:
+        if self.source_PMID:
             d['PMID'] = self.source_PMID
         return d
 
@@ -502,6 +588,9 @@ class Score(models.Model):
     date_released = models.DateField('PGS Catalog Release Date', null=True, db_index=True)
     curation_notes = models.TextField('Curation Notes', default='')
 
+    # Used to identify scores that don't match the original publication
+    flag_asis = models.BooleanField('Score and results match the original publication', default=True)
+
     # Links to related models
     publication = models.ForeignKey(Publication, on_delete=models.PROTECT, related_name='publication_score', verbose_name='PGS Publication (PGP) ID')
     ## Contributing Samples
@@ -511,11 +600,11 @@ class Score(models.Model):
     # Trait information
     trait_reported = models.TextField('Reported Trait')
     trait_additional = models.TextField('Additional Trait Information', null=True)
-    trait_efo = models.ManyToManyField(EFOTrait, verbose_name='Mapped Trait(s) (EFO terms)')
+    trait_efo = models.ManyToManyField(EFOTrait, verbose_name='Mapped Trait(s) (EFO terms)', related_name='associated_scores')
 
     # PGS Development/method details
     method_name = models.TextField('PGS Development Method')
-    method_params = models.TextField('PGS Development Details/Relevant Parameters')
+    method_params = models.TextField('PGS Development Details/Relevant Parameters', default='NR')
 
     variants_number = models.IntegerField('Number of Variants', validators=[MinValueValidator(1)])
     variants_interactions = models.IntegerField('Number of Interaction Terms', default=0)
@@ -541,7 +630,7 @@ class Score(models.Model):
 
     @property
     def ftp_scoring_file(self):
-        ftp_url = '{}/scores/{}/ScoringFiles/{}'.format(settings.USEFUL_URLS['PGS_FTP_ROOT'], self.id, self.link_filename)
+        ftp_url = '{}/scores/{}/ScoringFiles/{}'.format(settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], self.id, self.link_filename)
         return ftp_url
 
     @property
@@ -550,6 +639,7 @@ class Score(models.Model):
         for t in self.trait_efo.all():
             l.append((t.id, t.label))
         return(l)
+
 
 class SampleSet(models.Model):
     # Stable identifiers for declaring a set of related samples
@@ -571,7 +661,7 @@ class SampleSet(models.Model):
         ancestry_list = []
         for sample in self.samples.all():
             ancestry = sample.display_ancestry_inline
-            if ancestry not in ancestry_list:
+            if ancestry and ancestry not in ancestry_list:
                 ancestry_list.append(ancestry)
         if len(ancestry_list) > 0:
             return ', '.join(ancestry_list)
@@ -584,8 +674,7 @@ class SampleSet(models.Model):
 
     @property
     def count_performances(self):
-        return len(Performance.objects.filter(sampleset_id=self.num))
-
+        return len(Performance.objects.values('id').filter(sampleset_id=self.num))
 
 
 class Performance(models.Model):
@@ -609,8 +698,8 @@ class Performance(models.Model):
 
     # [Links to Performance metrics are made by ForeignKey in Metrics table, previously they were parameterized here]
     phenotyping_reported = models.CharField('Reported Trait', max_length=200)
-    covariates = models.TextField('Covariates Included in PGS Model')
-    performance_comments = models.TextField('PGS Performance: Other Relevant Information')
+    covariates = models.TextField('Covariates Included in the Model', null=True)
+    performance_comments = models.TextField('PGS Performance: Other Relevant Information', null=True)
 
     def __str__(self):
         return '%s | %s -> %s'%(self.id, self.score.id, self.sampleset.id)
@@ -625,6 +714,10 @@ class Performance(models.Model):
     def samples(self):
         """ Method working as a shortcut to fetch all the samples related to the sampleset  """
         return list(self.sampleset.samples.all())
+
+    @property
+    def associated_pgs_id(self):
+        return self.score.id
 
     @property
     def display_trait(self):
@@ -652,9 +745,38 @@ class Performance(models.Model):
     def othermetrics_list(self):
         return self.get_metric_data('Other Metric')
 
+
+    @property
+    def performance_metrics(self):
+        perf_metrics = {}
+
+        effect_sizes_list = self.effect_sizes_list
+        effect_sizes_data = []
+        if effect_sizes_list:
+            for effect_size in self.effect_sizes_list:
+                effect_sizes_data.append({'labels': effect_size[0], 'value': effect_size[1]})
+        perf_metrics['effect_sizes'] = effect_sizes_data
+
+        class_acc_list = self.class_acc_list
+        class_acc_data = []
+        if class_acc_list:
+            for class_acc in self.class_acc_list:
+                class_acc_data.append({'labels': class_acc[0], 'value': class_acc[1]})
+        perf_metrics['class_acc'] = class_acc_data
+
+        othermetrics_list = self.othermetrics_list
+        othermetrics_data = []
+        if othermetrics_list:
+            for othermetrics in othermetrics_list:
+                othermetrics_data.append({'labels': othermetrics[0], 'value': othermetrics[1]})
+        perf_metrics['othermetrics'] = othermetrics_data
+
+        return perf_metrics
+
+
     @property
     def publication_withexternality(self):
-        '''This function checks whether the evaluation is internal or external to the score development paper'''
+        """This function checks whether the evaluation is internal or external to the score development paper"""
         p = self.publication
         info = [' '.join([p.id, '<br/><small><i class="fa fa-angle-double-right"></i> ',p.firstauthor, '<i>et al.</i>', '(%s)' % p.date_publication.strftime('%Y'), '</small>']), self.publication.id]
 
@@ -662,6 +784,11 @@ class Performance(models.Model):
             info.append('D')
         else:
             info.append('E')
+
+        if self.publication.is_preprint:
+            info.append('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
+        else:
+            info.append('')
 
         return '|'.join(info)
 
@@ -675,9 +802,9 @@ class Performance(models.Model):
             for m in metrics:
                 if (m.type == metric_type):
                     l.append((m.name_tuple(), m.display_value()))
-            return l
-        else:
-            return None
+            if len(l) != 0:
+                return l
+        return None
 
 
 class Metric(models.Model):
@@ -715,10 +842,11 @@ class Metric(models.Model):
             return '%s: %s'%(self.name, s)
 
     def display_value(self):
+        estimate_value = round(self.estimate, 5)
         if self.ci != None:
-            s = '{} {}'.format(self.estimate, self.ci)
+            s = '{} {}'.format(estimate_value, self.ci)
         else:
-            s = '{}'.format(self.estimate)
+            s = '{}'.format(estimate_value)
         return s
 
     def name_tuple(self):
@@ -726,6 +854,71 @@ class Metric(models.Model):
             return (self.name, self.name)
         else:
             return (self.name, self.name_short)
+
+
+class EFOTrait_Ontology(EFOTrait_Base):
+    """ Class similar to the EFOTrait class, with the addition of the associated PGS Scores and
+    the parents and children of the EFO trait """
+    scores_direct_associations = models.ManyToManyField(Score, verbose_name='PGS Score IDs - direct associations', related_name='scores_trait_direct_associations')
+    scores_child_associations = models.ManyToManyField(Score, verbose_name='PGS Score IDs - child associations', related_name='scores_trait_child_associations')
+
+    child_traits = models.ManyToManyField('self', verbose_name='Child traits', symmetrical=False, related_name='parent_traits')
+
+    @property
+    def associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.scores_direct_associations.all():
+            score_ids_set.add(score.id)
+        return sorted(list(score_ids_set))
+
+    @property
+    def child_associated_pgs_ids(self):
+        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
+        score_ids_set = set()
+        for score in self.scores_child_associations.all():
+            score_ids_set.add(score.id)
+        return sorted(list(score_ids_set))
+
+    @property
+    def display_child_traits_list(self):
+        child_traits = self.child_traits.all()
+        if child_traits:
+            child_traits_list = []
+            for child_trait in sorted(child_traits, key=lambda y: y.label):
+                child_trait_html = '<a href="/trait/{}">{}</a>'.format(child_trait.id, child_trait.label)
+                child_traits_list.append(child_trait_html)
+            return child_traits_list
+        else:
+            return []
+
+
+class TraitCategory(models.Model):
+    """ Class to hold information about Trait category, as defined by the GWAS Catalog, to structure the numerous traits in broad groups."""
+    # Stable identifiers for declaring a set of traits
+    label = models.CharField('Trait category', max_length=50, db_index=True)
+    colour = models.CharField('Trait category colour', max_length=30)
+    parent = models.CharField('Trait category (parent term)', max_length=50)
+
+    # Link to the list of associated EFOTrait models
+    efotraits = models.ManyToManyField(EFOTrait, verbose_name='Traits', related_name='traitcategory')
+
+    # Link to the list of associated EFOTrait_Ontology models
+    efotraits_ontology = models.ManyToManyField(EFOTrait_Ontology, verbose_name='Parent Traits', related_name='traitcategory')
+
+    class Meta:
+        verbose_name_plural = "Trait categories"
+
+    def __str__(self):
+        return self.label
+
+    @property
+    def count_scores(self):
+        scores_count = 0
+        for trait in self.efotraits.all():
+            scores_count += trait.scores_count
+
+        return scores_count
 
 
 class Release(models.Model):
@@ -744,15 +937,15 @@ class Release(models.Model):
 
     @property
     def released_score_ids(self):
-        scores = Score.objects.filter(date_released__exact=self.date)
-        return [x.id for x in scores]
+        scores = Score.objects.values('id').filter(date_released__exact=self.date).order_by('id')
+        return [x['id'] for x in scores]
 
     @property
     def released_publication_ids(self):
-        publications = Publication.objects.filter(date_released__exact=self.date)
-        return [x.id for x in publications]
+        publications = Publication.objects.values('id').filter(date_released__exact=self.date).order_by('id')
+        return [x['id'] for x in publications]
 
     @property
     def released_performance_ids(self):
-        performances = Performance.objects.filter(date_released__exact=self.date)
-        return [x.id for x in performances]
+        performances = Performance.objects.values('id').filter(date_released__exact=self.date).order_by('id')
+        return [x['id'] for x in performances]

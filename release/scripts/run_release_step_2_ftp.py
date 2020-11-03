@@ -1,5 +1,6 @@
 import sys, os.path, shutil, glob
-from datetime import datetime
+from datetime import date
+import tarfile
 from release.scripts.RemoveDataForRelease import *
 from release.scripts.GenerateBulkExport import PGSExportAllMetadata
 from release.scripts.PGSExport import PGSExport
@@ -13,17 +14,21 @@ def run(*args):
         print("Please use the command line with: --script-args <path_to_the_export_directory>")
         exit()
 
+    today = date.today()
+
     previous_release_date = get_previous_release_date()
 
     # Remove non released data
-    #call_remove_non_released_data(previous_release_date)
+    #call_remove_non_released_data(previous_release_date, today)
 
     # Remove non released data
     #call_remove_history_data()
 
     debug = 0
     scores_db = Score.objects.all().order_by('num')
-    new_ftp_dir = args[0]+'/../new_ftp_content/'
+    new_ftp_dir = '{}/../new_ftp_content/'.format(args[0])
+
+    archive_file_name = '{}/../pgs_ftp_{}.tar.gz'.format(args[0],today)
 
     # Generate all PGS metadata files
     call_generate_all_metadata_exports(args[0])
@@ -32,7 +37,7 @@ def run(*args):
     call_generate_studies_metadata_exports(args[0],scores_db,debug)
 
     # Build FTP structure for scoring files
-    build_score_ftp(args[0],new_ftp_dir,scores_db,previous_release_date,debug)
+    #build_score_ftp(args[0],new_ftp_dir,scores_db,previous_release_date,debug)
 
     # Build FTP structure for metadata files
     build_metadata_ftp(args[0],new_ftp_dir,scores_db,previous_release_date,debug)
@@ -41,15 +46,15 @@ def run(*args):
     build_bulk_metadata_ftp(args[0],new_ftp_dir,previous_release_date,debug)
 
 
+    # Generates the compressed archive to be copied to the EBI Private FTP
+    tardir(new_ftp_dir, archive_file_name)
+
 #-----------#
 #  Methods  #
 #-----------#
 
-def call_remove_non_released_data(lastest_release):
+def call_remove_non_released_data(lastest_release, release_date):
     """ Remove non released data """
-
-    # Release
-    release_date = datetime.today().strftime('%Y-%m-%d')
 
     # Create object to remove the non released data
     data2remove = NonReleasedDataToRemove()
@@ -84,7 +89,7 @@ def call_generate_all_metadata_exports(dirpath):
     datadir = dirpath+"all_metadata/"
     filename = datadir+'pgs_all_metadata.xlsx'
 
-    csv_prefix = datadir+'pgs'
+    csv_prefix = datadir+'pgs_all'
 
     if not os.path.isdir(datadir):
         try:
@@ -269,11 +274,10 @@ def build_metadata_ftp(dirpath,dirpath_new,scores,previous_release,debug):
 
         # 2 b) - PGS directory exist (Updated Metadata)
         elif new_file_md5_checksum != ftp_file_md5_checksum:
-
             # Archiving metadata from previous release
             meta_archives = meta_file_dir+'archived_versions/'
             create_pgs_directory(meta_archives)
-            meta_archives_file = meta_archives+pgs_id+'_'+previous_release+'.txt.gz'
+            meta_archives_file = meta_archives+pgs_id+'_metadata_'+previous_release+'.tar.gz'
             # Fetch and Copy tar file to the archive
             pgs_ftp.get_ftp_file(meta_archives_file)
             shutil.copy2(temp_data_dir+meta_file_tar, meta_file_dir+meta_file_tar)
@@ -335,3 +339,10 @@ def create_pgs_directory(path):
         except OSError:
             print ("Creation of the directory %s failed" % path)
             exit()
+
+
+def tardir(path, tar_name):
+    with tarfile.open(tar_name, "w:gz") as tar_handle:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                tar_handle.add(os.path.join(root, file))

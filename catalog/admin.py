@@ -17,29 +17,40 @@ class CohortAdmin(admin.ModelAdmin):
 @admin.register(Demographic)
 class DemographicAdmin(admin.ModelAdmin):
     list_display = ["unit", "estimate", "estimate_type", 'range', 'range_type', 'variability', 'variability_type']
+    list_filter = ('unit','estimate_type','range_type','variability_type')
     ordering = ('unit',)
 
 
 @admin.register(EFOTrait)
 class EFOTraitAdmin(admin.ModelAdmin):
     list_display = ["id", "label", "description", "url"]
-    ordering = ('-id',)
+    ordering = ('label',)
 
 
 @admin.register(Metric)
 class MetricAdmin(admin.ModelAdmin):
     list_display = ["name", "name_short", "estimate", "unit", "ci", "se"]
+    list_filter = ('name_short',)
     ordering = ('name',)
 
 
 @admin.register(Performance)
 class PerformanceAdmin(admin.ModelAdmin):
     list_display = ["id", "score", "publication", "sampleset", "phenotyping_reported"]
-    ordering = ('-id',)
+    ordering = ('-num',)
+
+    fieldsets = (
+        (None, {
+            'fields': ("id", "score", "publication", "sampleset", "phenotyping_reported", "phenotyping_efo", "covariates", "performance_comments")
+        }),
+        ('Curation', {
+            'fields': ('date_released', 'curation_notes')
+        }),
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ["num","id"]
+            return ["num","id","date_released"]
         else:
             return []
 
@@ -47,11 +58,21 @@ class PerformanceAdmin(admin.ModelAdmin):
 @admin.register(Publication)
 class PublicationAdmin(admin.ModelAdmin):
     list_display = ["id", "title", "authors", "PMID", "curation_status"]
-    ordering = ('-id',)
+    list_filter = ('curation_status',)
+    ordering = ('-num',)
+
+    fieldsets = (
+        (None, {
+            'fields': ("id", "title", "doi",  "PMID", "journal", "date_publication", "firstauthor", "authors")
+        }),
+        ('Curation', {
+            'fields': ('date_released', 'curation_status', 'curation_notes')
+        }),
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ["num","id"]
+            return ["num","id","date_released"]
         else:
             return []
 
@@ -77,7 +98,7 @@ class SampleAdmin(admin.ModelAdmin):
 @admin.register(SampleSet)
 class SampleSetAdmin(admin.ModelAdmin):
     list_display = ["id", "count_samples", "count_performances"]
-    ordering = ('-id',)
+    ordering = ('-num',)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -88,11 +109,24 @@ class SampleSetAdmin(admin.ModelAdmin):
 @admin.register(Score)
 class ScoreAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "trait_reported", "method_name","variants_number", "publication"]
-    ordering = ('-id',)
+    ordering = ('-num',)
+
+    fieldsets = (
+        (None, {
+            'fields': ("id", "name", "flag_asis", "publication",
+                       "trait_reported", "trait_additional", "trait_efo",
+                       #"samples_variants", "samples_training",
+                       "method_name", "method_params",
+                       "variants_number", "variants_interactions", "variants_genomebuild")
+        }),
+        ('Curation', {
+            'fields': ('date_released', 'curation_notes')
+        }),
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ["num","id"]
+            return ["num","id","date_released"]
         else:
             return []
 

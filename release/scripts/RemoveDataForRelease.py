@@ -10,6 +10,7 @@ class NonReleasedDataToRemove:
         self.scores2del = {}
         self.perfs2del = {}
         self.pss2del = {}
+        self.traits2del = {}
         self.publications = []
 
 
@@ -18,10 +19,11 @@ class NonReleasedDataToRemove:
 
 
     def list_entries_to_delete(self):
-        if (len(self.publications) == 0):
-            self.fetch_non_released_publications()
 
-        #### Removing non curated data ####
+        #### Fetch non released publications
+        self.fetch_non_released_publications()
+
+        #### Fetch non curated data ####
         for publication in self.publications:
             # Performances + Sample sets
             performances_list = self.get_performances_list_to_delete(publication)
@@ -37,25 +39,50 @@ class NonReleasedDataToRemove:
             for score in scores_list:
                 self.scores2del[score.id] = score
 
+        #### Fetch EFOTrait not associated with a Score
+        self.get_efotraits_to_delete()
+
 
     def delete_entries(self):
         # Performances to delete
-        for performance in self.perfs2del.values():
-            performance.delete()
+        if len(self.perfs2del.keys()) > 0:
+            for performance in self.perfs2del.values():
+                performance.delete()
+            print("> Performance(s) deleted")
         # Samplesets to delete
-        for sample_set in self.pss2del.values():
-            sample_set.delete()
-        # Scores
-        for score in self.scores2del.values():
-            score.delete()
+        if len(self.pss2del.keys()) > 0:
+            for sample_set in self.pss2del.values():
+                sample_set.delete()
+            print("> Sampe Set(s) deleted")
+        # Scores to delete
+        if len(self.scores2del.keys()) > 0:
+            for score in self.scores2del.values():
+                score.delete()
+            print("> Score(s) deleted")
+        # Traits to delete
+        if len(self.traits2del.keys()) > 0:
+            for trait in self.traits2del.values():
+                trait.delete()
+            print("> Trait(s) deleted")
+        # Publications to delete
+        if len(self.publications) > 0:
+            for publication in self.publications:
+                publication.delete()
+            print("> Publication(s) deleted")
 
 
     def get_performances_list_to_delete(self, publication):
         return Performance.objects.filter(date_released__isnull=True, publication=publication)
 
-
     def get_scores_list_to_delete(self, publication):
         return Score.objects.filter(date_released__isnull=True, publication=publication)
+
+    def get_efotraits_to_delete(self):
+        for efo_trait in EFOTrait.objects.all().prefetch_related('associated_scores'):
+            if len(efo_trait.associated_scores.all()) == 0:
+                print("Non linked trait: "+efo_trait.id+" ("+efo_trait.label+")")
+                self.traits2del[efo_trait.id] = efo_trait
+
 
 
 class RemoveHistory:
@@ -80,12 +107,11 @@ def run():
     # Entries to delete
     data2remove.list_entries_to_delete()
 
-    # Delete selected entries
-    #data2remove.delete_entries()
+
 
     # Delete history records for the production database
-    history2remove = RemoveHistory()
-    history2remove.delete_history()
+    #history2remove = RemoveHistory()
+    #history2remove.delete_history()
 
     print("Latest release: "+str(lastest_release.date))
     print("New release: "+str(release_date))
@@ -96,3 +122,6 @@ def run():
     print( ' - '+'\n - '.join(data2remove.perfs2del.keys()))
     print("Number of Sample Sets to remove: "+str(len(data2remove.pss2del.keys())))
     print( ' - '+'\n - '.join(data2remove.pss2del.keys()))
+
+    # Delete selected entries
+    data2remove.delete_entries()

@@ -1,0 +1,25 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Report missing PGS study{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Report missing PGS study</li>
+      </ol>
+    </nav>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <section>
+      <div id="iframe_loading" class="d-flex justify-content-center mt-3">
+        <div class="spinner-border pgs_color_1">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+      <iframe id="g_iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSdVylB26zI5kKeyJCk6gHjmAZpGWqbvIILau55s39QTsVqxsA/viewform?embedded=true" style="width:100%;height:1550px;" frameborder="0" marginheight="0" marginwidth="0"><div class="spinner-border pgs_color_1"></div></iframe>
+
+    </section>
+{% endblock %}
