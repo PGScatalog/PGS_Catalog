@@ -42,9 +42,11 @@ gwas_samples = gwas_samples[gwas_samples['STAGE'] == 'initial'] # Get rid of rep
 #               'Fritsche2019', 'HoLe2016', 'Homburger2019', 'Huynh-Le2019', 'Ibanez2017', 'Khera2019_VIRGO',
 #               'MacGregor2018', 'Qi2017', 'Tin2019', 'Wheeler2017', 'Zheutlin2019', 'Craig2020',
 #               'Cai2020', 'Hsu2015', 'IbanezSanz2017','Jeon2018', 'Smith2018', 'Weigl2018', 'Xin2018', 'Shi2019', 'Khera2016', 'Timmerman2019',
-#               'Vuckovic2020']
+#               'Vuckovic2020', 'Kathiresan2008', 'Coleman2020', 'Knevel2019', 'Tikkanen2013', 'Dikilitas2020',
+#               'Barr2020', 'Liyanarachchi2020', 'Shrine2019', 'Pihlstrøm2016', 'Zhang2020', ''Folkersen2020', 'Wang2020', 'Ferrat2020'
+#               'Xie2020', 'Sharp2020''Shieh2020', ''Meisner2020', 'Chami2020', 'Flynn2020', 'Grove2019', 'Reid2019', 'Mars2020', 'Zhang2020_NatComm']
 
-StudyNames = ['Kathiresan2008']
+StudyNames = ['Mars2020_BC']
 
 #Loop through studies to be included/loaded
 for StudyName in StudyNames:
@@ -188,7 +190,7 @@ for StudyName in StudyNames:
             try:
                 loc_scorefile = '../pgs_DBSourceFiles/{}/raw_scores/{}.txt'.format(StudyName, score_id)
                 #print('reading scorefile: {}', loc_scorefile)
-                df_scoring = pd.read_table(loc_scorefile, float_precision='round_trip')
+                df_scoring = pd.read_table(loc_scorefile, dtype='str', engine = 'python')
                 # Check that columns are in the schema
                 column_check = [x in curation2schema_scoring.index for x in df_scoring.columns]
                 if all(column_check):
@@ -202,10 +204,10 @@ for StudyName in StudyNames:
                                 df_scoring = df_scoring.rename({'effect_weight' : 'OR'}, axis='columns').drop(['weight_type'], axis=1)
                     if 'effect_weight' not in df_scoring.columns:
                         if 'OR' in df_scoring.columns:
-                            df_scoring['effect_weight'] = np.log(df_scoring['OR'])
+                            df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['OR']))
                             df_scoring['weight_type'] = 'log(OR)'
                         elif 'HR' in df_scoring.columns:
-                            df_scoring['effect_weight'] = np.log(df_scoring['HR'])
+                            df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['HR']))
                             df_scoring['weight_type'] = 'log(HR)'
 
                     # Reorganize columns according to schema
