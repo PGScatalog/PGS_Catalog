@@ -610,6 +610,9 @@ class Score(models.Model):
     variants_interactions = models.IntegerField('Number of Interaction Terms', default=0)
     variants_genomebuild = models.CharField('Original Genome Build', max_length=10, default='NR')
 
+    # LICENSE information/text
+    license = models.TextField('License/Terms of Use', default='''PGS obtained from the Catalog should be cited appropriately, and used in accordance with any licensing restrictions set by the authors. See EBI Terms of Use (https://www.ebi.ac.uk/about/terms-of-use/) for additional details.''')
+
     # Methods
     def __str__(self):
         return ' | '.join([self.id, self.name, '(%s)' % self.publication.__str__()])

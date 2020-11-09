@@ -345,8 +345,9 @@ def str2demographic(val):
     #print(val, current_demographic)
     return current_demographic
 
+
 def create_scoringfileheader(cscore):
-    '''Function to extract the information to put in the commented header of a PGS Catalog Scoring File'''
+    """Function to extract score & publication information for the PGS Catalog Scoring File commented header"""
     pub = cscore.publication
     lines = [
         '### PGS CATALOG SCORING FILE - see www.pgscatalog.org/downloads/#dl_ftp for additional information',
@@ -359,4 +360,7 @@ def create_scoringfileheader(cscore):
         '# PGP ID = {}'.format(pub.id),
         '# Citation = {} et al. {} ({}). doi:{}'.format(pub.firstauthor, pub.journal, pub.date_publication.strftime('%Y'), pub.doi)
     ]
+    if cscore.license != Score._meta.get_field('license')._get_default():
+        ltext = cscore.license.replace('\n', ' ')  # Make sure there are no new-lines that would screw up the commenting
+        lines.append('# LICENSE = {}'.format(ltext))  # Append to header
     return lines
