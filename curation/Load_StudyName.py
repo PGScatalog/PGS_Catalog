@@ -3,26 +3,18 @@ from catalog.models import *
 import os, gzip
 import numpy as np
 
-# Code to clear the DB if you want to start from scratch
-# Metric.objects.all().delete()
-# Performance.objects.all().delete()
-# Sample.objects.all().delete()
-# Score.objects.all().delete()
-# EFOTrait.objects.all().delete()
-# Publication.objects.all().delete()
-# Cohort.objects.all().delete()
 skip_scorefiles = False
 
-loc_curation2schema = '../pgs_DBSourceFiles/Templates/TemplateColumns2Models_v5.xlsx'
+loc_curation2schema = '../pgs_DBSourceFiles/Templates/TemplateColumns2Models_v6.xlsx'
 curation2schema = pd.read_excel(loc_curation2schema, index_col = 0)
 
 loc_curation2schema_scoring = '../pgs_DBSourceFiles/Templates/ScoringFileSchema.xlsx'
 curation2schema_scoring = pd.read_excel(loc_curation2schema_scoring, index_col = 0)
 
 loc_localGWAS = '../pgs_DBSourceFiles/local_GWASCatalog/'
-gwas_studies, gwas_samples = load_GWAScatalog(loc_localGWAS, update = True)
-gwas_studies.set_index('STUDY ACCESSION', inplace = True)
-gwas_samples.set_index('STUDY ACCESSION', inplace = True)
+gwas_studies, gwas_samples = load_GWAScatalog(loc_localGWAS, update=True)
+gwas_studies.set_index('STUDY ACCESSION', inplace=True)
+gwas_samples.set_index('STUDY ACCESSION', inplace=True)
 gwas_samples = gwas_samples[gwas_samples['STAGE'] == 'initial'] # Get rid of replication studies
 
 # StudyNames = ['Mavaddat2015','Mavaddat2019',
@@ -44,9 +36,10 @@ gwas_samples = gwas_samples[gwas_samples['STAGE'] == 'initial'] # Get rid of rep
 #               'Cai2020', 'Hsu2015', 'IbanezSanz2017','Jeon2018', 'Smith2018', 'Weigl2018', 'Xin2018', 'Shi2019', 'Khera2016', 'Timmerman2019',
 #               'Vuckovic2020', 'Kathiresan2008', 'Coleman2020', 'Knevel2019', 'Tikkanen2013', 'Dikilitas2020',
 #               'Barr2020', 'Liyanarachchi2020', 'Shrine2019', 'Pihlstrøm2016', 'Zhang2020', ''Folkersen2020', 'Wang2020', 'Ferrat2020'
-#               'Xie2020', 'Sharp2020''Shieh2020', ''Meisner2020', 'Chami2020', 'Flynn2020', 'Grove2019', 'Reid2019', 'Mars2020', 'Zhang2020_NatComm']
+#               'Xie2020', 'Sharp2020''Shieh2020', ''Meisner2020', 'Chami2020', 'Flynn2020', 'Grove2019', 'Reid2019', 'Mars2020', 'Zhang2020_NatComm', 'Mars2020_BC']
+# Loaded_v6 = ['Maukonen2020', 'Koyama2020', 'Kloosterman2020']
 
-StudyNames = ['Mars2020_BC']
+StudyNames = ['Law2020']
 
 #Loop through studies to be included/loaded
 for StudyName in StudyNames:

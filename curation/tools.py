@@ -37,7 +37,7 @@ class CurationTemplate():
     def extract_publication(self):
         '''parse_pub takes a curation dictionary as input and extracts the relevant info from the sheet and EuropePMC'''
         #current_schema = self.table_mapschema.loc['Publication Information'].set_index('Column')
-        pinfo = self.table_publictation.loc['Publication']
+        pinfo = self.table_publictation.iloc[0]
         c_doi = pinfo['doi']
         c_PMID = pinfo[0]
 
@@ -78,6 +78,8 @@ class CurationTemplate():
                                                  date_publication = r['firstPublicationDate']
                                             )
             parsed_publication.set_publication_ids(next_scorenumber(Publication))
+            if self.table_publictation.shape[0] > 1:
+                parsed_publication.curation_notes = self.table_publictation.iloc[1,0]
             parsed_publication.save()
         self.parsed_publication = parsed_publication
 
@@ -86,8 +88,16 @@ class CurationTemplate():
         for score_name, score_info in self.table_scores.iterrows():
             parsed_score = {'name' : score_name, 'publication' : self.parsed_publication.id}
             for col, val in score_info.iteritems():
-                if (col[1] in current_schema.index) and (pd.isnull(val) == False):
-                    m, f, _ = current_schema.loc[col[1]]
+                if pd.isnull(val) == False:
+                    # Map to schema
+                    if col[1] in current_schema.index:
+                        m, f, _ = current_schema.loc[col[1]]
+                    elif col[0] in current_schema.index:
+                        m, f, _ = current_schema.loc[col[0]]
+                    else:
+                        m = None
+
+                    # Add to extract if it's the same model
                     if m == 'Score':
                         if f == 'trait_efo':
                             efo_list = val.split(',')
@@ -166,21 +176,24 @@ class CurationTemplate():
             }
             for col, val in performance_info.iteritems():
                 if pd.isnull(val) == False:
-                    l = col[0]
+                    m = None
                     if col[1] in current_schema.index:
-                        l = col[1]
-                    m, f, _ = current_schema.loc[l]
-                    if f.startswith('metric'):
-                        try:
-                            parsed_performance['metrics'].append(str2metric(f, val))
-                        except:
-                            if ';' in val:
-                                for x in val.split(';'):
-                                    parsed_performance['metrics'].append(str2metric(f, x))
-                            else:
-                                print('Error parsing:', f, val)
-                    else:
-                        parsed_performance[f] = val
+                        m, f, _ = current_schema.loc[col[1]]
+                    elif col[0] in current_schema.index:
+                        m, f, _ = current_schema.loc[col[0]]
+
+                    if m is not None:
+                        if f.startswith('metric'):
+                            try:
+                                parsed_performance['metrics'].append(str2metric(f, val))
+                            except:
+                                if ';' in val:
+                                    for x in val.split(';'):
+                                        parsed_performance['metrics'].append(str2metric(f, x))
+                                else:
+                                    print('Error parsing:', f, val)
+                        else:
+                            parsed_performance[f] = val
             self.parsed_performances.append((p_key,parsed_performance))
 
 
@@ -332,8 +345,9 @@ def str2demographic(val):
     #print(val, current_demographic)
     return current_demographic
 
+
 def create_scoringfileheader(cscore):
-    '''Function to extract the information to put in the commented header of a PGS Catalog Scoring File'''
+    """Function to extract score & publication information for the PGS Catalog Scoring File commented header"""
     pub = cscore.publication
     lines = [
         '### PGS CATALOG SCORING FILE - see www.pgscatalog.org/downloads/#dl_ftp for additional information',
@@ -346,4 +360,7 @@ def create_scoringfileheader(cscore):
         '# PGP ID = {}'.format(pub.id),
         '# Citation = {} et al. {} ({}). doi:{}'.format(pub.firstauthor, pub.journal, pub.date_publication.strftime('%Y'), pub.doi)
     ]
+    if cscore.license != Score._meta.get_field('license')._get_default():
+        ltext = cscore.license.replace('\n', ' ')  # Make sure there are no new-lines that would screw up the commenting
+        lines.append('# LICENSE = {}'.format(ltext))  # Append to header
     return lines
