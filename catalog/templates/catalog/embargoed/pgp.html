@@ -1,0 +1,25 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}{{ publication.id }} (Publication){% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="../../browse/studies/">Publications</a></li>
+        <li class="breadcrumb-item">{{ publication.id }}</li>
+      </ol>
+    </nav>
+
+    <h2>PGS Publication: <span class="pgs_title">{{ publication.id }}</span></h2>
+
+    <div class="clearfix">
+      <div class="mt-3 float_left pgs_note pgs_note_1">
+        <div>
+          <span>Note:</span> The data associated with this Publication is indexed in the PGS Catalog but <b>embargoed</b> until publication <span>[</span>submitted by <b>{{ publication.firstauthor }}</b><span>]</span>.
+        </div>
+      </div>
+    </div>
+
+{% endblock %}
