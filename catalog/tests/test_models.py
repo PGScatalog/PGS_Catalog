@@ -24,6 +24,8 @@ cohort_desc = "Cohort description"
 cohort_name_2 = "DEF"
 cohort_desc_2 = "Cohort description"
 
+firstauthor = "Inouye M"
+
 
 class CohortTest(TestCase):
     """ Test the Cohort model """
@@ -209,6 +211,34 @@ class EFOTraitTest(TestCase):
         self.assertEqual(efo_trait_2.mapped_terms_list, [])
 
 
+class EmbargoedPublicationTest(TestCase):
+    def create_embargoed_publication(self, publication_id, author_name):
+        return EmbargoedPublication.objects.create(id=publication_id, firstauthor=author_name)
+
+    def test_embargoed_publication(self):
+        publication_id = 'PGP000007'
+        e_publication = self.create_embargoed_publication(publication_id=publication_id, author_name=firstauthor)
+        # Instance
+        self.assertTrue(isinstance(e_publication, EmbargoedPublication))
+        # Variables
+        self.assertEqual(e_publication.id, publication_id)
+        self.assertEqual(e_publication.firstauthor, firstauthor)
+
+
+class EmbargoedScoreTest(TestCase):
+    def create_embargoed_score(self, score_id, author_name):
+        return EmbargoedScore.objects.create(id=score_id, firstauthor=author_name)
+
+    def test_embargoed_score(self):
+        score_id = 'PGS000018'
+        e_score = self.create_embargoed_score(score_id=score_id, author_name=firstauthor)
+        # Instance
+        self.assertTrue(isinstance(e_score, EmbargoedScore))
+        # Variables
+        self.assertEqual(e_score.id, score_id)
+        self.assertEqual(e_score.firstauthor, firstauthor)
+
+
 class MetricTest(TestCase):
     """ Test the Metric model """
 
@@ -240,6 +270,15 @@ class MetricTest(TestCase):
         e_name = 'Beta'
         e_name_short = 'β'
         e_estimate = -0.7
+        e_estimate_2 = 0.0123456789
+        e_estimate_2_rounded = 0.01235
+        e_estimate_3 = 0.00000231
+        e_estimate_3_rounded = 2.31e-6
+        e_estimate_4 = -0.0000003423
+        e_estimate_4_rounded = -3.42e-7
+        e_estimate_5 = 1.24674178
+        e_estimate_5_rounded = 1.24674
+
         metric_effect = self.create_metric(performance.num,e_type,e_name,e_name_short,e_estimate,'years',0.15,None)
         # Instance
         self.assertTrue(isinstance(metric_effect, Metric))
@@ -247,6 +286,18 @@ class MetricTest(TestCase):
         self.assertEqual(metric_effect.display_value(),str(e_estimate))
         self.assertEqual(metric_effect.name_tuple(), (e_name,e_name_short))
         self.assertEqual(metric_effect.__str__(), '{} ({}): {}'.format(e_name,e_name_short,e_estimate))
+
+        metric_effect.estimate = e_estimate_2
+        self.assertEqual(metric_effect.display_value(),str(e_estimate_2_rounded))
+
+        metric_effect.estimate = e_estimate_3
+        self.assertEqual(metric_effect.display_value(),str(e_estimate_3_rounded))
+
+        metric_effect.estimate = e_estimate_4
+        self.assertEqual(metric_effect.display_value(),str(e_estimate_4_rounded))
+
+        metric_effect.estimate = e_estimate_5
+        self.assertEqual(metric_effect.display_value(),str(e_estimate_5_rounded))
 
         # Type "Classification Metric"
         c_type = 'Classification Metric'
@@ -734,6 +785,8 @@ class ScoreTest(TestCase):
         self.assertEqual(score.method_params, self.m_params)
         self.assertEqual(score.variants_genomebuild, self.v_build)
         self.assertTrue(score.flag_asis)
+        self.assertIsNotNone(score.license)
+
         # Other methods
         self.assertEqual(score.__str__(),  score.id+" | "+score.name+" | ("+score.publication.__str__()+")")
         self.assertRegexpMatches(score.link_filename, r'^PGS\d+\.txt\.gz$')

@@ -27,7 +27,8 @@ class Publication(models.Model):
         ('C',  'Curated'),
         ('ID', 'Curated - insufficient data'),
         ('IP', 'Curation in Progress'),
-        ('AW', 'Awaiting Curation')
+        ('AW', 'Awaiting Curation'),
+        ('E',  'Embargoed')
     ]
     curation_status = models.CharField(max_length=2,
                             choices=CURATION_STATUS_CHOICES,
@@ -845,7 +846,12 @@ class Metric(models.Model):
             return '%s: %s'%(self.name, s)
 
     def display_value(self):
-        estimate_value = round(self.estimate, 5)
+        # Use the scientific notation
+        if (0 < self.estimate < 0.00001) or (-0.00001 < self.estimate < 0):
+            estimate_value = '{:.2e}'.format(self.estimate)
+        # Round numbers to 5 numbers max
+        else:
+            estimate_value = round(self.estimate, 5)
         if self.ci != None:
             s = '{} {}'.format(estimate_value, self.ci)
         else:
@@ -922,6 +928,20 @@ class TraitCategory(models.Model):
             scores_count += trait.scores_count
 
         return scores_count
+
+
+class EmbargoedScore(models.Model):
+    """Class to store the list of embargoed Scores"""
+    # Stable identifier
+    id = models.CharField('Polygenic Score (PGS) ID', max_length=30, primary_key=True)
+    firstauthor = models.CharField('First Author', max_length=50)
+
+
+class EmbargoedPublication(models.Model):
+    """Class to store the list of embargoed Publications"""
+    # Stable identifier
+    id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30, primary_key=True)
+    firstauthor = models.CharField('First Author', max_length=50)
 
 
 class Release(models.Model):

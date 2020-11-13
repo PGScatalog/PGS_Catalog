@@ -134,49 +134,55 @@ def pgs(request, pgs_id):
     if not pgs_id.isupper():
         return redirect_with_upper_case_id(request, '/score/', pgs_id)
 
+    template_html_file = 'pgs.html'
     try:
-        score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
-    except Score.DoesNotExist:
-        raise Http404("Polygenic Score (PGS): \"{}\" does not exist".format(pgs_id))
+        embargoed_score = EmbargoedScore.objects.get(id=pgs_id)
+        template_html_file = 'embargoed/'+template_html_file
+        context = { 'score' : embargoed_score }
+    except EmbargoedScore.DoesNotExist:
+        try:
+            score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
+        except Score.DoesNotExist:
+            raise Http404("Polygenic Score (PGS): \"{}\" does not exist".format(pgs_id))
 
-    pub = score.publication
-    citation = format_html(' '.join([pub.firstauthor, '<i>et al. %s</i>'%pub.journal, '(%s)' % pub.date_publication.strftime('%Y')]))
-    citation = format_html('<a target="_blank" href="https://doi.org/{}">{}</a>', pub.doi, citation)
-    context = {
-        'pgs_id' : pgs_id,
-        'score' : score,
-        'citation' : citation,
-        'performance_disclaimer': performance_disclaimer(),
-        'efos' : score.trait_efo.all(),
-        'num_variants_pretty' : '{:,}'.format(score.variants_number),
-        'has_table': 1
-    }
-    if not score.flag_asis:
-        context['score_disclaimer'] = score_disclaimer(score.publication.doi)
+        pub = score.publication
+        citation = format_html(' '.join([pub.firstauthor, '<i>et al. %s</i>'%pub.journal, '(%s)' % pub.date_publication.strftime('%Y')]))
+        citation = format_html('<a target="_blank" href="https://doi.org/{}">{}</a>', pub.doi, citation)
+        context = {
+            'pgs_id' : pgs_id,
+            'score' : score,
+            'citation' : citation,
+            'performance_disclaimer': performance_disclaimer(),
+            'efos' : score.trait_efo.all(),
+            'num_variants_pretty' : '{:,}'.format(score.variants_number),
+            'has_table': 1
+        }
+        if not score.flag_asis:
+            context['score_disclaimer'] = score_disclaimer(score.publication.doi)
 
-    # Extract and display Sample Tables
-    if score.samples_variants.count() > 0:
-        table = SampleTable_variants(score.samples_variants.all())
-        context['table_sample_variants'] = table
-    if score.samples_training.count() > 0:
-        table = SampleTable_training(score.samples_training.all())
-        context['table_sample_training'] = table
+        # Extract and display Sample Tables
+        if score.samples_variants.count() > 0:
+            table = SampleTable_variants(score.samples_variants.all())
+            context['table_sample_variants'] = table
+        if score.samples_training.count() > 0:
+            table = SampleTable_training(score.samples_training.all())
+            context['table_sample_training'] = table
 
-    # Extract + display Performance + associated samples
-    pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('score', 'publication').filter(score=score).prefetch_related(*pgs_prefetch['perf'])
-    table = PerformanceTable(pquery)
-    table.exclude = ('score')
-    context['table_performance'] = table
+        # Extract + display Performance + associated samples
+        pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('score', 'publication').filter(score=score).prefetch_related(*pgs_prefetch['perf'])
+        table = PerformanceTable(pquery)
+        table.exclude = ('score')
+        context['table_performance'] = table
 
-    pquery_samples = set()
-    for q in pquery:
-        for sample in q.samples():
-            pquery_samples.add(sample)
+        pquery_samples = set()
+        for q in pquery:
+            for sample in q.samples():
+                pquery_samples.add(sample)
 
-    table = SampleTable_performance(pquery_samples)
-    context['table_performance_samples'] = table
+        table = SampleTable_performance(pquery_samples)
+        context['table_performance_samples'] = table
 
-    return render(request, 'catalog/pgs.html', context)
+    return render(request, 'catalog/'+template_html_file, context)
 
 
 def redirect_with_upper_case_id(request, dir, id):
@@ -195,49 +201,55 @@ def pgp(request, pub_id):
     if not pub_id.isupper():
         return redirect_with_upper_case_id(request, '/publication/', pub_id)
 
+    template_html_file = 'pgp.html'
     try:
-        pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
-    except Publication.DoesNotExist:
-        raise Http404("Publication: \"{}\" does not exist".format(pub_id))
-    context = {
-        'publication' : pub,
-        'performance_disclaimer': performance_disclaimer(),
-        'has_table': 1
-    }
+        embargoed_pub = EmbargoedPublication.objects.get(id=pub_id)
+        template_html_file = 'embargoed/'+template_html_file
+        context = { 'publication' : embargoed_pub }
+    except EmbargoedPublication.DoesNotExist:
+        try:
+            pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
+        except Publication.DoesNotExist:
+            raise Http404("Publication: \"{}\" does not exist".format(pub_id))
+        context = {
+            'publication' : pub,
+            'performance_disclaimer': performance_disclaimer(),
+            'has_table': 1
+        }
 
-    # Display scores that were developed by this publication
-    related_scores = pub.publication_score.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
-    if related_scores.count() > 0:
-        table = Browse_ScoreTable(related_scores)
-        context['table_scores'] = table
+        # Display scores that were developed by this publication
+        related_scores = pub.publication_score.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+        if related_scores.count() > 0:
+            table = Browse_ScoreTable(related_scores)
+            context['table_scores'] = table
 
-    #Get PGS evaluated by the PGP
-    pquery = pub.publication_performance.defer(*pgs_defer['perf']).select_related('publication','score').all().prefetch_related(*pgs_prefetch['perf'], 'score__trait_efo')
+        #Get PGS evaluated by the PGP
+        pquery = pub.publication_performance.defer(*pgs_defer['perf']).select_related('publication','score').all().prefetch_related(*pgs_prefetch['perf'], 'score__trait_efo')
 
-    # Check if there any of the PGS are externally developed + display their information
-    external_scores = set()
-    for perf in pquery:
-        perf_score = perf.score
-        if perf_score not in related_scores:
-            external_scores.add(perf_score)
-    if len(external_scores) > 0:
-        table = Browse_ScoreTable(external_scores)
-        context['table_evaluated'] = table
+        # Check if there any of the PGS are externally developed + display their information
+        external_scores = set()
+        for perf in pquery:
+            perf_score = perf.score
+            if perf_score not in related_scores:
+                external_scores.add(perf_score)
+        if len(external_scores) > 0:
+            table = Browse_ScoreTable(external_scores)
+            context['table_evaluated'] = table
 
-    #Find + table the evaluations
-    table = PerformanceTable(pquery)
-    context['table_performance'] = table
+        #Find + table the evaluations
+        table = PerformanceTable(pquery)
+        context['table_performance'] = table
 
-    pquery_samples = set()
-    for q in pquery:
-        for sample in q.samples():
-            pquery_samples.add(sample)
+        pquery_samples = set()
+        for q in pquery:
+            for sample in q.samples():
+                pquery_samples.add(sample)
 
-    table = SampleTable_performance(pquery_samples)
-    context['table_performance_samples'] = table
+        table = SampleTable_performance(pquery_samples)
+        context['table_performance_samples'] = table
 
-    context['has_table'] = 1
-    return render(request, 'catalog/pgp.html', context)
+        context['has_table'] = 1
+    return render(request, 'catalog/'+template_html_file, context)
 
 
 def efo(request, efo_id):
