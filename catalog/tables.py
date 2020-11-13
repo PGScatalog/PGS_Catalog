@@ -159,6 +159,30 @@ class Browse_PublicationTable(tables.Table):
         return format_html('<a href="https://www.ncbi.nlm.nih.gov/pubmed/{}">{}</a>', value, value)
 
 
+class Browse_PendingPublicationTable(Browse_PublicationTable):
+
+    class Meta:
+        model = Publication
+        attrs = {
+            "data-show-columns" : "true",
+            "data-sort-name" : "id",
+            "data-page-size" : page_size,
+            "data-export-options" : '{"fileName": "pgs_pending_publications_data"}'
+        }
+        fields  = [
+            'id',
+            'scores_count',
+            'scores_evaluated',
+            'firstauthor',
+            'title',
+            'journal',
+            'date_publication',
+            'doi',
+            'PMID',
+            'curation_status'
+        ]
+        template_name = 'catalog/pgs_catalog_django_table.html'
+
 
 class Browse_TraitTable(tables.Table):
     '''Table to browse Traits in the PGS Catalog'''

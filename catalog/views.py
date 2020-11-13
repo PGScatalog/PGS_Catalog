@@ -109,11 +109,23 @@ def browseby(request, view_selection):
             'has_chart': 1
         }
     elif view_selection == 'studies':
-        context['view_name'] = 'Publications'
         publication_defer = ['authors','curation_status','curation_notes','date_released']
         publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
-        table = Browse_PublicationTable(Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related), order_by="num")
-        context['table'] = table
+        publications = Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related)
+        table = Browse_PublicationTable(publications, order_by="num")
+        context = {
+            'view_name': 'Publications',
+            'table': table
+        }
+    elif view_selection == 'pending_studies':
+        publication_defer = ['authors','curation_notes','date_released']
+        publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
+        pending_publications = Publication.objects.defer(*publication_defer).filter(date_released__isnull=True).prefetch_related(*publication_prefetch_related)
+        table = Browse_PendingPublicationTable(pending_publications, order_by="num")
+        context = {
+            'view_name': 'Pending Publications',
+            'table': table
+        }
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
         table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False).prefetch_related('sampleset', 'cohorts'))

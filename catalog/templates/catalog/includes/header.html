@@ -21,6 +21,9 @@
                   <a class="dropdown-item" href="/browse/all/">Polygenic Scores</a>
                   <a class="dropdown-item" href="/browse/traits/">Traits</a>
                   <a class="dropdown-item" href="/browse/studies/">Publications</a>
+                  {% if is_pgs_curation_site %}
+                    <a class="dropdown-item" href="/browse/pending_studies/">Pending Publications</a>
+                  {% endif %}
                 </div>
               </li>
               <li class="nav-item dropdown">
