@@ -14,7 +14,6 @@
           <h5 class="mt-0">An open database of polygenic scores and the relevant metadata required for accurate application and evaluation.</h5>
         </div>
 
-
         <div class="row no-gutters pgs_section">
           <div class="col">
             <div class="pgs_section_title">Explore the Data</div>
@@ -26,20 +25,35 @@
             <a class="pgs_no_icon_link clearfix" href="/browse/all/">
               <div>Polygenic Scores</div>
               <div class="pgs_browse_score clearfix">
-                <div class="icon icon-conceptual icon-dna"></div><div>{{ num_pgs }}</div>
+                <div class="icon icon-conceptual icon-dna"></div><div>{{ num_pgs }}{% if num_pgs_not_released %}*{% endif %}</div>
               </div>
+              {% if num_pgs_not_released %}
+                <div style="color:#FFF">
+                  <i class="fa fa-asterisk" style="color:#FFF"></i> <b>{{ num_pgs_not_released }}</b> not yet released
+                </div>
+              {% endif %}
             </a>
           </div>
           <div class="col-xs-6 col-md-4">
             <a class="pgs_no_icon_link" href="/browse/traits/">
               <div>Traits</div>
-              <div class="icon icon-species" data-icon="H"> {{ num_traits }}</div>
+              <div class="icon icon-species" data-icon="H"> {{ num_traits }}{% if num_traits_not_released %}*{% endif %}</div>
+              {% if num_traits_not_released %}
+                <div style="color:#FFF">
+                  <i class="fa fa-asterisk" style="color:#FFF"></i> <b>{{ num_traits_not_released }}</b> not yet released
+                </div>
+              {% endif %}
             </a>
           </div>
           <div class="col-xs-6 col-md-4">
             <a class="pgs_no_icon_link" href="/browse/studies/">
               <div>Publications</div>
-              <div class="icon icon-common" data-icon="&#xf2ec;"> {{ num_pubs }}</div>
+              <div class="icon icon-common" data-icon="&#xf2ec;"> {{ num_pubs }}{% if num_pubs_not_released %}*{% endif %}</div>
+              {% if num_pubs_not_released %}
+                <div style="color:#FFF">
+                  <i class="fa fa-asterisk" style="color:#FFF"></i> <b>{{ num_pubs_not_released }}</b> not yet released
+                </div>
+              {% endif %}
             </a>
           </div>
         </div>

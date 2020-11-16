@@ -86,13 +86,28 @@ def get_efo_traits_data():
 def index(request):
     current_release = Release.objects.values('date').order_by('-date').first()
 
+    traits_count = EFOTrait.objects.count()
+
     context = {
         'release' : current_release,
         'num_pgs' : Score.objects.count(),
-        'num_traits' : EFOTrait.objects.count(),
+        'num_traits' : traits_count,
         'num_pubs' : Publication.objects.count(),
         'has_ebi_icons' : 1
     }
+
+    if settings.PGS_ON_CURATION_SITE=='True':
+        released_traits = set()
+        for score in Score.objects.filter(date_released__isnull=False).prefetch_related('trait_efo'):
+            for efo in score.trait_efo.all():
+                released_traits.add(efo.id)
+        released_traits_count = len(list(released_traits))
+        trait_diff = traits_count - released_traits_count
+        if trait_diff != 0:
+            context['num_traits_not_released'] = trait_diff
+        context['num_pgs_not_released']  = Score.objects.filter(date_released__isnull=True).count()
+        context['num_pubs_not_released'] = Publication.objects.filter(date_released__isnull=True).count()
+
     return render(request, 'catalog/index.html', context)
 
 
@@ -109,11 +124,23 @@ def browseby(request, view_selection):
             'has_chart': 1
         }
     elif view_selection == 'studies':
-        context['view_name'] = 'Publications'
         publication_defer = ['authors','curation_status','curation_notes','date_released']
         publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
-        table = Browse_PublicationTable(Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related), order_by="num")
-        context['table'] = table
+        publications = Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related)
+        table = Browse_PublicationTable(publications, order_by="num")
+        context = {
+            'view_name': 'Publications',
+            'table': table
+        }
+    elif view_selection == 'pending_studies':
+        publication_defer = ['authors','curation_notes','date_released']
+        publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
+        pending_publications = Publication.objects.defer(*publication_defer).filter(date_released__isnull=True).prefetch_related(*publication_prefetch_related)
+        table = Browse_PendingPublicationTable(pending_publications, order_by="num")
+        context = {
+            'view_name': 'Pending Publications',
+            'table': table
+        }
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
         table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False).prefetch_related('sampleset', 'cohorts'))

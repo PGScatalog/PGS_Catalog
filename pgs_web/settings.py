@@ -139,7 +139,15 @@ if os.getenv('GAE_APPLICATION', None):
 else:
     PGS_ON_GAE = 0
 
-PGS_ON_LIVE_SITE = os.environ['PGS_LIVE_SITE']
+if 'PGS_LIVE_SITE' in os.environ:
+    PGS_ON_LIVE_SITE = os.environ['PGS_LIVE_SITE']
+else:
+    PGS_ON_LIVE_SITE = False
+
+if 'PGS_CURATION_SITE' in os.environ:
+    PGS_ON_CURATION_SITE = os.environ['PGS_CURATION_SITE']
+else:
+    PGS_ON_CURATION_SITE = False
 
 WSGI_APPLICATION = 'pgs_web.wsgi.application'
 
