@@ -644,6 +644,13 @@ class Score(models.Model):
             l.append((t.id, t.label))
         return(l)
 
+    @property
+    def has_default_license(self):
+        if 'EBI Terms of Use' in self.license:
+            return True
+        else:
+            return False
+
 
 class SampleSet(models.Model):
     # Stable identifiers for declaring a set of related samples
