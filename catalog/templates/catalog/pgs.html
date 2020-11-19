@@ -12,59 +12,73 @@
       </ol>
     </nav>
 
-    <div class="clearfix">
-      <h2 class="pgs_title_left">Polygenic Score (PGS) ID: <span class="pgs_title">{{score.id}}</span></h2>
-      <div class="float_left">
-        <a class="btn btn-pgs pgs_no_icon_link pgs_helptip mr-2 mb-3" href="{{ score.ftp_scoring_file }}"
-          title="Variants and weights data file for {{ score.id }}" download>
-          <span class="fa fa-download"></span> Download Score
-        </a>
-        <a class="btn btn-pgs pgs_no_icon_link pgs_helptip pgs-ftp-btn mb-3" target="_blank" href="{{ pgs_ftp_http_root }}/scores/{{ score.id }}/"
-          title="Score and metadata files for {{ score.id }}">
-          <span class="fa fa-folder"></span> FTP directory
-        </a>
-      </div>
-    </div>
-
     <section>
-      <table class="table table-bordered table_pgs_h mt-4">
-        <tbody>
-          <tr>
-            <td class="table_title table_title_c font_16" colspan="2">Predicted Trait</td>
-          </tr>
-          <tr>
-            <td>Reported Trait</td>
-            <td><b>{{ score.trait_reported }}</b></td>
-          </tr>
-          <tr>
-            <td>Mapped Trait(s)</td>
-            <td>
-             {% if efos|length == 1 %}
-              <a class="mr-2" href="/trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
-              (<a href="{{ efos.0.url }}">{{ efos.0.id }}</a>)
-             {% else %}
-              <ul class="mb-0">
-               {% for trait in efos %}
-                <li>
-                 <a class="mr-2" href="/trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
-                 (<a href="{{ trait.url }}">{{ trait.id }}</a>)
-                </li>
-               {% endfor %}
-              </ul>
-             {% endif %}
-            </td>
-          </tr>
-          {% if score.trait_additional != '' and score.trait_additional != None %}
-            <tr>
-              <td>Additional Trait Information</td>
-              <td>{{ score.trait_additional }}</td>
-            </tr>
+      <div class="clearfix">
+        <div class="float_left mb-3" style="margin-right:4rem">
+          <h2>Polygenic Score (PGS) ID: <span class="pgs_title">{{score.id}}</span></h2>
+          <table class="table table-bordered table_pgs_h mt-4">
+            <tbody>
+              <tr>
+                <td class="table_title table_title_c font_16" colspan="2">Predicted Trait</td>
+              </tr>
+              <tr>
+                <td>Reported Trait</td>
+                <td><b>{{ score.trait_reported }}</b></td>
+              </tr>
+              <tr>
+                <td>Mapped Trait(s)</td>
+                <td>
+                 {% if efos|length == 1 %}
+                  <a class="mr-2" href="/trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
+                  (<a href="{{ efos.0.url }}">{{ efos.0.id }}</a>)
+                 {% else %}
+                  <ul class="mb-0">
+                   {% for trait in efos %}
+                    <li>
+                     <a class="mr-2" href="/trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
+                     (<a href="{{ trait.url }}">{{ trait.id }}</a>)
+                    </li>
+                   {% endfor %}
+                  </ul>
+                 {% endif %}
+                </td>
+              </tr>
+              {% if score.trait_additional != '' and score.trait_additional != None %}
+                <tr>
+                  <td>Additional Trait Information</td>
+                  <td>{{ score.trait_additional }}</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+          {% if score.date_released %}
+            <div><i class="fa fa-calendar pgs_color_1"></i> Released in PGS: <b>{{ score.date_released }}</b></div>
           {% endif %}
-        </tbody>
-      </table>
-      {% if score.date_released %}
-        <div><i class="fa fa-calendar pgs_color_1"></i> Released in PGS: <b>{{ score.date_released }}</b></div>
-      {% endif %}
+        </div>
+
+        <div class="float_left pgs_bordered_block_container">
+          <a class="btn btn-pgs pgs_no_icon_link pgs_helptip mr-2 mb-2" href="{{ score.ftp_scoring_file }}"
+            title="Variants and weights data file for {{ score.id }}" download>
+            <span class="fa fa-download"></span> Download Score
+          </a>
+          <a class="btn btn-pgs pgs_no_icon_link pgs_helptip pgs-ftp-btn mb-2" target="_blank" href="{{ pgs_ftp_http_root }}/scores/{{ score.id }}/"
+            title="Score and metadata files for {{ score.id }}">
+            <span class="fa fa-folder"></span> FTP directory
+          </a>
+          <div class="mt-2">
+            <i class="fa fa-info-circle pgs_color_1"></i>
+            <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="license_score" title="Click to show/hide the license for this score">Terms and Licenses <i class="fa {{ score.has_default_license|yesno:'fa-plus-circle,fa-minus-circle' }}"></i></a>
+            <div class="toggle_list mt-2 licence_container" id="list_license_score" style="{{ score.has_default_license|yesno:',display:block' }}">
+              <div class="pgs_note pgs_note_1">
+                <div>
+                  <span></span>{{ score.license }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </section>
 
     <section>

@@ -779,6 +779,20 @@ td > ul {
   }
 }
 
+.pgs_bordered_block_container {
+  border: 1px solid $pgs_darkC;
+  border-radius:4px;
+  padding:8px;
+}
+
+.licence_container {
+  max-width:320px !important;
+  > div {
+    border:none !important;
+    background-color:$pgs_light_grey;
+  }
+}
+
 #include_children {
   margin-left: 1px;
   margin-right: 2px;
