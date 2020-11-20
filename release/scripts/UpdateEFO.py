@@ -168,51 +168,71 @@ class UpdateEFO:
             for score_id in score_ids:
                 self.ontology_data[trait_id][self.direct_pgs_ids_key].add(score_id)
 
-        if '_embedded' in response_json:
-            response = response_json['_embedded']['terms']
+        ols_embedded = '_embedded'
+        ols_links = '_links'
+        ols_next  = 'next'
+        if ols_embedded in response_json:
+            response = response_json[ols_embedded]['terms']
             # Fetch parent data and store it
             if len(response) > 0:
-                for parent in response:
-                    parent_id = parent['short_form']
-                    parent_label = parent['label']
-                    if not parent_label in self.exclude_terms:
-                        # Child relations
-                        if parent_id in self.ontology_data:
-                            if self.child_key in self.ontology_data[parent_id]:
-                                self.ontology_data[parent_id][self.child_key].append(ontology_trait)
-                            else:
-                                self.ontology_data[parent_id][self.child_key] = [ontology_trait]
-                        else:
-                            self.ontology_data[parent_id] = { self.child_key: [ontology_trait] }
+                if ols_links in response_json:
+                    total_terms_count = response_json['page']['totalElements']
 
-                        # Children trait / PGS score associations
-                        if score_ids:
-                            if not parent_id in self.ontology_data:
-                                self.ontology_data[parent_id] = { self.child_pgs_ids_key: set() }
-                            if not self.child_pgs_ids_key in self.ontology_data[parent_id]:
-                                self.ontology_data[parent_id][self.child_pgs_ids_key] = set()
+                    while ols_next in response_json[ols_links]:
+                        next_url = response_json[ols_links][ols_next]['href']
+                        response_next = requests.get(next_url)
+                        response_json = response_next.json()
+                        response_terms = response_json[ols_embedded]['terms']
+                        response = response + response_terms
 
-                            for score_id in score_ids:
-                                self.ontology_data[parent_id][self.child_pgs_ids_key].add(score_id)
-
-                        try:
-                            parent_trait = EFOTrait_Ontology.objects.get(id=parent_id)
-                        except EFOTrait_Ontology.DoesNotExist:
-                            # Synonyms, Mapped terms and description
-                            parent_formatted_data = self.format_data(parent)
-
-                            EFOTrait_Ontology.objects.create(
-                                id=parent_id,
-                                label=parent_label,
-                                description=parent_formatted_data['description'],
-                                url=parent['iri'],
-                                synonyms=parent_formatted_data['synonyms'],
-                                mapped_terms=parent_formatted_data['mapped_terms']
-                            )
+                    if total_terms_count != len(response):
+                        print(f'The number of ancestors of "{trait.label}" retrieved doesn\'t match the number of ancestors declared by the REST API: {total_terms_count} vs {len(response)}')
+                    else:
+                        self.add_parents(response, ontology_trait, score_ids)
             else:
                 print("The script can't retrieve the parents of the trait '"+trait.label+"' ("+trait_id+"): the API returned "+str(len(response))+" results.")
         else:
             print("  >> WARNING: Can't find parents for the trait '"+trait_id+"'.")
+
+
+    def add_parents(self,response,ontology_trait,score_ids):
+        for parent in response:
+            parent_id = parent['short_form']
+            parent_label = parent['label']
+            if not parent_label in self.exclude_terms:
+                # Child relations
+                if parent_id in self.ontology_data:
+                    if self.child_key in self.ontology_data[parent_id]:
+                        self.ontology_data[parent_id][self.child_key].append(ontology_trait)
+                    else:
+                        self.ontology_data[parent_id][self.child_key] = [ontology_trait]
+                else:
+                    self.ontology_data[parent_id] = { self.child_key: [ontology_trait] }
+
+                # Children trait / PGS score associations
+                if score_ids:
+                    if not parent_id in self.ontology_data:
+                        self.ontology_data[parent_id] = { self.child_pgs_ids_key: set() }
+                    if not self.child_pgs_ids_key in self.ontology_data[parent_id]:
+                        self.ontology_data[parent_id][self.child_pgs_ids_key] = set()
+
+                    for score_id in score_ids:
+                        self.ontology_data[parent_id][self.child_pgs_ids_key].add(score_id)
+
+                try:
+                    parent_trait = EFOTrait_Ontology.objects.get(id=parent_id)
+                except EFOTrait_Ontology.DoesNotExist:
+                    # Synonyms, Mapped terms and description
+                    parent_formatted_data = self.format_data(parent)
+
+                    EFOTrait_Ontology.objects.create(
+                        id=parent_id,
+                        label=parent_label,
+                        description=parent_formatted_data['description'],
+                        url=parent['iri'],
+                        synonyms=parent_formatted_data['synonyms'],
+                        mapped_terms=parent_formatted_data['mapped_terms']
+                    )
 
 
     def update_parent_child(self, ontology_trait):
@@ -271,8 +291,16 @@ class UpdateEFO:
             print(">>>> Category fetch from REST - "+trait_id)
             self.gwas_rest_count += 1
 
-            response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%trait_id)
-            response_json = response.json()
+            rest_url = f'https://www.ebi.ac.uk/gwas/rest/api/parentMapping/{trait_id}'
+            try:
+                # First try
+                response = requests.get(rest_url)
+                response_json = response.json()
+            except JSONDecodeError:
+                # Second try
+                response = requests.get(rest_url)
+                response_json = response.json()
+
             if response_json and response_json['trait'] != 'None':
                 category_label  = response_json['colourLabel']
                 category_colour = response_json['colour']
