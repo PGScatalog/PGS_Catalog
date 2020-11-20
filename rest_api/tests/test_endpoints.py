@@ -22,16 +22,18 @@ class BrowseEndpointTest(TestCase):
     endpoints = [
         ('Cohort/SYMBOL', 'cohort', 1, {'path': ['ABCFS','ESTHER']}),
         ('EFO Traits', 'trait/all', 1),
-        ('EFO Trait/ID', 'trait', 0, {'path': ['EFO_0000305','EFO_0000378'], 'extra_query': 'include_children=0'}),
+        ('EFO Trait/ID', 'trait', 0, {'path': ['EFO_0000305','MONDO_0007254','EFO:0000270','efo:0004339'], 'extra_query': 'include_children=0'}),
         ('EFO Trait Search', 'trait/search', 1, {'query': [
                                                             'term=Alzheimer', 'term=Alzheimer&include_children=0',
                                                             'term=Neurological disorder',
                                                             'term=OMIM:605526', 'term=OMIM:605526&exact=1', 'term=OMIM:605526&include_children=0&exact=1'
                                                           ]
         }),
+        ('Performances', 'performance/all', 1),
         ('Performance metric/ID', 'performance', 0, {'path': ['PPM000001','PPM000010']}),
         ('Performances Search','performance/search', 1, {'query': ['pgs_id=PGS000001','pgs_id=PGS000018']}),
         ('Publications', 'publication/all', 1),
+        ('Publication/ID', 'publication', 0, {'path': ['PGP000001','PGP000018','pgp000002']}),
         ('Publication Search', 'publication/search', 1, {'query': ['pgs_id=PGS000001','pmid=25855707']}),
         ('Sample Set Search', 'sample_set/search', 1, {'query': ['pgs_id=PGS000001','pgs_id=PGS000018']}),
         ('Releases', 'release/all', 1),
@@ -40,7 +42,7 @@ class BrowseEndpointTest(TestCase):
         ('Sample Set/ID', 'sample_set', 0, {'path': ['PSS000198','PSS000233','PSS000245']}),
         ('Sample Set Search', 'sample_set/search', 1, {'query': ['pgs_id=PGS000001','pgs_id=PGS000018']}),
         ('Scores', 'score/all', 1),
-        ('Score/ID', 'score', 0, {'path': ['PGS000001','PGS000018']}),
+        ('Score/ID', 'score', 0, {'path': ['PGS000001','PGS000018','pgs000002']}),
         ('Scores Search', 'score/search', 1, {'query': ['pmid=25855707','trait_id=EFO_1000649']}),
         ('Scores IDs from a GWAS/ID', 'gwas/get_score_ids', 2, {'path': ['GCST001937','GCST004988']}),
         ('Trait Category', 'trait_category/all', 1),

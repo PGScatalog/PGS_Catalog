@@ -187,6 +187,14 @@ class RestScoreSearch(generics.ListAPIView):
 
 ## Performance metrics ##
 
+class RestListPerformances(generics.ListAPIView):
+    """
+    Retrieve all the PGS Performance Metrics
+    """
+    queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).all().prefetch_related('sampleset__samples','sampleset__samples__cohorts','performance_metric').order_by('num')
+    serializer_class = PerformanceSerializer
+
+
 class RestPerformanceSearch(generics.ListAPIView):
     """
     Retrieve the Performance metric(s) using query
