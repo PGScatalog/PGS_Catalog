@@ -18,6 +18,33 @@ class NonReleasedDataToRemove:
         self.publications = Publication.objects.filter(date_released__isnull=True).exclude(curation_status="C")
 
 
+    def update_embargoed_data(self):
+        """ Delete previously embargoed data and replace them with new embargoed data """
+        # Delete previously embargoed data
+        EmbargoedScore.objects.all().delete()
+        EmbargoedPublication.objects.all().delete()
+
+        # Add new embargoed data
+        count_e_publications = 0
+        count_e_scores = 0
+        publications = Publication.objects.filter(curation_status='E').exclude(date_released__isnull=False)
+        for publication in publications:
+            # Embargoed Publication
+            id = publication.id
+            firstauthor = publication.firstauthor
+            EmbargoedPublication.objects.create(id=id, firstauthor=firstauthor)
+            count_e_publications += 1
+            # Embargoed Score
+            scores = publication.publication_score.all()
+            if scores.count() > 0:
+                for score in scores:
+                    score_id = score.id
+                    EmbargoedScore.objects.create(id=score_id, firstauthor=firstauthor)
+                    count_e_scores += 1
+        print("Embargoed Publications: "+str(count_e_publications))
+        print("Embargoed Scores: "+str(count_e_scores))
+
+
     def list_entries_to_delete(self):
 
         #### Fetch non released publications
@@ -104,9 +131,11 @@ def run():
     # Create object to remove the non released data
     data2remove = NonReleasedDataToRemove()
 
+    # Update the list of embargoed scores and publications
+    data2remove.update_embargoed_data()
+
     # Entries to delete
     data2remove.list_entries_to_delete()
-
 
 
     # Delete history records for the production database
@@ -116,12 +145,22 @@ def run():
     print("Latest release: "+str(lastest_release.date))
     print("New release: "+str(release_date))
     print("Number of non curated Publications: "+str(data2remove.publications.count()))
+
     print("Number of Scores to remove: "+str(len(data2remove.scores2del.keys())))
-    print( ' - '+'\n - '.join(data2remove.scores2del.keys()))
+    if len(data2remove.scores2del.keys()) > 0:
+        print( ' - '+'\n - '.join(data2remove.scores2del.keys()))
+
     print("Number of Performances to remove : "+str(len(data2remove.perfs2del.keys())))
-    print( ' - '+'\n - '.join(data2remove.perfs2del.keys()))
+    if len(data2remove.perfs2del.keys()) > 0:
+        print( ' - '+'\n - '.join(data2remove.perfs2del.keys()))
+
     print("Number of Sample Sets to remove: "+str(len(data2remove.pss2del.keys())))
-    print( ' - '+'\n - '.join(data2remove.pss2del.keys()))
+    if len(data2remove.pss2del.keys()) > 0:
+        print( ' - '+'\n - '.join(data2remove.pss2del.keys()))
+
+    print("Number of EFOTraits to remove: "+str(len(data2remove.traits2del.keys())))
+    if len(data2remove.traits2del.keys()) > 0:
+        print( ' - '+'\n - '.join(data2remove.traits2del.keys()))
 
     # Delete selected entries
     data2remove.delete_entries()
