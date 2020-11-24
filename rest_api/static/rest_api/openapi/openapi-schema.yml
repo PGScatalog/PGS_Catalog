@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.2'
+  version: '1.3'
   description: |
     Programatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -61,6 +61,10 @@ info:
 
     <a class="toggle_btn" id="changelog">REST API version changelog <i class="fa fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.3</span> - November 2020:
+        * New endpoint `/rest/performance/all`.
+        * New field **license** in the `/rest/score` endpoints.
 
       * <span class="badge badge-pill badge-pgs">1.2</span> - July 2020:
         * Update `/rest/trait/search`:
@@ -550,6 +554,9 @@ components:
           type: string
           description: "The version of the genome assembly that the variants present in the PGS are associated with. Listed as NR (Not Reported) if unknown."
           example: "GRCh38"
+        license:
+          type: string
+          description: "The PGS Catalog distributes its data according to EBI’s standard Terms of Use. Some PGS have specific terms, licenses, or restrictions (e.g. non-commercial use) that we highlight in this field, if known."
 
     TraitCategory:
       type: object
@@ -739,6 +746,51 @@ paths:
 
 
   # Performance endpoints
+  '/rest/performance/all':
+    get:
+      tags:
+        - "Performance Metric endpoints"
+      operationId: getAllPerformances
+      description: |
+        Retrieve all the PGS Performance Metrics, including for each of them:
+          * Performance metrics metadata (odd ratio, beta coefficient, C-index, ...)
+          * Reported phenotyping
+          * Associated PGS Score(s)
+          * Publication information
+          * List of samples used for the evaluation, with their ancestry and corresponding cohorts
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/performance/all
+        ```
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                properties:
+                  results:
+                    description: "List of PGS Performance Metrics"
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PerformanceMetric'
+          description: |
+                  All PGS Performance Metrics
+
+                  ---
+
+                  __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
+
   '/rest/performance/{ppm_id}':
     get:
       tags:

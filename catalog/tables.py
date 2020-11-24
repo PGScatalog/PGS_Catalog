@@ -5,9 +5,9 @@ from .models import *
 from django.utils.crypto import get_random_string
 import re
 
-relative_path = '../..'
-publication_path = relative_path+'/publication'
-trait_path = relative_path+'/trait'
+
+publication_path = '/publication'
+trait_path = '/trait'
 page_size = "50"
 
 def smaller_in_bracket(value):
@@ -213,8 +213,6 @@ class Browse_ScoreTable(tables.Table):
     list_traits = tables.Column(accessor='list_traits', verbose_name='Mapped Trait(s)\n(Ontology)', orderable=False)
     ftp_link = tables.Column(accessor='link_filename', verbose_name=format_html('PGS Scoring File (FTP Link)'), orderable=False)
 
-    relative_path = '../..'
-
     class Meta:
         model = Score
         attrs = {
@@ -236,11 +234,10 @@ class Browse_ScoreTable(tables.Table):
         template_name = 'catalog/pgs_catalog_django_table.html'
 
     def render_id(self, value):
-        global relative_path
-        return format_html('<a href='+relative_path+'/score/{}>{}</a>', value, value)
+        return format_html('<a href="/score/{}">{}</a>', value, value)
 
     def render_publication(self, value):
-        citation = format_html(' '.join([value.id, '<br/><small><i class="fa fa-angle-double-right"></i>', value.firstauthor, '<i>et al.</i>', value.journal, '(%s)'%value.date_publication.strftime('%Y'), '</small>']))
+        citation = format_html(' '.join([value.id, '<small class="pgs_pub_details">', value.firstauthor, '<i>et al.</i>', value.journal, '(%s)'%value.date_publication.strftime('%Y'), '</small>']))
         is_preprint = ''
         if value.is_preprint:
             is_preprint = format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
@@ -249,13 +246,16 @@ class Browse_ScoreTable(tables.Table):
     def render_list_traits(self, value):
         l = []
         for x in value:
-            l.append('<a href=/trait/{}>{}</a>'.format(x[0], x[1]))
+            l.append('<a href="/trait/{}">{}</a>'.format(x[0], x[1]))
         return format_html('<br>'.join(l))
 
-    def render_ftp_link(self, value):
+    def render_ftp_link(self, value, record):
         id = value.split('.')[0]
         ftp_link = settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT']+'/scores/{}/ScoringFiles/{}'.format(id, value)
-        return format_html('<a class="pgs_no_icon_link file_link" href="{}" title="Download PGS Scoring File (variants, weights)" download><i class="fa fa-file-text"></i></a><span class="only_export">{}</span>', ftp_link, ftp_link)
+        license_icon = ''
+        if record.has_default_license == False:
+            license_icon = f'<span class="pgs-info-icon pgs_helpover ml-2" title="Terms and Licenses" data-content="{record.license}" data-placement="left"> <span class="only_export"> - Check </span>Terms/Licenses</span>'
+        return format_html(f'<a class="pgs_no_icon_link file_link" href="{ftp_link}" title="Download PGS Scoring File (variants, weights)" download></a> <span class="only_export">{ftp_link}</span>{license_icon}')
 
     def render_variants_number(self, value):
         return '{:,}'.format(value)

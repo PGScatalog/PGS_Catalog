@@ -46,7 +46,7 @@ $(document).ready(function() {
     // Tooltip | Popover
     function pgs_tooltip() {
       $('.pgs_helptip').attr('data-toggle','tooltip').attr('data-placement','bottom').attr('data-delay','800');
-      $('.pgs_helpover').attr('data-toggle','popover').attr('data-placement','bottom');
+      $('.pgs_helpover').attr('data-toggle','popover').attr('data-placement','right');
 
       $('[data-toggle="tooltip"]').tooltip();
       $('[data-toggle="popover"]').popover();

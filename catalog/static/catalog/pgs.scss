@@ -699,7 +699,20 @@ td > ul {
       color: $pgs_colour_1_lighter;
     }
   }
+}
 
+.pgs-info-icon:before {
+  font-family: 'FontAwesome';
+  content:"\f05a";
+  color: $pgs_colour_1;
+}
+
+.pgs_pub_details {
+  display: block;
+  &:before {
+    font-family: 'FontAwesome';
+    content:"\f101";
+  }
 }
 
 .pgs_no_icon_link {
@@ -719,8 +732,15 @@ td > ul {
   font-size: 28px;
   border: none !important;
   cursor: pointer !important;
-  i {
-    padding-left: 0.5rem;
+  color: $pgs_colour_1;
+  padding-left: 0.1rem;
+  padding-right: 0.25rem;
+  &:before {
+    font-family: 'FontAwesome';
+    content:"\f15c";
+  }
+  &:hover {
+    color: $pgs_colour_1_lighter;
   }
 }
 

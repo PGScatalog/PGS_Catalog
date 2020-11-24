@@ -26,6 +26,7 @@ urlpatterns = [
     re_path(r'^'+rest_urls['trait']+'search'+slash, RestEFOTraitSearch.as_view(), name="searchTraits"),
     re_path(r'^'+rest_urls['trait']+'(?P<trait_id>[^/]+)'+slash, RestEFOTrait.as_view(), name="getTrait"),
     # Performance metrics
+    re_path(r'^'+rest_urls['performance']+'all'+slash, RestListPerformances.as_view(), name="getAllPerformanceMetrics"),
     re_path(r'^'+rest_urls['performance']+'search'+slash, RestPerformanceSearch.as_view(), name="searchPerformanceMetrics"),
     re_path(r'^'+rest_urls['performance']+'(?P<ppm_id>[^/]+)'+slash, RestPerformance.as_view(), name="getPerformanceMetric"),
     # Publications

@@ -56,7 +56,9 @@ class PGSExport:
                 'pub_id',
                 'pub_pmid_label',
                 'pub_doi_label',
-                'flag_asis'
+                'flag_asis',
+                'ftp_scoring_file',
+                'license'
             ],
         'Performance':
             [
@@ -84,6 +86,7 @@ class PGSExport:
     }
 
     extra_fields_to_include = {
+        'ftp_scoring_file': 'FTP link',
         'trait_label': 'Mapped Trait(s) (EFO label)',
         'trait_id'   : 'Mapped Trait(s) (EFO ID)',
         'pub_id'         : 'PGS Publication (PGP) ID',
@@ -273,6 +276,8 @@ class PGSExport:
             scores_data[score_labels['pub_id']].append(score.publication.id)
             scores_data[score_labels['pub_pmid_label']].append(score.publication.PMID)
             scores_data[score_labels['pub_doi_label']].append(score.publication.doi)
+            # FTP link
+            scores_data[score_labels['ftp_scoring_file']].append(score.ftp_scoring_file)
             # Mapped Traits
             trait_labels = []
             trait_ids = []

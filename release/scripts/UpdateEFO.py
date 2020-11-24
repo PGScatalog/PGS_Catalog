@@ -55,6 +55,7 @@ class UpdateEFO:
         self.gwas_mapping.get_gwas_mapping()
         # For debugging
         self.gwas_rest_count = 0
+        self.warnings = []
 
 
     def format_data(self, response):
@@ -101,6 +102,11 @@ class UpdateEFO:
         if len(response) == 1:
             response = response[0]
             new_label = response['label']
+
+            if response['is_obsolete']:
+                obsolete_msg = f'The trait "{new_label}" ({trait_id}) is labelled as obsolete by EFO!'
+                print(f'WARNING: {obsolete_msg}')
+                self.warnings.append(obsolete_msg)
 
             # Synonyms, Mapped terms and description
             efo_formatted_data = self.format_data(response)
@@ -200,6 +206,13 @@ class UpdateEFO:
             parent_id = parent['short_form']
             parent_label = parent['label']
             if not parent_label in self.exclude_terms:
+
+                # Check obsolete terms
+                if parent['is_obsolete']:
+                    obsolete_msg = f'The parent trait "{parent_label}" ({parent_id}) is labelled as obsolete by EFO!'
+                    print(f'WARNING: {obsolete_msg}')
+                    self.warnings.append(obsolete_msg)
+
                 # Child relations
                 if parent_id in self.ontology_data:
                     if self.child_key in self.ontology_data[parent_id]:
@@ -421,6 +434,11 @@ class UpdateEFO:
         print("> Update Trait category associations for EFOTrait and EFOTrait_Ontology:")
         for ontology_trait in EFOTrait_Ontology.objects.prefetch_related('parent_traits').all():
             self.update_efo_category_info(ontology_trait)
+
+        if self.warnings:
+            print("##### Warnings #####")
+            for warning in self.warnings:
+                print(f'- {warning}')
 
 def run():
     """ Update the EFO entries and add/update the Trait categories (from GWAS Catalog)."""

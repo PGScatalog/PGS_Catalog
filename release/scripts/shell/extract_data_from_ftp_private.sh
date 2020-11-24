@@ -38,7 +38,7 @@ cp $uploaded_file ./$filename
 tar xf $filename
 find . -name '.DS_Store' -type f -delete
 find . -name '._.DS_Store' -type f -delete
-echo "Copy and extraction - done"
+echo " > Copy and extraction - done"
 
 # Uploaded scores
 echo "# Step 2 - Copy new scoring files to production directory"
@@ -69,7 +69,7 @@ do
   file_name=`basename "${pgs_file_path}"`
   score_id=`echo $file_name | cut -f 1 -d '.'`
   if [[ ! " ${score_list_array[@]} " =~ " ${score_id} " ]]; then
-    echo "! File '${file_name}' has been skipped: not present in the list of released scores!"
+    echo " ! File '${file_name}' has been skipped: not present in the list of released scores!"
     ((count_skipped_pgs++))
     continue
   fi
@@ -77,7 +77,7 @@ do
   if [ ! -f "${prod_file}" ]; then
     cp $pgs_file_path $prod_scoring_dir/
     if [ -f "${prod_file}" ]; then
-      echo "- New file '${file_name}' has been copied to '${prod_scoring_dir}'"
+      echo " - New file '${file_name}' has been copied to '${prod_scoring_dir}'"
       ((count_new_pgs++))
     else
       echo ">>>>> ERROR! File '${file_name}' couldn't be copied to '${prod_scoring_dir}'!"
@@ -88,7 +88,7 @@ do
     if [[ "$md5_upload" != "$md5_prod" ]]; then
       cp $pgs_file_path $prod_scoring_dir/
       if [ -f "${prod_file}" ]; then
-        echo "> Updated file '${file_name}' has been copied to '${prod_scoring_dir}'"
+        echo " > Updated file '${file_name}' has been copied to '${prod_scoring_dir}'"
         ((count_updated_pgs++))
       else
         echo ">>>>> ERROR! Updated file '${file_name}' couldn't be copied to '${prod_scoring_dir}'!"
