@@ -65,7 +65,7 @@ class UpdateEFO:
         new_synonyms_string = ''
         new_synonyms = response['synonyms']
         if (new_synonyms):
-            new_synonyms_string = self.items_separator.join(new_synonyms)
+            new_synonyms_string = self.items_separator.join(sorted(new_synonyms))
         data['synonyms'] = new_synonyms_string
 
         # Mapped terms
@@ -73,7 +73,7 @@ class UpdateEFO:
         if 'database_cross_reference' in response['annotation']:
             new_mapped_terms = response['annotation']['database_cross_reference']
             if (new_mapped_terms):
-                new_mapped_terms_string = self.items_separator.join(new_mapped_terms)
+                new_mapped_terms_string = self.items_separator.join(sorted(new_mapped_terms))
         data['mapped_terms'] = new_mapped_terms_string
 
         # Make description
