@@ -14,10 +14,6 @@ def run(*args):
         Main method executed by the Django command:
         `python manage.py runscript run_release_script`
     """
-    if (len(args) == 0):
-        print("ERROR: missing argument providing the path to the export directory")
-        print("Please use the command line with: --script-args <path_to_the_export_directory>")
-        exit()
 
     today = date.today()
 
