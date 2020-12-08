@@ -160,6 +160,10 @@ class Browse_PublicationTable(tables.Table):
 
 
 class Browse_PendingPublicationTable(Browse_PublicationTable):
+    # Make some headers shorter
+    id = tables.Column(accessor='id', verbose_name='PGS Publication ID', orderable=True)
+    journal = tables.Column(accessor='journal', verbose_name='Journal', orderable=True)
+    PMID = tables.Column(accessor='PMID', verbose_name='PubMed ID', orderable=True)
 
     class Meta:
         model = Publication

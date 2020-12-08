@@ -10,13 +10,15 @@ from .tables import *
 
 
 generic_attributes =[ 'curation_notes','publication__title','publication__PMID','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released']
+sampleset_samples_prefetch = Prefetch('sampleset__samples', queryset=Sample.objects.select_related('sample_age','followup_time').all().prefetch_related('sampleset','cohorts'))
 pgs_defer = {
     'generic': generic_attributes,
     'perf'   : [*generic_attributes,'date_released','score__curation_notes','score__date_released']
 }
 pgs_prefetch = {
     'trait': Prefetch('trait_efo', queryset=EFOTrait.objects.only('id','label').all()),
-    'perf' : ['score__publication', 'phenotyping_efo', 'sampleset__samples', 'sampleset__samples__sampleset', 'sampleset__samples__sample_age', 'sampleset__samples__followup_time', 'sampleset__samples__cohorts', 'performance_metric'],
+    'publication': Prefetch('publication', queryset=Publication.objects.only('id','date_publication','journal','firstauthor').all()),
+    'perf' : ['score__publication', 'phenotyping_efo',  sampleset_samples_prefetch, 'performance_metric'],
     'publication_score': Prefetch('publication_score', queryset=Score.objects.only('id', 'publication').all()),
     'publication_performance': Prefetch('publication_performance', queryset=Performance.objects.only('id', 'publication', 'score').all().prefetch_related(Prefetch('score', queryset=Score.objects.only('id', 'publication').all()))),
 }
@@ -143,12 +145,13 @@ def browseby(request, view_selection):
         }
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
-        table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False).prefetch_related('sampleset', 'cohorts'))
+        table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False).prefetch_related('sampleset', 'cohorts').order_by('sampleset__num'))
         context['table'] = table
     else:
         context['view_name'] = 'Polygenic Scores (PGS)'
-        score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
-        table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').all().prefetch_related(pgs_prefetch['trait']), order_by="num")
+        score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number','license']
+        # Query seems faster calling 'publication' as 'prefetch_related' than as 'select_related'
+        table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).all().order_by('num').prefetch_related(pgs_prefetch['publication'],pgs_prefetch['trait']), order_by="num")
         context['table'] = table
 
     context['has_table'] = 1

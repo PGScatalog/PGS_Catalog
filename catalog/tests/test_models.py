@@ -279,7 +279,7 @@ class MetricTest(TestCase):
         e_estimate_5 = 1.24674178
         e_estimate_5_rounded = 1.24674
 
-        metric_effect = self.create_metric(performance.num,e_type,e_name,e_name_short,e_estimate,'years',0.15,None)
+        metric_effect = self.create_metric(performance.num,e_type,e_name,e_name_short,e_estimate,'years',None,None)
         # Instance
         self.assertTrue(isinstance(metric_effect, Metric))
         # Other methods
@@ -298,6 +298,14 @@ class MetricTest(TestCase):
 
         metric_effect.estimate = e_estimate_5
         self.assertEqual(metric_effect.display_value(),str(e_estimate_5_rounded))
+
+        # Test Standard error
+        s_estimate = 0.123
+        s_standard_error = 0.021
+        metric_effect.estimate = s_estimate
+        metric_effect.se = s_standard_error
+        self.assertEqual(metric_effect.display_value(),f'{s_estimate} ({s_standard_error})')
+
 
         # Type "Classification Metric"
         c_type = 'Classification Metric'

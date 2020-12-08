@@ -844,6 +844,8 @@ class Metric(models.Model):
     def __str__(self):
         if self.ci != None:
             s = '{} {}'.format(self.estimate, self.ci)
+        elif self.se != None:
+            s = '{} ({})'.format(self.estimate, self.se)
         else:
             s = '{}'.format(self.estimate)
 
@@ -861,6 +863,8 @@ class Metric(models.Model):
             estimate_value = round(self.estimate, 5)
         if self.ci != None:
             s = '{} {}'.format(estimate_value, self.ci)
+        elif self.se != None:
+            s = '{} ({})'.format(estimate_value, self.se)
         else:
             s = '{}'.format(estimate_value)
         return s
