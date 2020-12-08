@@ -1,0 +1,45 @@
+# [START django_app]
+
+runtime: python38
+
+# For the live site, comment the following line (it uses the default service value 'default')
+service: <service_name>
+
+handlers:
+# This configures Google App Engine to serve the files in the app's
+# static directory.
+- url: /static
+  static_dir: static/
+
+
+# This handler routes all requests not caught above to the main app.
+# It is required when static routes are defined, but can be omitted
+# (along with the entire handlers section) when there are no static
+# files defined.
+- url: /.*
+  script: auto
+
+# Only for the deployment of the live website, to keep 1 instance always on.
+# For other websites, you can comment the 'inbound_services' and 'automatic_scaling' blocks
+inbound_services:
+- warmup
+automatic_scaling:
+  min_instances: 1
+  max_instances: 3
+  min_idle_instances: 1
+  max_idle_instances: 1
+
+env_variables:
+    SECRET_KEY: <django_secret_key>
+    DEBUG: '<False_or_True>'
+    PGS_LIVE_SITE: '<False_or_True>' # Need to be set to True for live website
+    PGS_CURATION_SITE: '<False_or_True>' # Line optional: Only used for the curation website
+    ALLOWED_HOSTS: '*'
+    DATABASE_NAME: '<db_name>'
+    DATABASE_USER: '<db_user>'
+    DATABASE_PASSWORD: '<db_password>'
+    DATABASE_PORT: '<db_port>'
+    DATABASE_HOST: '<db_host>' # e.g.: localhost, IP address, /cloudsql/...
+    ELASTICSEARCH_URL_ROOT: '<url_to_elasticsearch_service>'
+
+# [END django_app]

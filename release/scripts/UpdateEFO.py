@@ -343,8 +343,9 @@ class UpdateEFO:
             self.efo_categories[trait.id].add(category.label)
 
 
-    def update_efo_category_info(self, trait):
+    def update_efo_category_info(self, trait, current_count, total_count):
         """ Update the EFO/TraitCategory relation, using the parents trait category """
+        print(f' -> Ontology Trait: {trait.id} ({trait.label}) | {current_count}/{total_count}')
         try:
             efo_trait = EFOTrait.objects.get(id=trait.id)
         except EFOTrait.DoesNotExist:
@@ -431,10 +432,13 @@ class UpdateEFO:
         print("COUNT GWAS REST CALLS: "+str(self.gwas_rest_count))
 
         # Update Trait categories
-        print("> Update Trait category associations for EFOTrait and EFOTrait_Ontology:")
-        for ontology_trait in EFOTrait_Ontology.objects.prefetch_related('parent_traits').all():
-            self.update_efo_category_info(ontology_trait)
-
+        ontology_trait_list = EFOTrait_Ontology.objects.prefetch_related('parent_traits').all()
+        total_count_ontology_traits = str(len(ontology_trait_list))
+        current_count_ontology_traits = 1
+        print(f'\n> Update Trait category associations for EFOTrait and EFOTrait_Ontology ({total_count_ontology_traits} entries):')
+        for ontology_trait in ontology_trait_list:
+            self.update_efo_category_info(ontology_trait, current_count_ontology_traits, total_count_ontology_traits)
+            current_count_ontology_traits += 1
         if self.warnings:
             print("##### Warnings #####")
             for warning in self.warnings:

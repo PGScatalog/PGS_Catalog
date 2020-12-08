@@ -9,7 +9,11 @@ from .serializers import *
 
 generic_defer = ['curation_notes','date_released']
 related_dict = {
-    'score_prefetch' : [Prefetch('trait_efo', queryset=EFOTrait.objects.defer('synonyms','mapped_terms').all()), 'samples_variants', 'samples_variants__cohorts', 'samples_variants__sample_age', 'samples_variants__followup_time', 'samples_training', 'samples_training__cohorts', 'samples_training__sample_age', 'samples_training__followup_time'],
+    'score_prefetch' : [
+        Prefetch('trait_efo', queryset=EFOTrait.objects.defer('synonyms','mapped_terms').all()),
+        Prefetch('samples_variants', queryset=Sample.objects.select_related('sample_age','followup_time').all().order_by('id').prefetch_related('cohorts')),
+        Prefetch('samples_training', queryset=Sample.objects.select_related('sample_age','followup_time').all().order_by('id').prefetch_related('cohorts')),
+    ],
     'perf_select': ['score', 'publication', 'sampleset'],
     'publication_score_prefetch': [Prefetch('publication_score', queryset=Score.objects.only('id','publication__id').all())],
     'associated_scores_prefetch': [Prefetch('associated_scores', queryset=Score.objects.only('id','trait_efo__id').all())],

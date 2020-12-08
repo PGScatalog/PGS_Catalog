@@ -33,5 +33,6 @@
 /setup.cfg
 
 # Other
+app.yaml_template
 LICENSE.md
 README.md

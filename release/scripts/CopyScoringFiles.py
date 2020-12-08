@@ -126,8 +126,8 @@ class CopyScoringFiles:
     def copy_scoring_files_to_metadata(self):
         """ Copy the new/updated scoring files to the metadata directory (temporary FTP) """
         print("\n***** Step 2 - Copy the new/updated scoring files to the metadata directory (temporary FTP) *****")
-        for score_id in sorted(os.listdir(self.new_ftp_scores_dir)):
-            score_release_dir = self.new_ftp_scores_dir+'/'+score_id+'/ScoringFiles/'
+        for score_id in sorted(os.listdir(self.new_ftp_scores_dir+'/scores/')):
+            score_release_dir = self.new_ftp_scores_dir+'/scores/'+score_id+'/ScoringFiles/'
 
             score_filename = score_id+self.ftp_std_scoringfile_suffix
             new_score_file = self.scoring_files_dir+'/'+score_filename
