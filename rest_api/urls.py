@@ -1,8 +1,10 @@
 from django.urls import path, re_path
 from django.views.generic import TemplateView
+from django.views.decorators.cache import cache_page
 from .views import *
 from rest_framework.schemas import get_schema_view
 
+cache_time = 60 * 5
 slash = '/?'
 rest_urls = {
     'cohort':         'rest/cohort/',
@@ -22,16 +24,16 @@ urlpatterns = [
     # Cohorts
     re_path(r'^'+rest_urls['cohort']+'(?P<cohort_symbol>[^/]+)'+slash, RestCohorts.as_view(), name="getCohorts"),
     # EFO Traits
-    re_path(r'^'+rest_urls['trait']+'all'+slash, RestListEFOTraits.as_view(), name="getAllTraits"),
+    re_path(r'^'+rest_urls['trait']+'all'+slash, cache_page(cache_time)(RestListEFOTraits.as_view()), name="getAllTraits"),
     re_path(r'^'+rest_urls['trait']+'search'+slash, RestEFOTraitSearch.as_view(), name="searchTraits"),
-    re_path(r'^'+rest_urls['trait']+'(?P<trait_id>[^/]+)'+slash, RestEFOTrait.as_view(), name="getTrait"),
+    re_path(r'^'+rest_urls['trait']+'(?P<trait_id>[^/]+)'+slash, cache_page(cache_time)(RestEFOTrait.as_view()), name="getTrait"),
     # Performance metrics
-    re_path(r'^'+rest_urls['performance']+'all'+slash, RestListPerformances.as_view(), name="getAllPerformanceMetrics"),
+    re_path(r'^'+rest_urls['performance']+'all'+slash, cache_page(cache_time)(RestListPerformances.as_view()), name="getAllPerformanceMetrics"),
     re_path(r'^'+rest_urls['performance']+'search'+slash, RestPerformanceSearch.as_view(), name="searchPerformanceMetrics"),
     re_path(r'^'+rest_urls['performance']+'(?P<ppm_id>[^/]+)'+slash, RestPerformance.as_view(), name="getPerformanceMetric"),
     # Publications
-    re_path(r'^'+rest_urls['publication']+'all'+slash, RestListPublications.as_view(), name="getAllPublications"),
-    re_path(r'^'+rest_urls['publication']+'search'+slash, RestPublicationSearch.as_view(), name="searchPublications"),
+    re_path(r'^'+rest_urls['publication']+'all'+slash, cache_page(cache_time)(RestListPublications.as_view()), name="getAllPublications"),
+    re_path(r'^'+rest_urls['publication']+'search'+slash, cache_page(cache_time)(RestPublicationSearch.as_view()), name="searchPublications"),
     re_path(r'^'+rest_urls['publication']+'(?P<pgp_id>[^/]+)'+slash, RestPublication.as_view(), name="getPublication"),
     # Releases
     re_path(r'^'+rest_urls['release']+'all'+slash, RestListReleases.as_view(), name="getAllReleases"),
@@ -41,11 +43,11 @@ urlpatterns = [
     re_path(r'^'+rest_urls['sample_set']+'search'+slash, RestSampleSetSearch.as_view(), name="searchSampleSet"),
     re_path(r'^'+rest_urls['sample_set']+'(?P<pss_id>[^/]+)'+slash, RestSampleSet.as_view(), name="getSampleSet"),
     # Scores
-    re_path(r'^'+rest_urls['score']+'all'+slash, RestListScores.as_view(), name="getAllScores"),
+    re_path(r'^'+rest_urls['score']+'all'+slash, cache_page(cache_time)(RestListScores.as_view()), name="getAllScores"),
     re_path(r'^'+rest_urls['score']+'search'+slash, RestScoreSearch.as_view(), name="searchScores"),
     re_path(r'^'+rest_urls['score']+'(?P<pgs_id>[^/]+)'+slash, RestScore.as_view(), name="getScore"),
     # Extra endpoints
-    re_path(r'^'+rest_urls['gwas']+'(?P<gcst_id>[^/]+)'+slash, RestGCST.as_view(), name="pgs_score_ids_from_gwas_gcst_id"),
+    re_path(r'^'+rest_urls['gwas']+'(?P<gcst_id>[^/]+)'+slash, cache_page(cache_time)(RestGCST.as_view()), name="pgs_score_ids_from_gwas_gcst_id"),
     # Trait Category
-    re_path(r'^'+rest_urls['trait_category']+'all'+slash, RestListTraitCategories.as_view(), name="getAllTraitCategories")
+    re_path(r'^'+rest_urls['trait_category']+'all'+slash, cache_page(cache_time)(RestListTraitCategories.as_view()), name="getAllTraitCategories")
 ]
