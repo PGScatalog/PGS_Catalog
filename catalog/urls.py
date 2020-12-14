@@ -1,10 +1,13 @@
 from django.urls import path
 from django.views.generic.base import RedirectView, TemplateView
+from django.views.decorators.cache import cache_page
 
 from . import views
 
+cache_time = 60 * 10
+
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', cache_page(cache_time)(views.index), name='index'),
 
     # ex: /score/PGS000029/
     path('score/<str:pgs_id>/', views.pgs, name='Score'),
@@ -23,8 +26,8 @@ urlpatterns = [
     # ex: /gwas/GCST001937/
     path('gwas/<str:gcst_id>/', views.gwas_gcst, name='NHGRI-EBI GWAS Catalog Study'),
 
-    # ex: /browse/{scores, traits, studies}/
-    path('browse/<str:view_selection>/', views.browseby, name='Browse data'),
+    # ex: /browse/{scores, traits, studies, sample_set}/
+    path('browse/<str:view_selection>/', cache_page(cache_time)(views.browseby), name='Browse data'),
 
     # ex: /about/
     path('about/', views.AboutView.as_view(), name='About'),
