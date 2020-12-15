@@ -4,7 +4,9 @@ from django.views.decorators.cache import cache_page
 from .views import *
 from rest_framework.schemas import get_schema_view
 
-cache_time = 60 * 5
+# Seconds * Minutes
+cache_time = 60 * 15
+
 slash = '/?'
 rest_urls = {
     'cohort':         'rest/cohort/',

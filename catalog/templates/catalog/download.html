@@ -2,6 +2,18 @@
 
 {% block title %}Download Information{% endblock %}
 
+{% block desc %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebPage",
+      "name": "Downloads",
+      "description": "Information about the metadata and scoring file formats and their links to the FTP.",
+      "keywords": ["metadata","score","scoring file","ftp","download","variants","format"]
+    }
+  </script>
+{% endblock %}
+
 {% block content %}
   <nav aria-label="You are here:">
     <ol class="breadcrumb">
@@ -96,12 +108,14 @@
 <span>### PGS CATALOG SCORING FILE - see www.pgscatalog.org/downloads/#dl_ftp for additional information</span>
 <span>## POLYGENIC SCORE (PGS) INFORMATION</span>
 <b># PGS ID</b> = <i>PGS idenfier, e.g. 'PGS000001'</i>
+<b># PGS Name</b> = <i>PGS name, e.g. 'PRS77_BC' - optional</i>
 <b># Reported Trait</b> = <i>trait, e.g. 'Breast Cancer'</i>
 <b># Original Genome Build</b> = <i>Genome build/assembly, e.g. 'GRCh38'</i>
 <b># Number of Variants</b> = <i>Number of variants listed in the PGS</i>
 <span>## SOURCE INFORMATION</span>
 <b># PGP ID</b> = <i>PGS publication idenfier, e.g. 'PGP000001'</i>
 <b># Citation</b> = <i>Information about the publication</i>
+<b># LICENSE</b> = <i>License and terms of PGS use/distribution - refers to the EMBL-EBI Terms of Use by default</i>
 <span class="scoring_col">rsID</span><span class="scoring_col">chr_name</span><span class="scoring_col">chr_position</span><span class="scoring_col">effect_allele</span><span class="scoring_col">reference_allele</span><span class="pgs_color_2">...</span></pre>
       </div>
 
