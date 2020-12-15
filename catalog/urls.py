@@ -4,7 +4,8 @@ from django.views.decorators.cache import cache_page
 
 from . import views
 
-cache_time = 60 * 10
+# Seconds * Minutes
+cache_time = 60 * 60
 
 urlpatterns = [
     path('', cache_page(cache_time)(views.index), name='index'),
