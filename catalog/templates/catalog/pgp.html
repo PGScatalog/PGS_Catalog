@@ -34,7 +34,7 @@
             <tr>
               <td>PubMed ID</td>
               <td>
-                <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ publication.PMID }}" class="mr-3">{{ publication.PMID }}</a>(<a href="http://europepmc.org/abstract/MED/{{ publication.PMID }}">Europe PMC</a>)
+                <a href="https://www.ncbi.nlm.nih.gov/pubmed/{{ publication.PMID }}" class="mr-3">{{ publication.PMID }}</a>(<a href="https://europepmc.org/abstract/MED/{{ publication.PMID }}">Europe PMC</a>)
               </td>
             </tr>
           {% endif %}
@@ -63,7 +63,7 @@
         </tbody>
       </table>
       {% if publication.date_released %}
-        <div><i class="fa fa-calendar pgs_color_1"></i> Released in PGS: <b>{{ publication.date_released }}</b></div>
+        <div><i class="fa fa-calendar pgs_color_1"></i> Released in PGS Catalog: <b>{{ publication.date_released }}</b></div>
       {% endif %}
     </section>
 

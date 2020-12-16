@@ -293,9 +293,6 @@ class Browse_SampleSetTable(tables.Table):
     def render_sampleset(self, value):
          return format_html('<a href="/sampleset/{}">{}</span>', value, value)
 
-    def render_phenotyping_free(self, value):
-        return format_html('<span class="more">{}</span>', value)
-
     def render_cohorts_additional(self, value):
         return format_html('<span class="more">{}</span>', value)
 
@@ -340,6 +337,7 @@ class SampleTable_variants(tables.Table):
 
 class SampleTable_training(tables.Table):
     '''Table on PGS page - displays information about the samples used in Score Development'''
+    phenotyping_free = Column_shorten_text_content(accessor='phenotyping_free', verbose_name='Phenotype Definitions and Methods')
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
     cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
@@ -363,9 +361,6 @@ class SampleTable_training(tables.Table):
             'cohorts', 'cohorts_additional'
         ]
         template_name = 'catalog/pgs_catalog_django_table.html'
-
-    def render_phenotyping_free(self, value):
-        return format_html('<span class="more">{}</span>', value)
 
 
 class SampleTable_performance(tables.Table):
