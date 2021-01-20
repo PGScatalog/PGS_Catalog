@@ -12,7 +12,7 @@ class BrowseEndpointTest(TestCase):
         exit(1)
 
     fake_examples = {'string': 'ABC123CDE', 'integer': '00001', 'date': '1990-01-01'}
-    empty_resp = ['{}', '{"count":0,"next":null,"previous":null,"results":[]}', '[]']
+    empty_resp = ['{}', '{"size":0,"count":0,"next":null,"previous":null,"results":[]}', '[]']
 
 
     index_result_mutliplicity = 2

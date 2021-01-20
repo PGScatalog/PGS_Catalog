@@ -230,18 +230,6 @@ class EFOTrait_Base(models.Model):
             return []
 
     @property
-    def category_list(self):
-        return sorted(self.traitcategory.all(), key=lambda y: y.label)
-
-    @property
-    def category_labels_list(self):
-        categories = self.category_list
-        if len(categories) > 0:
-            return [x.label for x in categories]
-        else:
-            return []
-
-    @property
     def category_labels(self):
         category_labels = self.category_labels_list
         categories_data = ''
@@ -291,7 +279,7 @@ class Demographic(models.Model):
     range_type = models.CharField(verbose_name='Range (type)', max_length=100, default='range') # e.g. Confidence interval (ci), range, interquartile range (iqr), open range
 
     variability = models.FloatField(verbose_name='Variability (value)', null=True)
-    variability_type = models.CharField(verbose_name='Range (type)', max_length=100, default='se') # e.g. standard deviation (sd), standard error (se)
+    variability_type = models.CharField(verbose_name='Variablility (type)', max_length=100, default='se') # e.g. standard deviation (sd), standard error (se)
 
     def format_estimate(self):
         if self.estimate != None:
@@ -365,16 +353,19 @@ class Demographic(models.Model):
         # Estimate
         estimate = ''
         if self.estimate != None:
-            estimate = str(self.estimate)
+            estimate = self.estimate
             if self.range != None and self.range_type.lower() == 'ci':
-                estimate += str(self.range)
+                estimate = str(estimate) + str(self.range)
             if estimate:
                 l[self.estimate_type] = estimate
 
         # Range
-        if self.range != None and '[' not in estimate:
-            l[self.range_type] = str(self.range)
-
+        if self.range != None and '[' not in str(estimate):
+            l['interval'] = {
+                'type': self.range_type,
+                'lower': float(self.range.lower),
+                'upper': float(self.range.upper)
+            }
         # Variability
         if self.variability != None:
             l[self.variability_type] = self.variability
@@ -520,7 +511,7 @@ class Sample(models.Model):
     def display_sample_number_detail(self):
         sinfo = []
         if self.sample_cases != None:
-            sinfo.append('{:,} cases'.format(self.sample_cases))
+            sinfo.append('{:,} cases ({}%)'.format(self.sample_cases, self.sample_cases_percent))
             if self.sample_controls != None:
                 sinfo.append('{:,} controls'.format(self.sample_controls))
         if self.sample_percent_male != None:
@@ -744,42 +735,48 @@ class Performance(models.Model):
             d['efo'] = list(traits_set)
         return d
 
+
     @property
     def effect_sizes_list(self):
-        return self.get_metric_data('Effect Size')
+        return self.get_effect_sizes_list()
+
 
     @property
     def class_acc_list(self):
-        return self.get_metric_data('Classification Metric')
+        return self.get_class_acc_list()
+
 
     @property
     def othermetrics_list(self):
-        return self.get_metric_data('Other Metric')
+        return self.get_othermetrics_list()
 
 
     @property
     def performance_metrics(self):
         perf_metrics = {}
 
-        effect_sizes_list = self.effect_sizes_list
+        effect_sizes_list = self.get_effect_sizes_list(True)
         effect_sizes_data = []
         if effect_sizes_list:
-            for effect_size in self.effect_sizes_list:
-                effect_sizes_data.append({'labels': effect_size[0], 'value': effect_size[1]})
+            for effect_size in effect_sizes_list:
+                effect_size_labels = { 'name_long': effect_size[0][0], 'name_short': effect_size[0][1] }
+                effect_sizes_data.append({ **effect_size_labels, **effect_size[1] })
         perf_metrics['effect_sizes'] = effect_sizes_data
 
-        class_acc_list = self.class_acc_list
+        class_acc_list = self.get_class_acc_list(True)
         class_acc_data = []
         if class_acc_list:
-            for class_acc in self.class_acc_list:
-                class_acc_data.append({'labels': class_acc[0], 'value': class_acc[1]})
+            for class_acc in class_acc_list:
+                class_acc_labels = { 'name_long': class_acc[0][0], 'name_short': class_acc[0][1] }
+                class_acc_data.append({ **class_acc_labels, **class_acc[1] })
         perf_metrics['class_acc'] = class_acc_data
 
-        othermetrics_list = self.othermetrics_list
+        othermetrics_list = self.get_othermetrics_list(True)
         othermetrics_data = []
         if othermetrics_list:
             for othermetrics in othermetrics_list:
-                othermetrics_data.append({'labels': othermetrics[0], 'value': othermetrics[1]})
+                othermetrics_labels = { 'name_long': othermetrics[0][0], 'name_short': othermetrics[0][1] }
+                othermetrics_data.append({ **othermetrics_labels, **othermetrics[1] })
         perf_metrics['othermetrics'] = othermetrics_data
 
         return perf_metrics
@@ -791,7 +788,7 @@ class Performance(models.Model):
         p = self.publication
         info = [' '.join([p.id, '<br/><small><i class="fa fa-angle-double-right"></i> ',p.firstauthor, '<i>et al.</i>', '(%s)' % p.date_publication.strftime('%Y'), '</small>']), self.publication.id]
 
-        if self.publication == self.score.publication:
+        if self.publication.id == self.score.publication.id:
             info.append('D')
         else:
             info.append('E')
@@ -804,7 +801,19 @@ class Performance(models.Model):
         return '|'.join(info)
 
 
-    def get_metric_data(self, metric_type):
+    def get_effect_sizes_list(self,as_dict=False):
+        return self.get_metric_data('Effect Size',as_dict)
+
+
+    def get_class_acc_list(self,as_dict=False):
+        return self.get_metric_data('Classification Metric',as_dict)
+
+
+    def get_othermetrics_list(self,as_dict=False):
+        return self.get_metric_data('Other Metric',as_dict)
+
+
+    def get_metric_data(self, metric_type, as_dict):
         """ Generic method to extract and format the diverse metric data"""
         # Using all and filter afterward uses less SQL queries than filtering directly on the queryset
         metrics = self.performance_metric.all()
@@ -812,7 +821,10 @@ class Performance(models.Model):
             l = []
             for m in metrics:
                 if (m.type == metric_type):
-                    l.append((m.name_tuple(), m.display_value()))
+                    if as_dict:
+                        l.append((m.name_tuple(), m.display_values_dict()))
+                    else:
+                        l.append((m.name_tuple(), m.display_value()))
             if len(l) != 0:
                 return l
         return None
@@ -854,6 +866,7 @@ class Metric(models.Model):
         else:
             return '%s: %s'%(self.name, s)
 
+
     def display_value(self):
         # Use the scientific notation
         if (0 < self.estimate < 0.00001) or (-0.00001 < self.estimate < 0):
@@ -868,6 +881,18 @@ class Metric(models.Model):
         else:
             s = '{}'.format(estimate_value)
         return s
+
+
+    def display_values_dict(self):
+        l = {}
+        l['estimate'] = self.estimate
+        if self.ci != None:
+            l['ci_lower'] = float(self.ci.lower)
+            l['ci_upper'] = float(self.ci.upper)
+        elif self.se != None:
+            l['se'] = self.se
+        return l
+
 
     def name_tuple(self):
         if self.name_short is None:
@@ -941,17 +966,17 @@ class TraitCategory(models.Model):
         return scores_count
 
 
-class EmbargoedScore(models.Model):
-    """Class to store the list of embargoed Scores"""
-    # Stable identifier
-    id = models.CharField('Polygenic Score (PGS) ID', max_length=30, primary_key=True)
-    firstauthor = models.CharField('First Author', max_length=50)
-
-
 class EmbargoedPublication(models.Model):
     """Class to store the list of embargoed Publications"""
     # Stable identifier
     id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30, primary_key=True)
+    firstauthor = models.CharField('First Author', max_length=50)
+
+
+class EmbargoedScore(models.Model):
+    """Class to store the list of embargoed Scores"""
+    # Stable identifier
+    id = models.CharField('Polygenic Score (PGS) ID', max_length=30, primary_key=True)
     firstauthor = models.CharField('First Author', max_length=50)
 
 

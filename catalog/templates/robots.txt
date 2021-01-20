@@ -1,6 +1,7 @@
 User-Agent: *
 {% if is_pgs_live_site == 'True' %}
 Disallow: /admin/
+Allow: /rest/$
 Disallow: /rest/
 Disallow: /search/
 Disallow: /_ah/
