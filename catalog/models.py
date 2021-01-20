@@ -355,12 +355,14 @@ class Demographic(models.Model):
         if self.estimate != None:
             estimate = self.estimate
             if self.range != None and self.range_type.lower() == 'ci':
-                estimate = str(estimate) + str(self.range)
+                estimate = f'{estimate} {self.range}'
             if estimate:
-                l[self.estimate_type] = estimate
+                l['estimate_type'] = self.estimate_type
+                l['estimate'] = estimate
 
         # Range
         if self.range != None and '[' not in str(estimate):
+            #l[self.range_type] = [self.range.lower, self.range.upper]
             l['interval'] = {
                 'type': self.range_type,
                 'lower': float(self.range.lower),
@@ -368,7 +370,8 @@ class Demographic(models.Model):
             }
         # Variability
         if self.variability != None:
-            l[self.variability_type] = self.variability
+            l['variability_type'] = self.variability_type
+            l['variability'] = self.variability
 
         # Unit
         if self.unit != None:
