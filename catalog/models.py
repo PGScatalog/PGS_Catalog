@@ -347,6 +347,7 @@ class Demographic(models.Model):
         else:
             return ''
 
+
     def display_values_dict(self):
         l = {}
 
@@ -357,25 +358,24 @@ class Demographic(models.Model):
             if self.range != None and self.range_type.lower() == 'ci':
                 estimate = f'{estimate} {self.range}'
             if estimate:
-                l['estimate_type'] = self.estimate_type
+                l['estimate_type'] = self.estimate_type.lower()
                 l['estimate'] = estimate
 
         # Range
         if self.range != None and '[' not in str(estimate):
-            #l[self.range_type] = [self.range.lower, self.range.upper]
             l['interval'] = {
-                'type': self.range_type,
+                'type': self.range_type.lower(),
                 'lower': float(self.range.lower),
                 'upper': float(self.range.upper)
             }
         # Variability
         if self.variability != None:
-            l['variability_type'] = self.variability_type
+            l['variability_type'] = self.variability_type.lower()
             l['variability'] = self.variability
 
         # Unit
         if self.unit != None:
-            l['unit'] = self.unit
+            l['unit'] = self.unit.lower()
 
         return l
 
