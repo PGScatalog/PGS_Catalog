@@ -24,6 +24,9 @@ before_script:
   - sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
   - sudo systemctl start elasticsearch
   - sleep 10
+  - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
+  - sudo service postgresql restart
+  - sleep 5
   - psql -c 'create database travis_ci_test;' -U postgres
 script:
   - python manage.py test catalog/tests rest_api/tests
