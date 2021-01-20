@@ -24,7 +24,7 @@ class Column_joinlist(tables.Column):
 
 class Column_shorten_text_content(tables.Column):
     def render(self, value):
-        return format_html('<span class="more">'+value+'</span>')
+        return format_html('<span class="more">{}</span>', value)
 
 class Column_metriclist(tables.Column):
     def render(self, value):
@@ -32,12 +32,14 @@ class Column_metriclist(tables.Column):
         for x in value:
             name, val = x
             if len(name) == 2:
-                name_html = format_html('<span title="{}" class="pgs_helptip">{}</span>', name[0], name[1])
+                label = name[1]
             else:
-                name_html = format_html('<span title="{}" class="pgs_helptip">{}</span>', name[0], name[0])
+                label = name[0]
+            label = smaller_in_bracket(label)
+            name_html = f'<span title="{name[0]}" class="pgs_helptip">{label}</span>'
             l.append((name_html, '<span class="pgs_nowrap">'+str(val)+'</span>'))
 
-        values = smaller_in_bracket('<br>'.join([': '.join(x) for x in l]))
+        values = '<br>'.join([': '.join(x) for x in l])
         return format_html(values)
 
 class Column_demographic(tables.Column):
@@ -255,11 +257,12 @@ class Browse_ScoreTable(tables.Table):
 
     def render_ftp_link(self, value, record):
         id = value.split('.')[0]
-        ftp_link = settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT']+'/scores/{}/ScoringFiles/{}'.format(id, value)
+        ftp_link = '{}/scores/{}/ScoringFiles/'.format(settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], id)
+        ftp_file_link = ftp_link+value
         license_icon = ''
         if record.has_default_license == False:
             license_icon = f'<span class="pgs-info-icon pgs_helpover ml-2" title="Terms and Licenses" data-content="{record.license}" data-placement="left"> <span class="only_export"> - Check </span>Terms/Licenses</span>'
-        return format_html(f'<a class="pgs_no_icon_link file_link" href="{ftp_link}" title="Download PGS Scoring File (variants, weights)" download></a> <span class="only_export">{ftp_link}</span>{license_icon}')
+        return format_html(f'<a class="pgs_no_icon_link file_link" href="{ftp_link}" title="Download PGS Scoring File (variants, weights)"></a> <span class="only_export">{ftp_file_link}</span>{license_icon}')
 
     def render_variants_number(self, value):
         return '{:,}'.format(value)
@@ -306,7 +309,8 @@ class SampleTable_variants(tables.Table):
     class Meta:
         model = Sample
         attrs = {
-            "data-show-columns" : "true",
+            "data-show-columns" : "false",
+            "data-sort-name" : "display_ancestry",
             "data-export-options" : '{"fileName": "pgs_sample_source_data"}'
         }
         fields = [
@@ -414,7 +418,6 @@ class PerformanceTable(tables.Table):
     othermetrics = Column_metriclist(accessor='othermetrics_list', verbose_name='Other Metrics', orderable=False)
     pub_withexternality = Column_pubexternality(accessor='publication_withexternality', verbose_name='Performance Source', orderable=False)
     covariates = Column_shorten_text_content(accessor='covariates')
-    performance_comments = Column_shorten_text_content(accessor='performance_comments')
 
     class Meta:
         model = Performance
@@ -436,6 +439,20 @@ class PerformanceTable(tables.Table):
 
     def render_score(self, value):
         return format_html('<a href="/score/{}">{}</a> (<i>{}</i>)', value.id, value.id, value.name)
+
+    def render_performance_comments(self, value):
+        comments = value
+        has_link = 0
+        matches = re.findall('\[([^\]]+)\]\(([^\)]+)\)',value)
+        for match in matches:
+            has_link = 1
+            label = match[0]
+            url = match[1]
+            html = f'<a href="{url}">{label}</a>'
+            comments = comments.replace(f'[{label}]({url})', html)
+        if not has_link:
+            comments = f'<span class="more">{comments}</span>'
+        return format_html(comments)
 
 
 class CohortTable(tables.Table):

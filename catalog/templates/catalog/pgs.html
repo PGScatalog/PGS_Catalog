@@ -57,11 +57,11 @@
         </div>
 
         <div class="float_left pgs_bordered_block_container">
-          <a class="btn btn-pgs pgs_no_icon_link pgs_helptip mr-2 mb-2" href="{{ score.ftp_scoring_file }}"
-            title="Variants and weights data file for {{ score.id }}" download>
+          <a class="btn btn-pgs pgs_no_icon_link pgs_helptip mr-2 mb-2" href="{{ pgs_ftp_http_root }}/scores/{{ score.id }}/ScoringFiles/"
+            title="Variants and weights data file for {{ score.id }}">
             <span class="fa fa-download"></span> Download Score
           </a>
-          <a class="btn btn-pgs pgs_no_icon_link pgs_helptip pgs-ftp-btn mb-2" target="_blank" href="{{ pgs_ftp_http_root }}/scores/{{ score.id }}/"
+          <a class="btn btn-pgs pgs_no_icon_link pgs_helptip pgs-ftp-btn mb-2" href="{{ pgs_ftp_http_root }}/scores/{{ score.id }}/"
             title="Score and metadata files for {{ score.id }}">
             <span class="fa fa-folder"></span> FTP directory
           </a>

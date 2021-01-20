@@ -265,7 +265,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_api.pagination.CustomPagination',
     'PAGE_SIZE': 50,
     'EXCEPTION_HANDLER': 'rest_api.views.custom_exception_handler',
     'DEFAULT_THROTTLE_CLASSES': [

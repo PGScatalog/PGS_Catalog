@@ -1,8 +1,8 @@
 from rest_framework import generics, status
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 from rest_framework.exceptions import Throttled
+from rest_framework.serializers import ValidationError
 from django.db.models import Prefetch, Q
 from catalog.models import *
 from .serializers import *
@@ -35,10 +35,22 @@ def custom_exception_handler(exc, context):
     # to get the standard error response.
     response = exception_handler(exc, context)
 
+    # Over the fixed rate limit
     if isinstance(exc, Throttled): # check that a Throttled exception is raised
         response.data = { # custom response data
             'message': 'request limit exceeded',
             'availableIn': '%d seconds'%exc.wait
+        }
+    # Over the maximum number of results per page (limit parameter)
+    elif isinstance(exc, ValidationError):
+        formatted_exc = ''
+        for type in exc.detail.keys():
+            if formatted_exc != '':
+                formatted_exc += '; '
+            formatted_exc += exc.detail[type]
+        response.data = { # custom response data
+            'status_code': response.status_code,
+            'message': formatted_exc
         }
     elif response.status_code == status.HTTP_404_NOT_FOUND:
         response.data = { # custom response data
@@ -68,7 +80,7 @@ class RestListPublications(generics.ListAPIView):
     serializer_class = PublicationExtendedSerializer
 
 
-class RestPublication(APIView):
+class RestPublication(generics.RetrieveAPIView):
     """
     Retrieve one PGS Publication
     """
@@ -133,7 +145,7 @@ class RestListScores(generics.ListAPIView):
     serializer_class = ScoreSerializer
 
 
-class RestScore(APIView):
+class RestScore(generics.RetrieveAPIView):
     """
     Retrieve one PGS Score
     """
@@ -223,7 +235,7 @@ class RestPerformanceSearch(generics.ListAPIView):
         return queryset
 
 
-class RestPerformance(APIView):
+class RestPerformance(generics.RetrieveAPIView):
     """
     Retrieve one Performance metric
     """
@@ -248,7 +260,7 @@ class RestListEFOTraits(generics.ListAPIView):
     serializer_class = EFOTraitExtendedSerializer
 
 
-class RestEFOTrait(APIView):
+class RestEFOTrait(generics.RetrieveAPIView):
     """
     Retrieve one EFO Trait
     """
@@ -342,7 +354,7 @@ class RestListTraitCategories(generics.ListAPIView):
 
 ## Samples / Sample Sets ##
 
-class RestSampleSet(APIView):
+class RestSampleSet(generics.RetrieveAPIView):
     """
     Retrieve one Sample Set
     """
@@ -411,7 +423,7 @@ class RestListReleases(generics.ListAPIView):
     serializer_class = ReleaseSerializer
 
 
-class RestRelease(APIView):
+class RestRelease(generics.RetrieveAPIView):
     """
     Retrieve one Release information
     """
@@ -425,7 +437,7 @@ class RestRelease(APIView):
         return Response(serializer.data)
 
 
-class RestCurrentRelease(APIView):
+class RestCurrentRelease(generics.RetrieveAPIView):
     """
     Retrieve the current Release information
     """
@@ -437,7 +449,7 @@ class RestCurrentRelease(APIView):
 
 ##### Extra endpoints #####
 
-class RestGCST(APIView):
+class RestGCST(generics.RetrieveAPIView):
     """
     Retrieve all the PGS Score IDs using a given GWAS study (GCST)
     """
