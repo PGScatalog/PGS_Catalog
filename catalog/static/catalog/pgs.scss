@@ -22,6 +22,10 @@ $pgs_dev: #577284;
 $pgs_facet_1: $pgs_colour_2;
 $pgs_facet_2: #f58f22;
 
+$pgs_colour_red: #E00;
+$pgs_colour_amber: #FFA500;
+$pgs_colour_green: #008000;
+
 $header_height_with_margin: 97px;
 $header_height_with_margin_mobile: $header_height_with_margin + 58px;
 $footer_height: 97px;
@@ -886,6 +890,15 @@ td > ul {
 }
 .pgs_color_2 {
   color: $pgs_colour_2 !important;
+}
+.pgs_color_red {
+  color: $pgs_colour_red !important;
+}
+.pgs_color_amber {
+  color: $pgs_colour_amber !important;
+}
+.pgs_color_green {
+  color: $pgs_colour_green !important;
 }
 
 .btn-pgs, .btn-pgs-small {
