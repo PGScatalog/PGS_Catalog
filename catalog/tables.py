@@ -37,7 +37,7 @@ class Column_metriclist(tables.Column):
                 label = name[0]
             label = smaller_in_bracket(label)
             name_html = f'<span title="{name[0]}" class="pgs_helptip">{label}</span>'
-            l.append((name_html, '<span class="pgs_nowrap">'+str(val)+'</span>'))
+            l.append((name_html, '<span class="pgs_nowrap">'+smaller_in_bracket(str(val))+'</span>'))
 
         values = '<br>'.join([': '.join(x) for x in l])
         return format_html(values)
@@ -243,7 +243,7 @@ class Browse_ScoreTable(tables.Table):
         return format_html('<a href="/score/{}">{}</a>', value, value)
 
     def render_publication(self, value):
-        citation = format_html(' '.join([value.id, '<small class="pgs_pub_details">', value.firstauthor, '<i>et al.</i>', value.journal, '(%s)'%value.date_publication.strftime('%Y'), '</small>']))
+        citation = format_html(' '.join([value.id, '<span class="pgs_pub_details">', value.firstauthor, '<i>et al.</i>', value.journal, '(%s)'%value.date_publication.strftime('%Y'), '</span>']))
         is_preprint = ''
         if value.is_preprint:
             is_preprint = format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')

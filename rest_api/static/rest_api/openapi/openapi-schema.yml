@@ -181,22 +181,21 @@ components:
             - cohort_symbol
           properties:
             associated_pgs_ids:
-              type: array
-              description: "List of associated PGS Score IDs and the development and evaluation stages"
-              items:
-                properties:
-                  development:
-                    type: array
-                    description: "List of associated PGS Score IDs at the PGS development stage"
-                    example: ["PGS000001", "PGS000002"]
-                    items:
-                      type: string
-                  evaluation:
-                    type: array
-                    description: "List of associated PGS Score IDs at the PGS evaluation stage"
-                    example: ["PGS000003"]
-                    items:
-                      type: string
+              type: object
+              description: "List of associated PGS Score IDs at the development and evaluation stages"
+              properties:
+                development:
+                  type: array
+                  description: "List of associated PGS Score IDs at the PGS development stage"
+                  example: ["PGS000001", "PGS000002"]
+                  items:
+                    type: string
+                evaluation:
+                  type: array
+                  description: "List of associated PGS Score IDs at the PGS evaluation stage"
+                  example: ["PGS000003"]
+                  items:
+                    type: string
 
     Demographic:
       type: object

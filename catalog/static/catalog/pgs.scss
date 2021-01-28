@@ -713,6 +713,7 @@ td > ul {
 
 .pgs_pub_details {
   display: block;
+  font-size: 80%;
   &:before {
     font-family: 'FontAwesome';
     content:"\f101";
@@ -745,6 +746,18 @@ td > ul {
   }
   &:hover {
     color: $pgs_colour_1_lighter;
+  }
+}
+
+.pgs_bracket {
+  color:inherit;
+  &:before {
+    content: '[';
+    color: $pgs_colour_2;
+  }
+  &:after {
+    content: ']';
+    color: $pgs_colour_2;
   }
 }
 
