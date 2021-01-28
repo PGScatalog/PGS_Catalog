@@ -789,14 +789,14 @@ class Performance(models.Model):
     def publication_withexternality(self):
         """This function checks whether the evaluation is internal or external to the score development paper"""
         p = self.publication
-        info = [' '.join([p.id, '<br/><small><i class="fa fa-angle-double-right"></i> ',p.firstauthor, '<i>et al.</i>', '(%s)' % p.date_publication.strftime('%Y'), '</small>']), self.publication.id]
+        info = [' '.join([p.id, '<span class="pgs_pub_details">', p.firstauthor, '<i>et al.</i>', '(%s)' % p.date_publication.strftime('%Y'), '</span>']), p.id]
 
-        if self.publication.id == self.score.publication.id:
+        if p.id == self.score.publication.id:
             info.append('D')
         else:
             info.append('E')
 
-        if self.publication.is_preprint:
+        if p.is_preprint:
             info.append('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
         else:
             info.append('')
