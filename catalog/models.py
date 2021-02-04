@@ -64,20 +64,28 @@ class Publication(models.Model):
         return self.publication_score.all().count()
 
     @property
+    def scores_evaluated_count(self):
+        return len(self.scores_evaluated)
+
+    @property
     def scores_evaluated(self):
         # Using 'all()' and filter afterward uses less SQL queries than a direct distinct()
         score_ids_set = set()
         for performance in self.publication_performance.all():
             score_ids_set.add(performance.score.id)
-        return len(list(score_ids_set))
+        return sorted(list(score_ids_set))
 
     @property
-    def associated_pgs_ids(self):
+    def scores_developed(self):
         # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
         score_ids_set = set()
         for score in self.publication_score.all():
             score_ids_set.add(score.id)
         return sorted(list(score_ids_set))
+
+    @property
+    def associated_pgs_ids(self):
+        return { 'development': self.scores_developed, 'evaluation': self.scores_evaluated }
 
     def parse_EuropePMC(self, doi=None, PMID=None):
         """Function to get the citation information from the EuropePMC API"""

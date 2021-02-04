@@ -3,6 +3,56 @@
 
 {% block title %}The Polygenic Score Catalog{% endblock %}
 
+{% block desc %}
+  <!-- Structured data -->
+  <script type=”application/ld+json”>
+  [
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "url": "https://www.pgscatalog.org/",
+      "description": "The Polygenic Score (PGS) Catalog is an open database of published PGS and the relevant metadata needed to apply and evaluate them correctly.",
+      "logo": "https://www.pgscatalog.org{% static 'catalog/imgs/PGS_Logo.png' %}",
+      "sameAs": ["https://twitter.com/pgscatalog"],
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target”: “https://www.pgscatalog.org/search/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "http://schema.org",
+      "@type": "DataCatalog",
+      "name": "Polygenic Score (PGS) Catalog",
+      "description": "An open database of polygenic scores and the relevant metadata required for accurate application and evaluation.",
+      "url": "https://www.pgscatalog.org/",
+      "keywords": ["polygenic score","polygenic risk score","pgs","prs","catalog","catalogue","database","genetic","genomic","prediction","disease","gwas","ebi","hdr-uk"],
+      "provider": {
+        "@type": "Organization",
+        "name": "PGS Catalog",
+        "url": "https://www.pgscatalog.org/",
+        "email": "pgs-info@ebi.ac.uk"
+      },
+      "citation": {
+        "@type": "ScholarlyArticle",
+        "headline": "The Polygenic Score Catalog: an open database for reproducibility and systematic evaluation",
+        "identifier": ["https://doi.org/10.1101/2020.05.20.20108217"],
+        "author": {
+          "@type": "Person",
+          "name": "Samuel A Lambert"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "medRxiv",
+          "url": "https://www.medrxiv.org/"
+        },
+        "datePublished": "2020-05-20"
+      }
+    }
+  ]
+  </script>
+{% endblock %}
+
 {% block content %}
 <div class="columns">
     <section>
