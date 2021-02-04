@@ -10,7 +10,7 @@ class CopyScoringFiles:
     scores_list_file = 'pgs_scores_list.txt'
 
     log_msg = {
-        'copied': [],
+        'new': [],
         'updated': [],
         'skipped': []
     }
@@ -169,11 +169,11 @@ class CopyScoringFiles:
                 self.create_directory(score_release_dir)
                 shutil.copy2(new_score_file, score_release_dir+score_filename)
                 if not score_id in self.log_msg['updated']:
-                    self.log_msg['copied'].append(score_id)
+                    self.log_msg['new'].append(score_id)
 
 
         # Copied PGS Scoring files
-        self.print_log_msg('copied', 'Copied PGS Scoring files')
+        self.print_log_msg('new', 'New PGS Scoring files')
 
         # Updated PGS Scoring files (old files are archived)
         self.print_log_msg('updated', 'Updated PGS Scoring files')

@@ -5,6 +5,8 @@ if [ $# -eq  "0" ]; then
 else
   if [ -d $1 ]; then
     cd $1
+    find pgs_scores_list.txt -type f -exec chmod 664 {} +
+    echo "> pgs_scores_list.txt file - done"
     find scores/ -type d -exec chmod 775 {} +
     echo "> scores directories - done"
     find scores/ -type f -exec chmod 664 {} +
