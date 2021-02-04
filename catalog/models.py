@@ -205,6 +205,10 @@ class EFOTrait_Base(models.Model):
         return '%s | %s '%(self.id, self.label)
 
     @property
+    def id_colon(self):
+        return self.id.replace('_',':')
+
+    @property
     def display_label(self):
         return '<a href="/trait/%s">%s</a>'%(self.id, self.label)
 
