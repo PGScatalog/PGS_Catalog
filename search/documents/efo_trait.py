@@ -1,7 +1,6 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
-from elasticsearch_dsl import analyzer
-
+from search.analyzers import id_analyzer, html_strip_analyzer, name_delimiter_analyzer
 from catalog.models import EFOTrait_Ontology, TraitCategory, Score
 
 # Name of the Elasticsearch index
@@ -13,19 +12,30 @@ INDEX.settings(
     number_of_replicas=1
 )
 
+# PGS index analyzers
+id_analyzer = id_analyzer()
+html_strip = html_strip_analyzer()
+name_delimiter = name_delimiter_analyzer()
 
-html_strip = analyzer(
-    'html_strip',
-    tokenizer="standard",
-    filter=["lowercase", "stop", "snowball", "remove_duplicates"],
-    char_filter=["html_strip"]
-)
 
 @INDEX.doc_type
 class EFOTraitDocument(Document):
     """EFOTrait elasticsearch document"""
 
-    id = fields.TextField()
+    id = fields.TextField(
+        analyzer=id_analyzer,
+        fields={
+            'raw': fields.TextField(analyzer='keyword'),
+            'suggest': fields.CompletionField()
+        }
+    )
+    id_colon = fields.TextField(
+        analyzer=id_analyzer,
+        fields={
+            'raw': fields.TextField(analyzer='keyword'),
+            'suggest': fields.CompletionField()
+        }
+    )
     label = fields.TextField(
         analyzer=html_strip,
         fields={
@@ -77,15 +87,9 @@ class EFOTraitDocument(Document):
     )
     scores_direct_associations = fields.ObjectField(
         properties={
-            'id': fields.TextField(
-                analyzer=html_strip,
-                fields={
-                    'raw': fields.TextField(analyzer='keyword'),
-                    'suggest': fields.CompletionField()
-                }
-            ),
+            'id': fields.TextField(analyzer=id_analyzer),
             'name': fields.TextField(
-                analyzer=html_strip,
+                analyzer=name_delimiter,#html_strip,
                 fields={
                     'raw': fields.TextField(analyzer='keyword'),
                 }
@@ -100,13 +104,7 @@ class EFOTraitDocument(Document):
     )
     scores_child_associations = fields.ObjectField(
         properties={
-            'id': fields.TextField(
-                analyzer=html_strip,
-                fields={
-                    'raw': fields.TextField(analyzer='keyword'),
-                    'suggest': fields.CompletionField()
-                }
-            ),
+            'id': fields.TextField(analyzer=id_analyzer),
             'name': fields.TextField(
                 analyzer=html_strip,
                 fields={
@@ -123,13 +121,8 @@ class EFOTraitDocument(Document):
     )
     parent_traits = fields.ObjectField(
         properties={
-            'id': fields.TextField(
-                analyzer=html_strip,
-                fields={
-                    'raw': fields.TextField(analyzer='keyword'),
-                    'suggest': fields.CompletionField()
-                }
-            ),
+            'id': fields.TextField(analyzer=id_analyzer),
+            'id_colon': fields.TextField(analyzer=id_analyzer),
             'label': fields.TextField(
                 analyzer=html_strip,
                 fields={
@@ -139,12 +132,14 @@ class EFOTraitDocument(Document):
         }
     )
 
+
     class Django(object):
         """Inner nested class Django."""
 
         model = EFOTrait_Ontology  # The model associated with this Document
-        related_models = [TraitCategory]
-
-    def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, TraitCategory):
-            return related_instance.efotraits_ontology.all()
+    #    # Optional - Only used to update data and indexes
+    #    related_models = [Score]
+    #
+    # def get_instances_from_related(self, related_instance):
+    #     if isinstance(related_instance, Score):
+    #         return related_instance.trait_efo.all()

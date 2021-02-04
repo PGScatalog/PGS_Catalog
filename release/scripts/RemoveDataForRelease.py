@@ -80,7 +80,7 @@ class NonReleasedDataToRemove:
         if len(self.pss2del.keys()) > 0:
             for sample_set in self.pss2del.values():
                 sample_set.delete()
-            print("> Sampe Set(s) deleted")
+            print("> Sample Set(s) deleted")
         # Scores to delete
         if len(self.scores2del.keys()) > 0:
             for score in self.scores2del.values():

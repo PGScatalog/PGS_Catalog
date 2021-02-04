@@ -16,6 +16,7 @@ related_dict = {
     ],
     'perf_select': ['score', 'publication', 'sampleset'],
     'publication_score_prefetch': [Prefetch('publication_score', queryset=Score.objects.only('id','publication__id').all())],
+    'publication_performance_prefetch': [Prefetch('publication_performance', queryset=Performance.objects.only('score__id','publication__id').select_related('score'))],
     'associated_scores_prefetch': [Prefetch('associated_scores', queryset=Score.objects.only('id','trait_efo__id').all())],
     'ontology_associated_scores_prefetch': [
                                              Prefetch('scores_direct_associations', queryset=Score.objects.only('id','trait_efo__id').all()),
@@ -76,7 +77,7 @@ class RestListPublications(generics.ListAPIView):
     """
     Retrieve all the PGS Publications
     """
-    queryset = Publication.objects.defer(*related_dict['publication_defer']).all().prefetch_related(*related_dict['publication_score_prefetch']).order_by('num')
+    queryset = Publication.objects.defer(*related_dict['publication_defer']).all().prefetch_related(*related_dict['publication_score_prefetch'],*related_dict['publication_performance_prefetch']).order_by('num')
     serializer_class = PublicationExtendedSerializer
 
 
@@ -256,8 +257,29 @@ class RestListEFOTraits(generics.ListAPIView):
     """
     Retrieve all the EFO Traits
     """
-    queryset = EFOTrait.objects.all().prefetch_related(*related_dict['associated_scores_prefetch'], *related_dict['traitcategory_prefetch']).order_by('label')
-    serializer_class = EFOTraitExtendedSerializer
+
+    def get_queryset(self):
+        queryset = EFOTrait.objects.all().prefetch_related(*related_dict['associated_scores_prefetch'], *related_dict['traitcategory_prefetch']).order_by('label')
+
+        # include_parents parameter
+        if self.get_include_parents_param():
+            queryset = EFOTrait_Ontology.objects.all().prefetch_related(*related_dict['ontology_associated_scores_prefetch'], *related_dict['traitcategory_ontology_prefetch']).order_by('label').distinct()
+        return queryset
+
+    def get_serializer_class(self):
+        ''' Overwrite default method: use different serializer depending on the URL parameter '''
+        if self.get_include_parents_param():
+            return EFOTraitOntologySerializer
+        else:
+            return EFOTraitExtendedSerializer
+
+    def get_include_parents_param(self):
+        ''' Fetch the "include_parents" parameter and return True if it is set to 1 '''
+        param_include_parents = self.request.query_params.get('include_parents')
+        if param_include_parents != None:
+            if  param_include_parents == '1' or param_include_parents == 1:
+                return True
+        return False
 
 
 class RestEFOTrait(generics.RetrieveAPIView):

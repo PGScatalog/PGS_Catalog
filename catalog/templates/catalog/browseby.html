@@ -3,6 +3,18 @@
 
 {% block title %}All {{ view_name }}{% endblock %}
 
+{% block desc %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebPage",
+      "name": "Browse {{ view_name }}",
+      "description": "List all the {{ view_name }} of the catalog.",
+      "keywords": ["{{ view_name }}","catalog","catalogue","data"]
+    }
+  </script>
+{% endblock %}
+
 {% block content %}
     <nav aria-label="You are here:">
       <ol class="breadcrumb">

@@ -287,6 +287,7 @@ ELASTICSEARCH_DSL = {
 
 # Name of the Elasticsearch index
 ELASTICSEARCH_INDEX_NAMES = {
+    'search.documents.score': 'score',
     'search.documents.efo_trait': 'efo_trait',
     'search.documents.publication': 'publication'
 }

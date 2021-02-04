@@ -8,7 +8,8 @@ test_sample_count  = 7
 
 default_num = 1
 
-efo_id   = 'EFO_0000305'
+efo_id = 'EFO_0000305'
+efo_id_colon = efo_id.replace('_',':')
 efo_name = 'breast carcinoma'
 efo_desc = 'A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]'
 efo_synonyms_list = ['CA - Carcinoma of breast','Carcinoma of breast NOS','Mammary Carcinoma, Human']
@@ -218,6 +219,7 @@ class EFOTraitTest(TestCase):
         self.assertIsNotNone(efo_trait_1.url)
         self.assertIsNotNone(efo_trait_1.description)
         self.assertEqual(efo_trait_1.id, efo_id)
+        self.assertEqual(efo_trait_1.id_colon, efo_id_colon)
         self.assertEqual(efo_trait_1.label, efo_name)
         self.assertEqual(efo_trait_1.description, efo_desc)
         self.assertEqual(efo_trait_1.synonyms, efo_synonyms)
@@ -234,6 +236,7 @@ class EFOTraitTest(TestCase):
         self.assertEqual(efo_trait_1.label, efo_name)
         self.assertEqual(efo_trait_1.description, efo_desc)
         self.assertIsNotNone(efo_trait_1.url)
+        self.assertEqual(efo_trait_1.category_labels_list, [])
 
         # Test empty synonyms & mapped_terms
         efo_trait_2 = self.create_efo_trait(efo_id='EFO_0000306', syn=None, terms=None)
@@ -467,7 +470,8 @@ class PerformanceTest(TestCase):
         self.assertEqual(performance.display_trait['efo'][0], performance.phenotyping_efo.all()[0])
         self.assertEqual(performance.display_trait['reported'], self.phenotype_reported)
         self.assertTrue(isinstance(performance.publication, Publication))
-        self.assertEqual(performance.publication.scores_evaluated, 1)
+        self.assertEqual(performance.publication.scores_evaluated, [performance.score.id])
+        self.assertEqual(performance.publication.scores_evaluated_count, 1)
         self.assertEqual(performance.associated_pgs_id, performance.score.id)
         cohorttest = CohortTest()
         cohort = cohorttest.get_cohort(cohort_name, cohort_desc)
@@ -668,6 +672,7 @@ class SampleTest(TestCase):
         # Other methods
         self.assertRegexpMatches(sample_1.__str__(), r'^Sample\s\d+')
         self.assertIsNone(sample_1.sample_cases_percent)
+        self.assertIsNone(sample_1.display_sampleset)
 
         ## Sample object with numbers
         sample_2 = self.create_sample_numbers()
@@ -747,6 +752,7 @@ class SampleSetTest(TestCase):
         # Create samples objects
         for i in range(1,len(self.test_ancestry)+1):
             sample = sampletest.create_sample_ancestry(sample_number=i,broad=self.test_ancestry[i-1])
+            self.assertRegexpMatches(sample.__str__(), r'\s\-\s'+self.test_ancestry[i-1])
             samples.append(sample)
         # Create SampleSet object and add list of Samples
         sampleset = SampleSet.objects.create(num=num)
@@ -846,6 +852,10 @@ class ScoreTest(TestCase):
         self.assertEqual(score.variants_genomebuild, self.v_build)
         self.assertTrue(score.flag_asis)
         self.assertIsNotNone(score.license)
+        self.assertTrue(score.has_default_license)
+
+        score.license = "Not the default one"
+        self.assertFalse(score.has_default_license)
 
         # Other methods
         self.assertEqual(score.__str__(),  score.id+" | "+score.name+" | ("+score.publication.__str__()+")")
@@ -855,7 +865,10 @@ class ScoreTest(TestCase):
         # Fetch publication object and number of associated score(s)
         pub = Publication.objects.get(num=id)
         self.assertEqual(pub.scores_count, 1)
-        self.assertEqual(pub.associated_pgs_ids, [score.id])
+        self.assertEqual(pub.scores_evaluated_count, 0)
+        self.assertEqual(pub.scores_evaluated, [])
+        self.assertEqual(pub.scores_developed, [score.id])
+        self.assertEqual(pub.associated_pgs_ids,  { 'development': [score.id], 'evaluation': [] })
 
         # Test trait/score association
         efo = score.trait_efo.all()
@@ -904,12 +917,13 @@ class TraitCategoryTest(TestCase):
         efotraittest = EFOTraitTest()
         trait = efotraittest.get_efo_trait(efo_id, efo_name, efo_desc)
         trait_category.efotraits.add(trait)
+        trait.save()
         self.assertEqual(trait.category_labels, trait_category.label)
         self.assertNotEqual(trait.display_category_labels, '')
         category_label =  r'^<div>.*'+trait_category.label+r'.*</div>$'
         self.assertRegexpMatches(trait.display_category_labels, category_label)
-        self.assertEqual(list(trait.category_list), [trait_category])
-        self.assertEqual(list(trait.category_labels_list), [trait_category.label])
+        self.assertEqual(trait.category_list, [trait_category])
+        self.assertEqual(trait.category_labels_list, [trait_category.label])
         self.assertNotEqual(trait.display_category_labels,'')
 
         # Test to count scores per trait category

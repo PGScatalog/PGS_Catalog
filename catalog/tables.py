@@ -13,8 +13,8 @@ page_size = "50"
 def smaller_in_bracket(value):
     bracket_left = '['
     value = value.replace(' '+bracket_left, bracket_left)
-    value = value.replace(bracket_left,'<span class="smaller_90 pl-2"><span class="pgs_color_2">[</span>')
-    value = value.replace(']','<span class="pgs_color_2">]</span></span>')
+    value = value.replace(bracket_left,'<span class="smaller_90 pgs_bracket pl-2"><span class="only_export"> [</span>')
+    value = value.replace(']','<span class="only_export">]</span></span>')
     return value
 
 class Column_joinlist(tables.Column):
@@ -122,7 +122,7 @@ class Column_format_html(tables.Column):
 class Browse_PublicationTable(tables.Table):
     '''Table to browse Publications in the PGS Catalog'''
     scores_count = tables.Column(accessor='scores_count', verbose_name='PGS Developed', orderable=False)
-    scores_evaluated = tables.Column(accessor='scores_evaluated', verbose_name='PGS Evaluated', orderable=False)
+    scores_evaluated = tables.Column(accessor='scores_evaluated_count', verbose_name='PGS Evaluated', orderable=False)
 
     class Meta:
         model = Publication
@@ -279,6 +279,7 @@ class Browse_SampleSetTable(tables.Table):
     class Meta:
         model = Sample
         attrs = {
+            "id": "sampleset_table",
             "data-show-columns" : "true",
             "data-page-size" : page_size,
             "data-export-options" : '{"fileName": "pgs_samplesets_data"}'
@@ -382,6 +383,7 @@ class SampleTable_performance(tables.Table):
     class Meta:
         model = Sample
         attrs = {
+            "id": "samples_table",
             "data-show-columns" : "true",
             "data-sort-name" : "display_sampleset",
             "data-export-options" : '{"fileName": "pgs_sample_evaluation_data"}'
@@ -422,6 +424,7 @@ class PerformanceTable(tables.Table):
     class Meta:
         model = Performance
         attrs = {
+            "id": "performances_table",
             "data-show-columns" : "true",
             "data-sort-name" : "id",
             "data-export-options" : '{"fileName": "pgs_performance_metrics_data"}'
