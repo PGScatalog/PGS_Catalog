@@ -22,7 +22,7 @@
   <nav aria-label="You are here:">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
-      <li class="breadcrumb-item">Search</li>
+      <li class="breadcrumb-item"><a href="./">Search</a></li>
       {% if query %}
         <li class="breadcrumb-item">{{ query }}</li>
       {% endif %}
@@ -34,10 +34,10 @@
     <h5><i class="fa fa-info-circle pgs_color_1 mr-2"></i>Please enter a search term in the <i>"Search..."</i> form above, on the page header.</h5>
   {% else %}
     <h2 class="search_result_header pb-2">Search results for "<span class="pgs_color_1">{{ query }}</span>"</h2>
-    {% if efo_traits_count or publications_count %}
+    {% if facets_count %}
       <div class="search_facet_container mt-4">
 
-        {% if efo_traits_count and publications_count %}
+        {% if facets_count > 1 %}
           <div class="search_facet selected" id="all_facet">
             <i class="fa fa-check-circle"></i>
             <div>All results</div>
@@ -45,8 +45,22 @@
           </div>
         {% endif %}
 
+        {% if scores_count %}
+          {% if facets_count > 1 %}
+            <div class="search_facet" id="scores_facet">
+              <i class="fa fa-circle-o"></i>
+          {% else %}
+            <div class="search_facet selected" id="scores_facet">
+              <i class="fa fa-check-circle"></i>
+          {% endif %}
+              <span class="search_facet_type search_facet_type_3"></span>
+              <div>Scores</div>
+              <span class="badge badge-pill badge-pgs">{{ scores_count }}</span>
+            </div>
+        {% endif %}
+
         {% if efo_traits_count %}
-          {% if publications_count %}
+          {% if facets_count > 1 %}
             <div class="search_facet" id="efo_traits_facet">
               <i class="fa fa-circle-o"></i>
           {% else %}
@@ -60,7 +74,7 @@
         {% endif %}
 
         {% if publications_count %}
-          {% if efo_traits_count %}
+          {% if facets_count > 1 %}
             <div class="search_facet" id="publications_facet">
               <i class="fa fa-circle-o"></i>
           {% else %}
@@ -74,7 +88,7 @@
         {% endif %}
       </div>
 
-      {% if efo_traits_count or publications_count %}
+      {% if all_results %}
         <div class="table_results pt-5" id="all_results">
           {% for result in all_results%}
             {{ result|safe }}

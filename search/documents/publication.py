@@ -1,6 +1,7 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
-from elasticsearch_dsl import analyzer
+#from elasticsearch_dsl import analysis, analyzer
+from search.analyzers import html_strip_analyzer, name_delimiter_analyzer
 
 from catalog.models import Publication, Score
 
@@ -14,12 +15,9 @@ INDEX.settings(
 )
 
 
-html_strip = analyzer(
-    'html_strip',
-    tokenizer="standard",
-    filter=["lowercase", "stop", "snowball", "remove_duplicates"],
-    char_filter=["html_strip"]
-)
+html_strip = html_strip_analyzer()
+name_delimiter = name_delimiter_analyzer()
+
 
 @INDEX.doc_type
 class PublicationDocument(Document):
@@ -69,6 +67,7 @@ class PublicationDocument(Document):
         }
     )
     scores_count = fields.IntegerField()
+    scores_evaluated_count = fields.IntegerField()
     publication_score = fields.ObjectField(
         properties={
             'id': fields.TextField(
@@ -79,7 +78,7 @@ class PublicationDocument(Document):
                 }
             ),
             'name': fields.TextField(
-                analyzer=html_strip,
+                analyzer=name_delimiter,#html_strip,
                 fields={
                     'raw': fields.TextField(analyzer='keyword'),
                 }
@@ -104,6 +103,51 @@ class PublicationDocument(Document):
                         fields={
                             'raw': fields.TextField(analyzer='keyword'),
                             'suggest': fields.CompletionField()
+                        }
+                    )
+                }
+            )
+        }
+    )
+    publication_performance = fields.ObjectField(
+        properties={
+            'score': fields.ObjectField(
+                properties={
+                    'id': fields.TextField(
+                        analyzer=html_strip,
+                        fields={
+                            'raw': fields.TextField(analyzer='keyword'),
+                            'suggest': fields.CompletionField()
+                        }
+                    ),
+                    'name': fields.TextField(
+                        analyzer=html_strip,
+                        fields={
+                            'raw': fields.TextField(analyzer='keyword'),
+                        }
+                    ),
+                    'trait_reported': fields.TextField(
+                        analyzer=html_strip,
+                        fields={
+                            'raw': fields.TextField(analyzer='keyword'),
+                        }
+                    ),
+                    'trait_efo': fields.ObjectField(
+                        properties={
+                            'id': fields.TextField(
+                                analyzer=html_strip,
+                                fields={
+                                    'raw': fields.TextField(analyzer='keyword'),
+                                    'suggest': fields.CompletionField()
+                                }
+                            ),
+                            'label': fields.TextField(
+                                analyzer=html_strip,
+                                fields={
+                                    'raw': fields.TextField(analyzer='keyword'),
+                                    'suggest': fields.CompletionField()
+                                }
+                            )
                         }
                     )
                 }
