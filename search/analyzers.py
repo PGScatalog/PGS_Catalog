@@ -1,6 +1,15 @@
 from elasticsearch_dsl import analysis, analyzer
 
 
+def id_analyzer():
+    ''' Analyser for the different IDs in the PGS indexes '''
+    return analyzer(
+        'id_analyzer',
+        tokenizer="keyword",
+        filter=["lowercase", "remove_duplicates"]
+    )
+
+
 def html_strip_analyzer():
     ''' Standard analyser for the PGS indexes '''
     return analyzer(

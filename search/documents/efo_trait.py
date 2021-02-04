@@ -1,8 +1,6 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
-#from elasticsearch_dsl import analysis, analyzer
 from search.analyzers import id_analyzer, html_strip_analyzer, name_delimiter_analyzer
-
 from catalog.models import EFOTrait_Ontology, TraitCategory, Score
 
 # Name of the Elasticsearch index
