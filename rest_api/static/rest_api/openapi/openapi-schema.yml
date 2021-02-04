@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.4'
+  version: '1.5'
   description: |
     Programatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -70,6 +70,22 @@ info:
 
     <a class="toggle_btn" id="changelog">REST API version changelog <i class="fa fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.5</span> - February 2021:
+        * Split the array of the field **associated_pgs_ids** (from the `/rest/publication/` endpoint) in 2 arrays **development** and **evaluation**, e.g.:
+          ```
+            "associated_pgs_ids": {
+              "development": [
+                  "PGS000011"
+              ],
+              "evaluation": [
+                  "PGS000010",
+                  "PGS000011"
+              ]
+            }
+          ```
+
+        * New flag parameter **include_parents** for the endpoint `/rest/trait/all` to display the traits in the catalog + their parent traits (default: 0)
 
       * <span class="badge badge-pill badge-pgs">1.4</span> - January 2021:
         * Setup a maximum value for the `limit` parameter.
@@ -491,11 +507,21 @@ components:
             description: "Concatenated list of all the publication authors"
             example: "Mavaddat N, ... , Garcia-Closas M."
           associated_pgs_ids:
-            type: array
-            description: "List of associated PGS Score IDs"
-            example: [ "PGS000001","PGS000002","PGS000003"]
-            items:
-              type: string
+            type: object
+            description: "List of associated PGS Score IDs at the development and evaluation stages"
+            properties:
+              development:
+                type: array
+                description: "List of associated PGS Score IDs at the PGS development stage"
+                example: ["PGS000001", "PGS000002"]
+                items:
+                  type: string
+              evaluation:
+                type: array
+                description: "List of associated PGS Score IDs at the PGS evaluation stage"
+                example: ["PGS000003"]
+                items:
+                  type: string
 
     Release:
       type: object
@@ -1041,7 +1067,7 @@ paths:
         Retrieve all the PGS Publications, including for each of them:
           * Pubmed ID and doi
           * Publication title, journal, date and authors
-          * Associated PGS Score(s)
+          * Associated PGS Score(s) with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
 
         Example of request:
         ```
@@ -1084,7 +1110,7 @@ paths:
         Retrieve a PGS Publication, including:
           * Pubmed ID and doi
           * Publication title, journal, date and authors
-          * Associated PGS Score(s)
+          * Associated PGS Score(s) with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
 
         Example of request:
         ```
@@ -1130,7 +1156,7 @@ paths:
         This returns a list of PGS Publications, including for each of them:
           * Pubmed ID and doi
           * Publication title, journal, data and authors
-          * Associated PGS Score(s)
+          * Associated PGS Score(s) with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
       parameters:
         - in: query
           name: pgs_id
@@ -1514,14 +1540,29 @@ paths:
           * Trait categories
           * Synonyms and external mapped terms
           * Associated PGS Score(s)
+          * Associated PGS Score(s) with child trait(s) - **<span class="colour_2">[</span>** only when the parameter **include_parents** is set to **1** **<span class="colour_2">]</span>**
 
-        This list matches the traits indexed in the metadata downloads.
+        The default behaviour of this endpoint is to provide a list of traits which have PGS that predict them (matching the traits indexed in the metadata downloads).
+        Higher-level trait groupings imported from the Experimental Factor Ontology can be included in the list by setting the **include_parents** flag to **1** (default is 0).
 
         Example of request:
         ```
         https://www.pgscatalog.org/rest/trait/all
         ```
-      parameters: []
+      parameters:
+        - in: query
+          name: include_parents
+          schema:
+            type: integer
+          required: false
+          description: 'Flag to include or not the parents of the traits associated with PGS'
+          examples:
+            exclude_parents_sel:
+              summary: Exclude the parents terms
+              value: 0
+            include_parents_sel:
+              summary: Include the parents terms
+              value: 1
       responses:
         '200':
           content:
@@ -1535,9 +1576,10 @@ paths:
                     description: "List of Traits"
                     type: array
                     items:
-                      $ref: '#/components/schemas/EFOTrait_extended'
+                      $ref: '#/components/schemas/EFOTrait_Ontology'
           description: |
                   Traits in PGS Catalog
+
 
                   ---
 
