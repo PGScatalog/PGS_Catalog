@@ -194,92 +194,87 @@ $(document).ready(function() {
       }
       // Filter by value - filter out the children terms
       else {
+        // Scores
         trait_label = $(this).val();
         default_pagination = 15;
         tmp_pagination =  'All';
-        var s_col_idx = 0;
-        var t_col_idx = 0;
         var pgs_ids_list = [];
         var pgs_ids_list_link = [];
-        $('#scores_table>thead>tr>th').each(function(i) {
-          var col_name = $(this).attr('data-field');
-          if (col_name == 'id') {
-            s_col_idx = i;
-          }
-          else if (col_name == 'list_traits') {
-            t_col_idx = i;
-          }
-        });
-        $('#scores_table').bootstrapTable('refreshOptions', {
+        var scores_table_id = '#scores_table';
+        var col_idx = get_columns_indexes(scores_table_id,['id','list_traits']);
+        $(scores_table_id).bootstrapTable('refreshOptions', {
             pageSize: tmp_pagination
         });
-        $('#scores_table>tbody>tr').each(function() {
-          var trait_td = $(this).find('td').eq( t_col_idx );
+        $(scores_table_id+'>tbody>tr').each(function() {
+          var trait_td = $(this).find('td').eq( col_idx['list_traits'] );
           var traits = trait_td.find('a');
           for (var j = 0; j < traits.length; j++) {
             if (traits[j].innerHTML == trait_label) {
-              var pgs_td = $(this).find('td').eq( s_col_idx );
+              var pgs_td = $(this).find('td').eq( col_idx['id'] );
               var pgs_id = pgs_td.find('a').html();
               pgs_ids_list.push(pgs_id);
               pgs_ids_list_link.push('<a href="/score/'+pgs_id+'">'+pgs_id+'</a>');
             }
           }
         });
-        $('#scores_table').bootstrapTable('refreshOptions', {
+        $(scores_table_id).bootstrapTable('refreshOptions', {
             pageSize: default_pagination
         });
 
-        $('#scores_table').bootstrapTable('filterBy', {
+        $(scores_table_id).bootstrapTable('filterBy', {
           id: pgs_ids_list_link
         });
 
-        if ($("#performances_table").length != 0) {
-            var perf_col_idx = 0;
-            var score_col_idx = 0;
-            var sample_col_idx = 0;
-            $('#performances_table>thead>tr>th').each(function(i) {
-              var col_name = $(this).attr('data-field');
-              if (col_name == 'id') {
-                perf_col_idx = i;
-              }
-              if (col_name == 'score') {
-                score_col_idx = i;
-              }
-              if (col_name == 'sampleset') {
-                sample_col_idx = i;
-              }
-            });
-            var ppm_ids_list = [];
-            var pss_ids_list = [];
-            $('#performances_table').bootstrapTable('refreshOptions', {
-                pageSize: tmp_pagination
-            });
-            $('#performances_table>tbody>tr').each(function() {
-              var s_td = $(this).find('td').eq( score_col_idx );
-              var pgs_id = s_td.find('a').html();
-              var pgs_id = s_td.find('a').html();
-              if (jQuery.inArray(pgs_id, pgs_ids_list) != -1) {
-                var ppm_id = $(this).find('td').eq( perf_col_idx ).html();
-                ppm_ids_list.push(ppm_id);
-
-                var sample_td = $(this).find('td').eq( sample_col_idx );
-                var pss_id = sample_td.find('a').html();
-                pss_ids_list.push('<a id="'+pss_id+'" href="/sampleset/'+pss_id+'">'+pss_id+'</a>');
-              }
-            });
-            $('#performances_table').bootstrapTable('refreshOptions', {
-                pageSize: default_pagination
-            });
-            $('#performances_table').bootstrapTable('filterBy', {
-               id: ppm_ids_list
-            });
-            $('#samples_table').bootstrapTable('filterBy', {
-               display_sampleset: pss_ids_list
-            });
+        // Performances & Samples
+        var perf_table_id = '#performances_table';
+        if ($(perf_table_id).length != 0) {
+          var col_idx_2 = get_columns_indexes(perf_table_id,['id','score','sampleset']);
+          var ppm_ids_list = [];
+          var pss_ids_list = [];
+          $(perf_table_id).bootstrapTable('refreshOptions', {
+              pageSize: tmp_pagination
+          });
+          $(perf_table_id+'>tbody>tr').each(function() {
+            var s_td = $(this).find('td').eq( col_idx_2['score'] );
+            var pgs_id = s_td.find('a').html();
+            if ($.inArray(pgs_id, pgs_ids_list) != -1) {
+              // Performances list (PPM)
+              var ppm_id = $(this).find('td').eq( col_idx_2['id'] ).html();
+              ppm_ids_list.push(ppm_id);
+              // Samples list (PSS)
+              var sample_td = $(this).find('td').eq( col_idx_2['sampleset'] );
+              var pss_id = sample_td.find('a').html();
+              pss_ids_list.push('<a id="'+pss_id+'" href="/sampleset/'+pss_id+'">'+pss_id+'</a>');
+            }
+          });
+          $(perf_table_id).bootstrapTable('refreshOptions', {
+              pageSize: default_pagination
+          });
+          $(perf_table_id).bootstrapTable('filterBy', {
+             id: ppm_ids_list
+          });
+          $('#samples_table').bootstrapTable('filterBy', {
+             display_sampleset: pss_ids_list
+          });
         }
       }
       shorten_displayed_content();
     });
+
+    function get_columns_indexes(table_id,col_names) {
+      var cols_indexes = {};
+      var col_names_length = col_names.length;
+      $(table_id+'>thead>tr>th').each(function(i) {
+        var col_name = $(this).attr('data-field');
+        for ( var j=0; j < col_names_length; j++ ) {
+          var col_field = col_names[j];
+          if (col_name == col_field) {
+            cols_indexes[col_field] = i;
+          }
+        }
+      });
+      return cols_indexes;
+    }
 });
 
 function search_validator(){

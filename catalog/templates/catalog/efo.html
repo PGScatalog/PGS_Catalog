@@ -125,7 +125,7 @@
             <span>Note: </span>This table shows all PGS for "<b>{{ trait.label }}</b>" and any child terms of this trait in the EFO hierarchy by default.
           </div>
           <span>
-            <input type="checkbox" {% if include_children %}checked{% endif %} id="include_children" name="include_children" value="{{ trait.id }}"/>
+            <input type="checkbox" {% if include_children %}checked{% endif %} id="include_children" name="include_children" value="{{ trait.label }}"/>
             <label class="mb-0" for="include_children"> Include PGS Score(s) for child traits</label>
           </span>
         </div>

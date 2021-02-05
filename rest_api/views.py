@@ -430,8 +430,7 @@ class RestCohorts(generics.ListAPIView):
         # Fetch Cohort model(s)
         try:
             cohort_symbol = self.kwargs['cohort_symbol']
-            cohort_symbol = cohort_symbol.upper()
-            queryset = Cohort.objects.filter(name_short=cohort_symbol).prefetch_related('sample_set', 'sample_set__sampleset', 'sample_set__score_variants', 'sample_set__score_training')
+            queryset = Cohort.objects.filter(name_short__iexact=cohort_symbol).prefetch_related('sample_set', 'sample_set__sampleset', 'sample_set__score_variants', 'sample_set__score_training')
         except Cohort.DoesNotExist:
             queryset = []
         return queryset
