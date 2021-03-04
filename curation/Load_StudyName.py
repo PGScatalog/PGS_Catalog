@@ -37,9 +37,14 @@ gwas_samples = gwas_samples[gwas_samples['STAGE'] == 'initial'] # Get rid of rep
 #               'Vuckovic2020', 'Kathiresan2008', 'Coleman2020', 'Knevel2019', 'Tikkanen2013', 'Dikilitas2020',
 #               'Barr2020', 'Liyanarachchi2020', 'Shrine2019', 'Pihlstrøm2016', 'Zhang2020', ''Folkersen2020', 'Wang2020', 'Ferrat2020'
 #               'Xie2020', 'Sharp2020''Shieh2020', ''Meisner2020', 'Chami2020', 'Flynn2020', 'Grove2019', 'Reid2019', 'Mars2020', 'Zhang2020_NatComm', 'Mars2020_BC']
-# Loaded_v6 = ['Maukonen2020', 'Koyama2020', 'Kloosterman2020']
+# Loaded_v6 = ['Maukonen2020', 'Koyama2020', 'Kloosterman2020', 'Law2020', 'Trinder2020_circ', 'Hindy2020', 'Kramer2020', 'BossiniCastillo2020',
+#               'Smith2020', 'Ho2020', 'Black2020','Pechlivanis2020', 'Fan2019','Aragam2020', 'Barnes2020', 'Fritsche2020',
+#               'Namjou2019', 'Forgetta2020', 'Tam2021_PreSub',
+#               'Darst2021', 'Kim2020', 'Gorski2020', 'Marston2020', 'Pirruccello2020', 'Trinder2020_LPA',
+#               'Sinnott-Armstrong2021', 'Mosley2020', 'Sipeky2020', 'Giontella2020', 'Richardson2020', 'Naito2020', 'Lanfear2020',
+#               'Jia2020', 'Emdin2020']
 
-StudyNames = ['Law2020']
+StudyNames = []
 
 #Loop through studies to be included/loaded
 for StudyName in StudyNames:
@@ -48,6 +53,7 @@ for StudyName in StudyNames:
     current_study.file_loc  = '../pgs_DBSourceFiles/{}/{}.xlsx'.format(StudyName,StudyName)
     current_study.read_curation()
     current_study.table_mapschema = curation2schema
+    current_study.check_cohorts()
     current_study.extract_publication()
     current_study.extract_scores()
     current_study.extract_samples(gwas_samples)
@@ -83,7 +89,10 @@ for StudyName in StudyNames:
     for x in current_study.parsed_samples_scores:
         scores = []
         for s in x[0][0].split(','):
-            scores.append(saved_scores[s.strip()])
+            if s.strip() in saved_scores:
+                scores.append(saved_scores[s.strip()])
+            else:
+                print('WARNING: {} is not found in the saved scores list!!!'.format(s.strip()), x)
         samples = x[1]
         for current_score in scores:
             if type(samples) == dict:
@@ -222,3 +231,6 @@ for StudyName in StudyNames:
                     print('Error in {} ! bad columns: {}', loc_scorefile, badmaps)
             except:
                 print('ERROR reading scorefile: {}', loc_scorefile)
+
+    # current_study.parsed_publication.curation_status = 'C'
+    # current_study.parsed_publication.save()

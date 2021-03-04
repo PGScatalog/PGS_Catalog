@@ -26,9 +26,9 @@ class CurationTemplate():
 
             self.table_samples = pd.read_excel(loc_excel, sheet_name='Sample Descriptions', header=0)
             # Parse to separate tables
-            self.table_samples_scores = self.table_samples[self.table_samples.iloc[:,1] != 'Testing ']
+            self.table_samples_scores = self.table_samples[[x.startswith('Test') is False for x in self.table_samples.iloc[:, 1]]]
             self.table_samples_scores.set_index(list(self.table_samples_scores.columns[[0, 1]]), inplace = True)
-            self.table_samples_testing = self.table_samples[self.table_samples.iloc[:, 1] == 'Testing ']
+            self.table_samples_testing = self.table_samples[[x.startswith('Test') for x in self.table_samples.iloc[:, 1]]]
             self.table_samples_testing.set_index(list(self.table_samples_testing.columns[[2]]), inplace=True)
 
             self.table_performances = pd.read_excel(loc_excel, sheet_name='Performance Metrics', header=[0,1], index_col=[0, 1])
@@ -112,11 +112,34 @@ class CurationTemplate():
         for cname in cstring.split(','):
             cname = cname.strip()
             if cname in cohort_df.index:
-                clist.append((cname, cohort_df.loc[cname][0]))
+                cname_long = cohort_df.loc[cname][0]
+                cname_long = cname_long.strip() # get rid of leading/trailing spaces
+                clist.append((cname, cname_long))
             else:
-                clist.append((cname, 'UNKNOWN'))
+                clist.append((cname, cname))
         return clist
 
+    def check_cohorts(self):
+        current_schema = self.table_mapschema.loc['Sample Descriptions'].set_index('Column')
+        # Loop through cohorts
+        for sample_ids, sample_info in self.table_samples.iterrows():
+            for c, val in sample_info.to_dict().items():
+                if c in current_schema.index:
+                    if pd.isnull(val) == False:
+                        f = current_schema.loc[c, 'Field']
+                        if f == 'cohorts':
+                            try:
+                                cmapped = self.cohort_to_tuples(val)
+                                if cmapped[0] == cmapped[1]:
+                                    print('{} : no cohort description (long name)'.format(cmapped[0]))
+                            except:
+                                for x in val.split(','):
+                                    try:
+                                        cpassed = self.cohort_to_tuples(x)
+                                        if cpassed[0] == cpassed[1]:
+                                            print('{} : no cohort description (long name)'.format(cpassed[0]))
+                                    except:
+                                        print(sample_ids,'{} failed cohort validation'.format(x),sep=' : ')
 
     def extract_samples(self, gwas):
         current_schema = self.table_mapschema.loc['Sample Descriptions'].set_index('Column')
@@ -353,6 +376,7 @@ def create_scoringfileheader(cscore):
         '### PGS CATALOG SCORING FILE - see www.pgscatalog.org/downloads/#dl_ftp for additional information',
         '## POLYGENIC SCORE (PGS) INFORMATION',
         '# PGS ID = {}'.format(cscore.id),
+        '# PGS Name = {}'.format(cscore.name),
         '# Reported Trait = {}'.format(cscore.trait_reported),
         '# Original Genome Build = {}'.format(cscore.variants_genomebuild),
         '# Number of Variants = {}'.format(cscore.variants_number),
