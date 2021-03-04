@@ -5,7 +5,7 @@ from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.db.models import Prefetch
 from django.db.models.functions import Lower
-
+from pgs_web import constants
 from .tables import *
 
 
@@ -439,10 +439,10 @@ class ReportStudyView(TemplateView):
     template_name = "catalog/report_study.html"
 
 class CurrentTemplateView(RedirectView):
-    url = settings.USEFUL_URLS['TEMPLATEGoogleDoc_URL']
+    url = constants.USEFUL_URLS['TEMPLATEGoogleDoc_URL']
 
 class CurationDocView(RedirectView):
-    url = settings.USEFUL_URLS['CurationGoogleDoc_URL']
+    url = constants.USEFUL_URLS['CurationGoogleDoc_URL']
 
 
 # Method used for the App Engine warmup

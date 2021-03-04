@@ -76,21 +76,24 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'pgs_web.urls'
 
+CONTEXT_PROCESSORS = [
+    'django.template.context_processors.debug',
+    'django.template.context_processors.request',
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+    'catalog.context_processors.pgs_urls',
+    'catalog.context_processors.pgs_settings',
+    'catalog.context_processors.pgs_search_examples',
+    'catalog.context_processors.pgs_info'
+]
+
 if os.getenv('GAE_APPLICATION', None) and DEBUG==False:
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'DIRS': [os.path.join(BASE_DIR, 'templates')],
             'OPTIONS': {
-                'context_processors': [
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.request',
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.messages.context_processors.messages',
-                    'catalog.context_processors.pgs_urls',
-                    'catalog.context_processors.pgs_settings',
-                    'catalog.context_processors.pgs_search_examples'
-                ],
+                'context_processors': CONTEXT_PROCESSORS,
                 'loaders': [
                     ('django.template.loaders.cached.Loader', [
                         'django.template.loaders.filesystem.Loader',
@@ -107,33 +110,14 @@ else:
             'DIRS': [],
             'APP_DIRS': True,
             'OPTIONS': {
-                'context_processors': [
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.request',
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.messages.context_processors.messages',
-                    'catalog.context_processors.pgs_urls',
-                    'catalog.context_processors.pgs_settings',
-                    'catalog.context_processors.pgs_search_examples'
-                ],
+                'context_processors': CONTEXT_PROCESSORS
             },
         },
     ]
 
 
-USEFUL_URLS = {
-    'BAKER_URL'         : 'https://baker.edu.au',
-    'EBI_URL'           : 'https://www.ebi.ac.uk',
-    'HDR_UK_CAM_URL'    : 'https://www.hdruk.ac.uk/about/structure/hdr-uk-cambridge/',
-    'PGS_CONTACT'       : 'pgs-info@ebi.ac.uk',
-    'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
-    'PGS_FTP_HTTP_ROOT' : 'http://ftp.ebi.ac.uk/pub/databases/spot/pgs',
-    'PGS_TWITTER_URL'   : 'https://www.twitter.com/pgscatalog',
-    'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',
-    'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing',
-    'CurationGoogleDoc_URL' : 'https://drive.google.com/file/d/1iYoa0R3um7PtyfVO37itlGbK1emoZmD-/view',
-    'CATALOG_PUBLICATION_URL' : 'https://doi.org/10.1101/2020.05.20.20108217'
-}
+# Flags
+
 if os.getenv('GAE_APPLICATION', None):
     PGS_ON_GAE = 1
 else:
@@ -148,6 +132,7 @@ if 'PGS_CURATION_SITE' in os.environ:
     PGS_ON_CURATION_SITE = os.environ['PGS_CURATION_SITE']
 else:
     PGS_ON_CURATION_SITE = False
+
 
 WSGI_APPLICATION = 'pgs_web.wsgi.application'
 

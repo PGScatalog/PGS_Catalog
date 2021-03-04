@@ -101,6 +101,11 @@ u {
   white-space: nowrap;
 }
 
+select {
+  border-radius:0.25rem;
+}
+
+
 /* Main classes */
 
 h2 {
@@ -147,6 +152,20 @@ h2 {
     clear:both;
   }
 }
+
+.pgs_banner {
+  background-color: $pgs_light_grey2;
+  border: 1px solid $pgs_colour_2;
+  border-radius: 4px;
+  padding: 0.8rem 1rem;
+  margin-left:auto;
+  margin-right:auto;
+  width:80%;
+  a {
+    display:inline-block;
+  }
+}
+
 
 /* Navbar and horizontal menu */
 .navbar {
@@ -1165,6 +1184,9 @@ a.link-with-btn {
 
 .font_16 {
   font-size: 16px;
+}
+.font_20 {
+  font-size: 20px;
 }
 .smaller_90 {
   font-size: 90%;

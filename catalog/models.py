@@ -1,7 +1,8 @@
 from django.db import models
-from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import DecimalRangeField
+from pgs_web import constants
+
 
 class Publication(models.Model):
     """Class for publications with PGS"""
@@ -426,7 +427,7 @@ class Sample(models.Model):
     followup_time = models.OneToOneField(Demographic, on_delete=models.CASCADE,related_name='followuptime_of', null=True)
 
     ## Ancestry
-    ancestry_broad = models.CharField('Broad Ancestry Category', max_length=100)
+    ancestry_broad = models.CharField('Broad Ancestry Category', max_length=250)
     ancestry_free = models.TextField('Ancestry (e.g. French, Chinese)', null=True)
     ancestry_country = models.TextField('Country of Recruitment', null=True)
     ancestry_additional = models.TextField('Additional Ancestry Description', null=True)
@@ -640,7 +641,7 @@ class Score(models.Model):
 
     @property
     def ftp_scoring_file(self):
-        ftp_url = '{}/scores/{}/ScoringFiles/{}'.format(settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], self.id, self.link_filename)
+        ftp_url = '{}/scores/{}/ScoringFiles/{}'.format(constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], self.id, self.link_filename)
         return ftp_url
 
     @property

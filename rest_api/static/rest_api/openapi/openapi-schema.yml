@@ -645,7 +645,7 @@ components:
 
     Score:
       type: object
-      description: "Main structure containing information about Polygenic Score"
+      description: "Main structure containing information about Polygenic Score. The **publication** represents the citation for the paper that developed the PGS."
       required:
         - pgs_id
       properties:

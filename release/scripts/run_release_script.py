@@ -30,6 +30,9 @@ def run(*args):
     # Check that the EFO Traits are associated to at least a Score or a Performance Metric
     check_efotrait_associations()
 
+    # Check of there are duplicated cohort names in the database
+    check_duplicated_cohorts()
+
     # Create release
     call_create_release()
 
@@ -86,6 +89,31 @@ def check_efotrait_associations():
         exit(1)
     else:
         print("EFOTrait associations - OK: All the traits are associated to a Score or a Performance Metric!")
+
+
+def check_duplicated_cohorts():
+    cohorts_first_found = {}
+    cohorts_found_lower = set()
+    cohorts_duplicated = {}
+    for cohort in Cohort.objects.all():
+        name = cohort.name_short
+        name_lower = name.lower()
+        if name_lower in cohorts_found_lower:
+            if name_lower not in cohorts_duplicated:
+                cohorts_duplicated[name_lower] = set()
+                cohorts_duplicated[name_lower].add(cohorts_first_found[name_lower])
+            cohorts_duplicated[name_lower].add(name)
+        else:
+            cohorts_found_lower.add(name_lower)
+            cohorts_first_found[name_lower] = name
+
+    if len(cohorts_duplicated.keys()):
+        print("ERROR: The following cohorts seem duplicated in the database:")
+        for key,val in cohorts_duplicated.items():
+            print("- Cohorts: "+', '.join(list(val)))
+        exit(1)
+    else:
+        print("Cohort duplication - OK: No duplicated cohort found!")
 
 
 def call_create_release():
