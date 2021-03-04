@@ -20,6 +20,7 @@ class BrowseEndpointTest(TestCase):
 
     # Tuple: ( Endpoint name | Base URL | Flag for results multiplicity | Parameter examples* )
     endpoints = [
+        ('Cohorts', 'cohort/all', 1),
         ('Cohort/SYMBOL', 'cohort', 1, {'path': ['ABCFS','ESTHER']}),
         ('EFO Traits', 'trait/all', 1),
         ('EFO Trait/ID', 'trait', 0, {'path': ['EFO_0000305','MONDO_0007254','EFO:0000270','efo:0004339'], 'extra_query': 'include_children=0'}),
@@ -41,11 +42,13 @@ class BrowseEndpointTest(TestCase):
         ('Release current', 'release/current', 0),
         ('Sample Set/ID', 'sample_set', 0, {'path': ['PSS000198','PSS000233','PSS000245']}),
         ('Sample Set Search', 'sample_set/search', 1, {'query': ['pgs_id=PGS000001','pgs_id=PGS000018']}),
+        ('Sample Sets', 'sample_set/all', 1),
         ('Scores', 'score/all', 1),
         ('Score/ID', 'score', 0, {'path': ['PGS000001','PGS000018','pgs000002']}),
         ('Scores Search', 'score/search', 1, {'query': ['pmid=25855707','trait_id=EFO_1000649']}),
         ('Scores IDs from a GWAS/ID', 'gwas/get_score_ids', 2, {'path': ['GCST001937','GCST004988']}),
         ('Trait Category', 'trait_category/all', 1),
+        ('Info', 'info', 0)
     ]
 
     client = Client()
@@ -97,7 +100,8 @@ class BrowseEndpointTest(TestCase):
                         self.send_request(url_endpoint+'?'+example)
             else:
                 self.send_request(url_endpoint)
-                self.get_paginated_response(url_endpoint)
+                if endpoint[self.index_result_mutliplicity]:
+                    self.get_paginated_response(url_endpoint)
 
 
     def test_endpoints_with_slash(self):
@@ -123,12 +127,14 @@ class BrowseEndpointTest(TestCase):
                         self.send_request(url_endpoint+'?'+example)
             else:
                 self.send_request(url_endpoint)
-                self.get_paginated_response(url_endpoint)
+                if endpoint[self.index_result_mutliplicity]:
+                    self.get_paginated_response(url_endpoint)
+
 
     def test_empty_endpoints(self):
         """ Test the status code and empty response of each endpoint listed above """
         for endpoint in self.endpoints:
-            url_endpoint   = self.server+endpoint[1]+'/'
+            url_endpoint = self.server+endpoint[1]+'/'
 
             if len(endpoint) > self.index_example:
                 # Endpoint with parameter within the URL path

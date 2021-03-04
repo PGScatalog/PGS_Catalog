@@ -4,6 +4,7 @@ from rest_framework.views import exception_handler
 from rest_framework.exceptions import Throttled
 from rest_framework.serializers import ValidationError
 from django.db.models import Prefetch, Q
+from pgs_web import constants
 from catalog.models import *
 from .serializers import *
 
@@ -376,6 +377,14 @@ class RestListTraitCategories(generics.ListAPIView):
 
 ## Samples / Sample Sets ##
 
+class RestListSampleSets(generics.ListAPIView):
+    """
+    Retrieve all the Cohorts
+    """
+    queryset = SampleSet.objects.all().prefetch_related('samples', 'samples__cohorts').order_by('id')
+    serializer_class = SampleSetSerializer
+
+
 class RestSampleSet(generics.RetrieveAPIView):
     """
     Retrieve one Sample Set
@@ -418,6 +427,16 @@ class RestSampleSetSearch(generics.ListAPIView):
             queryset = []
 
         return queryset
+
+
+## Cohorts ##
+
+class RestListCohorts(generics.ListAPIView):
+    """
+    Retrieve all the Cohorts
+    """
+    queryset = Cohort.objects.all().prefetch_related('sample_set', 'sample_set__sampleset', 'sample_set__score_variants', 'sample_set__score_training').order_by('name_short')
+    serializer_class = CohortExtendedSerializer
 
 
 class RestCohorts(generics.ListAPIView):
@@ -487,3 +506,34 @@ class RestGCST(generics.RetrieveAPIView):
         pgs_scores = [score.id for score in scores]
 
         return Response(pgs_scores)
+
+
+class RestInfo(generics.RetrieveAPIView):
+    """
+    Return diverse information related to the REST API and the PGS Catalog
+    """
+
+    def get(self, request):
+
+        release = Release.objects.only('date').order_by('-date').first()
+        # Mainly to pass the tests as there is no data (and no release) in them
+        if release:
+            release_date = release.date
+        else:
+            release_date = "NA"
+
+        latest_release = {
+            'date': release_date,
+            'scores': Score.objects.count(),
+            'publications': Publication.objects.count(),
+            'traits': EFOTrait.objects.count()
+        }
+
+        data = {
+            'rest_api': constants.PGS_REST_API,
+            'latest_release': latest_release,
+            'citation': constants.PGS_CITATION,
+            'terms_of_use': constants.USEFUL_URLS['TERMS_OF_USE']
+        }
+
+        return Response(data)

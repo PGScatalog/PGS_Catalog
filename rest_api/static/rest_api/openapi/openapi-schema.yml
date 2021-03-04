@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.5'
+  version: '1.6'
   description: |
     Programatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -70,6 +70,11 @@ info:
 
     <a class="toggle_btn" id="changelog">REST API version changelog <i class="fa fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.6</span> - March 2021:
+        * New endpoint `/rest/info` with data such as the REST API version, latest release date and counts, PGS citation, ...
+        * New endpoint `/rest/cohort/all` returning all the Cohorts and their associated PGS.
+        * New endpoint `/rest/sample_set/all` returning all the Sample Set data.
 
       * <span class="badge badge-pill badge-pgs">1.5</span> - February 2021:
         * Split the array of the field **associated_pgs_ids** (from the `/rest/publication/` endpoint) in 2 arrays **development** and **evaluation**, e.g.:
@@ -170,7 +175,7 @@ tags:
   - name: "Release endpoints"
     description: PGS Release information (release date, number of new scores/publication/performance and their IDs)
   - name: "Other endpoints"
-    description: PGS extra endpoints for specific queries from collaborators
+    description: "PGS extra endpoints: **/rest/info** (REST API version, data counts, PGS citation, ...) and specific queries from collaborators"
 
 components:
   schemas:
@@ -662,6 +667,7 @@ components:
           description: "URL to the scoring file on the PGS FTP"
           example: "http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/PGS000001.txt.gz"
         publication:
+          description: "Citation for the paper that developed the PGS"
           $ref: '#/components/schemas/Publication'
         matches_publication:
           type: boolean
@@ -760,6 +766,48 @@ components:
 
 paths:
   # Sample/Cohort endpoints
+  '/rest/cohort/all':
+    get:
+      tags:
+        - "Sample endpoints"
+      operationId: getAllCohorts
+      description: |
+        Retrieve all Cohorts, including for each of them:
+          * Cohort full name
+          * Associated PGS Scores(s), with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
+
+          Example of request:
+          ```
+          https://www.pgscatalog.org/rest/cohort/all
+          ```
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                properties:
+                  results:
+                    description: "List of PGS Cohorts"
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cohort_extended'
+          description: |
+                  All PGS Cohorts
+
+                  ---
+
+                  __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
+
   '/rest/cohort/{cohort_symbol}':
     get:
       tags:
@@ -808,6 +856,49 @@ paths:
                 ---
 
                 __Notes:__ This endpoint uses pagination.
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
+
+  '/rest/sample_set/all':
+    get:
+      tags:
+        - "Sample endpoints"
+      operationId: getAllSampleSets
+      description: |
+          Retrieve one Sample Set (group of samples used on a Performance Metric), including for each of them:
+            * List of samples
+              * Ancestry data
+              * Corresponding cohort(s)
+
+          Example of request:
+          ```
+          https://www.pgscatalog.org/rest/sample_set/all
+          ```
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                properties:
+                  results:
+                    description: "List of PGS Cohorts"
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SampleSet'
+          description: |
+                  All PGS Sample Sets
+
+                  ---
+
+                  __Notes:__ This endpoint uses pagination.
         '4XX':
           content:
               application/json:
@@ -1791,6 +1882,98 @@ paths:
 
 
   # Other endpoints
+  '/rest/info':
+    get:
+      tags:
+        - "Other endpoints"
+      operationId: getInfo
+      description: |
+        Return diverse information related to the REST API and the PGS Catalog.
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/info/
+        ```
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: "PGS Catalog information such as citation, REST API version, ..."
+                type: object
+                properties:
+                  rest_api:
+                    type: object
+                    description: "Information about the current version of the REST API"
+                    properties:
+                      version:
+                        type: number
+                        description: "REST API version"
+                        example: 1.6
+                      changelog:
+                          type: array
+                          description: "REST API changelog"
+                          example: ["New endpoint '/rest/cohort/all' returning all the Cohorts and their associated PGS.", "New endpoint '/rest/sample_set/all' returning all the Sample Set data."]
+                          items:
+                            type: string
+                  latest_release:
+                    type: object
+                    description: "Information about the latest PGS Catalog release"
+                    properties:
+                      date:
+                        type: string
+                        description: "Date of the latest PGS release (format YYYY-MM-DD)"
+                        format: date
+                        example: "2021-02-23"
+                      scores:
+                        type: number
+                        description: "Number of Scores in the Catalog"
+                        example: 738
+                      traits:
+                        type: number
+                        description: "Number of Traits in the Catalog"
+                        example: 202
+                      publications:
+                        type: number
+                        description: "Number of Publications in the Catalog"
+                        example: 144
+                  citation:
+                    type: object
+                    description: "Information about the latest PGS Catalog publication"
+                    properties:
+                      title:
+                        type: string
+                        description: "Title of the publication"
+                        example: 'The Polygenic Score Catalog: an open database for reproducibility and systematic evaluation'
+                      doi:
+                        type: string
+                        description: "doi of the publication"
+                        example: '10.1101/2020.05.20.20108217'
+                      authors:
+                        type: string
+                        description: "List of the publication authors"
+                        example: 'Samuel A. Lambert, ... and Michael Inouye'
+                      journal:
+                        type: string
+                        description: "Name of the journal"
+                        example: 'medRxiv'
+                      year:
+                        type: number
+                        description: "Year of publication"
+                        example: 2020
+                  terms_of_use:
+                    type: string
+                    description: "URL to the terms of use"
+                    example: 'https://www.ebi.ac.uk/about/terms-of-use'
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
+
+
   '/rest/gwas/get_score_ids/{gcst_id}':
     get:
       tags:
