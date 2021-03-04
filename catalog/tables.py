@@ -1,9 +1,9 @@
-import django_tables2 as tables
-from django.conf import settings
-from django.utils.html import format_html
-from .models import *
-from django.utils.crypto import get_random_string
 import re
+import django_tables2 as tables
+from django.utils.html import format_html
+from django.utils.crypto import get_random_string
+from pgs_web import constants
+from .models import *
 
 
 publication_path = '/publication'
@@ -257,7 +257,7 @@ class Browse_ScoreTable(tables.Table):
 
     def render_ftp_link(self, value, record):
         id = value.split('.')[0]
-        ftp_link = '{}/scores/{}/ScoringFiles/'.format(settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], id)
+        ftp_link = '{}/scores/{}/ScoringFiles/'.format(constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], id)
         ftp_file_link = ftp_link+value
         license_icon = ''
         if record.has_default_license == False:
@@ -441,7 +441,7 @@ class PerformanceTable(tables.Table):
         return format_html('<a href="#{}">{}</a>', value, value)
 
     def render_score(self, value):
-        return format_html('<a href="/score/{}">{}</a> (<i>{}</i>)', value.id, value.id, value.name)
+        return format_html('<a href="/score/{}">{}</a><div class="small">({})</div>', value.id, value.id, value.name)
 
     def render_performance_comments(self, value):
         comments = value

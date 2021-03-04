@@ -17,10 +17,29 @@ def pgs_urls(request):
         'pgs_ftp_http_root': settings.USEFUL_URLS['PGS_FTP_HTTP_ROOT'],
         'pgs_twitter_url'  : settings.USEFUL_URLS['PGS_TWITTER_URL'],
         'uoc_url'          : settings.USEFUL_URLS['UOC_URL'],
+        'terms_of_use'     : settings.USEFUL_URLS['TERMS_OF_USE'],
         'catalog_publication_url': settings.USEFUL_URLS['CATALOG_PUBLICATION_URL'],
     }
 
 def pgs_search_examples(request):
+    eg_count = 0
+    html = ''
+    # Build the list of search examples
+    for example in settings.SEARCH_EXAMPLES:
+        link = f'<a href="/search?q={example}">{example}</a>'
+        eg_count += 1
+        if eg_count > 1:
+            if eg_count == 3:
+                html += '<span class="extra_example">'
+            html += ', '
+        html += link
+    if eg_count > 2:
+        html += '</span>'
     return {
-        'pgs_search_examples': '<a href="/search?q=breast cancer">breast cancer</a>, <a href="/search?q=glaucoma">glaucoma</a><span class="extra_example">, <a href="/search?q=EFO_0001645">EFO_0001645</a></span>'
+        'pgs_search_examples': html
+    }
+
+def pgs_info(request):
+    return {
+        'pgs_citation': settings.PGS_CITATION
     }

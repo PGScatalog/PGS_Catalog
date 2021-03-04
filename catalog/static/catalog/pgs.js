@@ -1,3 +1,5 @@
+var data_toggle_table = 'table[data-toggle="table"]';
+
 $(document).ready(function() {
 
     // Fix issue with internal links because of the sticky header
@@ -31,27 +33,8 @@ $(document).ready(function() {
     });
 
     // Add external link icon and taget blank for external links
-    function alter_external_links(prefix) {
-      if (!prefix) {
-        prefix = '';
-      }
-      else {
-        prefix += ' '
-      }
-      $(prefix+'a[href^="http"]').attr('target','_blank');
-      $(prefix+'a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
-    }
-    alter_external_links();
+    format_table_content();
 
-    // Tooltip | Popover
-    function pgs_tooltip() {
-      $('.pgs_helptip').attr('data-toggle','tooltip').attr('data-placement','bottom').attr('data-delay','800');
-      $('.pgs_helpover').attr('data-toggle','popover').attr('data-placement','right');
-
-      $('[data-toggle="tooltip"]').tooltip();
-      $('[data-toggle="popover"]').popover();
-    }
-    pgs_tooltip();
 
     // EMBL-EBI Data Protection banner
     var localFrameworkVersion = '1.3'; // 1.1 or 1.2 or compliance or other
@@ -64,65 +47,18 @@ $(document).ready(function() {
       ebiFrameworkRunDataProtectionBanner(localFrameworkVersion); // invoke the banner
     };
 
-    function pgs_toggle_btn(el) {
-      el.find('i').toggleClass("fa-plus-circle fa-minus-circle");
-      id = el.attr('id');
-      prefix = '#list_';
-      $(prefix+id).toggle();
-      if ($(prefix+id).is(":visible")) {
-        fadeIn($(prefix+id));
-      }
-    }
-
     // Button toggle
     $('.toggle_btn').click(function() {
       pgs_toggle_btn($(this));
     });
     // Button toggle within an HTML table
-    $('table.table[data-toggle="table"]').on("click", ".toggle_table_btn", function(){
-      pgs_tooltip();
+    $(data_toggle_table).on("click", '.toggle_table_btn', function(){
       pgs_toggle_btn($(this));
     });
 
-    // Shorten long text in table after each sorting or filtering of the table
-    // This is due to the bootstrap-table library rebuilding the table content at each sorting/filtering
-    // Shorten long text in table after each sorting or filtering of the table
-    // This is due to the bootstrap-table library rebuilding the table content at each sorting/filtering
-
-    // Run the "post processing" once the tables have been loaded and sorted by default
-    $('table.table[data-toggle="table"]').each(function(){
-      // Remove column search if the number of rows is too small
-      var trs = $( this ).find( "tbody > tr");
-      if (trs.length < 3) {
-        $( this ).find('.fht-cell').hide()
-      }
-      // Alter the table display
-      setTimeout(function(){
-        alter_external_links('table.table[data-toggle="table"] tbody');
-        pgs_tooltip();
-        shorten_displayed_content();
-      }, 500);
-    });
-
     // Run the "post processing" after a manual sorting
-    $('table.table[data-toggle="table"]').on("click", ".sortable", function(){
-      setTimeout(function(){
-        alter_external_links('table.table[data-toggle="table"] tbody');
-        pgs_tooltip();
-        shorten_displayed_content();
-      }, 0);
-    });
-    // Run the "post processing" after a manual filtering
-    var timer;
-    $('.form-control').keyup(function(){
-      clearTimeout(timer);
-      if ($('.form-control').val) {
-          timer = setTimeout(function(){
-            alter_external_links('table.table[data-toggle="table"] tbody');
-            pgs_tooltip();
-            shorten_displayed_content();
-          }, 1000);
-      }
+    $(data_toggle_table).on("click", ".sortable", function(){
+      format_table_content(10);
     });
 
 
@@ -184,41 +120,34 @@ $(document).ready(function() {
 
     // Filter to include or not children traits
     $("#include_children").click(function() {
-      var trait_label = '';
+      var trait_filter = '';
+
+      var scores_table_id = '#scores_table';
+      var perf_table_id = '#performances_table';
+      var sample_table_id = '#samples_table';
 
       // Filter by value - not filtering
       if ($(this).prop('checked')) {
-        $('#scores_table').bootstrapTable('filterBy', {});
-        $('#performances_table').bootstrapTable('filterBy', {});
-        $('#samples_table').bootstrapTable('filterBy', {});
+        $(scores_table_id).bootstrapTable('filterBy', {});
+        $(perf_table_id).bootstrapTable('filterBy', {});
+        $(sample_table_id).bootstrapTable('filterBy', {});
       }
       // Filter by value - filter out the children terms
       else {
         // Scores
-        trait_label = $(this).val();
-        default_pagination = 15;
-        tmp_pagination =  'All';
+        trait_filter = $(this).val();
         var pgs_ids_list = [];
         var pgs_ids_list_link = [];
-        var scores_table_id = '#scores_table';
-        var col_idx = get_columns_indexes(scores_table_id,['id','list_traits']);
-        $(scores_table_id).bootstrapTable('refreshOptions', {
-            pageSize: tmp_pagination
-        });
-        $(scores_table_id+'>tbody>tr').each(function() {
-          var trait_td = $(this).find('td').eq( col_idx['list_traits'] );
-          var traits = trait_td.find('a');
-          for (var j = 0; j < traits.length; j++) {
-            if (traits[j].innerHTML == trait_label) {
-              var pgs_td = $(this).find('td').eq( col_idx['id'] );
-              var pgs_id = pgs_td.find('a').html();
+        var data = $(scores_table_id).bootstrapTable('getData');
+        $.each(data,function(i, row) {
+          $(row['list_traits']).each(function() {
+            if ($(this).text() == trait_filter) {
+              var pgs_td = row['id'];
+              var pgs_id = $(pgs_td).text().split('(')[0];
               pgs_ids_list.push(pgs_id);
-              pgs_ids_list_link.push('<a href="/score/'+pgs_id+'">'+pgs_id+'</a>');
+              pgs_ids_list_link.push(pgs_td);
             }
-          }
-        });
-        $(scores_table_id).bootstrapTable('refreshOptions', {
-            pageSize: default_pagination
+          });
         });
 
         $(scores_table_id).bootstrapTable('filterBy', {
@@ -226,56 +155,69 @@ $(document).ready(function() {
         });
 
         // Performances & Samples
-        var perf_table_id = '#performances_table';
         if ($(perf_table_id).length != 0) {
-          var col_idx_2 = get_columns_indexes(perf_table_id,['id','score','sampleset']);
           var ppm_ids_list = [];
           var pss_ids_list = [];
-          $(perf_table_id).bootstrapTable('refreshOptions', {
-              pageSize: tmp_pagination
-          });
-          $(perf_table_id+'>tbody>tr').each(function() {
-            var s_td = $(this).find('td').eq( col_idx_2['score'] );
-            var pgs_id = s_td.find('a').html();
+
+          var perf_data = $(perf_table_id).bootstrapTable('getData');
+          $.each(perf_data,function(i, row) {
+            var pgs_td = row['score'];
+            var pgs_id = $(pgs_td).html(); // Only take the <a> text
             if ($.inArray(pgs_id, pgs_ids_list) != -1) {
-              // Performances list (PPM)
-              var ppm_id = $(this).find('td').eq( col_idx_2['id'] ).html();
+              // PPM
+              var ppm_id = row['id'];
               ppm_ids_list.push(ppm_id);
-              // Samples list (PSS)
-              var sample_td = $(this).find('td').eq( col_idx_2['sampleset'] );
-              var pss_id = sample_td.find('a').html();
+              // PSS
+              var pss_td = row['sampleset'];
+              var pss_id = $(pss_td).text();
               pss_ids_list.push('<a id="'+pss_id+'" href="/sampleset/'+pss_id+'">'+pss_id+'</a>');
             }
-          });
-          $(perf_table_id).bootstrapTable('refreshOptions', {
-              pageSize: default_pagination
           });
           $(perf_table_id).bootstrapTable('filterBy', {
              id: ppm_ids_list
           });
-          $('#samples_table').bootstrapTable('filterBy', {
+          $(sample_table_id).bootstrapTable('filterBy', {
              display_sampleset: pss_ids_list
           });
         }
       }
       shorten_displayed_content();
     });
-
-    function get_columns_indexes(table_id,col_names) {
-      var cols_indexes = {};
-      var col_names_length = col_names.length;
-      $(table_id+'>thead>tr>th').each(function(i) {
-        var col_name = $(this).attr('data-field');
-        for ( var j=0; j < col_names_length; j++ ) {
-          var col_field = col_names[j];
-          if (col_name == col_field) {
-            cols_indexes[col_field] = i;
-          }
-        }
-      });
-      return cols_indexes;
-    }
 });
+
+
+// Wait for the rendering of the whole page (DOM + but everything else is loaded)
+$(window).on('load', function() {
+
+  setTimeout(function(){
+    pgs_tooltip();
+  }, 1500);
+
+  // Add even listener
+  var input = document.querySelectorAll(".form-control");
+  for (var i=0; i < input.length; i++ ) {
+    input[i].addEventListener('input', format_table_event);
+  }
+
+  $(data_toggle_table).each(function(){
+    // Remove column search if the number of rows is too small
+    var trs = $( this ).find( "tbody > tr");
+    if (trs.length < 3) {
+      $(this).find('.fht-cell').hide()
+    }
+    // Remove column search where the filtering is not relevant
+    else {
+      var list = ['link_filename'];
+      for (var i=0; i < list.length; i++) {
+        $(this).find(`[data-field='${list[i]}'] div.fht-cell`).hide();
+        $(this).find(`[data-field='${list[i]}']`).css({"vertical-align": "top"});
+      }
+    }
+    // Alter the table display
+    format_table_content(500);
+  });
+});
+
 
 function search_validator(){
    if($('#q').val()){
@@ -287,9 +229,23 @@ function search_validator(){
    }
 }
 
+
+function pgs_toggle_btn(el) {
+  el.find('i').toggleClass("fa-plus-circle fa-minus-circle");
+  id = el.attr('id');
+  prefix = '#list_';
+  $(prefix+id).toggle();
+  if ($(prefix+id).is(":visible")) {
+    fadeIn($(prefix+id));
+  }
+}
+
+
 /*
- * Function to shorten content having long text
+ * Functions to (re)format data in boostrap-table cells
  */
+
+// Function to shorten content having long text
 var showChar = 100;  // How many characters are shown by default
 var ellipsestext = "...";
 var moretext = 'Show more';
@@ -307,6 +263,44 @@ function shorten_displayed_content() {
         }
       }
   });
+}
+
+// Add external link icon and taget blank for external links
+function alter_external_links(prefix) {
+  if (!prefix) {
+    prefix = '';
+  }
+  else {
+    prefix += ' '
+  }
+  $(prefix+'a[href^="http"]').attr('target','_blank');
+  $(prefix+'a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
+}
+
+
+// Tooltip | Popover
+function pgs_tooltip() {
+  $('.pgs_helptip').attr('data-toggle','tooltip').attr('data-placement','bottom').attr('data-delay','800');
+  $('.pgs_helpover').attr('data-toggle','popover').attr('data-placement','right');
+
+  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="popover"]').popover();
+}
+
+// Reformat the table content (links, shortened text, tooltips)
+function format_table_content(timeout) {
+  if (!timeout) {
+    timeout = 0;
+  }
+  setTimeout(function(){
+    alter_external_links(data_toggle_table+' tbody');
+    shorten_displayed_content();
+    pgs_tooltip();
+  }, timeout);
+}
+
+function format_table_event(e) {
+  format_table_content(750);
 }
 
 
@@ -390,8 +384,8 @@ function add_search_term(term) {
     elem.blur();
 
     setTimeout(function(){
-      $('table.table[data-toggle="table"] tbody a[href^="http"]').attr('target','_blank');
-      $('table.table[data-toggle="table"] tbody a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
+      $(data_toggle_table+' tbody a[href^="http"]').attr('target','_blank');
+      $(data_toggle_table+' tbody a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
     }, 500);
   }
 }

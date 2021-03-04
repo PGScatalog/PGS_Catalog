@@ -2,118 +2,133 @@
 {% if is_pgs_app_on_gae == 0 %}
   {% load compress %}
 {% endif %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>PGS Catalog - {% block title %}{% endblock %}</title>
+    <meta name="keywords" content="polygenic score, polygenic risk score, pgs, prs, catalog, catalogue, database, genetic, genomic, prediction, disease, gwas, ebi" /><!-- 3 to 10 keywords about the content of this page (not the whole project) -->
+    <meta name="author" content="PGS Catalog" /><!-- Your [project-name] here -->
+    <meta name="description" content="The Polygenic Score (PGS) Catalog is an open database of published PGS and the relevant metadata needed to apply and evaluate them correctly.">
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="width" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#007C82" /> <!-- Android Chrome mobile browser tab color -->
+    <!-- Get suggested SEO and social metatags at:
+         https://www.ebi.ac.uk/style-lab/websites/patterns/meta-copy.html -->
 
-<head>
-  <meta charset="utf-8" />
-  <title>PGS Catalog - {% block title %}{% endblock %}</title>
-  <meta name="keywords" content="polygenic score, polygenic risk score, pgs, prs, catalog, catalogue, database, genetic, genomic, prediction, disease, gwas, ebi" /><!-- 3 to 10 keywords about the content of this page (not the whole project) -->
-  <meta name="author" content="PGS Catalog" /><!-- Your [project-name] here -->
-  <meta name="description" content="The Polygenic Score (PGS) Catalog is an open database of
-    published PGS and the relevant metadata needed to apply and evaluate them correctly.">
-  <meta name="HandheldFriendly" content="true" />
-  <meta name="MobileOptimized" content="width" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#007C82" /> <!-- Android Chrome mobile browser tab color -->
-  <!-- Get suggested SEO and social metatags at:
-       https://www.ebi.ac.uk/style-lab/websites/patterns/meta-copy.html -->
+    <!-- Add information on the life cycle of this page -->
+    <meta name="ebi:owner" content="Samuel Lambert" /> <!-- Who should be contacted about changes -->
+    <meta name="ebi:review-cycle" content="30" /> <!-- In days, how often should the content be reviewed -->
+    <meta name="ebi:last-review" content="2019-07-25" /> <!-- The last time the content was reviewed -->
+    <meta name="ebi:expiry" content="2019-12-31" /> <!-- When this content is no longer relevant -->
 
-  <!-- Add information on the life cycle of this page -->
-  <meta name="ebi:owner" content="Samuel Lambert" /> <!-- Who should be contacted about changes -->
-  <meta name="ebi:review-cycle" content="30" /> <!-- In days, how often should the content be reviewed -->
-  <meta name="ebi:last-review" content="2019-07-25" /> <!-- The last time the content was reviewed -->
-  <meta name="ebi:expiry" content="2019-12-31" /> <!-- When this content is no longer relevant -->
+    <!-- If you link to any other sites frequently, consider optimising performance with a DNS prefetch -->
+    <link rel="dns-prefetch" href="//www.ebi.ac.uk/gwas/" />
 
-  <!-- If you link to any other sites frequently, consider optimising performance with a DNS prefetch -->
-  <link rel="dns-prefetch" href="//www.ebi.ac.uk/gwas/" />
-
-  <!-- If you have custom icon, replace these as appropriate.
-       You can generate them at realfavicongenerator.net -->
-  <link rel="icon" type="image/x-icon" href="{% static 'catalog/imgs/favicons/favicon.ico' %}" />
-  <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-16x16.png' %}" />
-  <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-32x32.png' %}" />
-  <link rel="icon" type="image/png" sizes="192x192" href="{% static 'catalog/imgs/favicons/android-chrome-192x192.png' %}" /> <!-- Android (192px) -->
-  <link rel="icon" type="image/png" sizes="384x384" href="{% static 'catalog/imgs/favicons/android-chrome-384x384.png' %}" /> <!-- Android (384px) -->
-  <meta name="msapplication-TileImage" content="{% static 'catalog/imgs/favicons/mstile-150x150.png' %}" />
+    <!-- If you have custom icon, replace these as appropriate.
+         You can generate them at realfavicongenerator.net -->
+    <link rel="icon" type="image/x-icon" href="{% static 'catalog/imgs/favicons/favicon.ico' %}" />
+    <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-16x16.png' %}" />
+    <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-32x32.png' %}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'catalog/imgs/favicons/android-chrome-192x192.png' %}" /> <!-- Android (192px) -->
+    <link rel="icon" type="image/png" sizes="384x384" href="{% static 'catalog/imgs/favicons/android-chrome-384x384.png' %}" /> <!-- Android (384px) -->
+    <meta name="msapplication-TileImage" content="{% static 'catalog/imgs/favicons/mstile-150x150.png' %}" />
 
 
-  <!-- Boostrap CSS libraries -->
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-  {% if has_table %}
-    <link href="https://unpkg.com/bootstrap-table@1.18.0/dist/bootstrap-table.min.css" rel="stylesheet"/>
-  {% endif %}
+    <!-- Boostrap CSS libraries -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    {% if has_table %}
+      <link href="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css" rel="stylesheet"/>
+    {% endif %}
 
-  <!-- CSS: implied media=all -->
-  <!-- CSS concatenated and minified via ant build script-->
-  {% if has_ebi_icons %}
-    <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
-  {% endif %}
+    <!-- CSS: implied media=all -->
+    <!-- CSS concatenated and minified via ant build script-->
+    {% if has_ebi_icons %}
+      <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
+    {% endif %}
 
-  <!-- PGS (S)CSS file -->
-  {% if is_pgs_app_on_gae %}
-    <link rel="stylesheet" href="{% static 'catalog/pgs.min.css' %}" type="text/css" media="all" />
-  {% else %}
-    {% compress css %}
-      <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
-    {% endcompress %}
-  {% endif %}
+    <!-- PGS (S)CSS file -->
+    {% if is_pgs_app_on_gae %}
+      <link rel="stylesheet" href="{% static 'catalog/pgs.min.css' %}" type="text/css" media="all" />
+    {% else %}
+      {% compress css %}
+        <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
+      {% endcompress %}
+    {% endif %}
 
-  <!-- Chart.js -->
-  {% if has_chart %}
-    <link rel="stylesheet" href="{% static 'catalog/Chart.min.css' %}" type="text/css" media="all" />
-    <script defer type="text/javascript" src="{% static 'catalog/Chart.bundle.min.js' %}"></script>
-  {% endif %}
-
-
-  <!-- jQuery, bootstrap, bootstrap-table (and extensions), table-export libraries -->
-
-  <!-- jQuery -->
-  <!-- Use of GWAS API - Javascript file -->
-  {% if use_gwas_api %}
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script defer src="{% static 'catalog/pgs_gwas.js' %}"></script>
-  {% else %}
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-  {% endif %}
-
-  <!-- Bootstrap bundle include Popper.js and Bootstrap JS -->
-  <script defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
-  {% if has_table %}
-    <script defer src="https://unpkg.com/tableexport.jquery.plugin@1.10.20/tableExport.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.18.0/dist/bootstrap-table.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.18.0/dist/extensions/export/bootstrap-table-export.min.js"></script>
-    <script defer src="https://unpkg.com/bootstrap-table@1.18.0/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
-  {% endif %}
+    <!-- Chart.js -->
+    {% if has_chart %}
+      <link rel="stylesheet" href="{% static 'catalog/Chart.min.css' %}" type="text/css" media="all" />
+      <script defer type="text/javascript" src="{% static 'catalog/Chart.bundle.min.js' %}"></script>
+    {% endif %}
 
 
-  <!-- PGS Javascript file -->
-  {% if is_pgs_app_on_gae %}
-    <script defer src="{% static 'catalog/pgs.min.js' %}"></script>
-  {% else %}
-    {% compress js file pgs_min %}
-      <script defer src="{% static 'catalog/pgs.js' %}"></script>
-    {% endcompress %}
-  {% endif %}
+    <!-- jQuery, bootstrap, bootstrap-table (and extensions), table-export libraries -->
 
-  {% block desc %}{% endblock %}
-</head>
-<body>
+    <!-- jQuery -->
+    <!-- Use of GWAS API - Javascript file -->
+    {% if use_gwas_api %}
+      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+      <script defer src="{% static 'catalog/pgs_gwas.js' %}"></script>
+    {% else %}
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    {% endif %}
 
-    {% include "catalog/includes/header.html" %}
+    <!-- Bootstrap bundle include Popper.js and Bootstrap JS -->
+    <script defer src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+    {% if has_table %}
+      <script defer src="https://unpkg.com/tableexport.jquery.plugin@1.10.20/tableExport.min.js"></script>
+      <script defer src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
+      <script defer src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/export/bootstrap-table-export.min.js"></script>
+      <script defer src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+    {% endif %}
 
-    <div class="feedback">
-      <a href="mailto:{{ pgs_contact }}" title="Feedback or contact us">
-        <button type="button" id="feedback-btn">Feedback</button>
-      </a>
-    </div>
 
-    <div class="container-fluid container-extra min-vh-100">
-      {% block content %}
-      {% endblock %}
-    </div>
+    <!-- PGS Javascript file -->
+    {% if is_pgs_app_on_gae %}
+      <script defer src="{% static 'catalog/pgs.min.js' %}"></script>
+    {% else %}
+      {% compress js file pgs_min %}
+        <script defer src="{% static 'catalog/pgs.js' %}"></script>
+      {% endcompress %}
+    {% endif %}
 
-    {% include "catalog/includes/footer.html" %}
+    {% if is_pgs_live_site and is_pgs_live_site != 'False' %}
+      <!-- Structured data -->
+      <script type=”application/ld+json”>
+        {
+          "@context": "http://schema.org",
+          "@type": "WebSite",
+          "url": "https://www.pgscatalog.org/",
+          "description": "The Polygenic Score (PGS) Catalog is an open database of published PGS and the relevant metadata needed to apply and evaluate them correctly.",
+          "logo": "https://www.pgscatalog.org{% static 'catalog/imgs/PGS_Logo.png' %}",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target”: “https://www.pgscatalog.org/search/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      </script>
+    {% endif %}
+  </head>
+  <body>
 
-</body>
+      {% include "catalog/includes/header.html" %}
+
+      <div class="feedback">
+        <a href="mailto:{{ pgs_contact }}" title="Feedback or contact us">
+          <button type="button" id="feedback-btn">Feedback</button>
+        </a>
+      </div>
+
+      <div class="container-fluid container-extra min-vh-100">
+        {% block content %}
+        {% endblock %}
+      </div>
+
+      {% include "catalog/includes/footer.html" %}
+
+  </body>
+</html>
