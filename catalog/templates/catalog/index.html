@@ -14,6 +14,13 @@
           <h5 class="mt-0">An open database of polygenic scores and the relevant metadata required for accurate application and evaluation.</h5>
         </div>
 
+        <!-- PGS announcement -->
+        {% if announcement %}
+          <div class="pgs_centered mb-4">
+            <div class="pgs_banner">{{ announcement|safe }}</div>
+          </div>
+        {% endif %}
+
         <div class="row no-gutters pgs_section">
           <div class="col">
             <div class="pgs_section_title">Explore the Data</div>

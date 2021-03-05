@@ -33,3 +33,17 @@ USEFUL_URLS = {
 }
 
 SEARCH_EXAMPLES = ['breast cancer', 'glaucoma', 'EFO_0001645']
+
+DISCLAIMERS = {
+    'performance': """The performance metrics are displayed as reported by the source studies.
+                    It is important to note that metrics are not necessarily comparable with
+                    each other. For example, metrics depend on the sample characteristics
+                    (described by the PGS Catalog Sample Set [PSS] ID), phenotyping, and
+                    statistical modelling. Please refer to the source publication for additional
+                    guidance on performance.""",
+    'score': """The original published polygenic score is unavailable.
+             The authors have provided an alternative polygenic for the Catalog.
+             Please note some details and performance metrics may differ from the <a href="https://doi.org/{}">publication</a>."""
+}
+
+ANNOUNCEMENT = ''
