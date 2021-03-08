@@ -1258,7 +1258,6 @@ paths:
           examples:
             pgs_id_sel:
               summary: Select an example or type an ID - click on 'Try it out' first
-              value: ''
             PGS000001:
               value: "PGS000001"
             PGS000018:
@@ -1272,7 +1271,6 @@ paths:
           examples:
             pmid_sel:
               summary: Select an example or type an ID - click on 'Try it out' first
-              value: ''
             pmid_1:
               summary: 'PMID: 25855707'
               value: 25855707
@@ -1288,7 +1286,6 @@ paths:
           examples:
             author_sel:
               summary: Select an example or type a name - click on 'Try it out' first
-              value: ''
             Mavaddat:
               value: 'Mavaddat'
             Inouye:
@@ -1556,7 +1553,6 @@ paths:
           examples:
             pmid_sel:
               summary: Select an example or type an ID - click on 'Try it out' first
-              value: ''
             pmid_1:
               summary: 'PMID: 25855707'
               value: 25855707
@@ -1571,7 +1567,6 @@ paths:
           examples:
             trait_id_sel:
               summary: Select an example or type an ID - click on 'Try it out' first
-              value: ''
             EFO_1000649:
               value: 'EFO_1000649'
             EFO_0001360:
@@ -1584,7 +1579,6 @@ paths:
           examples:
             pgs_ids_sel:
               summary: Select an example or type PGS ID(s) - click on 'Try it out' first
-              value: ''
             pgs_ids_1:
               summary: 'PGS000001, PGS000002'
               value: 'PGS000001,PGS000002'
