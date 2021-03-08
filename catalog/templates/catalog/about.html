@@ -85,10 +85,11 @@
         </p>
 
     <h4 id="citation">Citation</h4>
-    <p>The PGS Catalog development is led by <a href="https://www.ebi.ac.uk/about/people/samuel-lambert">Samuel Lambert</a>
+    <p>The PGS Catalog development is led by <a href="{{ ebi_url }}/about/people/samuel-lambert">Samuel Lambert</a>
         under the supervision of <a href="https://www.inouyelab.org/home/people">Michael Inouye</a> (<a href="https://sysgenresearch.org/">University of Cambridge & Baker Institute</a>)
-        and Jackie MacArthur (<a href="https://www.ebi.ac.uk/gwas/">NHGRI-EBI GWAS Catalog</a>).</p>
-    <p>The Catalog is under active development, and we continue to add new features and curate new data. If you use the Catalog in your research we ask that you cite our recent preprint:
+        in collaboration with <a href="{{ hdr_uk_cam_url }}">Health Data Research - UK</a> (Laurent Gil)
+        and the <a href="{{ ebi_url }}/gwas/">NHGRI-EBI GWAS Catalog</a> (Aoife McMahon & Laura Harris).</p>
+    <p>The Catalog is under active development, and we continue to add new features and curate new data. If you use the Catalog in your research we ask that you cite our recent paper:
     <div class="clearfix mb-3">
       <div class="highlight_content">
         <p>{{ pgs_citation.authors }}</p>
@@ -166,12 +167,14 @@
       <h3 id="acknowledgements">Acknowledgements</h3>
       <p>We wish to acknowledge the help of the following people & teams for their support of the PGS Catalog:
         <ul>
-          <li><a href="{{ ebi_url }}/about/spot-team">EMBL-EBI Samples Phenotypes and Ontologies Team</a> - Helen Parkinson, Simon Jupp, James Hayhurst, Trish Whetzel</li>
-          <li><a href="{{ ebi_url }}/gwas">NHGRI-EBI GWAS Catalog Team</a> - Annalisa Buniello, Aoife McMahon</li>
-          <li><a href="https://www.inouyelab.org">Inouye Lab Members</a> - Jonathan Marten, Petar Scepanovic, Scott Ritchie, Gad Abraham</li>
+          <li><b>PGS Catalog Data Curators</b> — Emily Tinsley, Shirin Saverimuttu, Aoife McMahon, Sam Lambert</li>
+          <li class="mt-1"><a href="{{ hdr_uk_cam_url }}"><b>Health Data Research UK, Cambridge</b></a> — Laurent Gil, Michael Chapman, Richard Houghton, Prof. John Danesh</li>
+          <li class="mt-1"><a href="{{ ebi_url }}/gwas"><b>NHGRI-EBI GWAS Catalog Team</b></a> — Annalisa Buniello, Aoife McMahon, Jackie MacArthur, Laura Harris</li>
+          <li class="mt-1"><a href="{{ ebi_url }}/about/spot-team"><b>EMBL-EBI Samples Phenotypes and Ontologies Team</b></a> — Helen Parkinson, Simon Jupp, James Hayhurst, Trish Whetzel</li>
+          <li class="mt-1"><a href="https://www.inouyelab.org"><b>Inouye Lab Members</b></a> — Jonathan Marten, Petar Scepanovic, Scott Ritchie, Gad Abraham</li>
         </ul>
       </p>
-      <p>The development of the <b>PGS Catalog</b> is supported by:</p>
+      <p class="mt-4">The development of the <b>PGS Catalog</b> is supported by:</p>
       <div class="row justify-content-center mb-4">
         <div class="col">
           <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/UofCambridge.png' %}" alt="University of Cambridge"></a>
