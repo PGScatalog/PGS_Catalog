@@ -18,6 +18,9 @@ $(document).ready(function() {
     // Shorten content having long text
     shorten_displayed_content();
 
+    // Add icon and target blank for external links
+    alter_external_links();
+
     $('body').on("click", 'span.morelink', function(){
         if($(this).hasClass("link_less")) {
           $(this).html(moretext);
@@ -182,6 +185,13 @@ $(document).ready(function() {
         }
       }
       shorten_displayed_content();
+    });
+
+    // Refresh the tooltip when there is a change in the page number or page size of a bootstrap-table
+    $(data_toggle_table).on('page-change.bs.table', function () {
+      setTimeout(function(){
+        pgs_tooltip();
+      }, 500);
     });
 });
 

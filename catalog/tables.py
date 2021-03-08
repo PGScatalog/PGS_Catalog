@@ -17,6 +17,17 @@ def smaller_in_bracket(value):
     value = value.replace(']','<span class="only_export">]</span></span>')
     return value
 
+def publication_format(value, is_external=False):
+    pub_date = value.date_publication.strftime('%Y')
+    citation = format_html(f'<div class="pgs_pub_details">{value.firstauthor} <i>et al.</i> {value.journal} ({pub_date})</div>')
+    extra_html = ''
+    if is_external:
+        extra_html += format_html('<span class="badge badge-pgs-small" data-toggle="tooltip" title="External PGS evaluation">Ext.</span>')
+    if value.is_preprint:
+        extra_html += format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
+    return format_html(f'<a href="{publication_path}/{value.id}">{value.id}</a>{citation}{extra_html}')#, value.id, value.id, citation, extra_html)
+
+
 class Column_joinlist(tables.Column):
     def render(self, value):
         values = smaller_in_bracket('<br/>'.join(value))
@@ -88,12 +99,11 @@ class Column_ancestry(tables.Column):
         return format_html(value)
 
 class Column_pubexternality(tables.Column):
-    def render(self, value):
-        citation, pgp, externality, is_preprint = value.split('|')
-        if externality == 'E':
-            return format_html('<a href="'+publication_path+'/{}">{}</a> <sup class="pgs_sup" data-toggle="tooltip" title="External PGS evaluation">Ext.</sup> {}', pgp, format_html(citation), format_html(is_preprint))
-        else:
-            return format_html('<a href="'+publication_path+'/{}">{}</a> {}', pgp, format_html(citation), format_html(is_preprint))
+    def render(self, value, record):
+        is_ext = False
+        if value == 'E':
+            is_ext = True
+        return publication_format(record.publication, is_ext)
 
 class Column_cohorts(tables.Column):
     def render(self, value):
@@ -243,11 +253,7 @@ class Browse_ScoreTable(tables.Table):
         return format_html('<a href="/score/{}">{}</a>', value, value)
 
     def render_publication(self, value):
-        citation = format_html(' '.join([value.id, '<span class="pgs_pub_details">', value.firstauthor, '<i>et al.</i>', value.journal, '(%s)'%value.date_publication.strftime('%Y'), '</span>']))
-        is_preprint = ''
-        if value.is_preprint:
-            is_preprint = format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
-        return format_html('<a href="'+publication_path+'/{}">{}</a>{}', value.id, citation, is_preprint)
+        return publication_format(value)
 
     def render_list_traits(self, value):
         l = []

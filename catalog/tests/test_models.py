@@ -462,9 +462,7 @@ class PerformanceTest(TestCase):
         self.assertEqual(len(performance.samples()), test_sample_count)
         # Other methods
         self.assertRegexpMatches(performance.__str__(), r'^'+self.perf_id+r' \| PGS\d+ -> PSS\d+$')
-        pub_ext = performance.publication_withexternality.split('|')
-        self.assertEqual(pub_ext[-2], 'E')
-        self.assertNotEqual(pub_ext[-1], '') # Is preprint
+        self.assertEqual(performance.publication_withexternality, 'E')
         sampleset = performance.sampleset
         self.assertEqual(sampleset.count_performances, 1)
         self.assertEqual(performance.display_trait['efo'][0], performance.phenotyping_efo.all()[0])
@@ -487,9 +485,7 @@ class PerformanceTest(TestCase):
         pub = pubtest.create_publication_by_pmid(num=id+10)
         performance_2.publication = pub
         performance_2.score.publication = pub
-        pub_ext_2 = performance_2.publication_withexternality.split('|')
-        self.assertEqual(pub_ext_2[-2], 'D')
-        self.assertEqual(pub_ext_2[-1], '') # Is not preprint
+        self.assertEqual(performance_2.publication_withexternality, 'D')
 
 
 class PublicationTest(TestCase):
