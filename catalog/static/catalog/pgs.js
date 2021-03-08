@@ -528,7 +528,7 @@ function display_category_list(data_json) {
     se_left.className = class_name;
     se_left.style.color = t_colour;
     se_left.innerHTML = category_arrow;
-    var subcat_div_height_left = cat_index * item_height - 1;
+    var subcat_div_height_left = cat_index * item_height - 4;
     se_left.style.marginTop = subcat_div_height_left+"px";
     se.appendChild(se_left);
 
@@ -567,6 +567,9 @@ function display_category_list(data_json) {
       se_right.classList.add("v-scroll");
     }
 
+    if (subcat_div_height_right < 0) {
+      subcat_div_height_right = 0;
+    }
     se_right.style.marginTop = subcat_div_height_right+"px";
 
     // Create the sub-categories (traits) boxes
