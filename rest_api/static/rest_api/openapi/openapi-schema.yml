@@ -1882,7 +1882,11 @@ paths:
         - "Other endpoints"
       operationId: getInfo
       description: |
-        Return diverse information related to the REST API and the PGS Catalog.
+        Return diverse information related to the REST API and the PGS Catalog:
+        * REST API version and latest changelog
+        * Latest release date and data count
+        * PGS citation
+        * Link to terms of use
 
         Example of request:
         ```
@@ -1960,6 +1964,7 @@ paths:
                     type: string
                     description: "URL to the terms of use"
                     example: 'https://www.ebi.ac.uk/about/terms-of-use'
+          description: ''
         '4XX':
           content:
               application/json:
