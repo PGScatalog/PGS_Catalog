@@ -5,7 +5,8 @@ from .views import *
 from rest_framework.schemas import get_schema_view
 
 # Seconds * Minutes
-cache_time = 60 * 15
+#cache_time = 60 * 2
+cache_time = 0
 
 slash = '/?'
 rest_urls = {
@@ -17,6 +18,7 @@ rest_urls = {
     'release':        'rest/release/',
     'sample_set':     'rest/sample_set/',
     'score':          'rest/score/',
+    'info':           'rest/info', # No slash (added later)
     'gwas':           'rest/gwas/get_score_ids/'
 }
 
@@ -24,6 +26,7 @@ urlpatterns = [
     # REST Documentation
     path('rest/', TemplateView.as_view(template_name="rest_api/rest_doc.html")),
     # Cohorts
+    re_path(r'^'+rest_urls['cohort']+'all'+slash, cache_page(cache_time)(RestListCohorts.as_view()), name="getAllCohorts"),
     re_path(r'^'+rest_urls['cohort']+'(?P<cohort_symbol>[^/]+)'+slash, RestCohorts.as_view(), name="getCohorts"),
     # EFO Traits
     re_path(r'^'+rest_urls['trait']+'all'+slash, cache_page(cache_time)(RestListEFOTraits.as_view()), name="getAllTraits"),
@@ -42,6 +45,7 @@ urlpatterns = [
     re_path(r'^'+rest_urls['release']+'current'+slash, RestCurrentRelease.as_view(), name="getCurrentRelease"),
     re_path(r'^'+rest_urls['release']+'(?P<release_date>[^/]+)'+slash, RestRelease.as_view(), name="getRelease"),
     # Sample Set
+    re_path(r'^'+rest_urls['sample_set']+'all'+slash, cache_page(cache_time)(RestListSampleSets.as_view()), name="getAllSampleSets"),
     re_path(r'^'+rest_urls['sample_set']+'search'+slash, RestSampleSetSearch.as_view(), name="searchSampleSet"),
     re_path(r'^'+rest_urls['sample_set']+'(?P<pss_id>[^/]+)'+slash, RestSampleSet.as_view(), name="getSampleSet"),
     # Scores
@@ -50,6 +54,7 @@ urlpatterns = [
     re_path(r'^'+rest_urls['score']+'(?P<pgs_id>[^/]+)'+slash, RestScore.as_view(), name="getScore"),
     # Extra endpoints
     re_path(r'^'+rest_urls['gwas']+'(?P<gcst_id>[^/]+)'+slash, cache_page(cache_time)(RestGCST.as_view()), name="pgs_score_ids_from_gwas_gcst_id"),
+    re_path(r'^'+rest_urls['info']+slash, cache_page(cache_time)(RestInfo.as_view()), name="pgs_rest_api_info"),
     # Trait Category
     re_path(r'^'+rest_urls['trait_category']+'all'+slash, cache_page(cache_time)(RestListTraitCategories.as_view()), name="getAllTraitCategories")
 ]

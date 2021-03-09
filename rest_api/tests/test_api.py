@@ -66,6 +66,9 @@ class BrowseUrlTest(TestCase):
             '/rest/publication/all/',
             '/rest/release/all/',
             '/rest/score/all/',
+            '/rest/cohort/all/',
+            '/rest/sample_set/all/',
+            '/rest/info/'
         ]
         for url in urls:
             resp = client.get(url)
