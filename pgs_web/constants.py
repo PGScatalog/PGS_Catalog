@@ -46,4 +46,14 @@ DISCLAIMERS = {
              Please note some details and performance metrics may differ from the <a href="https://doi.org/{}">publication</a>."""
 }
 
+TABLE_HELPER = {
+    'score_variant': 'Describes the samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available',
+    'score_training': 'Describes the samples used to develop or train the score (e.g. not used for variant discovery, and non-overlapping with the samples used to evaluate the PGS predictive ability)',
+    'score_perf_metrics': 'An index of performance metrics from cataloged evaluations of this PGS',
+    'perf_metrics': 'An index of performance metrics from cataloged evaluations of the associated PGS(s)',
+    'sample_sets': 'Information about the samples used in PGS performance evaluation. These samples have an PGS Catalog Sample Set (PSS) ID to link them to their associated performance metrics (and across different PGS)',
+    'pgs_eval': 'A list of PGS that were developed and evaluated in this publication/study',
+    'pgs_eval_ext': 'A list of PGS that were developed in other publications and re-evaluated in the current study'
+}
+
 ANNOUNCEMENT = ''

@@ -147,6 +147,13 @@
             <tr><td>variant_description</td><td>Variant Description</td><td>This field describes any extra information about the variant (e.g. how it is genotyped or scored) that cannot be captured by the other fields.</td><td><span class="pgs_color_green">Optional</span></td></tr>
             <tr><td>inclusion_criteria</td><td>Score Inclusion Criteria</td><td>Explanation of when this variant gets included into the PGS (e.g. if it depends on the results from other variants).</td><td><span class="pgs_color_green">Optional</span></td></tr>
           </tbody>
+          <thead class="thead-light">
+            <tr><th colspan="4"><i class="fa fa-chevron-right"></i> Extra columns:</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>OR<br>HR</td><td>Odds Ratio [OR], Hazard Ratio [HR]</td><td>Author-reported effect sizes can be supplied to the Catalog. If no other <i>effect_weight</i> is given the weight is calculated using the log(OR) or log(HR).</td><td><span class="pgs_color_green">Optional</span></td></tr>
+            <tr><td>allelefrequency_effect_<span class="pgs_bracket">Ancestry</span></td><td>Population-specific effect allele frequency</td><td>Reported effect allele frequency in a specific population (described by the authors).</td><td><span class="pgs_color_green">Optional</span></td></tr>
+          </tbody>
         </table>
       </div>
     </section>

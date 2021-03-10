@@ -4,7 +4,8 @@ from pgs_web import constants
 def pgs_settings(request):
     return {
         'is_pgs_app_on_gae' : settings.PGS_ON_GAE,
-        'is_pgs_live_site' : settings.PGS_ON_LIVE_SITE
+        'is_pgs_live_site' : settings.PGS_ON_LIVE_SITE,
+        'is_pgs_curation_site': settings.PGS_ON_CURATION_SITE
     }
 
 def pgs_urls(request):
@@ -41,5 +42,6 @@ def pgs_search_examples(request):
 
 def pgs_info(request):
     return {
-        'pgs_citation': constants.PGS_CITATION
+        'pgs_citation': constants.PGS_CITATION,
+        'pgs_table_helper': constants.TABLE_HELPER
     }
