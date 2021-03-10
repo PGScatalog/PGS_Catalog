@@ -12,6 +12,7 @@
       </ol>
     </nav>
 
+
     <section>
       <div class="clearfix">
         <div class="float_left mb-3" style="margin-right:4rem">
@@ -164,11 +165,15 @@
         <h4>Contributing Samples</h4>
         {% if table_sample_variants or table_sample_training %}
             {% if table_sample_variants %}
-                <h5>Source of Variant Associations (GWAS)</h5>
+                <h5>
+                  <span>Source of Variant Associations (GWAS)</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_variant }}"><i class="fa fa-info-circle"></i></span>
+                </h5>
                 {% render_table table_sample_variants %}
             {% endif %}
             {% if table_sample_training %}
-                <h5>Score Development/Training</h5>
+                <h5>
+                  <span>Score Development/Training</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_training }}"><i class="fa fa-info-circle"></i></span>
+                </h5>
                 {% render_table table_sample_training %}
             {% endif %}
         {% else %}
@@ -177,10 +182,14 @@
     </section>
 
     <section>
-        <h3 class="mb-0">Performance Metrics</h3>
+        <h3 class="mb-0">
+          <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_perf_metrics }}"><i class="fa fa-info-circle"></i></span>
+        </h3>
         <p>{{ performance_disclaimer|safe }}</p>
         {% render_table table_performance %}
-        <h4>Evaluated Samples</h4>
+        <h4>
+          <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fa fa-info-circle"></i></span>
+        </h4>
         {% render_table table_performance_samples %}
     </section>
 {% endblock %}

@@ -685,6 +685,7 @@ td > ul {
 
 .table_pgs_auto {
   width: auto;
+  border-bottom: 1px solid $pgs_light_grey;
   tbody > tr > td:first-child {
     font-weight:bold;
     font-style: italic;
@@ -747,7 +748,7 @@ td > ul {
 .info-icon-title {
   margin-left:0.5rem;
   i {
-    font-size: 20px;
+    font-size: 18px;
     color: $pgs_colour_1;
     &:hover {
       color: $pgs_colour_1_lighter;
