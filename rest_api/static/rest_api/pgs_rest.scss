@@ -14,7 +14,7 @@ $pgs_rest_light_bg: #E2E9E9;
 $status_ok: #89bf04;
 $status_error: #ff4c4c;
 
-$header_height_with_margin: 60px;
+$header_height_with_margin: 97px;
 $header_height_with_margin_mobile: $header_height_with_margin + 58px;
 
 
@@ -44,6 +44,19 @@ footer {
 }
 .colour_2 {
   color: $pgs_colour_2 !important;
+}
+
+#swagger-ui  {
+  padding-top: $header_height_with_margin !important;
+}
+
+.swagger-ui .info {
+  margin-top: 0px !important;
+}
+
+.swagger-ui .wrapper {
+  max-width: 100% !important;
+  padding: 0 3rem !important;
 }
 
 h2.title {
@@ -92,9 +105,6 @@ hgroup > div {
   color: $pgs_colour_2 !important;
 }
 
-#swagger-ui  {
-  padding-top: $header_height_with_margin;
-}
 .pgs_brand {
   border: none !important;
   margin-right: 2rem;
@@ -111,6 +121,11 @@ hgroup > div {
 .scheme-container {
   padding-left: 15px !important;
 }
+
+.swagger-ui .opblock .opblock-summary-path {
+  max-width: 100% !important;
+}
+
 .opblock-tag {
   background-color: rgba(0,0,0,.05) !important;
   border-radius: 4px;
@@ -426,10 +441,22 @@ table.model .model-toggle, table.model .model-toggle:after {
   .curl {
     min-width: 100% !important;
   }
+  .swagger-ui .opblock-tag {
+    display: inline !important;
+    div {
+      display: inline !important;
+    }
+    .renderedMarkdown {
+      margin-left:0px !important;
+    }
+  }
 }
 
 @media screen and (min-width: 500px) and (max-width: 900px) {
   .tab-header {
     flex: 0.5 !important;
+  }
+  .swagger-ui .wrapper {
+    padding: 0 1rem !important;
   }
 }
