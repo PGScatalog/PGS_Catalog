@@ -2,19 +2,25 @@
 {% if is_pgs_app_on_gae == 0 %}
   {% load compress %}
 {% endif %}
-<!-- HTML for static distribution bundle build -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
     <title>PGS Catalog REST API documentation</title>
-    <meta name="keywords" content="polygenic score, polygenic risk score, pgs, prs, catalog, catalogue, database, genetic, genomic, prediction, disease, gwas, ebi" /><!-- 3 to 10 keywords about the content of this page (not the whole project) -->
+    <meta name="keywords" content="polygenic score, polygenic risk score, pgs, prs, catalog, catalogue, database, genetic, genomic, programmatic, rest, api" /><!-- 3 to 10 keywords about the content of this page (not the whole project) -->
     <meta name="author" content="PGS Catalog" /><!-- Your [project-name] here -->
     <meta name="description" content="Programmatic access to the PGS Catalog metadata via a REST API." />
     <meta name="HandheldFriendly" content="true" />
     <meta name="MobileOptimized" content="width" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#007C82" /> <!-- Android Chrome mobile browser tab color -->
+
+    <link rel="icon" type="image/x-icon" href="{% static 'catalog/imgs/favicons/favicon.ico' %}" />
+    <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-16x16.png' %}" />
+    <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-32x32.png' %}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'catalog/imgs/favicons/android-chrome-192x192.png' %}" /> <!-- Android (192px) -->
+    <link rel="icon" type="image/png" sizes="384x384" href="{% static 'catalog/imgs/favicons/android-chrome-384x384.png' %}" /> <!-- Android (384px) -->
+    <meta name="msapplication-TileImage" content="{% static 'catalog/imgs/favicons/mstile-150x150.png' %}" />
 
     <!-- CSS libraries -->
     <link rel="stylesheet" type="text/css" href="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui.css' %}">
@@ -31,13 +37,6 @@
         <link type="text/x-scss" href="{% static 'rest_api/pgs_rest.scss' %}" rel="stylesheet" media="screen">
       {% endcompress %}
     {% endif %}
-
-    <link rel="icon" type="image/x-icon" href="{% static 'catalog/imgs/favicons/favicon.ico' %}" />
-    <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-16x16.png' %}" />
-    <link rel="icon" type="image/png" href="{% static 'catalog/imgs/favicons/favicon-32x32.png' %}" />
-    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'catalog/imgs/favicons/android-chrome-192x192.png' %}" /> <!-- Android (192px) -->
-    <link rel="icon" type="image/png" sizes="384x384" href="{% static 'catalog/imgs/favicons/android-chrome-384x384.png' %}" /> <!-- Android (384px) -->
-    <meta name="msapplication-TileImage" content="{% static 'catalog/imgs/favicons/mstile-150x150.png' %}" />
 
     <!-- Javascript libraries -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
@@ -70,6 +69,12 @@
 
         // Remove the list of servers
         setTimeout(function(){
+
+          var nav_html = '<div class="wrapper"><nav aria-label="You are here:"><ol class="breadcrumb">'+
+                         '  <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>'+
+                         '  <li class="breadcrumb-item">REST API</li>'+
+                         '</ol></nav></div>';
+          $('.swagger-container').prepend(nav_html);
 
           // Add Swagger logo
           var hgroup = document.getElementsByTagName("hgroup")[0];
