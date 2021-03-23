@@ -7,6 +7,7 @@ from release.scripts.UpdateEFO import UpdateEFO
 from release.scripts.GenerateBulkExport import PGSExportAllMetadata
 from release.scripts.PGSExport import PGSExport
 from release.scripts.PGSBuildFtp import PGSBuildFtp
+from release.scripts.EuropePMCLinkage import EuropePMCLinkage
 
 
 def run(*args):
@@ -35,6 +36,9 @@ def run(*args):
 
     # Create release
     call_create_release()
+
+    # Generate EuropePMC linkage XML file
+    generate_europePMC_linkage_xml_file()
 
 
 #-----------#
@@ -137,6 +141,16 @@ def call_create_release():
     if new_release.score_count == 0 or new_release.publication_count == 0 or new_release.performance_count == 0:
         print("Error: at least one of the main components (Score, Publication or Performance Metrics) hasn't a new entry this release")
         exit(1)
+
+
+def generate_europePMC_linkage_xml_file():
+    """ Generate the XML linkage file for EuropePMC """
+    # EuropePMC linkage (XML file)
+    xml_link = EuropePMCLinkage()
+    # Fetch data and generate XML file
+    xml_link.generate_xml_file()
+    # Print the report of the generated XML file
+    xml_link.print_xml_report()
 
 
 def get_previous_release_date():
