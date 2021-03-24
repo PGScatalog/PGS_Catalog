@@ -1943,11 +1943,11 @@ paths:
                       title:
                         type: string
                         description: "Title of the publication"
-                        example: 'The Polygenic Score Catalog: an open database for reproducibility and systematic evaluation'
+                        example: 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation'
                       doi:
                         type: string
                         description: "doi of the publication"
-                        example: '10.1101/2020.05.20.20108217'
+                        example: '10.1038/s41588-021-00783-5'
                       authors:
                         type: string
                         description: "List of the publication authors"
@@ -1955,11 +1955,11 @@ paths:
                       journal:
                         type: string
                         description: "Name of the journal"
-                        example: 'medRxiv'
+                        example: 'Nature Genetics'
                       year:
                         type: number
                         description: "Year of publication"
-                        example: 2020
+                        example: 2021
                   terms_of_use:
                     type: string
                     description: "URL to the terms of use"
