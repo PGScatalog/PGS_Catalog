@@ -10,11 +10,11 @@ PGS_REST_API = {
 }
 
 PGS_CITATION = {
-    'title': 'The Polygenic Score Catalog: an open database for reproducibility and systematic evaluation',
-    'doi': '10.1101/2020.05.20.20108217',
-    'authors': 'Samuel A. Lambert, Laurent Gil, Simon Jupp, Scott C. Ritchie, Yu Xu, Annalisa Buniello, Gad Abraham, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A.L. MacArthur, and Michael Inouye.',
-    'journal': 'Preprint at medRxiv',
-    'year': 2020
+    'title': 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation',
+    'doi': '10.1038/s41588-021-00783-5',
+    'authors': 'Samuel A. Lambert, Laurent Gil, Simon Jupp, Scott C. Ritchie, Yu Xu, Annalisa Buniello, Aoife McMahon, Gad Abraham, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A. L. MacArthur and Michael Inouye.',
+    'journal': 'Nature Genetics',
+    'year': 2021
 }
 
 USEFUL_URLS = {

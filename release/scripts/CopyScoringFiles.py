@@ -1,5 +1,6 @@
 import sys, os, shutil, stat, glob, re
 from os import path
+import requests
 import argparse
 import hashlib
 
@@ -15,11 +16,10 @@ class CopyScoringFiles:
         'skipped': []
     }
 
-    def __init__(self, new_ftp_scores_dir, private_ftp_scoring_files_dir, scoring_files_dir, previous_release):
+    def __init__(self, new_ftp_scores_dir, private_ftp_scoring_files_dir, scoring_files_dir):
         self.new_ftp_scores_dir = new_ftp_scores_dir
         self.scoring_files_ftp_dir = private_ftp_scoring_files_dir
         self.scoring_files_dir = scoring_files_dir
-        self.previous_release = previous_release
 
         if not os.path.exists(new_ftp_scores_dir):
             print(f'Error: The path to the data directory can\'t be found ({new_ftp_scores_dir}).')
@@ -33,9 +33,28 @@ class CopyScoringFiles:
         if not os.path.exists(scoring_files_dir):
             print(f'Error: The path to the scoring files directory can\'t be found ({scoring_files_dir}).')
             exit(1)
-        if not previous_release:
-            print("ERROR: the previous release date must be given as 3rd argument.")
-            exit(1)
+
+
+    def get_previous_release(self):
+        """"
+        Generic method to perform REST API call to the live PGS Catalog
+        The live release is used here as 'previous release'
+        > Return type: current release version (date)
+        """
+        rest_full_url = 'https://www.pgscatalog.org/rest/release/current'
+        try:
+            response = requests.get(rest_full_url)
+            response_json = response.json()
+            if 'date' in response_json:
+                self.previous_release = response_json['date']
+                if not re.match(r'^\d{4}\-\d{2}\-\d{2}', self.previous_release):
+                    print("Error: The previous release date '"+str(self.previous_release)+"' doesn't match the required format (YYYY-MM-DD).")
+                    exit(1)
+            else:
+                print("Error: Can't retrieve the previous release date from the live website REST API.")
+                exit(1)
+        except requests.exceptions.RequestException as e:
+            raise SystemExit(e)
 
 
     def print_log_msg(self, key, label):
@@ -215,18 +234,14 @@ def main():
     defaut_scores_dir = '/nfs/production3/spot/pgs/data-files/ScoringFiles/'
 
     argparser = argparse.ArgumentParser(description='Script to check that the expected FTP files and directories exist.')
-    argparser.add_argument("--prev_release", type=str, help='Date of the previous release (format YYYY-MM-DD)', required=True)
     argparser.add_argument("--data_dir", type=str, help='The path to the data directory (only containing the metadata)', required=True)
     argparser.add_argument("--ftp_scores_dir", type=str, help='The path to the scoring files directory on the private FTP', required=True)
     argparser.add_argument("--scores_dir", type=str, help='The path to the scoring files directory', default=defaut_scores_dir, required=False)
 
     args = argparser.parse_args()
 
-    if not re.match(r'^\d{4}\-\d{2}\-\d{2}', args.prev_release):
-        print("Error: The previous release date '"+str(args.prev_release)+"' doesn't match the required format (YYYY-MM-DD).")
-        exit(1)
-
-    pgs_scoring_files = CopyScoringFiles(args.data_dir,args.ftp_scores_dir,args.scores_dir,args.prev_release)
+    pgs_scoring_files = CopyScoringFiles(args.data_dir,args.ftp_scores_dir,args.scores_dir)
+    pgs_scoring_files.get_previous_release()
     pgs_scoring_files.get_list_of_scores()
     pgs_scoring_files.copy_scoring_files_to_production()
     pgs_scoring_files.copy_scoring_files_to_metadata()
