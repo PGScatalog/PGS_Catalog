@@ -195,7 +195,7 @@ hgroup > div {
 .renderedMarkdown a:hover {
   color: $pgs_colour_1 !important;
 }
-.renderedMarkdown li code {
+.renderedMarkdown li code, .description code {
   color: $pgs_colour_2 !important;
   background-color: #FFF !important;
 }
@@ -360,13 +360,13 @@ table.model .model-toggle, table.model .model-toggle:after {
 }
 
 .execute::before {
-  font-family: 'FontAwesome';
+  font-family: 'Font Awesome 5 Free';
   content:"\f04b";
   vertical-align: baseline;
   padding-right:0.5em;
 }
 .btn-clear::before {
-  font-family: 'FontAwesome';
+  font-family: 'Font Awesome 5 Free';
   content:"\f12d";
   vertical-align: baseline;
   padding-right:0.5em;

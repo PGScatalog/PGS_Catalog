@@ -28,7 +28,6 @@
     <p>
       This page contains information regarding the contents of the PGS Catalog, describing the curated data fields and tables extracted from PGS publications.
       The descriptions are based on the major data structures in the Catalog:
-
     </p>
     <div class="content_container">
       <div class="table-of-contents">
@@ -40,6 +39,7 @@
             <li><a href="#desc_trait">Trait</a></li>
             <li><a href="#desc_smpl">Sample</a></li>
             <li><a href="#desc_perf">Performance Metrics</a></li>
+            <!-- <li><a href="#desc_anc">Ancestry Distribution</a></li> -->
           </ul>
         </nav>
       </div>
@@ -74,7 +74,7 @@
             </tr>
             <tr>
               <td><b>Publication Date</b></td>
-              <td>Date of publication (with respect to the PMID or doi upon DB upload).</td>
+              <td>Date of publication (with respect to the PMID or doi upon upload to the Catalog).</td>
             </tr>
           </tbody>
         </table>
@@ -146,7 +146,7 @@
         <table class="table table-bordered table-left-col-filled">
           <tbody>
             <tr>
-              <td><b>Contributing Samples:</b></td>
+              <td><b>Development Samples</b></td>
               <td>
                 <p>Information about the samples used for the development of the PGS. Relevant column descriptions are in the <a href="#desc_smpl">Sample Description</a> section.</p>
                 <table class="table table-bordered table-left-col-filled">
@@ -207,7 +207,7 @@
 
         <br />
         <h4 id="desc_smpl">Sample</h4>
-        <p>A consistent set of fields are used to describe the samples used to develop and test each PGS:</p>
+        <p>A consistent set of fields are used to describe the samples used to develop and evaluate each PGS:</p>
 
         <table class="table table-bordered table-left-col-filled">
           <tbody>
@@ -238,7 +238,7 @@
             </tr>
             <tr>
               <td><b>Ancestry fields:</b></td>
-              <td><p>Fields describing sample ancestry are curated according to the <a href="https://www.ebi.ac.uk/gwas/docs/ancestry">framework</a> used to record ancestry data in the NHGRI-EBI GWAS Catalog that was defined in <a href="https://doi.org/10.1186/s13059-018-1396-2">Morales <i>et al. Genome Biology</i> (2018)</a>:</p>
+              <td><p>Fields describing sample ancestry are curated according to the framework used to record ancestry data from the NHGRI-EBI GWAS Catalog. See our <a href="/docs/ancestry/">Ancestry Documentation</a> page for a complete description of how ancestry is represented and described in the PGS Catalog.</p>
                 <table class="table table-bordered table-left-col-filled">
                   <tbody>
                     <tr>
@@ -325,6 +325,5 @@
             </tr>
           </tbody>
         </table>
-
     </section>
 {% endblock %}

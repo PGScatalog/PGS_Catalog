@@ -63,22 +63,25 @@
         </tbody>
       </table>
       {% if publication.date_released %}
-        <div><i class="fa fa-calendar pgs_color_1"></i> Released in PGS Catalog: <b>{{ publication.date_released }}</b></div>
+        <div><i class="fas fa-calendar pgs_color_1"></i> Released in PGS Catalog: <b>{{ publication.date_released }}</b></div>
       {% endif %}
     </section>
 
     <section>
     {% if table_scores or table_evaluated %}
         <h3>Associated Polygenic Score(s)</h3>
+        {% if ancestry_form %}
+          {{ ancestry_form|safe }}
+        {% endif %}
         {% if table_scores %}
             <h4>
-              <span>PGS Developed By This Publication</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.pgs_eval }}"><i class="fa fa-info-circle"></i></span>
+              <span>PGS Developed By This Publication</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.pgs_eval }}"><i class="fas fa-info-circle"></i></span>
             </h4>
             {% render_table table_scores %}
         {% endif %}
         {% if table_evaluated %}
             <h4>
-              <span>External PGS Evaluated By This Publication</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.pgs_eval_ext }}"><i class="fa fa-info-circle"></i></span>
+              <span>External PGS Evaluated By This Publication</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.pgs_eval_ext }}"><i class="fas fa-info-circle"></i></span>
             </h4>
             {% render_table table_evaluated %}
         {% endif %}
@@ -87,12 +90,12 @@
 
     <section>
       <h3 class="mb-0">
-        <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.perf_metrics }}"><i class="fa fa-info-circle"></i></span>
+        <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.perf_metrics }}"><i class="fas fa-info-circle"></i></span>
       </h3>
       <p>{{ performance_disclaimer|safe }}</p>
       {% render_table table_performance %}
       <h4>
-        <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fa fa-info-circle"></i></span>
+        <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fas fa-info-circle"></i></span>
       </h4>
       {% render_table table_performance_samples %}
     </section>

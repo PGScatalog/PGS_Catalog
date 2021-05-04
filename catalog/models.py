@@ -2,13 +2,14 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import DecimalRangeField
 from pgs_web import constants
+from catalog import common
 
 
 class Publication(models.Model):
     """Class for publications with PGS"""
     # Stable identifiers
-    num = models.IntegerField('PGS Publication/Study (PGP) Number', primary_key=True)
-    id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30, db_index=True)
+    num = models.IntegerField('PGS Publication/Study Number (PGP)', primary_key=True)
+    id = models.CharField('PGS Publication/Study ID (PGP)', max_length=30, db_index=True)
 
     date_released = models.DateField('PGS Release Date', null=True, db_index=True)
 
@@ -213,8 +214,9 @@ class EFOTrait_Base(models.Model):
     def display_label(self):
         return '<a href="/trait/%s">%s</a>'%(self.id, self.label)
 
-    def display_id_url(self):
-        return '<a href="%s">%s</a><span class="only_export">: %s</span>'%(self.url, self.id, self.url)
+    @property
+    def display_ext_url(self):
+        return '<a href="%s">%s</a>'%(self.url, self.id)
 
     @property
     def synonyms_list(self):
@@ -310,9 +312,7 @@ class Demographic(models.Model):
         return None
 
     def format_unit(self):
-        if self.unit != None:
-            return '{}:{}'.format('unit', self.unit)
-        return None
+        return '{}:{}'.format('unit', self.unit)
 
 
     def display_value(self):
@@ -442,7 +442,7 @@ class Sample(models.Model):
         s = 'Sample {}'.format(str(self.pk))
         if self.ancestry_broad:
             s += ' - {}'.format(self.ancestry_broad)
-        s += ' ({} individuals)'.format(self.sample_number)
+        s += ' '+self.display_sample_number_total
         return s
 
     def associated_PGS(self):
@@ -484,13 +484,12 @@ class Sample(models.Model):
 
     @property
     def display_samples(self):
-        sinfo = ['{:,} individuals'.format(self.sample_number)]
+        sinfo = [common.individuals_format(self.sample_number)]
         if self.sample_cases != None:
             sstring = '[ {:,} cases'.format(self.sample_cases)
             if self.sample_controls != None:
-                sstring += ', {:,} controls ]'.format(self.sample_controls)
-            else:
-                sstring += ' ]'
+                sstring += ', {:,} controls'.format(self.sample_controls)
+            sstring += ' ]'
             sinfo.append(sstring)
         if self.sample_percent_male != None:
             sinfo.append('%s %% Male samples'%str(round(self.sample_percent_male,2)))
@@ -501,7 +500,7 @@ class Sample(models.Model):
         div_id = "sample_"+str(self.pk)
         sstring = ''
         if self.sample_cases != None:
-            sstring += '<div><a class="toggle_table_btn pgs_helptip" id="'+div_id+'" title="Click to show/hide the details">{:,} individuals <i class="fa fa-plus-circle"></i></a></div>'.format(self.sample_number)
+            sstring += '<div><a class="toggle_table_btn pgs_helptip" id="{}" title="Click to show/hide the details">{} <i class="fas fa-plus-circle"></i></a></div>'.format(div_id,common.individuals_format(self.sample_number))
             sstring += '<div class="toggle_list" id="list_'+div_id+'">'
             sstring += '<span class="only_export">[</span>'
             sstring += '<ul>\n<li>{:,} cases</li>\n'.format(self.sample_cases)
@@ -512,7 +511,7 @@ class Sample(models.Model):
             sstring += '<span class="only_export">]</span>'
             sstring += '</div>'
         else:
-            sstring += '{:,} individuals'.format(self.sample_number)
+            sstring += self.display_sample_number_total
         if self.sample_percent_male != None:
             sstring += '<span class="only_export">, </span>'
             sstring += '<div class="mt-2 smaller-90">%s %% Male samples</div>'%str(round(self.sample_percent_male,2))
@@ -520,43 +519,39 @@ class Sample(models.Model):
 
     @property
     def display_sample_number_total(self):
-        ssinfo = '{:,} individuals'.format(self.sample_number)
+        ssinfo = common.individuals_format(self.sample_number)
         return ssinfo
 
     @property
     def display_sample_number_detail(self):
         sinfo = []
         if self.sample_cases != None:
-            sinfo.append('{:,} cases ({}%)'.format(self.sample_cases, self.sample_cases_percent))
+            sinfo.append('<div class="sample_cases">{:,} cases ({}%)</div>'.format(self.sample_cases, self.sample_cases_percent))
             if self.sample_controls != None:
-                sinfo.append('{:,} controls'.format(self.sample_controls))
+                sinfo.append('<div class="sample_controls">{:,} controls</div>'.format(self.sample_controls))
         if self.sample_percent_male != None:
-            sinfo.append('%s %% Male samples'%str(round(self.sample_percent_male,2)))
+            sinfo.append('<div class="sample_male">%s%% Male samples</div>'%str(round(self.sample_percent_male,2)))
         return sinfo
 
     @property
     def display_sample_category_number(self):
-        categories = []
-        numbers = []
+        data = []
         if self.sample_cases != None:
-            #sinfo['Cases'] = self.sample_cases
-            categories.append("Cases")
-            numbers.append(self.sample_cases)
+            data.append({'name': 'Cases', 'value': self.sample_cases})
             if self.sample_controls != None:
-                #sinfo['Controls'] = self.sample_controls
-                categories.append('Controls')
-                numbers.append(self.sample_controls)
-        return [categories,numbers]
+                data.append({'name': 'Controls', 'value': self.sample_controls})
+        return data
 
     @property
     def display_sample_gender_percentage(self):
-        categories = []
-        numbers = []
+        data = []
         if self.sample_percent_male != None:
             percent_male = round(self.sample_percent_male,2)
-            categories = ["% Male", "% Female"]
-            numbers    = [percent_male, round(100-percent_male,2)]
-        return [categories,numbers]
+            data = [
+                { 'name': '% Male', 'value': percent_male },
+                { 'name': '% Female', 'value': round(100-percent_male,2) }
+            ]
+        return data
 
 
     @property
@@ -573,14 +568,14 @@ class Sample(models.Model):
         if self.ancestry_free in ['NR', '', None]:
             return self.ancestry_broad
         else:
-            return '{}<br/>({})'.format(self.ancestry_broad, self.ancestry_free)
+            return '{}<br/><small>({})</small>'.format(self.ancestry_broad, self.ancestry_free)
 
     @property
     def display_ancestry_inline(self):
         if self.ancestry_free in ['NR', '', None]:
             return self.ancestry_broad
         else:
-            return '{} ({})'.format(self.ancestry_broad, self.ancestry_free)
+            return '{} <small>({})</small>'.format(self.ancestry_broad, self.ancestry_free)
 
 
 class Score(models.Model):
@@ -600,7 +595,7 @@ class Score(models.Model):
     flag_asis = models.BooleanField('Score and results match the original publication', default=True)
 
     # Links to related models
-    publication = models.ForeignKey(Publication, on_delete=models.PROTECT, related_name='publication_score', verbose_name='PGS Publication (PGP) ID')
+    publication = models.ForeignKey(Publication, on_delete=models.PROTECT, related_name='publication_score', verbose_name='PGS Publication ID (PGP)')
     ## Contributing Samples
     samples_variants = models.ManyToManyField(Sample, verbose_name='Source of Variant Associations (GWAS)', related_name='score_variants')
     samples_training = models.ManyToManyField(Sample, verbose_name='Score Development/Training', related_name='score_training')
@@ -620,6 +615,9 @@ class Score(models.Model):
 
     # LICENSE information/text
     license = models.TextField('License/Terms of Use', default='''PGS obtained from the Catalog should be cited appropriately, and used in accordance with any licensing restrictions set by the authors. See EBI Terms of Use (https://www.ebi.ac.uk/about/terms-of-use/) for additional details.''')
+
+    # Ancestry data
+    ancestries = models.JSONField('Ancestry distributions', null=True)
 
     # Methods
     def __str__(self):
@@ -659,6 +657,57 @@ class Score(models.Model):
             return False
 
 
+    @property
+    def display_ancestry_html(self):
+        ancestry_labels = constants.ANCESTRY_LABELS
+        anc_stages = constants.PGS_STAGES_HELPER
+        html = ''
+        if self.ancestries:
+            for stage in constants.PGS_STAGES:
+                html_stage = ''
+                if stage in self.ancestries:
+                    ancestry_data = self.ancestries[stage]
+                    info = f'<span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="{anc_stages[stage]["desc"]}"><i class="fas fa-info-circle"></i></span>'
+                    html_stage += f'<tr><td>{anc_stages[stage]["label"]}{info}</td><td>'
+                    html_stage += '<div style="display:flex">'
+                    chart = []
+                    legend = ''
+                    id = "score_anc_"+stage
+                    multi_legend = {}
+                    multi_anc = 'multi'
+                    if multi_anc in ancestry_data:
+                        for mt in ancestry_data[multi_anc]:
+                            (ma,anc) = mt.split('_')
+                            if ma not in multi_legend:
+                                multi_legend[ma] = []
+                            multi_legend[ma].append(f'<li>{ancestry_labels[anc]}</li>')
+
+                    for key,val in sorted(ancestry_data['dist'].items(), key=lambda item: float(item[1]), reverse=True):
+                        chart.append(f'"{key}",{val}')
+                        label = ancestry_labels[key]
+                        multi_anc_html = ''
+                        if key in multi_legend:
+                            multi_anc_html += f' <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="{key}_{stage}" title="" data-original-title="Click to show/hide the list of ancestries"><i class="fas fa-plus-circle"></i></a></div>'
+                            multi_anc_html += f'<div class="toggle_list" id="list_{key}_{stage}"><ul>{"".join(multi_legend[ma])}</ul>'
+                        legend += f'<div><span class="fas fa-square ancestry_box_legend anc_colour_{key}" data-key="{key}"></span>{label}: {val}%{multi_anc_html}</div>'
+
+                    count = ancestry_data['count']
+                    if count == 0:
+                        html_count = ''
+                    else:
+                        if stage == 'eval':
+                            count_data = f'{count} Sample Sets'
+                        else:
+                            count_data = common.individuals_format(count,1)
+                            count_data = count_data.replace('</div>',' (100%)</div>')
+                        html_count = f'<div class="mt-1">{count_data}</div>'
+                    html_stage += f'<div class="anc_chart mr-4" data-id="'+id+'" data-chart=\'[['+'],['.join(chart)+']]\'><svg id="'+id+'"></svg></div>'
+                    html_stage += '<div class="ancestry_legend">'+legend+html_count+'</div>'
+                    html_stage += '</div></td></tr>'
+                html += html_stage
+        return html
+
+
 class SampleSet(models.Model):
     # Stable identifiers for declaring a set of related samples
     num = models.IntegerField('PGS Sample Set (PSS) Number', primary_key=True)
@@ -687,12 +736,61 @@ class SampleSet(models.Model):
             return '-'
 
     @property
+    def samples_combined_ancestry_key(self):
+        '''
+        Fetch the ancestry of each sample and group them into multi-ancestry
+        if there are more than one ancestry categories.
+        Returns the corresponding ancestry key (2-3 letters).
+        '''
+        ancestry_list = []
+        main_ancestry_key = ''
+        for sample in self.samples.all():
+            ancestry = sample.ancestry_broad.strip()
+            ancestry_key = self.get_ancestry_key(ancestry)
+            if ancestry_key and ancestry_key not in ancestry_list:
+                ancestry_list.append(ancestry_key)
+
+        if len(ancestry_list) > 1:
+            has_eur = 0
+            for anc in ancestry_list:
+                if anc == 'EUR':
+                    has_eur = 1
+            if has_eur == 1:
+                main_ancestry_key = 'MAE'
+            else:
+                main_ancestry_key = 'MAO'
+        else:
+            main_ancestry_key = ancestry_list[0]
+        return main_ancestry_key
+
+    @property
     def count_samples(self):
         return len(self.samples.all())
 
     @property
+    def count_individuals(self):
+        count = 0
+        for sample in self.samples.all():
+            if sample.sample_number:
+                count += sample.sample_number
+        return count
+
+    @property
     def count_performances(self):
         return len(Performance.objects.values('id').filter(sampleset_id=self.num))
+
+
+    def get_ancestry_key(self,anc):
+        anc_key = 'OTH'
+        if anc in constants.ANCESTRY_MAPPINGS.keys():
+            anc_key = constants.ANCESTRY_MAPPINGS[anc]
+        elif ',' in anc:
+            if 'European' in anc:
+                anc_key = 'MAE'
+            else:
+                anc_key = 'MAO'
+        return anc_key
+
 
 
 class Performance(models.Model):
@@ -975,14 +1073,14 @@ class TraitCategory(models.Model):
 class EmbargoedPublication(models.Model):
     """Class to store the list of embargoed Publications"""
     # Stable identifier
-    id = models.CharField('PGS Publication/Study (PGP) ID', max_length=30, primary_key=True)
+    id = models.CharField('PGS Publication/Study ID (PGP)', max_length=30, primary_key=True)
     firstauthor = models.CharField('First Author', max_length=50)
 
 
 class EmbargoedScore(models.Model):
     """Class to store the list of embargoed Scores"""
     # Stable identifier
-    id = models.CharField('Polygenic Score (PGS) ID', max_length=30, primary_key=True)
+    id = models.CharField('Polygenic Score ID', max_length=30, primary_key=True)
     firstauthor = models.CharField('First Author', max_length=50)
 
 

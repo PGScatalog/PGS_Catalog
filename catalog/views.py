@@ -1,3 +1,4 @@
+import os
 from django.http import Http404
 from django.shortcuts import render,redirect
 from django.views.generic import TemplateView
@@ -5,15 +6,17 @@ from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.db.models import Prefetch
 from django.db.models.functions import Lower
+
 from pgs_web import constants
 from .tables import *
 
 
-generic_attributes =[ 'curation_notes','publication__title','publication__PMID','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released']
+generic_attributes =['publication__title','publication__PMID','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released']
 sampleset_samples_prefetch = Prefetch('sampleset__samples', queryset=Sample.objects.select_related('sample_age','followup_time').all().prefetch_related('sampleset','cohorts'))
 pgs_defer = {
-    'generic': generic_attributes,
-    'perf'   : [*generic_attributes,'date_released','score__curation_notes','score__date_released']
+    'generic': [*generic_attributes, 'curation_notes'],
+    'perf'   : [*generic_attributes,'date_released','score__curation_notes','score__date_released'],
+    'perf_extra': ['score__method_name','score__method_params','score__variants_interactions','score__ancestries','score__license']
 }
 pgs_prefetch = {
     'trait': Prefetch('trait_efo', queryset=EFOTrait.objects.only('id','label').all()),
@@ -31,6 +34,108 @@ def performance_disclaimer():
 
 def score_disclaimer(publication_url):
     return disclaimer_formatting(constants.DISCLAIMERS['score'].format(publication_url))
+
+
+def ancestry_legend():
+    ''' HTML code for the Ancestry legend. '''
+    ancestry_labels = constants.ANCESTRY_LABELS
+    count = 0;
+    val = len(ancestry_labels.keys()) / 2
+    entry_per_col = int((len(ancestry_labels.keys()) + 1) / 2);
+
+    div_html_1 = '<div class="ancestry_legend" style="float:left'
+
+    div_html = div_html_1
+
+    legend_html = ''
+    div_content = ''
+    for key in ancestry_labels.keys():
+        if count == entry_per_col:
+            div_html += ';margin-right:1rem">'
+            div_html += div_content+'</div>'
+            legend_html += div_html
+            # New div
+            div_html = div_html_1
+            div_content = ''
+            count = 0
+
+        label = ancestry_labels[key]
+        div_content += '<div><span class="ancestry_box_legend anc_colour_'+key+'" data-key="'+key+'"></span>'+label+'</div>'
+        count += 1
+    div_html += '">'+div_content+'</div>'
+    legend_html += div_html
+
+    return '''
+    <div id="ancestry_legend" class="filter_container mb-3">
+        <div class="filter_header">Ancestry legend <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_category" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see more information about the Ancestry Categories (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
+        <div id="ancestry_legend_content" class="clearfix">{}</div>
+    </div>'''.format(legend_html)
+
+
+def ancestry_form():
+    ''' HTML code for the Ancestry form. '''
+
+    option_html = ''
+
+    ancestry_labels = constants.ANCESTRY_LABELS
+    for key in ancestry_labels.keys():
+
+        label = ancestry_labels[key]
+
+        if key != 'MAO' and key != 'MAE':
+          opt = f'<option value="{key}">{label}</option>'
+          option_html += opt
+
+    checkbox_title_eur = 'This button can be used to hide PGS with any European ancestry data to only show scores with data from other non-European ancestry group. The button is selected by default, displaying all PGS.'
+    checkbox_title_multi = 'Shows only PGS that include data from multiple ancestry groups at the selected study stage, hiding PGS with data from a single ancestry group.'
+
+    return '''
+    <div class="mb-3 pgs_form_container">
+        <!-- Ancestry form -->
+        <div id="ancestry_filter" class="filter_container mr-3 mb-3">
+            <div class="filter_header">Filter PGS by Participant Ancestry <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_filter" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see information about the Ancestry Filters (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
+            <div class="clearfix">
+              <!-- Type of study -->
+              <div style="float:left">
+                <div class="filter_subheader mb-1">Individuals included in:</div>
+                  <select id="ancestry_type_list">
+                    <option value="all" selected>All Stages combined [G, D, E]</option>
+                    <option value="dev_all">Development [G, D]</option>
+                    <option value="gwas">&nbsp;&nbsp;- GWAS [G]</option>
+                    <option value="dev">&nbsp;&nbsp;- Score development [D]</option>
+                    <option value="eval">PGS Evaluation [E]</option>
+                  </select>
+                  <div class="ancestry_legend pl-1 mt-2">
+                    <div><b>G</b> - Source of Variant Associations (<b>G</b>WAS)</div>
+                    <div><b>D</b> - Score <b>D</b>evelopment/Training</div>
+                    <div><b>E</b> - PGS <b>E</b>valuation</div>
+                  </div>
+                </div>
+                <!-- Type of ancestry -->
+                <div class="filter_ancestry">
+                <div id="single_ancestry" class="filter_subheader mb-1">List of ancestries includes:</div>
+                  <div>
+                    <select id="ancestry_filter_ind">
+                      <option value="">--</option>
+                      {ancestry_option}
+                    </select>
+                  </div>
+                  <div class="filter_subheader mt-2">Display options:</div>
+                  <div id="ancestry_filter_list">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input ancestry_filter_cb" value="" data-default="true" id="anc_cb_EUR" checked>
+                      <label class="custom-control-label" for="anc_cb_EUR">Show European ancestry data</label><span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="{title_eur}"><i class="fas fa-info-circle"></i></span>
+                    </div>
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input ancestry_filter_cb" value="MAO" data-default="false" id="anc_cb_multi">
+                      <label class="custom-control-label" for="anc_cb_multi">Show <u>only</u> Multi-ancestry data</label><span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="{title_multi}"><i class="fas fa-info-circle"></i></span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+        {ancestry_legend}
+    </div>'''.format(ancestry_option=option_html, ancestry_legend=ancestry_legend(), title_eur=checkbox_title_eur, title_multi=checkbox_title_multi)
 
 
 def get_efo_traits_data():
@@ -79,7 +184,7 @@ def get_efo_traits_data():
 
 
 def index(request):
-    current_release = Release.objects.values('date').order_by('-date').first()
+    current_release = Release.objects.values('date','score_count','publication_count').order_by('-date').first()
 
     traits_count = EFOTrait.objects.count()
 
@@ -145,11 +250,15 @@ def browseby(request, view_selection):
         table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False).prefetch_related('sampleset', 'cohorts').order_by('sampleset__num'))
         context['table'] = table
     else:
-        context['view_name'] = 'Polygenic Scores (PGS)'
-        score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number','license']
+        score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number','ancestries','license']
         # Query seems faster calling 'publication' as 'prefetch_related' than as 'select_related'
         table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).all().order_by('num').prefetch_related(pgs_prefetch['publication'],pgs_prefetch['trait']), order_by="num")
-        context['table'] = table
+        context = {
+            'view_name': 'Polygenic Scores (PGS)',
+            'table': table,
+            'ancestry_form': ancestry_form(),
+            'has_chart': 1
+        }
 
     context['has_table'] = 1
 
@@ -182,7 +291,8 @@ def pgs(request, pgs_id):
             'performance_disclaimer': performance_disclaimer(),
             'efos' : score.trait_efo.all(),
             'num_variants_pretty' : '{:,}'.format(score.variants_number),
-            'has_table': 1
+            'has_table': 1,
+            'has_chart': 1
         }
         if not score.flag_asis:
             context['score_disclaimer'] = score_disclaimer(score.publication.doi)
@@ -196,7 +306,7 @@ def pgs(request, pgs_id):
             context['table_sample_training'] = table
 
         # Extract + display Performance + associated samples
-        pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('score', 'publication').filter(score=score).prefetch_related(*pgs_prefetch['perf'])
+        pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['perf_extra']).select_related('score', 'publication').filter(score=score).prefetch_related(*pgs_prefetch['perf'])
         table = PerformanceTable(pquery)
         table.exclude = ('score')
         context['table_performance'] = table
@@ -241,7 +351,9 @@ def pgp(request, pub_id):
         context = {
             'publication' : pub,
             'performance_disclaimer': performance_disclaimer(),
-            'has_table': 1
+            'has_table': 1,
+            'has_chart': 1,
+            'ancestry_form': ancestry_form()
         }
 
         # Display scores that were developed by this publication
@@ -260,7 +372,8 @@ def pgp(request, pub_id):
             if perf_score not in related_scores:
                 external_scores.add(perf_score)
         if len(external_scores) > 0:
-            table = Browse_ScoreTable(external_scores)
+            #table = Browse_ScoreTable(external_scores)
+            table = Browse_ScoreTableEval(external_scores)
             context['table_evaluated'] = table
 
         #Find + table the evaluations
@@ -280,11 +393,34 @@ def pgp(request, pub_id):
 
 
 def efo(request, efo_id):
-    # If ID in lower case, redirect with the ID in upper case
+    # Check for redirection (different case/separator for the ID)
+    special_source_replacement = False
+    special_source_found = False
+    separator_change = False
+    url_dir = '/trait/'
     # If ID with ':', redirect using the ID with '_'
-    if not efo_id.isupper() or ':' in efo_id:
+    if ':' in efo_id:
         efo_id = efo_id.replace(':','_')
-        return redirect_with_upper_case_id(request, '/trait/', efo_id)
+        separator_change = True
+    efo_id_lc = efo_id.lower()
+    # Check if the trait ID belongs to a source where the prefix is not in upper case (e.g. Orphanet)
+    for source in constants.TRAIT_SOURCE_TO_REPLACE:
+        source_lc = source.lower()
+        if efo_id.startswith(source):
+            special_source_found = True
+            break
+        elif efo_id_lc.startswith(source_lc):
+            efo_id = efo_id_lc.replace(source_lc,source)
+            special_source_found = True
+            special_source_replacement = True
+            break
+    # If ID in lower case, redirect with the ID in upper case
+    # Exception for certain trait sources (e.g. Orphanet)
+    if special_source_found:
+        if special_source_replacement or separator_change:
+            return redirect(url_dir+efo_id, permanent=True)
+    elif not efo_id.isupper() or separator_change:
+        return redirect_with_upper_case_id(request, url_dir, efo_id)
 
     exclude_children = False
     include_children = request.GET.get('include_children');
@@ -314,7 +450,9 @@ def efo(request, efo_id):
         'performance_disclaimer': performance_disclaimer(),
         'table_scores': Browse_ScoreTable(related_scores),
         'include_children': False if exclude_children else True,
-        'has_table': 1
+        'has_table': 1,
+        'has_chart': 1,
+        'ancestry_form': ancestry_form()
     }
 
     # Check if there are multiple descriptions
@@ -361,7 +499,9 @@ def gwas_gcst(request, gcst_id):
         'performance_disclaimer': performance_disclaimer(),
         'table_scores' : Browse_ScoreTable(related_scores),
         'has_table': 1,
-        'use_gwas_api': 1
+        'use_gwas_api': 1,
+        'ancestry_form': ancestry_form(),
+        'has_chart': 1
     }
 
     pquery = Performance.objects.defer(*pgs_defer['perf']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
@@ -423,11 +563,26 @@ def pss(request, pss_id):
     return render(request, 'catalog/pss.html', context)
 
 
+def ancestry_doc(request):
+    pgs_id = "PGS000018"
+
+    score = Score.objects.select_related('publication').prefetch_related('trait_efo').get(id=pgs_id)
+    table_score = Browse_ScoreTableExample([score])
+    context = {
+        'pgs_id_example': pgs_id,
+        'ancestry_legend': ancestry_legend(),
+        'table_score': table_score,
+        'has_table': 1,
+        'has_chart': 1
+    }
+    return render(request, 'catalog/docs/ancestry.html', context)
+
+
 class AboutView(TemplateView):
-    template_name = "catalog/about.html"
+    template_name = "catalog/docs/about.html"
 
 class DocsView(TemplateView):
-    template_name = "catalog/docs.html"
+    template_name = "catalog/docs/docs.html"
 
 class DownloadView(TemplateView):
     template_name = "catalog/download.html"

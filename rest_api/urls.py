@@ -19,7 +19,8 @@ rest_urls = {
     'sample_set':     'rest/sample_set/',
     'score':          'rest/score/',
     'info':           'rest/info', # No slash (added later)
-    'gwas':           'rest/gwas/get_score_ids/'
+    'ancestry':       'rest/ancestry_categories', # No slash (added later)
+    'gwas':           'rest/gwas/get_score_ids/',
 }
 
 urlpatterns = [
@@ -54,7 +55,8 @@ urlpatterns = [
     re_path(r'^'+rest_urls['score']+'(?P<pgs_id>[^/]+)'+slash, RestScore.as_view(), name="getScore"),
     # Extra endpoints
     re_path(r'^'+rest_urls['gwas']+'(?P<gcst_id>[^/]+)'+slash, cache_page(cache_time)(RestGCST.as_view()), name="pgs_score_ids_from_gwas_gcst_id"),
-    re_path(r'^'+rest_urls['info']+slash, cache_page(cache_time)(RestInfo.as_view()), name="pgs_rest_api_info"),
+    re_path(r'^'+rest_urls['info']+slash, cache_page(cache_time)(RestInfo.as_view()), name="getInfo"),
+    re_path(r'^'+rest_urls['ancestry']+slash, cache_page(cache_time)(RestAncestryCategories.as_view()), name="getAncestryCategories"),
     # Trait Category
     re_path(r'^'+rest_urls['trait_category']+'all'+slash, cache_page(cache_time)(RestListTraitCategories.as_view()), name="getAllTraitCategories")
 ]

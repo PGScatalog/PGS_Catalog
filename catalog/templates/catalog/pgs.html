@@ -29,19 +29,19 @@
               <tr>
                 <td>Mapped Trait(s)</td>
                 <td>
-                 {% if efos|length == 1 %}
-                  <a class="mr-2" href="/trait/{{ efos.0.id }}"><b>{{ efos.0.label }}</b></a>
-                  (<a href="{{ efos.0.url }}">{{ efos.0.id }}</a>)
-                 {% else %}
+                {% if efos|length == 1 %}
+                  <span class="mr-2 font-bold">{{ efos.0.display_label|safe }}</span>
+                  ({{ efos.0.display_ext_url|safe }})
+                {% else %}
                   <ul class="mb-0">
                    {% for trait in efos %}
                     <li>
-                     <a class="mr-2" href="/trait/{{ trait.id }}"><b>{{ trait.label }}</b></a>
-                     (<a href="{{ trait.url }}">{{ trait.id }}</a>)
+                      <span class="mr-2 font-bold">{{ trait.display_label|safe }}</span>
+                      ({{ trait.display_ext_url|safe }})
                     </li>
                    {% endfor %}
                   </ul>
-                 {% endif %}
+                {% endif %}
                 </td>
               </tr>
               {% if score.trait_additional != '' and score.trait_additional != None %}
@@ -53,22 +53,22 @@
             </tbody>
           </table>
           {% if score.date_released %}
-            <div><i class="fa fa-calendar pgs_color_1"></i> Released in PGS Catalog: <b>{{ score.date_released }}</b></div>
+            <div><i class="fas fa-calendar-alt pgs_color_1"></i> Released in PGS Catalog: <b>{{ score.date_released }}</b></div>
           {% endif %}
         </div>
 
         <div class="float_left pgs_bordered_block_container">
           <a class="btn btn-pgs pgs_no_icon_link pgs_helptip mr-2 mb-2" href="{{ pgs_ftp_http_root }}/scores/{{ score.id }}/ScoringFiles/"
             title="Variants and weights data file for {{ score.id }}">
-            <span class="fa fa-download"></span> Download Score
+            <span class="fas fa-download"></span> Download Score
           </a>
           <a class="btn btn-pgs pgs_no_icon_link pgs_helptip pgs-ftp-btn mb-2" href="{{ pgs_ftp_http_root }}/scores/{{ score.id }}/"
             title="Score and metadata files for {{ score.id }}">
-            <span class="fa fa-folder"></span> FTP directory
+            <span class="fas fa-folder"></span> FTP directory
           </a>
           <div class="mt-2">
-            <i class="fa fa-info-circle pgs_color_1"></i>
-            <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="license_score" title="Click to show/hide the license for this score">Terms and Licenses <i class="fa {{ score.has_default_license|yesno:'fa-plus-circle,fa-minus-circle' }}"></i></a>
+            <i class="fas fa-info-circle pgs_color_1"></i>
+            <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="license_score" title="Click to show/hide the license for this score">Terms and Licenses <i class="fas {{ score.has_default_license|yesno:'fa-plus-circle,fa-minus-circle' }}"></i></a>
             <div class="toggle_list mt-2 licence_container" id="list_license_score" style="{{ score.has_default_license|yesno:',display:block' }}">
               <div class="pgs_note pgs_note_1">
                 <div>
@@ -159,20 +159,31 @@
 
                 </tbody>
               </table>
+
+              <table class="table table-bordered table_pgs_h mt-4">
+                <tbody>
+                  <tr>
+                    <td class="table_title table_title_g" colspan="2">Ancestry Distribution <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_dist" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see information about the Ancestry Distribution (open in a new tab)"><i class="fas fa-info-circle"></i></a></td>
+                  </tr>
+                  {{ score.display_ancestry_html|safe }}
+                 </tbody>
+               </table>
             </div>
         </div>
+      </section>
 
-        <h4>Contributing Samples</h4>
+      <section>
+        <h4>Development Samples</h4>
         {% if table_sample_variants or table_sample_training %}
             {% if table_sample_variants %}
                 <h5>
-                  <span>Source of Variant Associations (GWAS)</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_variant }}"><i class="fa fa-info-circle"></i></span>
+                  <span>Source of Variant Associations (GWAS)</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_variant }}"><i class="fas fa-info-circle"></i></span>
                 </h5>
                 {% render_table table_sample_variants %}
             {% endif %}
             {% if table_sample_training %}
                 <h5>
-                  <span>Score Development/Training</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_training }}"><i class="fa fa-info-circle"></i></span>
+                  <span>Score Development/Training</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_training }}"><i class="fas fa-info-circle"></i></span>
                 </h5>
                 {% render_table table_sample_training %}
             {% endif %}
@@ -183,12 +194,12 @@
 
     <section>
         <h3 class="mb-0">
-          <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_perf_metrics }}"><i class="fa fa-info-circle"></i></span>
+          <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.score_perf_metrics }}"><i class="fas fa-info-circle"></i></span>
         </h3>
         <p>{{ performance_disclaimer|safe }}</p>
         {% render_table table_performance %}
         <h4>
-          <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fa fa-info-circle"></i></span>
+          <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fas fa-info-circle"></i></span>
         </h4>
         {% render_table table_performance_samples %}
     </section>

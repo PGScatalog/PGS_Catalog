@@ -8,7 +8,11 @@ from release.scripts.GenerateBulkExport import PGSExportAllMetadata
 from release.scripts.PGSExport import PGSExport
 from release.scripts.PGSBuildFtp import PGSBuildFtp
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
+from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
 
+
+error_prefix = '  /!\  Error:'
+output_prefix = '  > '
 
 def run(*args):
     """
@@ -34,6 +38,9 @@ def run(*args):
     # Check of there are duplicated cohort names in the database
     check_duplicated_cohorts()
 
+    # Update ancestry distribution
+    update_ancestry_distribution()
+
     # Create release
     call_create_release()
 
@@ -49,7 +56,7 @@ def run(*args):
 
 def check_publications_associations():
     """ Check the publications associations """
-    print("\t- Check the publications associations")
+    print("- Check the publications associations")
 
     publications = Publication.objects.all().order_by('num')
     pub_list = []
@@ -65,15 +72,14 @@ def check_publications_associations():
             pub_list.append(pub_id)
 
     if len(pub_list) > 0:
-        print("ERROR: The following PGS publications are not associated to a Score or a Performance Metric:\n"+'\n'.join(pub_list))
-        exit(1)
+        error_report("The following PGS publications are not associated to a Score or a Performance Metric:\n"+'\n'.join(pub_list))
     else:
-        print("Publications associations - OK: All the publications are associated to a Score or a Performance Metric!")
+        output_report("Publications associations - OK: All the publications are associated to a Score or a Performance Metric!")
 
 
 def check_efotrait_associations():
     """ Check the EFO Trait associations """
-    print("\t- Check the EFO Trait associations")
+    print("- Check the EFO Trait associations")
 
     efo_traits = EFOTrait.objects.all().order_by('id')
     traits_list = []
@@ -89,13 +95,14 @@ def check_efotrait_associations():
             traits_list.append(trait_id)
 
     if len(traits_list) > 0:
-        print("ERROR: The following PGS EFO Traits are not associated to a Score or a Performance Metric:\n"+'\n'.join(traits_list))
-        exit(1)
+        error_report("The following PGS EFO Traits are not associated to a Score or a Performance Metric:\n"+'\n'.join(traits_list))
     else:
-        print("EFOTrait associations - OK: All the traits are associated to a Score or a Performance Metric!")
+        output_report("EFOTrait associations - OK: All the traits are associated to a Score or a Performance Metric!")
 
 
 def check_duplicated_cohorts():
+    """ Check if there are duplicated cohorts """
+    print("- Check duplicated cohorts")
     cohorts_first_found = {}
     cohorts_found_lower = set()
     cohorts_duplicated = {}
@@ -112,17 +119,24 @@ def check_duplicated_cohorts():
             cohorts_first_found[name_lower] = name
 
     if len(cohorts_duplicated.keys()):
-        print("ERROR: The following cohorts seem duplicated in the database:")
+        error_msg = "The following cohorts seem duplicated in the database:"
         for key,val in cohorts_duplicated.items():
-            print("- Cohorts: "+', '.join(list(val)))
-        exit(1)
+            error_msg += "\t- Cohorts: "+', '.join(list(val))
+        error_report(error_msg)
     else:
-        print("Cohort duplication - OK: No duplicated cohort found!")
+        output_report("Cohort duplication - OK: No duplicated cohort found!")
+
+
+def update_ancestry_distribution():
+    """ Update the ancestry distribution in scores """
+    print("- Update ancestry distribution")
+    score_ancestry = UpdateScoreAncestry()
+    score_ancestry.update_ancestry()
 
 
 def call_create_release():
     """ Create a new PGS Catalog release """
-    print("\t- Create a new PGS Catalog release")
+    print("- Create a new PGS Catalog release")
 
     lastest_release = Release.objects.latest('date').date
 
@@ -131,16 +145,15 @@ def call_create_release():
     new_release = release.create_new_release()
 
     # Just a bunch of prints
-    print("Latest release: "+str(lastest_release))
-    print("New release: "+str(new_release.date))
-    print("Number of new Scores: "+str(new_release.score_count))
-    print(', '.join(release.new_scores.keys()))
-    print("Number of new Publications: "+str(new_release.publication_count))
-    print("Number of new Performances: "+str(new_release.performance_count))
+    output_report("Latest release: "+str(lastest_release))
+    output_report("New release: "+str(new_release.date))
+    output_report("Number of new Scores: "+str(new_release.score_count))
+    output_report(', '.join(release.new_scores.keys()))
+    output_report("Number of new Publications: "+str(new_release.publication_count))
+    output_report("Number of new Performances: "+str(new_release.performance_count))
 
     if new_release.score_count == 0 or new_release.publication_count == 0 or new_release.performance_count == 0:
-        print("Error: at least one of the main components (Score, Publication or Performance Metrics) hasn't a new entry this release")
-        exit(1)
+        error_report("at least one of the main components (Score, Publication or Performance Metrics) hasn't a new entry this release")
 
 
 def generate_europePMC_linkage_xml_file():
@@ -157,3 +170,11 @@ def get_previous_release_date():
     """ Fetch the previous release date (i.e. the release date of the current live database) """
     releases = Release.objects.all().order_by('-date')
     return str(releases[1].date)
+
+
+def error_report(msg):
+    print('  /!\  Error: '+msg)
+    exit(1)
+
+def output_report(msg):
+    print('  > '+msg)

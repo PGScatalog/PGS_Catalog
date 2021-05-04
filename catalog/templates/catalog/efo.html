@@ -28,7 +28,7 @@
           </tr>
           <tr>
             <td>Identifier</td>
-            <td><b><a href="{{ trait.url }}">{{ trait.id }}</a></b></td>
+            <td><b>{{ trait.display_ext_url|safe }}</b></td>
           </tr>
           {% if trait.description %}
             <tr>
@@ -60,7 +60,7 @@
               <td>Synonyms</td>
               <td>
                 {% if trait.synonyms_list|length > 1 %}
-                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="trait_synomyms" title="Click to show/hide the list of synonyms"><b>{{ trait.synonyms_list|length }}</b> synonyms <i class="fa fa-plus-circle"></i></a>
+                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="trait_synomyms" title="Click to show/hide the list of synonyms"><b>{{ trait.synonyms_list|length }}</b> synonyms <i class="fas fa-plus-circle"></i></a>
                   <div class="toggle_list" id="list_trait_synomyms">
                     <ul>
                     {% for synonym in trait.synonyms_list %}
@@ -79,7 +79,7 @@
               <td>Mapped term(s)</td>
               <td>
                 {% if trait.mapped_terms_list|length > 1 %}
-                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right"  data-delay="500" id="trait_mapped_terms" title="Click to show/hide the list of mapped terms"><b>{{ trait.mapped_terms_list|length }}</b> mapped terms <i class="fa fa-plus-circle"></i></a>
+                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right"  data-delay="500" id="trait_mapped_terms" title="Click to show/hide the list of mapped terms"><b>{{ trait.mapped_terms_list|length }}</b> mapped terms <i class="fas fa-plus-circle"></i></a>
                   <div class="toggle_list" id="list_trait_mapped_terms">
                     <ul>
                     {% for mapped_term in trait.mapped_terms_list %}
@@ -98,7 +98,7 @@
               <td>Child trait(s)</td>
               <td>
                 {% if trait.display_child_traits_list|length > 1 %}
-                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right"  data-delay="500" id="child_traits" title="Click to show/hide the list of the child traits in PGS Catalog"><b>{{ trait.display_child_traits_list|length }}</b> child traits <i class="fa fa-plus-circle"></i></a>
+                  <a class="toggle_btn" data-toggle="tooltip" data-placement="right"  data-delay="500" id="child_traits" title="Click to show/hide the list of the child traits in PGS Catalog"><b>{{ trait.display_child_traits_list|length }}</b> child traits <i class="fas fa-plus-circle"></i></a>
                   <div class="toggle_list" id="list_child_traits">
                     <ul>
                     {% for child_trait in trait.display_child_traits_list %}
@@ -118,39 +118,44 @@
 
     <section>
     <h3>Associated Polygenic Score(s)</h3>
-    {% if trait_scores_child_count and trait_scores_direct_count %}
-      <div class="clearfix mb-2">
-        <div class="mt-2 float_left pgs_note pgs_note_1">
-          <div class="mb-2">
-            <span>Note: </span>This table shows all PGS for "<b>{{ trait.label }}</b>" and any child terms of this trait in the EFO hierarchy by default.
-          </div>
-          <span>
-            <input type="checkbox" {% if include_children %}checked{% endif %} id="include_children" name="include_children" value="{{ trait.label }}"/>
-            <label class="mb-0" for="include_children"> Include PGS Score(s) for child traits</label>
-          </span>
-        </div>
-      </div>
-    {% elif trait_scores_child_count  %}
-      <div class="clearfix mb-2">
-        <div class="mt-2 float_left pgs_note pgs_note_1">
-          <div>
-            <span>Note: </span>This table shows PGS for child terms of "<b>{{ trait.label }}</b>" in the EFO hierarchy.
+
+      <!-- Ancestry form -->
+      {% if ancestry_form %}
+        {{ ancestry_form|safe }}
+      {% endif %}
+      {% if trait_scores_child_count and trait_scores_direct_count %}
+        <div class="mb-3" style="margin-top:auto">
+          <div class="pgs_note pgs_note_1">
+            <div>
+              <span>Note: </span>This table shows all PGS for "<b>{{ trait.label }}</b>" and any child terms of this trait in the EFO hierarchy by default.
+              <span class="custom-control custom-switch mt-2">
+                <input type="checkbox" class="custom-control-input" {% if include_children %}checked{% endif %} id="include_children" name="include_children" value="{{ trait.label }}"/>
+                <label class="custom-control-label" for="include_children"> Include PGS Score(s) for child traits</label>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-    {% endif %}
+      {% elif trait_scores_child_count  %}
+        <div class="mb-3" style="margin-top:auto">
+          <div class="pgs_note pgs_note_1">
+            <div>
+              <span>Note: </span>This table shows PGS for child terms of "<b>{{ trait.label }}</b>" in the EFO hierarchy.
+            </div>
+          </div>
+        </div>
+      {% endif %}
 
     {% render_table table_scores %}
     </section>
 
     <section>
       <h3 class="mb-0">
-        <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.perf_metrics }}"><i class="fa fa-info-circle"></i></span>
+        <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.perf_metrics }}"><i class="fas fa-info-circle"></i></span>
       </h3>
       <p>{{ performance_disclaimer|safe }}</p>
       {% render_table table_performance %}
       <h4>
-        <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fa fa-info-circle"></i></span>
+        <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fas fa-info-circle"></i></span>
       </h4>
       {% render_table table_performance_samples %}
     </section>

@@ -58,10 +58,9 @@ INSTALLED_APPS = [
     'django_extensions',
     'compressor',
     'rest_framework',
+    'corsheaders',
     'django_elasticsearch_dsl'
 ]
-if os.environ['PGS_LIVE_SITE'] == 'False':
-    INSTALLED_APPS.append('release.apps.ReleaseConfig')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -123,15 +122,13 @@ if os.getenv('GAE_APPLICATION', None):
 else:
     PGS_ON_GAE = 0
 
+PGS_ON_LIVE_SITE = False
 if 'PGS_LIVE_SITE' in os.environ:
     PGS_ON_LIVE_SITE = os.environ['PGS_LIVE_SITE']
-else:
-    PGS_ON_LIVE_SITE = False
 
+PGS_ON_CURATION_SITE = False
 if 'PGS_CURATION_SITE' in os.environ:
     PGS_ON_CURATION_SITE = os.environ['PGS_CURATION_SITE']
-else:
-    PGS_ON_CURATION_SITE = False
 
 
 WSGI_APPLICATION = 'pgs_web.wsgi.application'
@@ -165,7 +162,7 @@ else:
             'USER': os.environ['DATABASE_USER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': 'localhost',
-            'PORT': os.environ['DATABASE_PORT']
+            'PORT': os.environ['DATABASE_PORT_LOCAL']
         }
     }
 # [END db_setup]
@@ -263,6 +260,20 @@ REST_FRAMEWORK = {
     }
 }
 
+
+#-----------------#
+#  CORS Settings  #
+#-----------------#
+CORS_ORIGIN_REGEX_WHITELIST = [
+    r"^https://\w+\.ebi\.ac\.uk$"
+]
+CORS_URLS_REGEX = r'^/rest/.*$'
+CORS_ALLOW_METHODS = ['GET']
+
+
+#--------------------------#
+#  Elasticsearch Settings  #
+#--------------------------#
 # Elasticsearch configuration
 ELASTICSEARCH_DSL = {
     'default': {

@@ -31,7 +31,7 @@
 
   {% if not query %}
     <h2>Search</h2>
-    <h5><i class="fa fa-info-circle pgs_color_1 mr-2"></i>Please enter a search term in the <i>"Search..."</i> form above, on the page header.</h5>
+    <h5><i class="fas fa-info-circle pgs_color_1 mr-2"></i>Please enter a search term in the <i>"Search..."</i> form above, on the page header.</h5>
   {% else %}
     <h2 class="search_result_header pb-2">Search results for "<span class="pgs_color_1">{{ query }}</span>"</h2>
     {% if facets_count %}
@@ -39,7 +39,7 @@
 
         {% if facets_count > 1 %}
           <div class="search_facet selected" id="all_facet">
-            <i class="fa fa-check-circle"></i>
+            <i class="fas fa-check-circle"></i>
             <div>All results</div>
             <span class="badge badge-pill badge-pgs">{{ all_results|length }}</span>
           </div>
@@ -48,10 +48,10 @@
         {% if scores_count %}
           {% if facets_count > 1 %}
             <div class="search_facet" id="scores_facet">
-              <i class="fa fa-circle-o"></i>
+              <i class="far fa-circle"></i>
           {% else %}
             <div class="search_facet selected" id="scores_facet">
-              <i class="fa fa-check-circle"></i>
+              <i class="fas fa-check-circle"></i>
           {% endif %}
               <span class="search_facet_type search_facet_type_3"></span>
               <div>Scores</div>
@@ -62,10 +62,10 @@
         {% if efo_traits_count %}
           {% if facets_count > 1 %}
             <div class="search_facet" id="efo_traits_facet">
-              <i class="fa fa-circle-o"></i>
+              <i class="far fa-circle"></i>
           {% else %}
             <div class="search_facet selected" id="efo_traits_facet">
-              <i class="fa fa-check-circle"></i>
+              <i class="fas fa-check-circle"></i>
           {% endif %}
               <span class="search_facet_type search_facet_type_1"></span>
               <div>Traits</div>
@@ -76,10 +76,10 @@
         {% if publications_count %}
           {% if facets_count > 1 %}
             <div class="search_facet" id="publications_facet">
-              <i class="fa fa-circle-o"></i>
+              <i class="far fa-circle"></i>
           {% else %}
             <div class="search_facet selected" id="publications_facet">
-              <i class="fa fa-check-circle"></i>
+              <i class="fas fa-check-circle"></i>
           {% endif %}
               <span class="search_facet_type search_facet_type_2"></span>
               <div>Publications</div>
@@ -97,7 +97,7 @@
       {% endif %}
 
     {% else %}
-      <h5><i class="fa fa-info-circle pgs_color_1 mr-2"></i>No results found!</h5>
+      <h5><i class="fas fa-info-circle pgs_color_1 mr-2"></i>No results found!</h5>
     {% endif %}
   {% endif %}
 {% endblock %}

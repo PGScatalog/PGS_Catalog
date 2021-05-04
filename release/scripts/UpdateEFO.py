@@ -48,7 +48,8 @@ class UpdateEFO:
 
     def __init__(self):
         self.ontology_data = {}
-        self.efo_categories = {}
+        self.efo_categories_by_trait = {}
+        self.efo_categories_by_cat = {}
         self.entry_count = 0
         self.total_entries = 0
         self.gwas_mapping = GWASMapping()
@@ -339,57 +340,76 @@ class UpdateEFO:
                 category = TraitCategory.objects.create(label=category_label,colour=category_colour,parent=category_parent)
                 category.save()
 
-            self.efo_categories[trait.id] = set()
-            self.efo_categories[trait.id].add(category.label)
+            self.efo_categories_by_trait[trait.id] = set()
+            self.efo_categories_by_trait[trait.id].add(category.label)
 
 
-    def update_efo_category_info(self, trait, current_count, total_count):
-        """ Update the EFO/TraitCategory relation, using the parents trait category """
-        print(f' -> Ontology Trait: {trait.id} ({trait.label}) | {current_count}/{total_count}')
-        try:
-            efo_trait = EFOTrait.objects.get(id=trait.id)
-        except EFOTrait.DoesNotExist:
-            efo_trait = None
+    def enrich_efo_category_info(self, trait, current_count, total_count):
+        """ Enrich the EFO/TraitCategory relation, using the parents trait category """
+        trait_id = trait.id
+        print(f' -> Ontology Trait: {trait_id} ({trait.label}) | {current_count}/{total_count}')
+        # try:
+        #     efo_trait = EFOTrait.objects.get(id=trait.id)
+        # except EFOTrait.DoesNotExist:
+        #     efo_trait = None
+
 
         parent_traits = trait.parent_traits.all()
         if parent_traits:
             # Add categories from parents (to support multi parent terms for categories)
             for efo_parent in parent_traits:
-                if efo_parent.id in self.efo_categories:
-                    parent_categories = list(self.efo_categories[efo_parent.id])
+                if efo_parent.id in self.efo_categories_by_trait:
+                    parent_categories = list(self.efo_categories_by_trait[efo_parent.id])
                     if parent_categories:
                         for parent_category in parent_categories:
-                            self.efo_categories[trait.id].add(parent_category)
+                            self.efo_categories_by_trait[trait_id].add(parent_category)
                 else:
-                    print("MISSING CATEGORY FOR THE PARENT TRAIT '"+efo_parent.id+"' (of "+trait.id+")")
+                    print("MISSING CATEGORY FOR THE PARENT TRAIT '"+efo_parent.id+"' (of "+trait_id+")")
 
             # Cleanup the list of categories
-            if len(list(self.efo_categories[trait.id])) > 1:
-                categories = list(self.efo_categories[trait.id])
+            categories = list(self.efo_categories_by_trait[trait_id])
+            if len(categories) > 1:
                 for category in categories:
                     if category in self.exclude_categories:
-                        self.efo_categories[trait.id].remove(category)
+                        self.efo_categories_by_trait[trait_id].remove(category)
                 # Case when all the categories are in the "self.exclude_categories" list
-                if len(list(self.efo_categories[trait.id])) == 0:
-                    self.efo_categories[trait.id] = categories
+                if len(list(self.efo_categories_by_trait[trait_id])) == 0:
+                    self.efo_categories_by_trait[trait_id] = categories
 
-        # Update category associations
-        category_labels = list(self.efo_categories[trait.id])
+        categories = list(self.efo_categories_by_trait[trait_id])
+        for category in categories:
+            if not category in self.efo_categories_by_cat.keys():
+                self.efo_categories_by_cat[category] = set()
+            self.efo_categories_by_cat[category].add(trait_id)
 
+
+    def update_efo_category_info(self):
+        """ Update the EFO/TraitCategory relation, using the parents trait category """
+        # Get all the EFOTrait IDs
+        efo_trait_ids = [ x.id for x in EFOTrait.objects.all() ]
+        category_labels = self.efo_categories_by_cat.keys()
+        total_cat = len(category_labels)
+        count = 1
         for category_label in category_labels:
+            print(f' -> Category {category_label} ({count}/{total_cat})')
+            count += 1
             category_has_changed = 0
             trait_category = TraitCategory.objects.prefetch_related('efotraits','efotraits_ontology').get(label=category_label)
             if trait_category:
-                # Creates TraitCategory association for EFOTrait
-                if efo_trait:
-                    if (efo_trait not in trait_category.efotraits.all()):
-                        trait_category.efotraits.add(efo_trait)
+                # List of EFOtraits currently associated with the trait category in the database
+                trait_category_efo_traits = trait_category.efotraits.all()
+
+                # Loop over the EFO IDs associated with the current trait category
+                for efo_trait_id in list(self.efo_categories_by_cat[category_label]):
+                    # Creates TraitCategory association for each EFOTrait
+                    if efo_trait_id not in trait_category_efo_traits and efo_trait_id in efo_trait_ids:
+                        trait_category.efotraits.add(efo_trait_id)
                         category_has_changed = 1
 
-                # Creates TraitCategory association for EFOTrait_Ontology
-                if (trait not in trait_category.efotraits_ontology.all()):
-                    trait_category.efotraits_ontology.add(trait)
-                    category_has_changed = 1
+                    # Creates TraitCategory association for EFOTrait_Ontology
+                    if efo_trait_id not in trait_category.efotraits_ontology.all():
+                        trait_category.efotraits_ontology.add(efo_trait_id)
+                        category_has_changed = 1
 
                 if category_has_changed == 1:
                     trait_category.save()
@@ -437,12 +457,18 @@ class UpdateEFO:
         current_count_ontology_traits = 1
         print(f'\n> Update Trait category associations for EFOTrait and EFOTrait_Ontology ({total_count_ontology_traits} entries):')
         for ontology_trait in ontology_trait_list:
-            self.update_efo_category_info(ontology_trait, current_count_ontology_traits, total_count_ontology_traits)
+            self.enrich_efo_category_info(ontology_trait, current_count_ontology_traits, total_count_ontology_traits)
             current_count_ontology_traits += 1
+        print('\n> Start updating Trait category associations in the database')
+        self.update_efo_category_info()
+
         if self.warnings:
             print("##### Warnings #####")
             for warning in self.warnings:
                 print(f'- {warning}')
+
+        print('\n> End of script')
+
 
 def run():
     """ Update the EFO entries and add/update the Trait categories (from GWAS Catalog)."""
