@@ -28,7 +28,7 @@
       <div class="pgs_buttons_right clearfix">
         <div>
           <a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_http_root }}" target="_blank">
-            <span class="fa fa-folder"></span> PGS Catalog FTP site
+            <span class="fas fa-folder"></span> PGS Catalog FTP site
           </a>
         </div>
       </div>
@@ -44,23 +44,23 @@
           <tr>
             <td>
               <span class="pgs_h_big_header">PGS Scoring Files & Metadata</span>
-              <a class="pgs_no_icon_link info-icon" href="#dl_ftp" data-toggle="tooltip" data-placement="bottom" title="Individual PGS variants scoring and metadata files. Click on this icon to see information about the PGS Scoring File format"><i class="fa fa-info-circle"></i></a>
+              <a class="pgs_no_icon_link info-icon" href="#dl_ftp" data-toggle="tooltip" data-placement="bottom" title="Individual PGS variants scoring and metadata files. Click on this icon to see information about the PGS Scoring File format"><i class="fas fa-info-circle"></i></a>
             </td>
-            <td><a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_http_root }}/scores/" target="_blank"><span class="fa fa-folder"></span> View PGS Score Directories (FTP)</a></td>
+            <td><a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_http_root }}/scores/" target="_blank"><span class="fas fa-folder"></span> View PGS Score Directories (FTP)</a></td>
           </tr>
           <tr>
             <td>
               <span class="pgs_h_big_header">PGS Catalog Metadata</span>
-              <a class="pgs_no_icon_link info-icon" href="#dl_ftp_metadata" data-toggle="tooltip" data-placement="bottom" title="Available PGS global metadata files. Click on this icon to see information about the PGS Metadata File format"><i class="fa fa-info-circle"></i></a>
+              <a class="pgs_no_icon_link info-icon" href="#dl_ftp_metadata" data-toggle="tooltip" data-placement="bottom" title="Available PGS global metadata files. Click on this icon to see information about the PGS Metadata File format"><i class="fas fa-info-circle"></i></a>
             </td>
-            <td><a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_http_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fa fa-download"></span> Bulk Metadata Downloads<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a></td>
+            <td><a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_http_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fas fa-download"></span> Bulk Metadata Downloads<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a></td>
           </tr>
           <tr>
             <td>
               <span class="pgs_h_big_header">PGS Catalog REST API</span>
-              <span class="pgs_no_icon_link info-icon" href="#dl_ftp_metadata" data-toggle="tooltip" data-placement="bottom" title="Programatic access to the PGS Catalog metadata."><i class="fa fa-info-circle"></i></span>
+              <span class="pgs_no_icon_link info-icon" href="#dl_ftp_metadata" data-toggle="tooltip" data-placement="bottom" title="Programatic access to the PGS Catalog metadata."><i class="fas fa-info-circle"></i></span>
             </td>
-            <td><a class="btn btn-pgs pgs_no_icon_link" href="../rest/"><span class="fa fa-code"></span> REST API endpoint descriptions</a></td>
+            <td><a class="btn btn-pgs pgs_no_icon_link" href="../rest/"><span class="fas fa-code"></span> REST API endpoint descriptions</a></td>
           </tr>
         </tbody>
       </table>
@@ -148,7 +148,7 @@
             <tr><td>inclusion_criteria</td><td>Score Inclusion Criteria</td><td>Explanation of when this variant gets included into the PGS (e.g. if it depends on the results from other variants).</td><td><span class="pgs_color_green">Optional</span></td></tr>
           </tbody>
           <thead class="thead-light">
-            <tr><th colspan="4"><i class="fa fa-chevron-right"></i> Extra columns:</th></tr>
+            <tr><th colspan="4"><i class="fas fa-chevron-right"></i> Extra columns:</th></tr>
           </thead>
           <tbody>
             <tr><td>OR<br>HR</td><td>Odds Ratio [OR], Hazard Ratio [HR]</td><td>Author-reported effect sizes can be supplied to the Catalog. If no other <i>effect_weight</i> is given the weight is calculated using the log(OR) or log(HR).</td><td><span class="pgs_color_green">Optional</span></td></tr>
@@ -160,7 +160,7 @@
 
     <section>
       <h3 class="mt-5" id="dl_ftp_metadata">PGS Catalog Metadata</h3>
-      <p>Bulk download of the entire PGS Catalog's metadata, describing all PGS in terms of their publication source, samples used for development/evaluation, and related performance metrics.<a class="btn btn-pgs pgs_no_icon_link ml-2" href="{{ pgs_ftp_http_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fa fa-download"></span> Download Metadata file<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a></p>
+      <p>Bulk download of the entire PGS Catalog's metadata, describing all PGS in terms of their publication source, samples used for development/evaluation, and related performance metrics.<a class="btn btn-pgs pgs_no_icon_link ml-2" href="{{ pgs_ftp_http_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fas fa-download"></span> Download Metadata file<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a></p>
       <p>The bulk download contains a single Excel file with multiple sheets describing each of the data types. The sheets are also provided as individual <code>.csv</code> files for easier import in analysis tools, and are provided on the FTP in the <code>metadata/</code> folder.</p>
       <div class="table-responsive">
         <table class="table table-striped table_pgs_auto">
@@ -168,7 +168,7 @@
             <tr>
               <th>Worksheet</th>
               <th>Description</th>
-              <th><span class="fa fa-download"></span> Download Sheet<span class="badge badge-pill badge-pgs-white ml-2">.csv</span></th>
+              <th><span class="fas fa-download"></span> Download Sheet<span class="badge badge-pill badge-pgs-white ml-2">.csv</span></th>
             </tr>
           </thead>
           <tbody>

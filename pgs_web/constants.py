@@ -1,17 +1,17 @@
 # Module storing constants used across the website
 
 PGS_REST_API = {
-    'version': 1.6,
+    'version': 1.7,
     'changelog': [
-        "New endpoint 'rest/info' with data such as the REST API version, latest release date and counts, PGS citation, ...",
-        "New endpoint '/rest/cohort/all' returning all the Cohorts and their associated PGS.",
-        "New endpoint '/rest/sample_set/all' returning all the Sample Set data."
+        "New data 'ancestry_distribution' in the `/rest/score` endpoints, providing information about ancestry distribution on each stage of the PGS",
+        "New endpoint `/rest/ancestry_categories` providing the list of ancestry symbols and names."
     ]
 }
 
 PGS_CITATION = {
     'title': 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation',
     'doi': '10.1038/s41588-021-00783-5',
+    'PMID': 33692568,
     'authors': 'Samuel A. Lambert, Laurent Gil, Simon Jupp, Scott C. Ritchie, Yu Xu, Annalisa Buniello, Aoife McMahon, Gad Abraham, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A. L. MacArthur and Michael Inouye.',
     'journal': 'Nature Genetics',
     'year': 2021
@@ -25,6 +25,7 @@ USEFUL_URLS = {
     'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_FTP_HTTP_ROOT' : 'http://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_TWITTER_URL'   : 'https://www.twitter.com/pgscatalog',
+    'PGS_WEBSITE_URL'   : 'https://www.pgscatalog.org/',
     'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',
     'TERMS_OF_USE'      : 'https://www.ebi.ac.uk/about/terms-of-use',
     'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing',
@@ -51,9 +52,79 @@ TABLE_HELPER = {
     'score_training': 'Describes the samples used to develop or train the score (e.g. not used for variant discovery, and non-overlapping with the samples used to evaluate the PGS predictive ability)',
     'score_perf_metrics': 'An index of performance metrics from cataloged evaluations of this PGS',
     'perf_metrics': 'An index of performance metrics from cataloged evaluations of the associated PGS(s)',
-    'sample_sets': 'Information about the samples used in PGS performance evaluation. These samples have an PGS Catalog Sample Set (PSS) ID to link them to their associated performance metrics (and across different PGS)',
+    'sample_sets': 'Information about the samples used in PGS performance evaluation. These samples have a PGS Catalog Sample Set (PSS) ID to link them to their associated performance metrics (and across different PGS)',
     'pgs_eval': 'A list of PGS that were developed and evaluated in this publication/study',
     'pgs_eval_ext': 'A list of PGS that were developed in other publications and re-evaluated in the current study'
 }
 
 ANNOUNCEMENT = ''
+
+
+TRAIT_SOURCE_TO_REPLACE = ['Orphanet']
+
+PGS_STAGES = ('gwas','dev','eval')
+
+PGS_STAGES_HELPER = {
+    'gwas': {
+        'label': 'Source of Variant<br />Associations (<b>G</b>WAS)',
+        'desc': 'Percentage based on the number of individuals associated with an ancestry category out of all the individuals.'
+    },
+    'dev': {
+        'label': 'Score <b>D</b>evelopment/Training',
+        'desc': 'Percentage based on the number of individuals associated with an ancestry category out of all the individuals.'
+    },
+    'eval': {
+        'label': 'PGS <b>E</b>valuation',
+        'desc': 'Percentage based on the number of Sample Set with an ancestry category out of all the Sample Sets.'
+    }
+}
+
+ANCESTRY_MAPPINGS = {
+    'Aboriginal Australian': 'OTH',
+    'African American or Afro-Caribbean': 'AFR',
+    'African unspecified' : 'AFR',
+    'Asian unspecified': 'ASN',
+    'Central Asian': 'ASN',
+    'East Asian': 'EAS',
+    'European': 'EUR',
+    'Greater Middle Eastern (Middle Eastern, North African or Persian)': 'GME',
+    'Hispanic or Latin American': 'AMR',
+    'Native American': 'OTH',
+    'Not reported': 'NR',
+    'NR': 'NR', # Not reported
+    'Oceanian': 'OTH',
+    'Other': 'OTH',
+    'Other admixed ancestry': 'OTH',
+    'South Asian': 'SAS',
+    'South East Asian': 'ASN',
+    'Sub-Saharan African': 'AFR',
+    'Sub-Saharan African, African American or Afro-Caribbean': 'AFR'
+}
+
+ANCESTRY_LABELS = {
+    'MAE': 'Multi-ancestry (including European)',
+    'MAO': 'Multi-ancestry (excluding European)',
+    'AFR': 'African',
+    'EAS': 'East Asian',
+    'SAS': 'South Asian',
+    'ASN': 'Additional Asian Ancestries',
+    'EUR': 'European',
+    'GME': 'Greater Middle Eastern',
+    'AMR': 'Hispanic or Latin American',
+    'OTH': 'Additional Diverse Ancestries',
+    'NR' : 'Not Reported'
+}
+
+ANCESTRY_GROUP_LABELS = {
+    'MAE': 'Multi-ancestry (including European)',
+    'MAO': 'Multi-ancestry (excluding European)',
+    'AFR': 'African Ancestry',
+    'EAS': 'East Asian Ancestry',
+    'SAS': 'South Asian Ancestry',
+    'ASN': 'Additional Asian Ancestries',
+    'EUR': 'European Ancestry',
+    'GME': 'Greater Middle Eastern Ancestry',
+    'AMR': 'Hispanic or Latin American Ancestry',
+    'OTH': 'Additional Diverse Ancestries',
+    'NR' : 'Ancestry Not Reported'
+}

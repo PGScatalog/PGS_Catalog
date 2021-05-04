@@ -52,18 +52,21 @@
   {% if table_scores %}
     <section>
       <h3>PGS Developed Using Variant Associations from {{ gwas_id }}</h3>
+      {% if ancestry_form %}
+        {{ ancestry_form|safe }}
+      {% endif %}
       {% render_table table_scores %}
     </section>
   {% endif %}
 
   <section>
     <h3 class="mb-0">
-      <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.perf_metrics }}"><i class="fa fa-info-circle"></i></span>
+      <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.perf_metrics }}"><i class="fas fa-info-circle"></i></span>
     </h3>
     <p>{{ performance_disclaimer|safe }}</p>
     {% render_table table_performance %}
     <h4>
-      <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fa fa-info-circle"></i></span>
+      <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fas fa-info-circle"></i></span>
     </h4>
     {% render_table table_performance_samples %}
   </section>

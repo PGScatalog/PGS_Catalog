@@ -66,9 +66,6 @@ class NonReleasedDataToRemove:
             for score in scores_list:
                 self.scores2del[score.id] = score
 
-        #### Fetch EFOTrait not associated with a Score
-        self.get_efotraits_to_delete()
-
 
     def delete_entries(self):
         # Performances to delete
@@ -86,16 +83,19 @@ class NonReleasedDataToRemove:
             for score in self.scores2del.values():
                 score.delete()
             print("> Score(s) deleted")
-        # Traits to delete
-        if len(self.traits2del.keys()) > 0:
-            for trait in self.traits2del.values():
-                trait.delete()
-            print("> Trait(s) deleted")
         # Publications to delete
         if len(self.publications) > 0:
             for publication in self.publications:
                 publication.delete()
             print("> Publication(s) deleted")
+
+        # Fetch EFOTrait not associated with a Score
+        self.get_efotraits_to_delete()
+        # Traits to delete
+        if len(self.traits2del.keys()) > 0:
+            for trait in self.traits2del.values():
+                trait.delete()
+            print("> Trait(s) deleted")
 
 
     def get_performances_list_to_delete(self, publication):

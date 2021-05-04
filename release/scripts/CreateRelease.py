@@ -124,5 +124,3 @@ def run():
 
     print("Number of new Scores (direct fetch): "+str(scores_direct.count()))
     print("Number of new Performances (direct fetch): "+str(perfs_direct.count()))
-
-    #release.check_ftp()

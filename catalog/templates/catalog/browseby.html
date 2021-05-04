@@ -38,21 +38,31 @@
               document.addEventListener("DOMContentLoaded", function(event) {
                 var data_chart = {{ data_chart|safe }};
                 // Draw the PGS Scores per trait category piechart
-                draw_trait_category_piechart(data_chart);
+                var pgs_trait_chart = new PGSPieChart('trait_cat_piechart',data_chart,300,260,10);
+                pgs_trait_chart.draw_piechart();
                 // Build the categories and sub-categories
                 display_category_list(data_chart);
+
+                // Trait category list hover
+                $('#trait_cat > .trait_item').mouseover(function(d) {
+                  pgs_trait_chart.trait_item_hover(this,'in');
+                });
+                $('#trait_cat > .trait_item').mouseout(function(d) {
+                    pgs_trait_chart.trait_item_hover(this,'out');
+                });
               });
             </script>
 
             <h3 class="mt-4">
-              <span>Browse PGS by Trait Category</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="The trait categories are based on automatic annotations of the underlying traits in the Experimental Factor Ontology (EFO), and are used to browse the current data and describe the diversity of traits captured in the catalog in a minimal hierarchical structure."><i class="fa fa-info-circle"></i></span>
-              <span id="reset_cat" class="btn btn-pgs pgs_no_icon_link" onclick="reset_showhide_trait();"><span class="fa fa-refresh"></span> Reset view</span>
+              <span>Browse PGS by Trait Category</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="The trait categories are based on automatic annotations of the underlying traits in the Experimental Factor Ontology (EFO), and are used to browse the current data and describe the diversity of traits captured in the catalog in a minimal hierarchical structure."><i class="fas fa-info-circle"></i></span>
+              <span id="reset_cat" class="btn btn-pgs pgs_no_icon_link" onclick="reset_showhide_trait();"><span class="fas fa-redo"></span> Reset view</span>
             </h3>
 
             <div class="trait_graph_container">
               <div class="trait_piechart_container clearfix">
                 <div class="trait_piechart">
-                  <canvas id="trait_cat_piechart" width="300" height="250"></canvas>
+                  <!--<canvas id="trait_cat_piechart" width="300" height="250"></canvas>-->
+                  <svg id="trait_cat_piechart" ></svg>
                 </div>
               </div>
               <div class="trait_cat_container clearfix">
@@ -60,9 +70,28 @@
                 <div id="trait_subcat"></div>
               </div>
             </div>
-          </div>
-          <h3>Traits</h3>
+            <h3>Traits</h3>
+
+          {% elif pub_data_chart %}
+            <script type="text/javascript">
+              document.addEventListener("DOMContentLoaded", function(event) {
+                var pub_data_chart = {{ pub_data_chart|safe }};
+                // Draw the PGS Publication per year
+                draw_barchart(pub_data_chart);
+              });
+            </script>
+            <h3 class="mt-4">Distribution of publications per year</h3>
+            <div>
+              <svg id="pub_year_chart" ></svg>
+            </div>
+            <h3>Publications</h3>
           {% endif %}
+
+
+          {% if ancestry_form %}
+            {{ ancestry_form|safe }}
+          {% endif %}
+
           {% render_table table %}
         {% else %}
             <p>Not implemented yet.</p>

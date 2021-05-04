@@ -9,9 +9,10 @@ else
   if [ -d ${ftp_dir} ]; then
 
     if [ -d ${local_data_dir} ]; then
+
       # Copy data files to FTP
       echo "> copy to FTP - started"
-      cp -R  ${local_data_dir}* ${ftp_dir}
+      cp -R  ${local_data_dir}/* ${ftp_dir}
       echo "> copy to FTP - done"
 
       # Update write access on FTP

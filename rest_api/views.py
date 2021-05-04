@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler
 from rest_framework.exceptions import Throttled
 from rest_framework.serializers import ValidationError
-from django.db.models import Prefetch, Q
 from pgs_web import constants
+from django.db.models import Prefetch, Q
 from catalog.models import *
 from .serializers import *
 
@@ -27,8 +27,8 @@ related_dict = {
     'traitcategory_ontology_prefetch': [Prefetch('traitcategory', queryset=TraitCategory.objects.only('label','efotraits_ontology__id').all())],
     'efotraits_ontology_set_prefetch': [Prefetch('efotraits_ontology_set', queryset=EFOTrait_Ontology.objects.only('label','child_traits__id').all())],
     'efotraits_prefetch': [Prefetch('efotraits', queryset=EFOTrait.objects.defer('synonyms','mapped_terms').all())],
-    'score_defer': [*generic_defer,'publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
-    'perf_defer': [*generic_defer,'score__curation_notes','score__date_released','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
+    'score_defer': [*generic_defer,'ancestries','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
+    'perf_defer': [*generic_defer,'score__ancestries','score__curation_notes','score__date_released','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
     'publication_defer': [*generic_defer,'curation_status']
 }
 
@@ -270,7 +270,10 @@ class RestListEFOTraits(generics.ListAPIView):
     def get_serializer_class(self):
         ''' Overwrite default method: use different serializer depending on the URL parameter '''
         if self.get_include_parents_param():
-            return EFOTraitOntologySerializer
+            if self.get_include_children_param():
+                return EFOTraitOntologyChildSerializer
+            else:
+                return EFOTraitOntologySerializer
         else:
             return EFOTraitExtendedSerializer
 
@@ -282,6 +285,14 @@ class RestListEFOTraits(generics.ListAPIView):
                 return True
         return False
 
+    def get_include_children_param(self):
+        ''' Fetch the "include_children" parameter and return True if it is set to 1 '''
+        param_include_children = self.request.query_params.get('include_children')
+        if param_include_children != None:
+            if  param_include_children == '1' or param_include_children == 1:
+                return True
+        return False
+
 
 class RestEFOTrait(generics.RetrieveAPIView):
     """
@@ -290,6 +301,14 @@ class RestEFOTrait(generics.RetrieveAPIView):
 
     def get(self, request, trait_id):
         trait_id = trait_id.upper().replace(':', '_')
+
+        # Check if the trait ID belongs to a source where the prefix is not in upper case (e.g. Orphanet)
+        trait_id_lc = trait_id.lower()
+        for source in constants.TRAIT_SOURCE_TO_REPLACE:
+            source_lc = source.lower()
+            if trait_id_lc.startswith(source_lc):
+                trait_id = trait_id_lc.replace(source_lc,source)
+                break
 
         try:
             queryset = EFOTrait_Ontology.objects.prefetch_related(*related_dict['ontology_associated_scores_prefetch'], *related_dict['traitcategory_ontology_prefetch']).get(id=trait_id)
@@ -303,10 +322,11 @@ class RestEFOTrait(generics.RetrieveAPIView):
             if  param_include_children == '0' or param_include_children == 0:
                 include_children = False
 
-        if include_children:
-            serializer = EFOTraitOntologyChildSerializer(queryset,many=False)
-        else:
-            serializer = EFOTraitOntologySerializer(queryset,many=False)
+        #if include_children:
+        #    serializer = EFOTraitOntologyChildSerializer(queryset,many=False)
+        #else:
+        #    serializer = EFOTraitOntologySerializer(queryset,many=False)
+        serializer = EFOTraitOntologySerializer(queryset,many=False)
         return Response(serializer.data)
 
 
@@ -535,5 +555,17 @@ class RestInfo(generics.RetrieveAPIView):
             'citation': constants.PGS_CITATION,
             'terms_of_use': constants.USEFUL_URLS['TERMS_OF_USE']
         }
+
+        return Response(data)
+
+
+class RestAncestryCategories(generics.RetrieveAPIView):
+    """
+    Return the list of ancestry categories
+    """
+
+    def get(self, request):
+
+        data = constants.ANCESTRY_LABELS
 
         return Response(data)

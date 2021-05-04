@@ -18,10 +18,12 @@ $pgs_light_grey2: #FAFAFA;
 $pgs_note_title_1: $pgs_colour_1;
 $pgs_note_title_2: #F00;
 $pgs_note_title_3: $pgs_colour_2;
-$pgs_dev: #577284;
 $pgs_facet_1: $pgs_colour_2;
-$pgs_facet_2: #f58f22;
+$pgs_facet_2: #F58F22;
 $pgs_facet_3: $pgs_dark2;
+$pgs_cases: #3E95CD;
+$pgs_controls: #8E5EA2;
+$pgs_male: #F18F2B;
 
 $pgs_colour_red: #E00;
 $pgs_colour_amber: #FFA500;
@@ -32,6 +34,7 @@ $header_height_with_margin_mobile: $header_height_with_margin + 58px;
 $footer_height: 97px;
 $footer_height_mobile:150px;
 
+$chart_font_family:"Verdana", "Arial", "sans-serif";
 
 /* CSS mixin */
 
@@ -83,9 +86,10 @@ h3 {
 }
 
 h4 {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   margin-bottom: 1rem;
 }
+
 
 a {
   color: $pgs_dark2;
@@ -288,7 +292,7 @@ h2 {
   flex-wrap: wrap;
 }
 .search_facet {
-  height:31px;
+  height:32px;
   padding: 0.4rem 0.6rem;
   background-color: #FFF;
   color: $pgs_colour_1;
@@ -445,11 +449,12 @@ h2 {
 
 /* Bootstrap4 overwrite (other than the navbar)*/
 
-
-
 .btn-secondary {
   background-color:$pgs_colour_1;
   border-color: $pgs_dark3;
+  i {
+    color:#FFF !important;
+  }
   &:hover, &:focus, &:active {
     background-color:$pgs_colour_1_lighter !important;
     border-color: $pgs_dark3;
@@ -471,6 +476,7 @@ h2 {
   }
 }
 .dropdown-item {
+  font-size: 0.9rem;
    &:hover {
     background-color:$pgs_colour_1;
     color:#FFF;
@@ -494,10 +500,24 @@ h2 {
   color: $pgs_colour_2;
 }
 
+.custom-control-label, .custom-control > span {
+  line-height: 24px;
+  vertical-align:middle !important;
+  margin-bottom: 0px !important;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+  border-color: $pgs_colour_1 !important;
+  background-color: $pgs_colour_1 !important;
+}
+
 
 /* boostrap-table overwrite */
 .bootstrap-table {
   margin-bottom: 2rem;
+}
+.bootstrap-table .fixed-table-container .table thead th .sortable {
+  padding-right: 20px !important;
 }
 
 .fixed-table-toolbar {
@@ -511,6 +531,13 @@ h2 {
 
 th .th-inner {
   padding: 10px 24px 10px 12px !important;
+}
+
+th .th-inner-not-sortable {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 10px 12px;
 }
 
 
@@ -590,6 +617,31 @@ th .th-inner {
         padding-left:10px;
         padding-right:8px;
       }
+    }
+  }
+}
+
+.pgs_benchmark {
+  display:flex;
+  justify-content:center;
+  a {
+    display:block;
+    padding:10px 5rem;
+    border:1px solid $pgs_colour_1;
+    color:$pgs_colour_1;
+    border-radius: 2px;
+    box-shadow: 2px 2px 8px $pgs_darkC;
+    font-weight:200;
+    font-size:30px;
+    &:hover, &:focus {
+      color: #FFF;
+      border:1px solid $pgs_colour_1_lighter;
+      background-color: $pgs_colour_1_lighter;
+      transition: background-color .1s;
+    }
+    div:not(:first-child) {
+      font-size:40px;
+      font-weight: 400;
     }
   }
 }
@@ -692,6 +744,12 @@ td > ul {
   }
 }
 
+.table_pgs_small_desc {
+  td:last-child {
+    font-size: 0.9em;
+  }
+}
+
 .table_pgs_h {
   width:auto;
   td {
@@ -732,11 +790,13 @@ td > ul {
 
 /* Icons related CSS */
 .external-link:after {
-  font-family: 'FontAwesome';
-  content:"\f08e";
-  font-size: 0.7rem;
-  vertical-align: top;
+  font-family: "Font Awesome 5 Free";
+  content: "\f35d";
+  display: inline-block;
+  font-size: 0.6rem;
+  vertical-align: top !important;
   padding-left:4px;
+  font-weight:900;
 }
 
 .info-icon {
@@ -755,20 +815,32 @@ td > ul {
     }
   }
 }
+.info-icon-small {
+  margin-left:0.5rem;
+  i {
+    font-size: 14px;
+    color: $pgs_colour_1;
+    &:hover {
+      color: $pgs_colour_1_lighter;
+    }
+  }
+}
 
 .pgs-info-icon:before {
-  font-family: 'FontAwesome';
+  font-family: 'Font Awesome 5 Free';
   content:"\f05a";
   color: $pgs_colour_1;
+  font-weight: 900;
 }
 
 .pgs_pub_details {
   display: block;
   font-size: 80%;
   &:before {
-    font-family: 'FontAwesome';
+    font-family: 'Font Awesome 5 Free';
     content:"\f101";
     padding-right:4px;
+    font-weight: 900;
   }
 }
 
@@ -793,8 +865,9 @@ td > ul {
   padding-left: 0.1rem;
   padding-right: 0.25rem;
   &:before {
-    font-family: 'FontAwesome';
+    font-family: 'Font Awesome 5 Free';
     content:"\f15c";
+    font-weight: 900;
   }
   &:hover {
     color: $pgs_colour_1_lighter;
@@ -825,10 +898,15 @@ td > ul {
   margin-right: 1rem;
 }
 
+.font-bold {
+  font-weight:bold;
+}
+
 .release_label {
     position:absolute;
     top: -20px;
     right:10px;
+    cursor: default;
 }
 
 .page_title {
@@ -854,7 +932,7 @@ td > ul {
 .pgs_note_1 {
   div {
     border-left:5px solid $pgs_note_title_1;
-    span {
+    span:first-child {
       color: $pgs_note_title_1;
     }
   }
@@ -862,7 +940,7 @@ td > ul {
 .pgs_note_2 {
   div {
     border-left:5px solid $pgs_note_title_2;
-    span {
+    span:first-child {
       color: $pgs_note_title_2;
     }
   }
@@ -870,7 +948,7 @@ td > ul {
 .pgs_note_3 {
   div {
     border-left:5px solid $pgs_note_title_3;
-    span {
+    span:first-child {
       color: $pgs_note_title_3;
     }
   }
@@ -958,6 +1036,7 @@ td > ul {
   background-color: $pgs_colour_2;
 }
 
+
 .pgs_color_1 {
   color: $pgs_colour_1 !important;
 }
@@ -972,6 +1051,10 @@ td > ul {
 }
 .pgs_color_green {
   color: $pgs_colour_green !important;
+}
+
+.pgs_bg_light_grey {
+  background-color: $pgs_light_grey;
 }
 
 .btn-pgs, .btn-pgs-small {
@@ -1056,6 +1139,12 @@ a.link-with-btn {
     }
   }
 }
+.bordered_content {
+  float:left;
+  border: 1px solid $pgs_colour_1;
+  border-radius: 4px;
+  padding:0.5rem;
+}
 .with_sep_right {
   border-right: 1px solid $pgs_colour_2;
   padding-right: 0.5rem;
@@ -1079,18 +1168,20 @@ a.link-with-btn {
   }
 }
 .link_more:after {
-    font-family: 'FontAwesome';
+    font-family: 'Font Awesome 5 Free';
     content:"\f054";
     vertical-align: baseline;
     padding-left:4px;
     font-size: 0.75rem;
+    font-weight: 900;
 }
 .link_less:before {
-    font-family: 'FontAwesome';
+    font-family: 'Font Awesome 5 Free';
     content:"\f053";
     vertical-align: baseline;
     padding-right:4px;
     font-size: 0.75rem;
+    font-weight: 900;
 }
 
 .error_msg_container {
@@ -1108,6 +1199,30 @@ a.link-with-btn {
   }
 }
 
+.individuals_count:before,
+.sample_individuals:before,
+.sample_cases:before,
+.sample_controls:before,
+.sample_male:before
+ {
+  font-family: "Font Awesome 5 Free";
+  content: "\f007";
+  font-weight: 400;
+  padding-right: 8px;
+}
+.individuals_count:before {
+  padding-right: 4px !important;
+}
+.sample_cases:before {
+  color: $pgs_cases;
+}
+.sample_controls:before {
+  color: $pgs_controls;
+}
+.sample_male:before {
+  color: $pgs_male;
+}
+
 .sample_sub_section {
   margin-top:3rem;
   margin-bottom: 2rem;
@@ -1117,9 +1232,16 @@ a.link-with-btn {
 .sample_piechart_container {
   float:left;
   border:1px solid $pgs_darkC;
-  > div {
+  text-align: center;
+  padding-top: 6px;
+  > div:first-child {
+    font-size: 12px;
+    font-weight: bold;
+    color: $pgs_dark5;
+  }
+  > div:last-child {
     width:200px;
-    height:150px;
+    height:130px;
   }
 }
 
@@ -1198,6 +1320,16 @@ a.link-with-btn {
   overflow-y: scroll;
   scrollbar-color: $pgs_colour_1 $pgs_light_grey;
 }
+
+.gwas_source {
+  display: flex;
+  line-height: 24px;//31px;
+  &:before {
+    content: url('/static/catalog/imgs/GWAS_Catalog_logo_24.png');
+    width: 29px;//35px;
+  }
+}
+
 
 /* Trait CSS */
 .trait_graph_container {
@@ -1294,6 +1426,22 @@ td.trait_categories {
     margin-top: 2px;
   }
 }
+.trait_item_selected {
+  display:block;
+  white-space: nowrap;
+  padding: 2px 6px;
+  border-radius:8px;
+  color: $pgs_colour_1_lighter;
+  border: 1px solid $pgs_colour_1_lighter;
+  margin-bottom:4px;
+  span:nth-child(2) {
+    font-size: 90%;
+    margin-right: 8px;
+  }
+  span:nth-child(3) {
+    margin-top: 2px;
+  }
+}
 .trait_link {
   padding-right: 8px;
   color: $pgs_colour_1_lighter !important;
@@ -1381,6 +1529,7 @@ footer {
     }
   }
 }
+
 
 /* Search results */
 .pgs_result {
@@ -1551,15 +1700,15 @@ footer {
     margin-bottom:$footer_height_mobile;
   }
   .container-fluid {
-    padding-left: 1rem;
-    padding-right:1rem;
+    padding-left: 0.5rem;
+    padding-right:0.5rem;
   }
   .release_label {
     top: -25px;
   }
 
   .feedback {
-    width: 53px;
+    width: 60px;
     height:auto;
     #feedback-btn {
       height: 25px;
@@ -1570,7 +1719,7 @@ footer {
     font-size: 24px !important;
   }
 
-  .pgs_browse {
+  .pgs_browse, .pgs_benchmark {
     > div {
       > a {
         padding:5px 20px;
@@ -1581,12 +1730,12 @@ footer {
         > div:nth-child(2) {
           font-size: 30px;
         }
-        .pgs_browse_score {
-          > div:first-child {
-            font-size: 30px;
-          }
-        }
       }
+    }
+  }
+  .pgs_browse_score {
+    > div:first-child {
+      font-size: 30px;
     }
   }
 
@@ -1607,13 +1756,21 @@ footer {
     }
   }
 
+  .filter_container {
+    label, select {
+      font-size: 12px;
+    }
+  }
+
   .search_facet {
     margin-bottom: 4px;
     margin-right: 0.5rem;
     padding: 0.2rem 0.3rem;
-    height:27px;
+    height:25px;
     i {
       padding-right: 0px;
+      font-size: 16px;
+      height:16px;
     }
     div {
       padding-right: 2px;
@@ -1661,6 +1818,7 @@ footer {
       }
     }
   }
+
   .bootstrap-table {
     font-size: 12px;
     .form-control {
@@ -1732,6 +1890,7 @@ footer {
     flex-flow: column;
   }
 }
+
 @media screen and (min-width: 500px) and (max-width: 767px){
   .navbar {
     padding: 0rem 2rem;
@@ -1879,6 +2038,13 @@ footer {
       margin: 10px 0px;
     }
   }
+  .pgs_benchmark {
+    display: block;
+    a {
+      padding:5px 20px;
+      margin: 0px 15px;
+    }
+  }
   .pgs_desc {
     margin-bottom: 0rem;
     > div {
@@ -1922,5 +2088,230 @@ footer {
   .pgs_browse {
     margin-left: 7vw;
     margin-right: 7vw;
+  }
+}
+
+
+/* Form */
+.pgs_form_container {
+  flex-direction:row;
+  display: flex;
+  justify-content: flex-start;
+  > div:not(:last-child) {
+    margin-right: 1rem!important;
+  }
+}
+/* Mobile phone display */
+@media screen and (max-width: 499px) {
+  .pgs_form_container {
+    flex-direction:column;
+    justify-content: center;
+    > div {
+      margin-right:0px;
+    }
+  }
+}
+
+
+/* Ancestry */
+.filter_container {
+  border:1px solid $pgs_darkC;
+  border-radius:4px;
+  padding:4px 10px;
+}
+.filter_header {
+  font-weight: 200;
+  border-bottom:1px solid $pgs_darkC;
+  color: $pgs_dark0;
+  padding-bottom:4px;
+  margin-bottom: 6px;
+  text-align:center;
+}
+.filter_subheader {
+  font-weight: 200;
+}
+.filter_ancestry {
+  float:left;
+  margin-left:1rem;
+  padding-left:1rem;
+  border-left:1px solid #CCC;
+}
+
+.ancestry_legend {
+  font-size:80%;
+  ul {
+    margin-left: 1rem;
+  }
+  > div {
+    line-height: 18px;
+  }
+}
+.ancestry_box_legend {
+  margin-right:8px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+
+/* Mobile phone display */
+@media screen and (max-width: 499px) {
+  .filter_ancestry {
+    margin-left:0rem;
+    padding-left:0rem;
+    margin-top: 1rem;
+    border-left:none;
+    display:none;
+  }
+}
+
+
+/* Ancestry styling */
+.anc_box_gwas, .anc_box_dev, .anc_box_eval {
+  font-size: 12px;
+  div:first-child {
+    font-weight: bold;
+    border-bottom:1px solid #CCC;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+  }
+  div:not(:first-child):not(:last-child) {
+    text-align:left;
+    margin:3px 0px;
+    line-height: 15px;
+    span {
+      padding-left:15px;
+      margin-right:5px;
+    }
+  }
+  div:last-child {
+    margin-top: 8px;
+    border-top:1px solid #CCC;
+    padding-top: 4px;
+  }
+  ul {
+    font-size: 90%;
+    margin-bottom: 0.4rem;
+    padding-left:30px;
+  }
+}
+.anc_box_gwas {
+  div:first-child:before {
+    content: "G - Source of Variant Associations (GWAS)";
+  }
+  div:last-child:after {
+    content: " individuals (100%)"
+  }
+}
+.anc_box_dev {
+  div:first-child:before {
+    content: "D - Score Development/Training";
+  }
+  div:last-child:after {
+    content: " individuals (100%)"
+  }
+}
+.anc_box_eval {
+  div:first-child:before {
+    content: "E - PGS Evaluation";
+  }
+  div:last-child:after {
+    content: " Sample Sets (100%)"
+  }
+}
+
+.anc_chart_container {
+  display:flex;
+  > div {
+    width:50px;
+    height:40px;
+    padding:0px 5px;
+    text-align:center;
+    line-height:40px;
+    &:hover {
+      cursor:default;
+    }
+  }
+}
+.anc_chart svg {
+  width:40px;
+  height:40px;
+}
+
+text.pie_text {
+  text-anchor:middle;
+}
+
+
+/* Ancestry colours */
+$ancestry_colours: (
+  "AFR": #FFD900, //gold(ish)
+  "AMR": #E41A1C, // red
+  "ASN": #B15928, // brown
+  "EAS": #4DAF4A, // green
+  "EUR": #377EB8, // blue
+  "GME": #00CED1, // turquoise
+  "SAS": #984EA3, // purple
+  "MAE": #A6CEE3, // light blue
+  "MAO": #FF7F00, // orange
+  "NR":  #BBB,    // lighter grey
+  "OTH": #999     // grey
+);
+
+$ancestry_labels: (
+  'MAE': 'Multi-ancestry (including European)',
+  'MAO': 'Multi-ancestry (excluding European)',
+  'AFR': 'African',
+  'EAS': 'East Asian',
+  'SAS': 'South Asian',
+  'ASN': 'Additional Asian Ancestries',
+  'EUR': 'European',
+  'GME': 'Greater Middle Eastern',
+  'AMR': 'Hispanic or Latin American',
+  'OTH': 'Additional Diverse Ancestries',
+  'NR' : 'Not Reported'
+);
+
+@each $anc_key, $anc_colour in $ancestry_colours {
+  .anc_#{$anc_key} {
+    background-color: $anc_colour;
+  }
+  .anc_colour_#{$anc_key} {
+    color: $anc_colour;
+    &:before {
+      color: $anc_colour;
+      font-family: "Font Awesome 5 Free";
+      content: "\f0c8";
+      font-weight:900;
+    }
+  }
+  .anc_bd_#{$anc_key} {
+    border-left: 8px solid $anc_colour;
+    padding-left:5px;
+  }
+}
+// Fill yup the ancestry chart tooltips
+@each $anc_key, $anc_label in $ancestry_labels {
+  .anc_bd_#{$anc_key}:before {
+    content: $anc_label+": ";
+  }
+}
+
+
+.ancestry_example_container {
+  display:flex;
+  flex-wrap:wrap;
+  > div {
+    padding:10px;
+    border:1px solid $pgs_darkC;
+    div:first-child {
+      text-align:center;
+      background-color: $pgs_light_grey;
+    }
+    div.ancestry_example_combined {
+      border-top:1px solid $pgs_darkC;
+    }
+    ul {
+      min-height: 65px;
+    }
   }
 }

@@ -3,12 +3,14 @@ import os.path
 import requests
 from lxml import etree as ET
 from catalog.models import Publication
+from pgs_web import constants
 
 
 class EuropePMCLinkage:
 
     provider_id = '2090'
-    link_root = 'https://www.pgscatalog.org/publication/'
+    pgs_url = constants.USEFUL_URLS['PGS_WEBSITE_URL']
+    link_root = pgs_url+'publication/'
     default_filename = 'PGSLinks.xml'
 
     xml_document = ET.Element('links')
@@ -41,8 +43,17 @@ class EuropePMCLinkage:
 
     def generate_xml_file(self):
         ''' Build and write the XML "Link" file with the PGP Publication information. '''
+        # Add PGS Citation
+        title = 'Link to the Polygenic Score (PGS) Catalog resource'
+        url = self.pgs_url
+        source = 'MED'
+        pmid = constants.PGS_CITATION['PMID']
+        self.create_xml_link(title,url,source,pmid)
+
+        # Add PGS Publications
         for publication in self.publications:
             id = publication.id
+            url = self.link_root+id
 
             if publication.PMID:
                 record_id = publication.PMID
@@ -63,27 +74,49 @@ class EuropePMCLinkage:
                     self.missing_links.append(id)
                     continue
 
-            # New Link node
-            xml_link = ET.SubElement(self.xml_document, 'link')
-            xml_link.set('providerId', self.provider_id)
-
-            # New Resource node
-            xml_resource = ET.SubElement(xml_link, 'resource')
-            xml_resource_title = ET.SubElement(xml_resource, 'title')
-            xml_resource_url = ET.SubElement(xml_resource, 'url')
-            xml_resource_title.text = id
-            xml_resource_url.text = self.link_root+id
-
-            # New Record node
-            xml_record = ET.SubElement(xml_link, 'record')
-            xml_record_source = ET.SubElement(xml_record, 'source')
-            xml_record_id = ET.SubElement(xml_record, 'id')
-            xml_record_source.text = record_source
-            xml_record_id.text = str(record_id)
+            self.create_xml_link(id,url,record_source,record_id)
+            # # New Link node
+            # xml_link = ET.SubElement(self.xml_document, 'link')
+            # xml_link.set('providerId', self.provider_id)
+            #
+            # # New Resource node
+            # xml_resource = ET.SubElement(xml_link, 'resource')
+            # xml_resource_title = ET.SubElement(xml_resource, 'title')
+            # xml_resource_url = ET.SubElement(xml_resource, 'url')
+            # xml_resource_title.text = id
+            # xml_resource_url.text = self.link_root+id
+            #
+            # # New Record node
+            # xml_record = ET.SubElement(xml_link, 'record')
+            # xml_record_source = ET.SubElement(xml_record, 'source')
+            # xml_record_id = ET.SubElement(xml_record, 'id')
+            # xml_record_source.text = record_source
+            # xml_record_id.text = str(record_id)
 
             # Create a new XML file from the XML document
             tree = ET.ElementTree(self.xml_document)
             tree.write(self.filename, encoding='utf-8', xml_declaration=True, pretty_print=True)
+
+
+    def create_xml_link(self,id,url,record_source,record_id):
+        ''' Generate a XML "Link" node. '''
+        # New Link node
+        xml_link = ET.SubElement(self.xml_document, 'link')
+        xml_link.set('providerId', self.provider_id)
+
+        # New Resource node
+        xml_resource = ET.SubElement(xml_link, 'resource')
+        xml_resource_title = ET.SubElement(xml_resource, 'title')
+        xml_resource_url = ET.SubElement(xml_resource, 'url')
+        xml_resource_title.text = id
+        xml_resource_url.text = url
+
+        # New Record node
+        xml_record = ET.SubElement(xml_link, 'record')
+        xml_record_source = ET.SubElement(xml_record, 'source')
+        xml_record_id = ET.SubElement(xml_record, 'id')
+        xml_record_source.text = record_source
+        xml_record_id.text = str(record_id)
 
 
     def print_xml_report(self):
@@ -109,7 +142,7 @@ class EuropePMCLinkage:
                 print(f'\n/!\ ERROR: Linkage XML file ({self.filename}) is empty!')
             # Count discrepancies
             else:
-                count_links = 0
+                count_links = -1 # Remove PGS Citation entry from count
                 xml_file = open(self.filename, "r")
                 for line in xml_file:
                     if re.search('<link ', line):

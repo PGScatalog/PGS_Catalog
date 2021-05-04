@@ -4,16 +4,19 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.6'
+  version: '1.7'
   description: |
-    Programatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
+    Programmatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
+
+    <i class="fas fa-exclamation-circle pgs_color_1"></i> Each PGS is provided as a scoring file (containing the variants, alleles, effect weights) on our <a href="http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/" target="_blank">FTP site</a>.
+    The variants are not distributed within this API; however, a link to the scoring file is provided in the<code>ftp_scoring_file</code>field for each result of the<code>/rest/score/</code>endpoints for ease of download.
 
     ---
 
     ###### REST API settings
 
     * `pagination`: This REST API is using pagination for the endpoints returning more than 1 results. It is currently set to **50** results per page.
-      <a class="toggle_btn" id="pagination">More information <i class="fa fa-plus-circle"></i></a>
+      <a class="toggle_btn" id="pagination">More information <i class="fas fa-plus-circle"></i></a>
       <div class="toggle_content" id="content_pagination" style="display:none">
 
         ###### **Pagination structure**
@@ -52,7 +55,7 @@ info:
 
 
     * `rate limit`: The limit number of queries is set to **100** queries per minute.
-      <a class="toggle_btn" id="rate_limit">More information <i class="fa fa-plus-circle"></i></a>
+      <a class="toggle_btn" id="rate_limit">More information <i class="fas fa-plus-circle"></i></a>
       <div class="toggle_content" id="content_rate_limit" style="display:none">
         Here is an example of the JSON message returned if the rate limit is reached:
 
@@ -68,8 +71,13 @@ info:
 
     ---
 
-    <a class="toggle_btn" id="changelog">REST API version changelog <i class="fa fa-plus-circle"></i></a>
+    <a class="toggle_btn" id="changelog">REST API version changelog <i class="fas fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.7</span> - April 2021:
+        * New data **ancestry_distribution** in the `/rest/score` endpoints, providing information about ancestry distribution on each stage of the PGS.
+        * New endpoint `/rest/ancestry_categories` providing the list of ancestry symbols and names.
+        * New data **PMID** (PubMed ID) in the `/rest/info` endpoint, under the **citation** category.
 
       * <span class="badge badge-pill badge-pgs">1.6</span> - March 2021:
         * New endpoint `/rest/info` with data such as the REST API version, latest release date and counts, PGS citation, ...
@@ -175,7 +183,7 @@ tags:
   - name: "Release endpoints"
     description: PGS Release information (release date, number of new scores/publication/performance and their IDs)
   - name: "Other endpoints"
-    description: "PGS extra endpoints: **/rest/info** (REST API version, data counts, PGS citation, ...) and specific queries from collaborators"
+    description: "PGS extra endpoints: **/rest/info** (REST API version, data counts, PGS citation, ...), **/rest/ancestry_categories** (ancestry symbols and names) and specific queries from collaborators"
 
 components:
   schemas:
@@ -716,6 +724,77 @@ components:
           type: string
           description: "The version of the genome assembly that the variants present in the PGS are associated with. Listed as NR (Not Reported) if unknown."
           example: "GRCh38"
+        ancestry_distribution:
+          type: object
+          description: "Ancestry distribution on each PGS stage. For more information about Ancestry, please go to [Ancestry documentation](/docs/ancestry). To get the full name of the Ancestry categories (e.g. 'European' for 'EUR'), please look at the endpoint **/rest/ancestry_categories**"
+          properties:
+            gwas:
+              type: object
+              description: "Ancestry(ies) used in the Source of Variant Associations (GWAS) stage. Only available if there is ancestry data at this stage."
+              properties:
+                dist:
+                  type: object
+                  description: "Ancestry distribution. The endpoint **/rest/ancestry_categories** provides the mapping between the 3 letters symbol and the ancestry category name."
+                  additionalProperties:
+                    type: integer
+                  example:
+                    EUR: 75
+                    MAE: 25
+                count:
+                  type: integer
+                  description: "Total number of individuals from this stage."
+                  example: 187599
+                multi:
+                  type: array
+                  description: "Breakdown of the Multi-ancestry (MAO or MAE) distribution. Only available if there is a Multi-ancestry entry in the distribution."
+                  items:
+                    type: string
+                    example: ["MAE_EUR","MAE_EAS","MAE_AFR"]
+            dev:
+              type: object
+              description: "Ancestry(ies) used in the Score Development stage. Only available if there is ancestry data at this stage."
+              properties:
+                dist:
+                  type: object
+                  description: "Ancestry distribution. The endpoint **/rest/ancestry_categories** provides the mapping between the 3 letters symbol and the ancestry category name."
+                  additionalProperties:
+                    type: integer
+                  example:
+                    MAE: 88.7
+                    AFR: 7.9
+                    AMR: 3.4
+                count:
+                  type: integer
+                  description: "Total number of individuals from this stage."
+                  example: 120280
+                multi:
+                  type: array
+                  description: "Breakdown of the Multi-ancestry (MAO or MAE) distribution. Only available if there is a Multi-ancestry entry in the distribution."
+                  items:
+                    type: string
+                    example: ["MAE_EUR","MAE_AFR","MAE_GME"]
+            eval:
+              type: object
+              description: "Ancestry(ies) used in the PGS Evaluation stage. Only available if there is ancestry data at this stage."
+              properties:
+                dist:
+                  type: object
+                  description: "Ancestry distribution. The endpoint **/rest/ancestry_categories** provides the mapping between the 3 letters symbol and the ancestry category name."
+                  additionalProperties:
+                    type: integer
+                  example:
+                    MAE: 60
+                    AFR: 40
+                count:
+                  type: integer
+                  description: "Number of distinct Sample Sets."
+                  example: 40
+                multi:
+                  type: array
+                  description: "Breakdown of the Multi-ancestry (MAO or MAE) distribution. Only available if there is a Multi-ancestry entry in the distribution."
+                  items:
+                    type: string
+                    example: ["MAE_EUR","MAE_SAS"]
         license:
           type: string
           description: "The PGS Catalog distributes its data according to EBI’s standard Terms of Use. Some PGS have specific terms, licenses, or restrictions (e.g. non-commercial use) that we highlight in this field, if known."
@@ -1448,6 +1527,8 @@ paths:
           * The different samples used during the PGS, with ancestry information and cohort(s):
             * **samples_variants**: samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available.
             * **samples_training**: samples used to develop or train the score (e.g. not used for variant discovery, and non-overlapping with the samples used to evaluate the PGS predictive ability).
+          * The ancestry distribution
+          * The Terms/Licenses
 
         Example of request:
         ```
@@ -1494,6 +1575,8 @@ paths:
           * The different samples used during the PGS, with ancestry information and cohort(s):
             * **samples_variants**: samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available.
             * **samples_training**: samples used to develop or train the score (e.g. not used for variant discovery, and non-overlapping with the samples used to evaluate the PGS predictive ability).
+          * The ancestry distribution
+          * The Terms/Licenses
 
         Example of request:
         ```
@@ -1543,6 +1626,8 @@ paths:
           * The different samples used during the PGS, with ancestry information and cohort(s):
             * **samples_variants**: samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available.
             * **samples_training**: samples used to develop or train the score (e.g. not used for variant discovery, and non-overlapping with the samples used to evaluate the PGS predictive ability).
+          * The ancestry distribution
+          * The Terms/Licenses
       parameters:
         - in: query
           name: pmid
@@ -1948,6 +2033,10 @@ paths:
                         type: string
                         description: "doi of the publication"
                         example: '10.1038/s41588-021-00783-5'
+                      PMID:
+                        type: number
+                        description: "PubMed ID"
+                        example: 33692568
                       authors:
                         type: string
                         description: "List of the publication authors"
@@ -1964,6 +2053,42 @@ paths:
                     type: string
                     description: "URL to the terms of use"
                     example: 'https://www.ebi.ac.uk/about/terms-of-use'
+          description: ''
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
+
+
+  # Other endpoints
+  '/rest/ancestry_categories':
+    get:
+      tags:
+        - "Other endpoints"
+      operationId: getAncestryCategories
+      description: |
+        Return the list of mappings between the ancestry symbols (e.g. EUR) and their name (e.g. European):
+
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/ancestry_categories/
+        ```
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                description: "List of ancestry symbols and names"
+                additionalProperties:
+                  type: string
+                example:
+                  EUR: "European"
+                  AFR: "African"
+                  AMR: "Hispanic or Latin American"
           description: ''
         '4XX':
           content:

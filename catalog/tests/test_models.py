@@ -1,6 +1,7 @@
 from django.test import TestCase
 from datetime import datetime
 from psycopg2.extras import NumericRange
+from pgs_web import constants
 from catalog.models import *
 
 test_sample_number = 5
@@ -230,8 +231,8 @@ class EFOTraitTest(TestCase):
         self.assertEqual(efo_trait_1.__str__(), efo_id+' | '+efo_name+' ')
         label_url =  r'^\<a\s.*href=.+\/trait\/'+efo_id+r'.*\>'+efo_name+r'\<\/a\>$'
         self.assertRegexpMatches(efo_trait_1.display_label, label_url)
-        id_url = r'^\<a\s.*href=.+\>'+efo_id+r'</a>.+$'
-        self.assertRegexpMatches(efo_trait_1.display_id_url(), id_url)
+        id_url = r'^\<a\s.*href=.+\>'+efo_id+r'\<\/a\>$'
+        self.assertRegexpMatches(efo_trait_1.display_ext_url, id_url)
         efo_trait_1.parse_api()
         self.assertEqual(efo_trait_1.label, efo_name)
         self.assertEqual(efo_trait_1.description, efo_desc)
@@ -701,8 +702,8 @@ class SampleTest(TestCase):
         self.assertEqual(sample_3.display_ancestry, self.a_broad)
         self.assertEqual(sample_3.display_ancestry_inline, self.a_broad)
         sample_3.ancestry_free = self.a_free_2
-        self.assertEqual(sample_3.display_ancestry, '{}<br/>({})'.format(self.a_broad, self.a_free_2))
-        self.assertEqual(sample_3.display_ancestry_inline, '{} ({})'.format(self.a_broad, self.a_free_2))
+        self.assertEqual(sample_3.display_ancestry, '{}<br/><small>({})</small>'.format(self.a_broad, self.a_free_2))
+        self.assertEqual(sample_3.display_ancestry_inline, '{} <small>({})</small>'.format(self.a_broad, self.a_free_2))
 
         ## Sample with cohorts
         sample_4 = self.create_sample_cohorts()
@@ -725,31 +726,33 @@ class SampleTest(TestCase):
 class SampleSetTest(TestCase):
     """ Test the SampleSet model """
     sample_set_id = 'PSS000001'
-    test_ancestry = ['European','African']
+    test_ancestry_2 = ['European','African']
+    test_ancestry_3 = ['East Asian','African']
 
     def create_sampleset(self, num):
-
         sampletest = SampleTest()
         samples = []
         # Create samples objects
         for i in range(1,test_sample_count+1):
             sample = sampletest.get_sample(300+i)
             samples.append(sample)
+
         # Create SampleSet object and add list of Samples
         sampleset = SampleSet.objects.create(num=num)
         sampleset.samples.set(samples)
         sampleset.set_ids(num)
         return sampleset
 
-    def create_sampleset_ancestry(self, num):
-
+    def create_sampleset_ancestry(self, num, ancestry_list):
         sampletest = SampleTest()
         samples = []
+
         # Create samples objects
-        for i in range(1,len(self.test_ancestry)+1):
-            sample = sampletest.create_sample_ancestry(sample_number=i,broad=self.test_ancestry[i-1])
-            self.assertRegexpMatches(sample.__str__(), r'\s\-\s'+self.test_ancestry[i-1])
+        for i in range(1,len(ancestry_list)+1):
+            sample = sampletest.create_sample_ancestry(sample_number=i,broad=ancestry_list[i-1])
+            self.assertRegexpMatches(sample.__str__(), r'\s\-\s'+ancestry_list[i-1])
             samples.append(sample)
+
         # Create SampleSet object and add list of Samples
         sampleset = SampleSet.objects.create(num=num)
         sampleset.samples.set(samples)
@@ -764,22 +767,42 @@ class SampleSetTest(TestCase):
         # Variables
         self.assertEqual(sampleset.id, self.sample_set_id)
         self.assertTrue(len(sampleset.samples.all()) != 0)
-        self.assertEqual(sampleset.samples_ancestry, '-')
+        ancestry = '-'
+        self.assertEqual(sampleset.samples_ancestry, ancestry)
+        self.assertEqual(sampleset.samples_combined_ancestry_key, 'OTH')
         # Other methods
         self.assertEqual(sampleset.__str__(),  self.sample_set_id)
         self.assertEqual(sampleset.count_samples, test_sample_count)
-        sample = sampleset.samples.all()[0]
-        self.assertRegexpMatches(sample.__str__(), r'^Sample\s\d+')
-        self.assertTrue(isinstance(sample.display_sampleset, SampleSet))
-        self.assertEqual(sample.display_sampleset, sampleset)
+        sample_1 = sampleset.samples.all()[0]
+        self.assertRegexpMatches(sample_1.__str__(), r'^Sample\s\d+')
+        self.assertTrue(isinstance(sample_1.display_sampleset, SampleSet))
+        self.assertEqual(sample_1.display_sampleset, sampleset)
+        count_ind = 0
+        for sample in sampleset.samples.all():
+            count_ind += sample.sample_number
+        self.assertEqual(sampleset.count_individuals, count_ind)
+
 
         id += 1
-        sampleset_2 = sampleset = self.create_sampleset_ancestry(id)
+        sampleset_2 = self.create_sampleset_ancestry(id,self.test_ancestry_2)
         # Instance
         self.assertTrue(isinstance(sampleset_2, SampleSet))
         # Other methods
-        ancestry = ', '.join(self.test_ancestry)
-        self.assertEqual(sampleset_2.samples_ancestry, ancestry)
+        ancestry_2 = ', '.join(self.test_ancestry_2)
+        self.assertEqual(sampleset_2.samples_ancestry, ancestry_2)
+        self.assertEqual(sampleset_2.samples_combined_ancestry_key, 'MAE')
+        self.assertEqual(sampleset_2.get_ancestry_key(','.join(self.test_ancestry_2)), 'MAE')
+        for desc, key in constants.ANCESTRY_MAPPINGS.items():
+            self.assertEqual(sampleset_2.get_ancestry_key(desc), key)
+
+        id += 1
+        sampleset_3 = self.create_sampleset_ancestry(id,self.test_ancestry_3)
+        ancestry_3 = ', '.join(self.test_ancestry_3)
+        self.assertEqual(sampleset_3.samples_ancestry, ancestry_3)
+        self.assertEqual(sampleset_3.samples_combined_ancestry_key, 'MAO')
+        # Test extra case for 'get_ancestry_key'
+        anc_key = sampleset_3.get_ancestry_key(ancestry_3)
+        self.assertEqual(anc_key, 'MAO')
 
 
 class ScoreTest(TestCase):
@@ -791,6 +814,31 @@ class ScoreTest(TestCase):
     m_name = 'SNP'
     m_params = 'method params'
     trait_count = 2
+    s_ancestries = {
+        "eval": {
+            "dist": {
+                "AFR": 16.7,
+                "AMR": 16.7,
+                "EUR": 58.3,
+                "MAE": 8.3
+            },
+            "count": 12
+        },
+        "dev": {
+            "dist": {
+                "EUR": 100
+            },
+            "count": 1
+        },
+        "gwas": {
+            "dist": {
+                "EUR": 40.3,
+                "MAE": 53.3,
+                "SAS": 6.4
+            },
+            "count": 365042
+        }
+    }
 
     def create_score(self, num, name=name, var_number=v_number, build=v_build, m_name=m_name, m_params=m_params):
         pubtest = PublicationTest()
@@ -826,18 +874,18 @@ class ScoreTest(TestCase):
 
         return score
 
-    def get_score(self, num_id):
+    def get_score(self, num_id, ancestries=None):
         try:
             score = Score.objects.get(num=num_id)
         except Score.DoesNotExist:
-            score = self.create_score(num_id)
+            score = self.create_score(num_id);#, ancestries)
         return score
 
 
     def test_score(self):
         id = default_num
         # Score creation
-        score = self.get_score(id)
+        score = self.get_score(id, self.s_ancestries)
         # Instance
         self.assertTrue(isinstance(score, Score))
         # Variables
@@ -881,12 +929,22 @@ class ScoreTest(TestCase):
         self.assertEqual(len(score.samples_training.all()), 1)
         sample_t = score.samples_training.all()[0]
         self.assertRegexpMatches(sample_t.__str__(), r'^Sample\s\d+')
+        # Add ancestry data to the Score instance
+        score.ancestries = self.s_ancestries
+        score.save()
+        self.assertEqual(score.ancestries, self.s_ancestries)
+        self.assertIsNotNone(score.display_ancestry_html)
 
         # Test cohort/score association
         cohorttest = CohortTest()
         cohort = cohorttest.get_cohort(cohort_name, cohort_desc)
         sample_t.cohorts.add(cohort)
         self.assertEqual(cohort.associated_pgs_ids, { 'development': [score.id], 'evaluation': [] })
+
+        # Score 2
+        score_2 = self.get_score(default_num+1)
+        self.assertIsNone(score_2.ancestries)
+        self.assertEqual(score_2.display_ancestry_html,'')
 
 
 class TraitCategoryTest(TestCase):
@@ -972,8 +1030,8 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertEqual(efo_trait_1.__str__(), efo_id+' | '+efo_name+' ')
         label_url =  r'^\<a\s.*href=.+\/trait\/'+efo_id+r'.*\>'+efo_name+r'\<\/a\>$'
         self.assertRegexpMatches(efo_trait_1.display_label, label_url)
-        id_url = r'^\<a\s.*href=.+\>'+efo_id+r'</a>.+$'
-        self.assertRegexpMatches(efo_trait_1.display_id_url(), id_url)
+        id_url = r'^\<a\s.*href=.+\>'+efo_id+r'\<\/a\>$'
+        self.assertRegexpMatches(efo_trait_1.display_ext_url, id_url)
 
 
         # Test empty synonyms & mapped_terms

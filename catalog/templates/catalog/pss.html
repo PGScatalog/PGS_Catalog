@@ -56,7 +56,7 @@
             </tr>
             <tr>
               <td>Sample Ancestry</td>
-              <td><b>{{ sample.display_ancestry_inline }}</b></td>
+              <td><b>{{ sample.display_ancestry_inline|safe }}</b></td>
             </tr>
             {% if sample.ancestry_additional %}
               <tr>
@@ -79,17 +79,15 @@
               <tbody>
                 <tr>
                   <td>Total number</td>
-                  <td><b> {{ sample.display_sample_number_total }}</b></td>
+                  <td><div class="sample_individuals"><b>{{ sample.display_sample_number_total }}</b></div></td>
                 </tr>
                 {% if sample.display_sample_number_detail|length > 0 %}
                   <tr>
                     <td>Detailed numbers</td>
                     <td>
-                      <ul>
-                        {% for numbers in sample.display_sample_number_detail %}
-                          <li>{{ numbers }}</li>
-                        {% endfor %}
-                      </ul>
+                      {% for numbers in sample.display_sample_number_detail %}
+                        {{ numbers|safe }}
+                      {% endfor %}
                     </td>
                   </tr>
                 {% endif %}
@@ -115,7 +113,7 @@
                     <td>
                       <b>{{ sample.list_cohortids|length }}</b>
                       {% if sample_count|length > 1 %}
-                        <a class="toggle_btn pgs_no_icon_link" data-toggle="tooltip" data-placement="bottom" id="cohort_{{ forloop.counter }}" title="Click to show/hide the cohort table"><i class="fa fa-plus-circle"></i></a>
+                        <a class="toggle_btn pgs_no_icon_link" data-toggle="tooltip" data-placement="bottom" id="cohort_{{ forloop.counter }}" title="Click to show/hide the cohort table"><i class="fas fa-plus-circle"></i></a>
                       {% endif %}
                     </td>
                   </tr>
@@ -128,12 +126,15 @@
           <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function(event) {
               var data_chart = {{ sample.display_sample_category_number|safe }};
-              draw_samples_piechart(data_chart,{{ forloop.counter }},'sample');
+              var pgs_samples_piechart = new PGSPieChartSmall('sample_piechart_{{ forloop.counter }}',data_chart,200,140,65,'sample');
+              pgs_samples_piechart.draw_piechart();
+              pgs_samples_piechart.draw_legend();
             });
           </script>
           <div class="sample_piechart_container mr-5">
+            <div>Sample distribution</div>
             <div>
-              <canvas id="sample_piechart_{{ forloop.counter }}" width="200" height="150"></canvas>
+              <svg id="sample_piechart_{{ forloop.counter }}"></svg>
             </div>
           </div>
         {% endif %}
@@ -142,12 +143,15 @@
           <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function(event) {
               var data_chart = {{ sample.display_sample_gender_percentage|safe }};
-              draw_samples_piechart(data_chart,{{ forloop.counter }},'gender');
+              var pgs_samples_piechart = new PGSPieChartSmall('sample_piechart_gender_{{ forloop.counter }}',data_chart,200,140,65,'gender');
+              pgs_samples_piechart.draw_piechart();
+              pgs_samples_piechart.draw_legend();
             });
           </script>
           <div class="sample_piechart_container">
+            <div>Sample gender distribution</div>
             <div>
-              <canvas id="sample_piechart_gender_{{ forloop.counter }}" width="200" height="150"></canvas>
+              <svg id="sample_piechart_gender_{{ forloop.counter }}" width="200" height="150"></svg>
             </div>
           </div>
         {% endif %}
