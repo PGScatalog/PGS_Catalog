@@ -249,7 +249,7 @@ def browseby(request, view_selection):
         context['view_name'] = 'Sample Sets'
         table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False).prefetch_related('sampleset', 'cohorts').order_by('sampleset__num'))
         context['table'] = table
-    else:
+    elif view_selection == 'scores' :
         score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number','ancestries','license']
         # Query seems faster calling 'publication' as 'prefetch_related' than as 'select_related'
         table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).all().order_by('num').prefetch_related(pgs_prefetch['publication'],pgs_prefetch['trait']), order_by="num")
@@ -259,6 +259,10 @@ def browseby(request, view_selection):
             'ancestry_form': ancestry_form(),
             'has_chart': 1
         }
+    elif view_selection == 'all':
+        return redirect('/browse/scores/', permanent=True)
+    else:
+        return redirect('/', permanent=True)
 
     context['has_table'] = 1
 
