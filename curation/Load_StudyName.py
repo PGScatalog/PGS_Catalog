@@ -12,8 +12,7 @@ loc_curation2schema_scoring = '../pgs_DBSourceFiles/Templates/ScoringFileSchema.
 curation2schema_scoring = pd.read_excel(loc_curation2schema_scoring, index_col = 0)
 
 loc_localGWAS = '../pgs_DBSourceFiles/local_GWASCatalog/'
-gwas_studies, gwas_samples = load_GWAScatalog(loc_localGWAS, update=True)
-gwas_studies.set_index('STUDY ACCESSION', inplace=True)
+gwas_samples = load_GWAScatalog(loc_localGWAS, update=True, dlstudies=False)
 gwas_samples.set_index('STUDY ACCESSION', inplace=True)
 gwas_samples = gwas_samples[gwas_samples['STAGE'] == 'initial'] # Get rid of replication studies
 
@@ -42,9 +41,12 @@ gwas_samples = gwas_samples[gwas_samples['STAGE'] == 'initial'] # Get rid of rep
 #               'Namjou2019', 'Forgetta2020', 'Tam2021_PreSub',
 #               'Darst2021', 'Kim2020', 'Gorski2020', 'Marston2020', 'Pirruccello2020', 'Trinder2020_LPA',
 #               'Sinnott-Armstrong2021', 'Mosley2020', 'Sipeky2020', 'Giontella2020', 'Richardson2020', 'Naito2020', 'Lanfear2020',
-#               'Jia2020', 'Emdin2020']
+#               'Jia2020', 'Emdin2020',
+#               'Ritchie2021', 'Fontanillas2021','Karunamuni2020', 'Brandkvist2020_HMG', 'Brandkvist2020_PlosMed, 'Archambault2019', 'Fahed2020', 'Tadros2021', 'Roberts2019', 'Harper2021']
+# StudyNames = ['Thareja2021', 'Hung2021', 'HuynhLe2021', 'Karunamuni2021', 'Cust2018', 'Gola2020','Manousaki2020',  'Lu2021', 'Bobbili2020', 'Du2020', 'Dron2021' ]
+#              [''Klarin2020', 'Wang2021', 'Cho2020', 'Ouyang2020', 'Lu2021_Height, 'Khan2021', 'Cherney2020', 'Marston2021'. 'Maguire2021', 'Plym2021', 'Cole2021]
 
-StudyNames = []
+StudyNames = ['Fahed2020_Penetrance']
 
 #Loop through studies to be included/loaded
 for StudyName in StudyNames:
@@ -103,11 +105,12 @@ for StudyName in StudyNames:
                 for f, val in fields.items():
                     if f == 'cohorts':
                         for name_short, name_full in val:
-                            try:
-                                cohort = Cohort.objects.get(name_short=name_short, name_full=name_full)
-                            except:
-                                cohort = Cohort(name_short=name_short, name_full=name_full)
-                                cohort.save()
+                            name_short = name_short.strip()
+                            name_full = name_full.strip()
+
+                            cohort, created = Cohort.objects.get_or_create(
+                                name_short=name_short, name_full=name_full
+                            )
                             cohorts_toadd.append(cohort)
                     elif f in ['sample_age', 'followup_time']:
                         current_demographic = Demographic(**val)
@@ -142,11 +145,12 @@ for StudyName in StudyNames:
             for f, val in sample_desc.items():
                 if f == 'cohorts':
                     for name_short, name_full in val:
-                        try:
-                            cohort = Cohort.objects.get(name_short=name_short, name_full=name_full)
-                        except:
-                            cohort = Cohort(name_short=name_short, name_full=name_full)
-                            cohort.save()
+                        name_short = name_short.strip()
+                        name_full = name_full.strip()
+
+                        cohort, created = Cohort.objects.get_or_create(
+                            name_short=name_short, name_full=name_full
+                        )
                         cohorts_toadd.append(cohort)
                 elif f in ['sample_age', 'followup_time']:
                     current_demographic = Demographic(**val)
@@ -232,5 +236,5 @@ for StudyName in StudyNames:
             except:
                 print('ERROR reading scorefile: {}', loc_scorefile)
 
-    # current_study.parsed_publication.curation_status = 'C'
-    # current_study.parsed_publication.save()
+    current_study.parsed_publication.curation_status = 'C'
+    current_study.parsed_publication.save()

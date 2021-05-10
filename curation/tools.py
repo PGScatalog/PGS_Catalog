@@ -88,7 +88,7 @@ class CurationTemplate():
         for score_name, score_info in self.table_scores.iterrows():
             parsed_score = {'name' : score_name, 'publication' : self.parsed_publication.id}
             for col, val in score_info.iteritems():
-                if pd.isnull(val) == False:
+                if pd.isnull(val) is False:
                     # Map to schema
                     if col[1] in current_schema.index:
                         m, f, _ = current_schema.loc[col[1]]
@@ -129,17 +129,20 @@ class CurationTemplate():
                         f = current_schema.loc[c, 'Field']
                         if f == 'cohorts':
                             try:
-                                cmapped = self.cohort_to_tuples(val)
-                                if cmapped[0] == cmapped[1]:
-                                    print('{} : no cohort description (long name)'.format(cmapped[0]))
+                                if ',' in val:
+                                    for x in val.split(','):
+                                        try:
+                                            cpassed = self.cohort_to_tuples(x)[0] #we're passing individual cohorts
+                                            if cpassed[0] == cpassed[1]:
+                                                print('{} : no cohort description (long name)'.format(cpassed[0]))
+                                        except:
+                                            print('{} failed cohort validation'.format(x))
+                                else:
+                                    cmapped = self.cohort_to_tuples(val)[0] #we're passing individual cohorts
+                                    if cmapped[0] == cmapped[1]:
+                                        print('{} : no cohort description (long name)'.format(cmapped[0]))
                             except:
-                                for x in val.split(','):
-                                    try:
-                                        cpassed = self.cohort_to_tuples(x)
-                                        if cpassed[0] == cpassed[1]:
-                                            print('{} : no cohort description (long name)'.format(cpassed[0]))
-                                    except:
-                                        print(sample_ids,'{} failed cohort validation'.format(x),sep=' : ')
+                                print(sample_ids, '{} failed cohort validation'.format(val), sep=' : ')
 
     def extract_samples(self, gwas):
         current_schema = self.table_mapschema.loc['Sample Descriptions'].set_index('Column')
@@ -220,8 +223,11 @@ class CurationTemplate():
             self.parsed_performances.append((p_key,parsed_performance))
 
 
-def load_GWAScatalog(outdir, update = False):
-    dl_files = ['studies_ontology-annotated', 'ancestry']
+def load_GWAScatalog(outdir, update = False, dlstudies=False):
+    if dlstudies is True:
+        dl_files = ['studies_ontology-annotated', 'ancestry']
+    else:
+        dl_files = ['ancestry']
     o = []
     for fn in dl_files:
         loc_local = '%s/gwas-catalog-%s.csv' % (outdir, fn)
@@ -230,11 +236,14 @@ def load_GWAScatalog(outdir, update = False):
         if update:
             print('Downloading: %s'%fn)
             df = pd.read_table('ftp://ftp.ebi.ac.uk/pub/databases/gwas/releases/latest/gwas-catalog-%s.tsv'%fn, index_col= False, sep = '\t')
-            df.to_csv(loc_local, index = False)
+            df.to_csv(loc_local, index=False)
         else:
             df = pd.read_csv(loc_local, index_col=False)
         o.append(df)
-    return o
+    if dlstudies is False:
+        return df
+    else:
+        return o
 
 def next_scorenumber(obj):
     assigned = 1
