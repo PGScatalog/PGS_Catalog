@@ -511,6 +511,11 @@ h2 {
   background-color: $pgs_colour_1 !important;
 }
 
+.fa-info-circle {
+  background-color: #FFF;
+  border-radius: 20px;
+}
+
 
 /* boostrap-table overwrite */
 .bootstrap-table {
@@ -2174,7 +2179,7 @@ footer {
     padding-bottom: 4px;
     margin-bottom: 8px;
   }
-  div:not(:first-child):not(:last-child) {
+  div:not(:first-child) {
     text-align:left;
     margin:3px 0px;
     line-height: 15px;
@@ -2183,7 +2188,8 @@ footer {
       margin-right:5px;
     }
   }
-  div:last-child {
+  > span {
+    display: block;
     margin-top: 8px;
     border-top:1px solid #CCC;
     padding-top: 4px;
@@ -2198,7 +2204,7 @@ footer {
   div:first-child:before {
     content: "G - Source of Variant Associations (GWAS)";
   }
-  div:last-child:after {
+  > span:after {
     content: " individuals (100%)"
   }
 }
@@ -2206,7 +2212,7 @@ footer {
   div:first-child:before {
     content: "D - Score Development/Training";
   }
-  div:last-child:after {
+  > span:after {
     content: " individuals (100%)"
   }
 }
@@ -2214,7 +2220,7 @@ footer {
   div:first-child:before {
     content: "E - PGS Evaluation";
   }
-  div:last-child:after {
+  > span:after {
     content: " Sample Sets (100%)"
   }
 }

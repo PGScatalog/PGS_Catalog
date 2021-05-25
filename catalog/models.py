@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import DecimalRangeField
@@ -59,7 +60,11 @@ class Publication(models.Model):
 
     @property
     def pub_year(self):
-        return self.date_publication.strftime('%Y')
+        # Dependant on the context, sometimes the date_publication is returned as a string
+        pub_date = self.date_publication
+        if type(pub_date) == str:
+            pub_date = datetime.datetime.strptime(pub_date, '%Y-%m-%d')
+        return pub_date.strftime('%Y')
 
     @property
     def scores_count(self):
