@@ -30,6 +30,10 @@ cohort_desc_2 = "Cohort description"
 firstauthor = "Inouye M"
 
 
+def format_date(date_list):
+    return datetime.date(int(date_list[0]),int(date_list[1]),int(date_list[2]))
+
+
 class CohortTest(TestCase):
     """ Test the Cohort model """
 
@@ -495,14 +499,14 @@ class PublicationTest(TestCase):
 
     def create_publication_by_doi(self, num, date="2018-10-01", id="10.1016/j.jacc.2018.07.079",author=first_author,journal='bioRxiv'):
         date_list = date.split('-')
-        date_formated = datetime(int(date_list[0]),int(date_list[1]),int(date_list[2]))
+        date_formated = format_date(date_list)
         pub = Publication.objects.create(num=num, date_publication=date_formated, doi=id, firstauthor=author, journal=journal)
         pub.set_publication_ids(num)
         return pub
 
     def create_publication_by_pmid(self, num, date="2015-04-08", id=25855707, journal="Lancet"):
         date_list = date.split('-')
-        date_formated = datetime(int(date_list[0]),int(date_list[1]),int(date_list[2]))
+        date_formated = format_date(date_list)
         pub = Publication.objects.create(num=num, date_publication=date_formated, PMID=id, journal=journal)
         pub.set_publication_ids(num)
         return pub
@@ -548,7 +552,7 @@ class ReleaseTest(TestCase):
 
     date_list = ['2020','03','20']
     date_string = '-'.join(date_list)
-    date_formated = datetime(int(date_list[0]),int(date_list[1]),int(date_list[2]))
+    date_formated = format_date(date_list)
     notes = "Test release"
 
     def create_release(self, date=date_formated,notes=notes,s_count=0,perf_count=0,pub_count=0):
@@ -603,7 +607,7 @@ class ReleaseTest(TestCase):
         self.assertEqual(release.released_score_ids, ids_list['score'])
         self.assertEqual(release.released_performance_ids, ids_list['perf'])
         self.assertEqual(release.released_publication_ids, ids_list['pub'])
-        self.assertEqual(release.__str__(), self.date_string+' 00:00:00')
+        self.assertEqual(release.__str__(), self.date_string)
 
 
 class SampleTest(TestCase):
