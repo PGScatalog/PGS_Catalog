@@ -280,7 +280,7 @@ class Browse_ScoreTable(tables.Table):
         license_icon = ''
         if record.has_default_license == False:
             license_icon = f'<span class="pgs-info-icon pgs_helpover ml-2" title="Terms and Licenses" data-content="{record.license}" data-placement="left"> <span class="only_export"> - Check </span>Terms/Licenses</span>'
-        return format_html(f'<a class="pgs_no_icon_link file_link" href="{ftp_link}" data-toggle="tooltip" title="Download PGS Scoring File (variants, weights)"></a> <span class="only_export">{ftp_file_link}</span>{license_icon}')
+        return format_html(f'<a class="pgs_no_icon_link file_link" href="{ftp_link}" data-toggle="tooltip" data-placement="left" title="Download PGS Scoring File (variants, weights)"></a> <span class="only_export">{ftp_file_link}</span>{license_icon}')
 
 
     def render_variants_number(self, value):
