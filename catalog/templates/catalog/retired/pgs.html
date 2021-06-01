@@ -1,0 +1,58 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}{{ score.id }} (Polygenic Score){% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="/browse/all/">Polygenic Scores</a></li>
+        <li class="breadcrumb-item">{{ score.id }}</li>
+      </ol>
+    </nav>
+
+    <section>
+      <div class="clearfix">
+        <div class="float_left mb-3" style="margin-right:4rem">
+          <h2>Polygenic Score (PGS) ID: <span class="pgs_title">{{score.id}}</span></h2>
+        </div>
+
+        <div class="float_left">
+          <a class="btn btn-pgs pgs_no_icon_link pgs_helptip pgs-ftp-btn mb-2" href="{{ pgs_ftp_http_root }}/scores/retired/{{ score.id }}/"
+            title="Score and metadata files for {{ score.id }}">
+            <span class="fas fa-folder"></span> FTP directory
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <table class="table table-bordered table_pgs_h mt-4">
+      <tbody>
+        <tr>
+          <td class="table_title table_title_g" colspan="2">PGS Source</td>
+        </tr>
+        <tr>
+          <td>doi</td>
+          <td><a href="https://doi.org/{{ score.doi }}">{{ score.doi }}</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="clearfix">
+      <div class="mt-3 float_left pgs_note pgs_note_2">
+        <div>
+          <span>This Score has been retired from the PGS Catalog</span>.
+        </div>
+      </div>
+    </div>
+
+    <div class="clearfix">
+      <div class="mt-3 float_left pgs_note pgs_note_1">
+        <div>
+          <span>Reason for retirement:</span> <span>{{ score.notes }}</span>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}

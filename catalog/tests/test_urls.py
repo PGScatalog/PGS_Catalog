@@ -13,6 +13,7 @@ class BrowseUrlTest(TestCase):
             '/browse/studies/',
             '/browse/sample_set/',
             '/docs/',
+            '/docs/ancestry/',
             '/downloads/',
             '/rest/',
             '/robots.txt'
