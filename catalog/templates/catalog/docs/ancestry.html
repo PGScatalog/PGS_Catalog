@@ -187,12 +187,14 @@
         </tbody>
       </table>
 
-      <h5 class="mt-4">Example</h5>
-      <p>
-        Here is an example of the ancestry distributions for a single score (<a href="/score/{{ pgs_id_example }}">{{ pgs_id_example }}</a>). You can hover over the pie charts to see the list of ancestries included and their proportions, as well as the total sample sizes.
-      </p>
-      <div class="d-none">{{ ancestry_legend|safe }}</div>
-      {% render_table table_score %}
+      {% if table_score %}
+        <h5 class="mt-4">Example</h5>
+        <p>
+          Here is an example of the ancestry distributions for a single score (<a href="/score/{{ pgs_id_example }}">{{ pgs_id_example }}</a>). You can hover over the pie charts to see the list of ancestries included and their proportions, as well as the total sample sizes.
+        </p>
+        <div class="d-none">{{ ancestry_legend|safe }}</div>
+        {% render_table table_score %}
+      {% endif %}
     </section>
 
     <section>

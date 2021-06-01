@@ -584,16 +584,18 @@ def pss(request, pss_id):
 
 def ancestry_doc(request):
     pgs_id = "PGS000018"
-
-    score = Score.objects.select_related('publication').prefetch_related('trait_efo').get(id=pgs_id)
-    table_score = Browse_ScoreTableExample([score])
-    context = {
-        'pgs_id_example': pgs_id,
-        'ancestry_legend': ancestry_legend(),
-        'table_score': table_score,
-        'has_table': 1,
-        'has_chart': 1
-    }
+    try:
+        score = Score.objects.select_related('publication').prefetch_related('trait_efo').get(id=pgs_id)
+        table_score = Browse_ScoreTableExample([score])
+        context = {
+            'pgs_id_example': pgs_id,
+            'ancestry_legend': ancestry_legend(),
+            'table_score': table_score,
+            'has_table': 1,
+            'has_chart': 1
+        }
+    except:
+        context = {}
     return render(request, 'catalog/docs/ancestry.html', context)
 
 
