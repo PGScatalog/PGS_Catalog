@@ -280,6 +280,24 @@ class EmbargoedScoreTest(TestCase):
         self.assertEqual(e_score.firstauthor, firstauthor)
 
 
+class RetiredScore(TestCase):
+    """ Test the Retired model """
+    def create_retired(self, data_id, pub_doi, retirement_notes):
+        return Retired.objects.create(id=data_id, doi=pub_doi, notes=retirement_notes)
+
+    def test_retired_score(self):
+        score_id = 'PGS000999'
+        score_doi = constants.PGS_CITATION['doi']
+        score_notes = 'This score has been retired'
+        retired_score = self.create_retired(score_id, score_doi, score_notes)
+        # Instance
+        self.assertTrue(isinstance(retired_score, Retired))
+        # Variables
+        self.assertEqual(retired_score.id, score_id)
+        self.assertEqual(retired_score.doi, score_doi)
+        self.assertEqual(retired_score.notes, score_notes)
+
+
 class MetricTest(TestCase):
     """ Test the Metric model """
 
