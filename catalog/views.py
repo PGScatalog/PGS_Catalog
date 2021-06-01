@@ -275,15 +275,9 @@ def pgs(request, pgs_id):
         return redirect_with_upper_case_id(request, '/score/', pgs_id)
 
     template_html_file = 'pgs.html'
+
     try:
-        embargoed_score = EmbargoedScore.objects.get(id=pgs_id)
-        template_html_file = 'embargoed/'+template_html_file
-        context = { 'score' : embargoed_score }
-    except EmbargoedScore.DoesNotExist:
-        try:
-            score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
-        except Score.DoesNotExist:
-            raise Http404("Polygenic Score (PGS): \"{}\" does not exist".format(pgs_id))
+        score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
 
         pub = score.publication
         citation = format_html(' '.join([pub.firstauthor, '<i>et al. %s</i>'%pub.journal, '(%s)' % pub.date_publication.strftime('%Y')]))
@@ -323,6 +317,19 @@ def pgs(request, pgs_id):
         table = SampleTable_performance(pquery_samples)
         context['table_performance_samples'] = table
 
+    except Score.DoesNotExist:
+        try:
+            embargoed_score = EmbargoedScore.objects.get(id=pgs_id)
+            template_html_file = 'embargoed/'+template_html_file
+            context = { 'score' : embargoed_score }
+        except EmbargoedScore.DoesNotExist:
+            try:
+                retired_score = Retired.objects.get(id=pgs_id)
+                template_html_file = 'retired/'+template_html_file
+                context = { 'score' : retired_score }
+            except Retired.DoesNotExist:
+                raise Http404("Polygenic Score (PGS): \"{}\" does not exist".format(pgs_id))
+
     return render(request, 'catalog/'+template_html_file, context)
 
 
@@ -344,14 +351,8 @@ def pgp(request, pub_id):
 
     template_html_file = 'pgp.html'
     try:
-        embargoed_pub = EmbargoedPublication.objects.get(id=pub_id)
-        template_html_file = 'embargoed/'+template_html_file
-        context = { 'publication' : embargoed_pub }
-    except EmbargoedPublication.DoesNotExist:
-        try:
-            pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
-        except Publication.DoesNotExist:
-            raise Http404("Publication: \"{}\" does not exist".format(pub_id))
+        pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
+
         context = {
             'publication' : pub,
             'performance_disclaimer': performance_disclaimer(),
@@ -393,6 +394,20 @@ def pgp(request, pub_id):
         context['table_performance_samples'] = table
 
         context['has_table'] = 1
+
+    except Publication.DoesNotExist:
+        try:
+            embargoed_pub = EmbargoedPublication.objects.get(id=pub_id)
+            template_html_file = 'embargoed/'+template_html_file
+            context = { 'publication' : embargoed_pub }
+        except EmbargoedPublication.DoesNotExist:
+            try:
+                retired_publication = Retired.objects.get(id=pub_id)
+                template_html_file = 'retired/'+template_html_file
+                context = { 'publication' : retired_publication }
+            except Retired.DoesNotExist:
+                raise Http404("Publication: \"{}\" does not exist".format(pub_id))
+
     return render(request, 'catalog/'+template_html_file, context)
 
 
