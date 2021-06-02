@@ -41,9 +41,11 @@ class ImportTest(TestCase):
 
 
     def test_import(self):
-        # Run the import
+        ## Run the import ##
         self.run_import()
 
+
+        ## Counting tests ##
         # Publication
         pubs = Publication.objects.all()
         self.assertEqual(pubs.count(), data_counts['publication'])
@@ -68,9 +70,11 @@ class ImportTest(TestCase):
         samplesets = SampleSet.objects.all()
         self.assertEqual(samplesets.count(), data_counts['sampleset'])
 
-        # Status
 
+        ## Other tests ##
         for id, study in enumerate(study_names_list, start=1):
+
+            # Status
             if 'status' in study:
                 status = study['status']
             else:
@@ -78,12 +82,28 @@ class ImportTest(TestCase):
 
             try:
                 publication = Publication.objects.get(num=id)
+                self.assertIsNotNone(publication.id)
+                self.assertIsNotNone(publication.firstauthor)
                 self.assertEqual(publication.curation_status, status)
             except Publication.DoesNotExist:
                 print(f'Test - Can\'t find a Publication with num={id}')
-              
+                continue
 
+            # Scores
+            scores = Score.objects.filter(publication=publication)
+            for score in scores:
+                self.assertIsNotNone(score.id)
+                self.assertIsNotNone(score.name)
+                # License
+                if 'license' in study:
+                    license = study['license']
+                    self.assertEqual(score.license, license)
 
+                # Performance
+                performances = Performance.objects.filter(score=score, publication=publication)
+                self.assertGreater(performances.count(), 0)
 
-
-
+                # Metrics
+                for performance in performances:
+                    metrics = Metric.objects.filter(performance=performance)
+                    self.assertGreater(metrics.count(), 0)
