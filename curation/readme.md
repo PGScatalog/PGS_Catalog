@@ -13,7 +13,7 @@ pip install pandas xlrd openpyxl numpy
 ```
 
 
-### 1 - Setup the configuration file
+### 2 - Setup the configuration file
 It is located under curation (`curation/config.py`). There you can configure different variables:
 * the study input directory: `curation_directories['studies_dir']`
 * the scoring files output directory: `curation_directories['scoring_dir']`
@@ -55,7 +55,7 @@ default_curation_status = 'IP'
 skip_scorefiles = False
 ```
 
-### 2 - Update the Django settings
+### 3 - Update the Django settings
 In order to run the script, you might need to update the global settings of the Django project by adding the **Curation** app (`curation.apps.CurationConfig`) to the list of **INSTALLED_APPS**, in `pgs_web/settings.py`, e.g.:
 ```
 INSTALLED_APPS = [
@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     ...
 ```
 
-### 3 - Run the import script
+### 4 - Run the import script
 The command line is fairly simple, from the root of the Django project:
 ```
 python manage.py shell < curation/import_studies.py
