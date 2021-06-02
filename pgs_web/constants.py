@@ -1,13 +1,5 @@
 # Module storing constants used across the website
 
-PGS_REST_API = {
-    'version': 1.7,
-    'changelog': [
-        "New data 'ancestry_distribution' in the `/rest/score` endpoints, providing information about ancestry distribution on each stage of the PGS",
-        "New endpoint `/rest/ancestry_categories` providing the list of ancestry symbols and names."
-    ]
-}
-
 PGS_CITATION = {
     'title': 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation',
     'doi': '10.1038/s41588-021-00783-5',

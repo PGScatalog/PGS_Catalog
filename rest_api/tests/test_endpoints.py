@@ -49,7 +49,8 @@ class BrowseEndpointTest(TestCase):
         ('Scores IDs from a GWAS/ID', 'gwas/get_score_ids', 2, {'path': ['GCST001937','GCST004988']}),
         ('Trait Category', 'trait_category/all', 1),
         ('Info', 'info', 0),
-        ('Ancestry Categories', 'ancestry_categories', 0)
+        ('API versions', 'api_versions', 0),
+        ('Ancestry categories', 'ancestry_categories', 0)
     ]
 
     client = Client()

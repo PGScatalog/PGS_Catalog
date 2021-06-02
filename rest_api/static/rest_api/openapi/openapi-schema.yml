@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.7'
+  version: '1.8'
   description: |
     Programmatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -73,6 +73,11 @@ info:
 
     <a class="toggle_btn" id="changelog">REST API version changelog <i class="fas fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.8</span> - June 2021:
+        * New endpoint `/rest/api_versions` providing the list of all the REST API versions and their changelogs.
+        * Change the data type of the field **rest_api/version** in `/rest/info` to **string**.
+        * Change the data structure of the `/rest/ancestry_categories` endpoint by adding the new fields **display_category** and **categories**.
 
       * <span class="badge badge-pill badge-pgs">1.7</span> - April 2021:
         * New data **ancestry_distribution** in the `/rest/score` endpoints, providing information about ancestry distribution on each stage of the PGS.
@@ -1991,13 +1996,13 @@ paths:
                     description: "Information about the current version of the REST API"
                     properties:
                       version:
-                        type: number
+                        type: string
                         description: "REST API version"
-                        example: 1.6
+                        example: "1.7.1"
                       changelog:
                           type: array
                           description: "REST API changelog"
-                          example: ["New endpoint '/rest/cohort/all' returning all the Cohorts and their associated PGS.", "New endpoint '/rest/sample_set/all' returning all the Sample Set data."]
+                          example: ["New endpoint `/rest/api_versions` providing the list of all the REST API versions and their changelogs.", "Change the data type of the field 'rest_api/version' in `/rest/info` to 'string'."]
                           items:
                             type: string
                   latest_release:
@@ -2061,8 +2066,76 @@ paths:
                   $ref: '#/components/schemas/Error_4XX'
           description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
 
+  '/rest/api_versions':
+    get:
+      tags:
+        - "Other endpoints"
+      operationId: getApiVersions
+      description: |
+        Return information about current and past REST API versions:
+        * Version
+        * Date
+        * Changelog
 
-  # Other endpoints
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/api_versions/
+        ```
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: "PGS Catalog information such as citation, REST API version, ..."
+                type: object
+                properties:
+                  current:
+                    type: object
+                    description: "Information about the current version of the REST API"
+                    properties:
+                      version:
+                        type: string
+                        description: "REST API version"
+                        example: "1.8"
+                      date:
+                        type: string
+                        description: "Release date (month) of the REST API"
+                        example: "2021-06"
+                      changelog:
+                          type: array
+                          description: "REST API changelog"
+                          example: ["New endpoint `/rest/api_versions` providing the list of all the REST API versions and their changelogs.", "Change the data type of the field 'rest_api/version' in `/rest/info` to 'string'.", "Change the data structure of the `/rest/ancestry_categories` endpoint by adding the new fields 'display_category' and 'categories'."]
+                          items:
+                            type: string
+                  previous:
+                    type: array
+                    items:
+                      type: object
+                      description: "Information about the previous versions of the REST API"
+                      properties:
+                        version:
+                          type: string
+                          description: "REST API version"
+                          example: "1.7"
+                        date:
+                          type: string
+                          description: "Release date (month) of the REST API"
+                          example: "2021-04"
+                        changelog:
+                            type: array
+                            description: "REST API changelog"
+                            example: ["New data 'ancestry_distribution' in the `/rest/score` endpoints, providing information about ancestry distribution on each stage of the PGS","New endpoint `/rest/ancestry_categories` providing the list of ancestry symbols and names."]
+                            items:
+                              type: string
+          description: ''
+        '4XX':
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error_4XX'
+          description: Client error (e.g. 400 - Bad request, 405 - Method not allowed)
+
   '/rest/ancestry_categories':
     get:
       tags:
@@ -2082,13 +2155,22 @@ paths:
             application/json:
               schema:
                 type: object
-                description: "List of ancestry symbols and names"
+                description: "List of ancestry symbols and categories"
                 additionalProperties:
-                  type: string
+                  type: object
+                  description: "Categories corresponding to the ancestry symbol"
+                  properties:
+                    display_category:
+                      type: string
+                      description: 'Category used in the ancestry distribution charts'
+                    categories:
+                      type: array
+                      description: "List of corresponding categories in the database"
+                      items:
+                        type: string
                 example:
-                  EUR: "European"
-                  AFR: "African"
-                  AMR: "Hispanic or Latin American"
+                  AFR: { "display_category": "African", "categories": ["African American or Afro-Caribbean", "African unspecified"] }
+                  EUR: { "display_category": "European", "categories": ["European"] }
           description: ''
         '4XX':
           content:

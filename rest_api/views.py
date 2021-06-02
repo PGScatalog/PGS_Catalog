@@ -4,6 +4,7 @@ from rest_framework.views import exception_handler
 from rest_framework.exceptions import Throttled
 from rest_framework.serializers import ValidationError
 from pgs_web import constants
+from pgs_web import constants_rest
 from django.db.models import Prefetch, Q
 from catalog.models import *
 from .serializers import *
@@ -475,6 +476,8 @@ class RestCohorts(generics.ListAPIView):
         return queryset
 
 
+## Releases ##
+
 class RestListReleases(generics.ListAPIView):
     """
     Retrieve all the Release information
@@ -550,7 +553,7 @@ class RestInfo(generics.RetrieveAPIView):
         }
 
         data = {
-            'rest_api': constants.PGS_REST_API,
+            'rest_api': constants_rest.PGS_REST_API[0],
             'latest_release': latest_release,
             'citation': constants.PGS_CITATION,
             'terms_of_use': constants.USEFUL_URLS['TERMS_OF_USE']
@@ -559,13 +562,41 @@ class RestInfo(generics.RetrieveAPIView):
         return Response(data)
 
 
+class RestApiVersions(generics.RetrieveAPIView):
+    """
+    Return information about all the REST API versions
+    """
+
+    def get(self, request):
+
+        versions = constants_rest.PGS_REST_API
+        current = versions.pop(0)
+        formatted_data = { 'current': current, 'previous': versions }
+
+        return Response(formatted_data)
+
+
 class RestAncestryCategories(generics.RetrieveAPIView):
     """
     Return the list of ancestry categories
     """
 
     def get(self, request):
+        data = {}
+        mappings = {}
+        for category, id in constants.ANCESTRY_MAPPINGS.items():
+            if not id in mappings:
+                mappings[id] = set()
+            mappings[id].add(category)
 
-        data = constants.ANCESTRY_LABELS
-
-        return Response(data)
+        for id, d_category in constants.ANCESTRY_LABELS.items():
+            if id in mappings:
+                categories_list = list(mappings[id])
+            else:
+                categories_list = [d_category]
+            data[id] = {
+                'display_category': d_category,
+                'categories': sorted(categories_list)
+            }
+        sorted_data = dict(sorted(data.items()))
+        return Response(sorted_data)
