@@ -1,6 +1,7 @@
 from django.db import IntegrityError, transaction
 from curation.parsers.generic import GenericData
-from catalog.models import Score, EFOTrait
+from curation.parsers.trait import TraitData
+from catalog.models import Score
 
 
 class ScoreData(GenericData):
@@ -28,12 +29,8 @@ class ScoreData(GenericData):
                         efo_traits = []
                         for trait_id in val:
                             trait_id = trait_id.replace(':','_').strip()
-                            try:
-                                efo = EFOTrait.objects.get(id__iexact=trait_id)
-                            except EFOTrait.DoesNotExist:
-                                efo = EFOTrait(id=trait_id)
-                                efo.parse_api()
-                                efo.save()
+                            trait = TraitData(trait_id)
+                            efo = trait.efotrait_model()
                             efo_traits.append(efo)
                     else:
                         setattr(self.model, field, val)
