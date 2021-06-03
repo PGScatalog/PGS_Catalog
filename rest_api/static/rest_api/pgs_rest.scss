@@ -372,6 +372,13 @@ table.model .model-toggle, table.model .model-toggle:after {
   padding-right:0.5em;
 }
 
+#changelog:before {
+  font-family: 'Font Awesome 5 Free';
+  content:"\f0ca";
+  color: $pgs_colour_1;
+  font-weight: 900;
+  padding-right: 5px;
+}
 
 @media screen and (max-width: 499px) {
   hgroup {
