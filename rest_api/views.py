@@ -28,6 +28,12 @@ related_dict = {
     'traitcategory_ontology_prefetch': [Prefetch('traitcategory', queryset=TraitCategory.objects.only('label','efotraits_ontology__id').all())],
     'efotraits_ontology_set_prefetch': [Prefetch('efotraits_ontology_set', queryset=EFOTrait_Ontology.objects.only('label','child_traits__id').all())],
     'efotraits_prefetch': [Prefetch('efotraits', queryset=EFOTrait.objects.defer('synonyms','mapped_terms').all())],
+    'sample_set_prefetch' : [
+                              Prefetch('sample_set', queryset=Sample.objects.only('id').all()),
+                              'sample_set__sampleset',
+                              Prefetch('sample_set__score_variants', queryset=Score.objects.only('id').all()),
+                              Prefetch('sample_set__score_training', queryset=Score.objects.only('id').all())
+                            ],
     'score_defer': [*generic_defer,'ancestries','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
     'perf_defer': [*generic_defer,'score__ancestries','score__curation_notes','score__date_released','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
     'publication_defer': [*generic_defer,'curation_status']
@@ -456,8 +462,23 @@ class RestListCohorts(generics.ListAPIView):
     """
     Retrieve all the Cohorts
     """
-    queryset = Cohort.objects.all().prefetch_related('sample_set', 'sample_set__sampleset', 'sample_set__score_variants', 'sample_set__score_training').order_by('name_short')
     serializer_class = CohortExtendedSerializer
+
+    def get_queryset(self):
+
+        fetch_all_cohorts = False
+
+        # 'fetch_all' parameter: fetch released and non released Cohorts
+        param_fetch_all = self.request.query_params.get('fetch_all')
+        if param_fetch_all != None:
+            if param_fetch_all == '1' or param_fetch_all == 1:
+                fetch_all_cohorts = True
+
+        if fetch_all_cohorts:
+            queryset = Cohort.objects.all().prefetch_related(*related_dict['sample_set_prefetch']).order_by('name_short')
+        else:
+            queryset = Cohort.objects.filter(released=True).prefetch_related(*related_dict['sample_set_prefetch']).order_by('name_short')
+        return queryset
 
 
 class RestCohorts(generics.ListAPIView):
@@ -467,10 +488,12 @@ class RestCohorts(generics.ListAPIView):
     serializer_class = CohortExtendedSerializer
 
     def get_queryset(self):
+
         # Fetch Cohort model(s)
         try:
             cohort_symbol = self.kwargs['cohort_symbol']
-            queryset = Cohort.objects.filter(name_short__iexact=cohort_symbol).prefetch_related('sample_set', 'sample_set__sampleset', 'sample_set__score_variants', 'sample_set__score_training')
+            # Database filtering
+            queryset = Cohort.objects.filter(name_short__iexact=cohort_symbol, released=True).prefetch_related(*related_dict['sample_set_prefetch'])
         except Cohort.DoesNotExist:
             queryset = []
         return queryset

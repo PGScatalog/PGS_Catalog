@@ -56,9 +56,10 @@ class CohortTest(TestCase):
         self.assertEqual(cohort.name_full,cohort_desc)
         # Other methods
         self.assertEqual(cohort.__str__(), cohort.name_short)
-        name_url =  r'^\<a\s.*href=.+\/cohort\/'+cohort.name_short+'_'+str(cohort.id)+r'.*\>'+cohort.name_short+r'\<\/a\>$'
-        #self.assertRegexpMatches(cohort.display_cohort_name, name_url)
-
+        self.assertFalse(cohort.released)
+        cohort.released = True
+        cohort.save()
+        self.assertTrue(cohort.released)
 
 class DemographicTest(TestCase):
     """ Test the Demographic model """

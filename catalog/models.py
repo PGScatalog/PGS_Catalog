@@ -130,6 +130,9 @@ class Cohort(models.Model):
     name_short = models.CharField('Cohort Short Name', max_length=100, db_index=True)
     name_full = models.CharField('Cohort Full Name', max_length=1000)
 
+    # Used to identify cohorts with associated released scores
+    released = models.BooleanField('Associated with released Score(s)', default=False)
+
     def __str__(self):
         return self.name_short
 
