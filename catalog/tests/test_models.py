@@ -641,7 +641,8 @@ class SampleTest(TestCase):
     a_country = 'France, Germany, Netherlands, Estonia, Finland, Sweden, U.K., NR, U.S.'
     a_additional = 'White European'
     gwas_id = 'GCST001937'
-    pmid = '23535729'
+    pmid = 23535729
+    doi = '10.1038/s41588-021-00783-5'
 
     def get_sample(self,sample_number):
         try:
@@ -674,11 +675,12 @@ class SampleTest(TestCase):
         sample.cohorts.add(cohort_2)
         return sample
 
-    def create_sample_sources(self, sample_number=number,gwas=gwas_id,pmid=pmid):
+    def create_sample_sources(self, sample_number=number,gwas=gwas_id,pmid=pmid,doi=doi):
         return Sample.objects.create(
             sample_number=sample_number,
             source_GWAS_catalog=gwas,
-            source_PMID = pmid
+            source_PMID = pmid,
+            source_DOI = doi
         )
 
     def test_sample(self):
@@ -740,10 +742,15 @@ class SampleTest(TestCase):
         sample_5 = self.create_sample_sources()
         # Instance
         self.assertTrue(isinstance(sample_5, Sample))
+        # Variables
+        self.assertEqual(sample_5.source_GWAS_catalog, self.gwas_id)
+        self.assertEqual(sample_5.source_PMID, self.pmid)
+        self.assertEqual(sample_5.source_DOI, self.doi)
         # Other methods
         sources = sample_5.display_sources
         self.assertEqual(sources['GCST'], self.gwas_id)
         self.assertEqual(sources['PMID'], self.pmid)
+        self.assertEqual(sources['DOI'], self.doi)
 
 
 class SampleSetTest(TestCase):

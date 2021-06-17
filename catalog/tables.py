@@ -180,6 +180,9 @@ class Browse_PublicationTable(tables.Table):
     def render_PMID(self, value):
         return format_html('<a href="https://www.ncbi.nlm.nih.gov/pubmed/{}">{}</a>', value, value)
 
+    def render_date_publication(self,value):
+        return value.strftime('%d/%m/%Y')
+
 
 class Browse_PendingPublicationTable(Browse_PublicationTable):
     # Make some headers shorter
@@ -213,8 +216,9 @@ class Browse_PendingPublicationTable(Browse_PublicationTable):
 class Browse_TraitTable(tables.Table):
     '''Table to browse Traits in the PGS Catalog'''
     label_link = Column_format_html(accessor='display_label', verbose_name='Trait (ontology term label)', orderable=True)
-    scores_count = tables.Column(accessor='scores_count', verbose_name='Number of Related PGS')
+    display_ext_url = Column_format_html(accessor='display_ext_url', verbose_name='Trait Identifier (ontology ID)')
     category_labels = Column_format_html(accessor='display_category_labels', verbose_name='Trait Category')
+    scores_count = tables.Column(accessor='scores_count', verbose_name='Number of Related PGS')
 
     class Meta:
         model = EFOTrait
@@ -376,7 +380,7 @@ class Browse_ScoreTable(tables.Table):
                 title_count = ''
                 count = ancestries_data[stage]['count']
                 if count != 0:
-                    title_count = '<div>{:,}</div>'.format(count)
+                    title_count = '<span>{:,}</span>'.format(count)
                 title = '<div class=\'anc_box_'+stage+'\'><div></div>'+''.join(data_title[stage])+title_count+'</div>'
                 html_chart = f'<div class="anc_chart" data-toggle="tooltip" title="'+title+'" data-id="'+id+'" data-type="'+stage+'" data-chart=\'[['+'],['.join(data_stage[stage])+']]\'><svg id="'+id+'"></svg></div>'
                 html_list.append(html_chart)
@@ -482,20 +486,32 @@ class SampleTable_variants(tables.Table):
 
     def render_sources(self, value):
         l = []
+        url = ""
+        # GWAS Study ID
         if 'GCST' in value:
             l.append('<div class="gwas_source"><span>GWAS Catalog: <a href="{}/gwas/studies/{}">{}</a></span></div>'.format(constants.USEFUL_URLS['EBI_URL'],value['GCST'], value['GCST']))
-        if 'PMID' in value and value['PMID']:
+
+        # PubMed ID
+        if 'PMID' in value:
             publication_id = value['PMID']
-            url = ""
             # PubMed ID
-            if re.match(r'^\d+$', publication_id):
+            if re.match(r'^\d+$', str(publication_id)):
                 url = "https://europepmc.org/article/MED/{}".format(publication_id)
-            # DOI or other
-            else:
-                if re.match(r'^10\.',publication_id):
-                    publication_id = "DOI:"+publication_id
+                l.append('<div>Europe PMC: <a href="{}">{}</a></div>'.format(url, publication_id))
+        # DOI or other
+        elif 'DOI' in value:
+            doi = value['DOI']
+            if re.match(r'^10\.',doi):
+                publication_id = "DOI:"+doi
                 url = "https://europepmc.org/search?query={}".format(publication_id)
-            l.append('<div>Europe PMC: <a href="{}">{}</a></div>'.format(url, value['PMID']))
+                l.append('<div>Europe PMC: <a href="{}">{}</a></div>'.format(url, doi))
+            elif re.match(r'^http',doi):
+                l.append('<div><a href="{}">{}</a></div>'.format(doi, doi))
+            else:
+                l.append(f'<div>{doi}</div>')
+        # Other data
+        elif 'Other' in value:
+            l.append(f'<div>{value["Other"]}</div>')
         return format_html(''.join(l))
 
 

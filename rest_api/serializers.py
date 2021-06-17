@@ -29,7 +29,7 @@ class SampleSerializer(serializers.ModelSerializer):
         meta_fields = ('sample_number', 'sample_cases', 'sample_controls', 'sample_percent_male',
                     'sample_age', 'phenotyping_free', 'followup_time',
                     'ancestry_broad', 'ancestry_free', 'ancestry_country', 'ancestry_additional',
-                    'source_GWAS_catalog', 'source_PMID', 'cohorts', 'cohorts_additional')
+                    'source_GWAS_catalog', 'source_PMID','source_DOI', 'cohorts', 'cohorts_additional')
         fields = meta_fields
         read_only_fields = meta_fields
 

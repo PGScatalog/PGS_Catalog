@@ -91,7 +91,7 @@ class ReleaseAdmin(admin.ModelAdmin):
 
 @admin.register(Sample)
 class SampleAdmin(admin.ModelAdmin):
-    list_display = ["ancestry_broad", "ancestry_country", "sample_number", "phenotyping_free", "source_GWAS_catalog", "source_PMID", "display_sampleset"]
+    list_display = ["ancestry_broad", "ancestry_country", "sample_number", "phenotyping_free", "source_GWAS_catalog", "source_PMID", "source_DOI", "display_sampleset"]
     ordering = ('ancestry_broad', "ancestry_country")
 
 
@@ -117,7 +117,8 @@ class ScoreAdmin(admin.ModelAdmin):
                        "trait_reported", "trait_additional", "trait_efo",
                        #"samples_variants", "samples_training",
                        "method_name", "method_params",
-                       "variants_number", "variants_interactions", "variants_genomebuild")
+                       "variants_number", "variants_interactions", "variants_genomebuild",
+                       "ancestries")
         }),
         ('Curation', {
             'fields': ('date_released', 'curation_notes')
