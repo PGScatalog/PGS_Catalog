@@ -9,6 +9,7 @@ from release.scripts.PGSExport import PGSExport
 from release.scripts.PGSBuildFtp import PGSBuildFtp
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
 from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
+from release.scripts.UpdateReleasedCohorts import UpdateReleasedCohorts
 
 
 error_prefix = '  /!\  Error:'
@@ -43,6 +44,9 @@ def run(*args):
 
     # Create release
     call_create_release()
+
+    # Update the cohorts (update the Cohort "released" field)
+    update_released_cohorts()
 
     # Generate EuropePMC linkage XML file
     generate_europePMC_linkage_xml_file()
@@ -121,7 +125,7 @@ def check_duplicated_cohorts():
     if len(cohorts_duplicated.keys()):
         error_msg = "The following cohorts seem duplicated in the database:"
         for key,val in cohorts_duplicated.items():
-            error_msg += "\t- Cohorts: "+', '.join(list(val))
+            error_msg += "\n\t- Cohorts: "+', '.join(list(val))
         error_report(error_msg)
     else:
         output_report("Cohort duplication - OK: No duplicated cohort found!")
@@ -156,8 +160,16 @@ def call_create_release():
         error_report("at least one of the main components (Score, Publication or Performance Metrics) hasn't a new entry this release")
 
 
+def update_released_cohorts():
+    """ Update the Cohort model entries, setting the flag 'released' """
+    print("- Update the Cohort model entries, setting the flag 'released'")
+    released_cohorts = UpdateReleasedCohorts()
+    released_cohorts.update_cohorts()
+
+
 def generate_europePMC_linkage_xml_file():
     """ Generate the XML linkage file for EuropePMC """
+    print("- Generate the XML linkage file for EuropePMC")
     # EuropePMC linkage (XML file)
     xml_link = EuropePMCLinkage()
     # Fetch data and generate XML file
