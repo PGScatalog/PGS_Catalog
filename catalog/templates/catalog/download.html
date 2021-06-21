@@ -75,14 +75,14 @@
 <a href="{{ pgs_ftp_root }}">{{ pgs_ftp_root }}</a>
 ├── <a href="{{ pgs_ftp_root }}/metadata"><b>metadata/</b></a>
 │   ├── <span class="pgs_hl">pgs_all_metadata.xlsx</span>
-│   ├── <span class="pgs_hl">pgs_all_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(6 files)</small>
+│   ├── <span class="pgs_hl">pgs_all_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(7 files)</small>
 │   ├── <span class="pgs_hl">pgs_all_metadata.tar.gz</span> <small>(xlsx + csv files)</small>
 │   └── <b>previous_releases/</b>
 └── <a href="{{ pgs_ftp_root }}/scores"><b>scores/</b></a>
     ├── <b>PGS000001/</b>
     │   ├── <b>Metadata/</b>
     │   │   ├── <span class="pgs_hl">PGS000001_metadata.xlsx</span>
-    │   │   ├── <span class="pgs_hl">PGS000001_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(6 files)</small>
+    │   │   ├── <span class="pgs_hl">PGS000001_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(7 files)</small>
     │   │   ├── <span class="pgs_hl">PGS000001_metadata.tar.gz</span> <small>(xlsx + csv files)</small>
     │   │   └── <b>archived_versions/</b>
     │   └── <b>ScoringFiles/</b>
@@ -141,6 +141,7 @@
             <tr><td>weight_type</td><td>Type of Weight</td><td>Whether the author supplied Variant Weight is a: <b>beta</b> (effect size), or something like an <b>OR/HR</b> (odds/hazard ratio)</td><td><span class="pgs_color_green">Optional</span></td></tr>
             <tr><td>allelefrequency_effect</td><td>Effect Allele Frequency</td><td>Reported effect allele frequency, if the associated locus is a haplotype then haplotype frequency will be extracted.</td><td><span class="pgs_color_green">Optional</span></td></tr>
             <tr><td>is_interaction</td><td>FLAG: Interaction</td><td>This is a TRUE/FALSE variable that flags whether the weight should be multiplied with the dosage of more than one variant. Interactions are demarcated with a <i>_x_</i> between entries for each of the variants present in the interaction. </td><td><span class="pgs_color_green">Optional</span></td></tr>
+            <tr><td>is_dominant</td><td>FLAG: Dominant Inheritance Model</td><td>This is a TRUE/FALSE variable that flags whether the weight should be added to the PGS sum if there is at least 1 copy of the effect allele (e.g. it is a dominant allele).</td><td><span class="pgs_color_green">Optional</span></td></tr>
             <tr><td>is_recessive</td><td>FLAG: Recessive Inheritance Model</td><td>This is a TRUE/FALSE variable that flags whether the weight should be added to the PGS sum only if there are 2 copies of the effect allele (e.g. it is a recessive allele).</td><td><span class="pgs_color_green">Optional</span></td></tr>
             <tr><td>is_haplotype<br>is_diplotype</td><td>FLAG: Haplotype or Diplotype</td><td>This is a TRUE/FALSE variable that flags whether the effect allele is a haplotype/diplotype rather than a single SNP. Constituent SNPs in the haplotype are semi-colon separated. </td><td><span class="pgs_color_green">Optional</span></td></tr>
             <tr><td>imputation_method</td><td>Imputation Method</td><td>This described whether the variant was specifically called with a specific imputation or variant calling method. This is mostly kept to describe HLA-genotyping methods (e.g. flag SNP2HLA, HLA*IMP) that gives alleles that are not referenced by genomic position.</td><td><span class="pgs_color_green">Optional</span></td></tr>
