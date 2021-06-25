@@ -145,6 +145,7 @@ class Cohort(models.Model):
         sample_ids_list = set()
         pss_ids_list = set()
 
+        # Development association
         for sample in self.sample_set.all():
             if sample.id in sample_ids_list:
                 continue
@@ -159,17 +160,14 @@ class Cohort(models.Model):
 
             sample_ids_list.add(sample.id)
 
-        list_dev_associated_pgs_ids = list(list_dev_associated_pgs_ids)
-        list_dev_associated_pgs_ids.sort()
+        list_dev_associated_pgs_ids = sorted(list(list_dev_associated_pgs_ids))
 
-        sample_sets = SampleSet.objects.filter(id__in=list(pss_ids_list)).distinct()
-        perfs = Performance.objects.select_related('score').values('score__id').filter(sampleset__in=sample_sets).distinct()
-
+        # Evaluation association
+        perfs = Performance.objects.select_related('score').values('score__id').filter(sampleset__id__in=list(pss_ids_list)).distinct()
         for perf in perfs:
             list_eval_associated_pgs_ids.add(perf['score__id'])
 
-        list_eval_associated_pgs_ids = list(list_eval_associated_pgs_ids)
-        list_eval_associated_pgs_ids.sort()
+        list_eval_associated_pgs_ids = sorted(list(list_eval_associated_pgs_ids))
 
         return { 'development': list_dev_associated_pgs_ids, 'evaluation': list_eval_associated_pgs_ids}
 
@@ -442,7 +440,8 @@ class Sample(models.Model):
 
     ## Cohorts/Sources
     source_GWAS_catalog = models.CharField('GWAS Catalog Study ID (GCST...)', max_length=20, null=True)
-    source_PMID = models.CharField('Source PubMed ID (PMID) or doi', max_length=100, null=True)
+    source_PMID = models.IntegerField('Source PubMed ID (PMID)', null=True)
+    source_DOI = models.CharField('Source DOI', max_length=50, null=True)
     cohorts = models.ManyToManyField(Cohort, verbose_name='Cohort(s)')
     cohorts_additional = models.TextField('Additional Sample/Cohort Information', null=True)
 
@@ -459,16 +458,14 @@ class Sample(models.Model):
             ids.add(x.id)
         for x in self.score_training.all():
             ids.add(x.id)
-        ids = list(ids)
-        ids.sort()
+        ids = sorted(list(ids))
         return ids
 
     def associated_PSS(self):
         ids = set()
         for x in self.sampleset.all():
             ids.add(x.id)
-        ids = list(ids)
-        ids.sort()
+        ids = sorted(list(ids))
         return ids
 
     def list_cohortids(self):
@@ -569,6 +566,10 @@ class Sample(models.Model):
             d['GCST'] = self.source_GWAS_catalog
         if self.source_PMID:
             d['PMID'] = self.source_PMID
+        if self.source_DOI:
+            d['DOI'] = self.source_DOI
+        if not d and self.cohorts_additional:
+            d['Other'] = self.cohorts_additional
         return d
 
     @property
@@ -615,7 +616,7 @@ class Score(models.Model):
 
     # PGS Development/method details
     method_name = models.TextField('PGS Development Method')
-    method_params = models.TextField('PGS Development Details/Relevant Parameters', default='NR')
+    method_params = models.TextField('PGS Development Details/Relevant Parameters', null=True)
 
     variants_number = models.IntegerField('Number of Variants', validators=[MinValueValidator(1)])
     variants_interactions = models.IntegerField('Number of Interaction Terms', default=0)
@@ -773,7 +774,7 @@ class SampleSet(models.Model):
 
     @property
     def count_samples(self):
-        return len(self.samples.all())
+        return self.samples.all().count()
 
     @property
     def count_individuals(self):

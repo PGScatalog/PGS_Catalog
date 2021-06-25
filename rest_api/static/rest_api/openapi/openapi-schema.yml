@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.8'
+  version: '1.8.1'
   description: |
     Programmatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -73,6 +73,10 @@ info:
 
     <a class="toggle_btn" id="changelog">REST API version changelog <i class="fas fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.8.1</span> - June 2021:
+        * Change the data type of the field **source_PMID** in the Sample schemas
+        * New field **source_DOI** in the Sample schemas and move the DOI data from **source_PMID** to this new field.
 
       * <span class="badge badge-pill badge-pgs">1.8</span> - June 2021:
         * New endpoint `/rest/api_versions` providing the list of all the REST API versions and their changelogs.
@@ -188,7 +192,7 @@ tags:
   - name: "Release endpoints"
     description: PGS Release information (release date, number of new scores/publication/performance and their IDs)
   - name: "Other endpoints"
-    description: "PGS extra endpoints: **/rest/info** (REST API version, data counts, PGS citation, ...), **/rest/ancestry_categories** (ancestry symbols and names) and specific queries from collaborators"
+    description: "PGS extra endpoints: **/rest/info** (REST API version, data counts, PGS citation, ...), **/rest/api_versions** (REST API version changelogs), **/rest/ancestry_categories** (ancestry symbols and names) and specific queries from collaborators"
 
 components:
   schemas:
@@ -632,9 +636,13 @@ components:
           description: "Associated NHGRI-EBI GWAS Catalog study identifier"
           example: "GCST001937"
         source_PMID:
-          type: string
+          type: integer
           description: "Associated PubMed identifier"
-          example: "26343387"
+          example: 26343387
+        source_DOI:
+          type: string
+          description: "Associated Digital Object Identifier"
+          example: "10.1038/s41588-021-00783-5"
         cohorts:
           type: array
           description: "List of cohorts that collected the samples"

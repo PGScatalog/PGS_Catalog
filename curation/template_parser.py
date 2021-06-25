@@ -266,7 +266,13 @@ class CurationTemplate():
                             val = sample_data.str2demographic(f, val, spreadsheet_name)
                             self.update_report(val)
                         elif f == 'source_PMID':
-                            val = int(val) # Convert from float to int
+                            # PubMed ID
+                            if re.match('^\d+',str(val)):
+                                val = int(val) # Convert from float to int
+                            # DOI
+                            else:
+                                f = 'source_DOI'
+                                val = str(val)
                         sample_data.add_data(f,val)
         return sample_data
 
