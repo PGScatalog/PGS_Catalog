@@ -74,17 +74,22 @@ class SampleData(GenericData):
         '''
         Check if a Sample model already exists.
         Only to be used for GWAS/Dev samples from existing Scores in the database!
-        Return type: Boolean
+        Return type: Sample object (catalog.models) or None
         '''
         sample_data = {}
+        s_cohorts = ''
         for field, val in self.data.items():
-            if field not in ['cohorts', 'sample_age', 'followup_time']:
+            if field == 'cohorts':
+                s_cohorts = '|'.join(sorted([x.name for x in self.data['cohorts']]))
+            elif field not in ['sample_age', 'followup_time']: # 'sample_age' and 'followup_time' not populated by GWAS Catalog
                 sample_data[field] = val
         samples = Sample.objects.filter(**sample_data)
         if len(samples) != 0:
-            return True
-        else: 
-            return False
+            for sample in samples:
+                cohorts = '|'.join(sorted([x.name_short for x in sample.cohorts.all()]))
+                if s_cohorts == cohorts:
+                    return sample
+        return None
 
 
     @transaction.atomic
@@ -116,7 +121,7 @@ class SampleData(GenericData):
                 # Add ancestry broad data if none exists
                 if self.model.ancestry_broad == '' or not self.model.ancestry_broad:
                     self.model.ancestry_broad = 'Not reported'
-                    
+
                 # Need to create the Sample object first (with an ID)
                 for cohort in cohorts:
                     self.model.cohorts.add(cohort)
@@ -126,5 +131,5 @@ class SampleData(GenericData):
         except IntegrityError as e:
             self.model = None
             print('Error with the creation of the Sample(s) and/or the Demographic(s) and/or the Cohort(s)')
-        
+
         return self.model
