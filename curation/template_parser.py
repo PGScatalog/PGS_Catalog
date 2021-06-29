@@ -267,7 +267,7 @@ class CurationTemplate():
                             self.update_report(val)
                         elif f == 'source_PMID':
                             # PubMed ID
-                            if re.match('^\d+',str(val)):
+                            if re.match('^\d+$',str(val)):
                                 val = int(val) # Convert from float to int
                             # DOI
                             else:
