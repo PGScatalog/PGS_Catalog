@@ -74,7 +74,7 @@ info:
     <a class="toggle_btn" id="changelog">REST API version changelog <i class="fas fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
 
-      * <span class="badge badge-pill badge-pgs">1.8.1</span> - June 2021:
+      * <span class="badge badge-pill badge-pgs">1.8.1</span> - July 2021:
         * Change the data type of the field **source_PMID** in the Sample schemas
         * New field **source_DOI** in the Sample schemas and move the DOI data from **source_PMID** to this new field.
 
