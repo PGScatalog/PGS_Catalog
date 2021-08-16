@@ -65,6 +65,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -264,8 +265,8 @@ REST_FRAMEWORK = {
 #-----------------#
 #  CORS Settings  #
 #-----------------#
-CORS_ORIGIN_REGEX_WHITELIST = [
-    r"^https://\w+\.ebi\.ac\.uk$"
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/\w+\.ebi\.ac\.uk$"
 ]
 CORS_URLS_REGEX = r'^/rest/.*$'
 CORS_ALLOW_METHODS = ['GET']
