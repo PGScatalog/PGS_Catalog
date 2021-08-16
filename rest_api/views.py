@@ -1,4 +1,5 @@
 from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 from rest_framework.exceptions import Throttled
@@ -535,7 +536,7 @@ class RestCurrentRelease(generics.RetrieveAPIView):
 
 ##### Extra endpoints #####
 
-class RestGCST(generics.RetrieveAPIView):
+class RestGCST(APIView):
     """
     Retrieve all the PGS Score IDs using a given GWAS study (GCST)
     """
