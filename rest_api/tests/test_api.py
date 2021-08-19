@@ -3,13 +3,11 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework.test import RequestsClient
 from catalog.models import *
 
 
 class ErrorRestTest(TestCase):
     def test_nonexistingEndpoint(self):
-        client = RequestsClient()
         response = self.client.get('getAllPizzas')
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -17,61 +15,56 @@ class ErrorRestTest(TestCase):
 
 class PublicationRestTest(TestCase):
 
-    def setUp(self):
-        self.id = "PGP000001"
-        self.date_pub = date.today()
-        self.new_publication = Publication.objects.create(num=1, id=self.id, date_publication=self.date_pub)
+    # Load data in DB - Must live in the rest_api/fixtures/ directory
+    fixtures = ['db_test.json']
 
     def test_publication(self):
-        publication = Publication.objects.get(id=self.id)
+        id = 'PGP000001'
 
         response = self.client.get(
-                    reverse('getPublication', kwargs={'pgp_id': self.id}))
+                    reverse('getPublication', kwargs={'pgp_id': id}))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], id)
 
-        date_string = publication.date_publication.strftime("%Y-%m-%d")
-        self.assertEqual(response.data['id'], publication.id)
-        self.assertEqual(response.data['date_publication'], date_string)
+    def test_all_publications(self):
+        response = self.client.get(reverse('getAllPublications'))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
 
 
 class ScoreRestTest(TestCase):
 
-    def setUp(self):
-        self.id = "PGS000001"
-        self.name = "PRS77_BC"
-
-        new_publication = Publication.objects.create(num=2, id='PGP000002', date_publication=date.today())
-        self.new_score = Score.objects.create(num=1, id=self.id, name=self.name, publication_id=new_publication.num, variants_number=1)
+    # Load data in DB - Must live in the rest_api/fixtures/ directory
+    fixtures = ['db_test.json']
 
     def test_score(self):
-        score = Score.objects.get(id=self.id)
+        id = 'PGS000001'
+
         response = self.client.get(
-                    reverse('getScore', kwargs={'pgs_id': self.id}))
+                    reverse('getScore', kwargs={'pgs_id': id}))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], id)
 
-        self.assertEqual(response.data['id'], score.id)
-        self.assertEqual(response.data['name'], score.name)
+    def test_all_scores(self):
+        response = self.client.get(reverse('getAllScores'))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
 
 
-class BrowseUrlTest(TestCase):
-    """ Test the main URLs of the website """
+class GCSTRestTest(TestCase):
 
-    def test_urls(self):
-        client = Client()
-        urls = [
-            '/rest/',
-            '/rest/trait/all/',
-            '/rest/publication/all/',
-            '/rest/release/all/',
-            '/rest/score/all/',
-            '/rest/cohort/all/',
-            '/rest/sample_set/all/',
-            '/rest/info/',
-            '/rest/api_versions/',
-            '/rest/ancestry_categories/'
-        ]
-        for url in urls:
-            resp = client.get(url)
-            self.assertEqual(resp.status_code, 200)
+    # Load data in DB - Must live in the rest_api/fixtures/ directory
+    fixtures = ['db_test.json']
+
+    def test_gcst(self):
+        id = 'GCST001937'
+
+        response = self.client.get(
+                    reverse('pgs_score_ids_from_gwas_gcst_id', kwargs={'gcst_id': id}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, ["PGS000001","PGS000002"])

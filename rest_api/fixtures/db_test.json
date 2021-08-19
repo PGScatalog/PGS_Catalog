@@ -1,0 +1,369 @@
+[
+{
+    "model": "catalog.publication",
+    "pk": 1,
+    "fields": {
+        "id": "PGP000001",
+        "date_released": "2019-12-18",
+        "doi": "10.1016/j.jacc.2018.07.079",
+        "PMID": null,
+        "journal": "bioRxiv",
+        "firstauthor": "Smith J",
+        "authors": "",
+        "title": "",
+        "date_publication": "2018-10-01",
+        "curation_status": "C",
+        "curation_notes": ""
+    }
+},
+{
+    "model": "catalog.publication",
+    "pk": 2,
+    "fields": {
+        "id": "PGP000002",
+        "date_released": "2020-02-12",
+        "doi": "",
+        "PMID": 25855707,
+        "journal": "Lancet",
+        "firstauthor": "",
+        "authors": "",
+        "title": "",
+        "date_publication": "2015-04-08",
+        "curation_status": "C",
+        "curation_notes": ""
+    }
+},
+{
+    "model": "catalog.cohort",
+    "pk": 1,
+    "fields": {
+        "name_short": "ABC",
+        "name_full": "Cohort ABC description",
+        "released": true
+    }
+},
+{
+    "model": "catalog.cohort",
+    "pk": 2,
+    "fields": {
+        "name_short": "DEF",
+        "name_full": "Cohort DEF description",
+        "released": true
+    }
+},
+{
+    "model": "catalog.efotrait",
+    "pk": "EFO_0000305",
+    "fields": {
+        "label": "breast carcinoma",
+        "description": "A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]",
+        "url": "",
+        "synonyms": "CA - Carcinoma of breast | Carcinoma of breast NOS | Mammary Carcinoma, Human",
+        "mapped_terms": "OMIM:615554 | NCIT:C4872 | UMLS:C0678222"
+    }
+},
+{
+    "model": "catalog.efotrait",
+    "pk": "MONDO_0007254",
+    "fields": {
+        "label": "breast cancer",
+        "description": "A primary or metastatic malignant neoplasm involving the breast...",
+        "url": "",
+        "synonyms": null,
+        "mapped_terms": null
+    }
+},
+{
+    "model": "catalog.sample",
+    "pk": 1,
+    "fields": {
+        "sample_number": 150,
+        "sample_cases": null,
+        "sample_controls": null,
+        "sample_percent_male": null,
+        "sample_age": null,
+        "phenotyping_free": null,
+        "followup_time": null,
+        "ancestry_broad": "",
+        "ancestry_free": null,
+        "ancestry_country": null,
+        "ancestry_additional": null,
+        "source_GWAS_catalog": "GCST001937",
+        "source_PMID": null,
+        "source_DOI": null,
+        "cohorts_additional": null,
+        "cohorts": []
+    }
+},
+{
+    "model": "catalog.sample",
+    "pk": 2,
+    "fields": {
+        "sample_number": 245,
+        "sample_cases": null,
+        "sample_controls": null,
+        "sample_percent_male": null,
+        "sample_age": null,
+        "phenotyping_free": null,
+        "followup_time": null,
+        "ancestry_broad": "",
+        "ancestry_free": null,
+        "ancestry_country": null,
+        "ancestry_additional": null,
+        "source_GWAS_catalog": "GCST004988",
+        "source_PMID": null,
+        "source_DOI": null,
+        "cohorts_additional": null,
+        "cohorts": []
+    }
+},
+{
+    "model": "catalog.sample",
+    "pk": 3,
+    "fields": {
+        "sample_number": 4563,
+        "sample_cases": null,
+        "sample_controls": null,
+        "sample_percent_male": null,
+        "sample_age": null,
+        "phenotyping_free": null,
+        "followup_time": null,
+        "ancestry_broad": "European",
+        "ancestry_free": null,
+        "ancestry_country": null,
+        "ancestry_additional": null,
+        "source_GWAS_catalog": null,
+        "source_PMID": null,
+        "source_DOI": null,
+        "cohorts_additional": null,
+        "cohorts": []
+    }
+},
+{
+    "model": "catalog.sample",
+    "pk": 4,
+    "fields": {
+        "sample_number": 6943,
+        "sample_cases": null,
+        "sample_controls": null,
+        "sample_percent_male": null,
+        "sample_age": null,
+        "phenotyping_free": null,
+        "followup_time": null,
+        "ancestry_broad": "African",
+        "ancestry_free": null,
+        "ancestry_country": null,
+        "ancestry_additional": null,
+        "source_GWAS_catalog": null,
+        "source_PMID": null,
+        "source_DOI": null,
+        "cohorts_additional": null,
+        "cohorts": []
+    }
+},
+{
+    "model": "catalog.sample",
+    "pk": 5,
+    "fields": {
+        "sample_number": 14874,
+        "sample_cases": null,
+        "sample_controls": null,
+        "sample_percent_male": null,
+        "sample_age": null,
+        "phenotyping_free": null,
+        "followup_time": null,
+        "ancestry_broad": "African",
+        "ancestry_free": null,
+        "ancestry_country": null,
+        "ancestry_additional": null,
+        "source_GWAS_catalog": null,
+        "source_PMID": null,
+        "source_DOI": null,
+        "cohorts_additional": null,
+        "cohorts": []
+    }
+},
+{
+    "model": "catalog.score",
+    "pk": 1,
+    "fields": {
+        "id": "PGS000001",
+        "name": "PGS_name_1",
+        "date_released": "2019-12-18",
+        "curation_notes": "",
+        "flag_asis": true,
+        "publication": 1,
+        "trait_reported": "",
+        "trait_additional": null,
+        "method_name": "SNP",
+        "method_params": "method params",
+        "variants_number": 10,
+        "variants_interactions": 0,
+        "variants_genomebuild": "GRCh38",
+        "license": "PGS obtained from the Catalog should be cited appropriately, and used in accordance with any licensing restrictions set by the authors. See EBI Terms of Use (https://www.ebi.ac.uk/about/terms-of-use/) for additional details.",
+        "ancestries": null,
+        "samples_variants": [
+            1
+        ],
+        "samples_training": [],
+        "trait_efo": [
+            "EFO_0000305"
+        ]
+    }
+},
+{
+    "model": "catalog.score",
+    "pk": 2,
+    "fields": {
+        "id": "PGS000002",
+        "name": "PGS_name_2",
+        "date_released": "2020-02-12",
+        "curation_notes": "",
+        "flag_asis": true,
+        "publication": 2,
+        "trait_reported": "",
+        "trait_additional": null,
+        "method_name": "",
+        "method_params": null,
+        "variants_number": 10,
+        "variants_interactions": 0,
+        "variants_genomebuild": "GRCh38",
+        "license": "PGS obtained from the Catalog should be cited appropriately, and used in accordance with any licensing restrictions set by the authors. See EBI Terms of Use (https://www.ebi.ac.uk/about/terms-of-use/) for additional details.",
+        "ancestries": null,
+        "samples_variants": [
+            1,
+            2
+        ],
+        "samples_training": [],
+        "trait_efo": [
+            "MONDO_0007254"
+        ]
+    }
+},
+{
+    "model": "catalog.sampleset",
+    "pk": 1,
+    "fields": {
+        "id": "PSS000001",
+        "samples": [
+            3,
+            4
+        ]
+    }
+},
+{
+    "model": "catalog.sampleset",
+    "pk": 2,
+    "fields": {
+        "id": "PSS000002",
+        "samples": [
+            5
+        ]
+    }
+},
+{
+    "model": "catalog.performance",
+    "pk": 1,
+    "fields": {
+        "id": "PPM000001",
+        "date_released": "2019-12-18",
+        "curation_notes": "",
+        "score": 1,
+        "sampleset": 1,
+        "publication": 1,
+        "phenotyping_reported": "",
+        "covariates": null,
+        "performance_comments": null,
+        "phenotyping_efo": []
+    }
+},
+{
+    "model": "catalog.performance",
+    "pk": 2,
+    "fields": {
+        "id": "PPM000002",
+        "date_released": "2020-02-12",
+        "curation_notes": "",
+        "score": 2,
+        "sampleset": 2,
+        "publication": 2,
+        "phenotyping_reported": "",
+        "covariates": null,
+        "performance_comments": null,
+        "phenotyping_efo": []
+    }
+},
+{
+    "model": "catalog.efotrait_ontology",
+    "pk": "EFO_0000305",
+    "fields": {
+        "label": "breast carcinoma",
+        "description": "A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]",
+        "url": "",
+        "synonyms": "CA - Carcinoma of breast | Carcinoma of breast NOS | Mammary Carcinoma, Human",
+        "mapped_terms": "OMIM:615554 | NCIT:C4872 | UMLS:C0678222",
+        "scores_direct_associations": [],
+        "scores_child_associations": [],
+        "child_traits": []
+    }
+},
+{
+    "model": "catalog.efotrait_ontology",
+    "pk": "MONDO_0007254",
+    "fields": {
+        "label": "breast cancer",
+        "description": "A primary or metastatic malignant neoplasm involving the breast...",
+        "url": "",
+        "synonyms": null,
+        "mapped_terms": null,
+        "scores_direct_associations": [],
+        "scores_child_associations": [],
+        "child_traits": []
+    }
+},
+{
+    "model": "catalog.traitcategory",
+    "pk": 1,
+    "fields": {
+        "label": "Cancer",
+        "colour": "#BC80BD",
+        "parent": "neoplasm",
+        "efotraits": [
+            "EFO_0000305",
+            "MONDO_0007254"
+        ],
+        "efotraits_ontology": [
+            "EFO_0000305",
+            "MONDO_0007254"
+        ]
+    }
+},
+{
+    "model": "catalog.release",
+    "pk": 1,
+    "fields": {
+        "date": "2019-12-18",
+        "score_count": 1,
+        "performance_count": 1,
+        "publication_count": 1,
+        "notes": "Release 1",
+        "updated_score_count": 0,
+        "updated_performance_count": 0,
+        "updated_publication_count": 0
+    }
+},
+{
+    "model": "catalog.release",
+    "pk": 2,
+    "fields": {
+        "date": "2020-02-12",
+        "score_count": 1,
+        "performance_count": 1,
+        "publication_count": 1,
+        "notes": "Release 2",
+        "updated_score_count": 0,
+        "updated_performance_count": 0,
+        "updated_publication_count": 0
+    }
+}
+]
