@@ -26,11 +26,10 @@ class PublicationData(GenericData):
                 result = self.rest_api_call_to_epmc(f'ext_id:{self.PMID}')
             else:
                 print(f'Can\'t find a match on EuropePMC for the publication: {self.doi}')
-        
+
         if result:
-            data_result = { 
+            data_result = {
                 'doi': result['doi'],
-                'journal': result['journalTitle'],
                 'firstauthor': result['authorString'].split(',')[0],
                 'authors': result['authorString'],
                 'title': result['title'],
@@ -44,7 +43,7 @@ class PublicationData(GenericData):
                     data_result['PMID'] = result['pmid']
 
             self.add_curation_notes()
-           
+
             for field, value in data_result.items():
                 self.add_data(field,value)
         else:

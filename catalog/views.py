@@ -43,7 +43,7 @@ def ancestry_legend():
     val = len(ancestry_labels.keys()) / 2
     entry_per_col = int((len(ancestry_labels.keys()) + 1) / 2);
 
-    div_html_1 = '<div class="ancestry_legend" style="float:left'
+    div_html_1 = '<div class="ancestry_legend'
 
     div_html = div_html_1
 
@@ -51,7 +51,7 @@ def ancestry_legend():
     div_content = ''
     for key in ancestry_labels.keys():
         if count == entry_per_col:
-            div_html += ';margin-right:1rem">'
+            div_html += ' mr-3">'
             div_html += div_content+'</div>'
             legend_html += div_html
             # New div
@@ -68,7 +68,7 @@ def ancestry_legend():
     return '''
     <div id="ancestry_legend" class="filter_container mb-3">
         <div class="filter_header">Ancestry legend <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_category" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see more information about the Ancestry Categories (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
-        <div id="ancestry_legend_content" class="clearfix">{}</div>
+        <div id="ancestry_legend_content">{}</div>
     </div>'''.format(legend_html)
 
 
@@ -94,9 +94,9 @@ def ancestry_form():
         <!-- Ancestry form -->
         <div id="ancestry_filter" class="filter_container mr-3 mb-3">
             <div class="filter_header">Filter PGS by Participant Ancestry <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_filter" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see information about the Ancestry Filters (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
-            <div class="clearfix">
+            <div class="filter_form">
               <!-- Type of study -->
-              <div style="float:left">
+              <div class="filter_study">
                 <div class="filter_subheader mb-1">Individuals included in:</div>
                   <select id="ancestry_type_list">
                     <option value="all" selected>All Stages combined [G, D, E]</option>

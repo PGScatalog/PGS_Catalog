@@ -568,8 +568,6 @@ class Sample(models.Model):
             d['PMID'] = self.source_PMID
         if self.source_DOI:
             d['DOI'] = self.source_DOI
-        if not d and self.cohorts_additional:
-            d['Other'] = self.cohorts_additional
         return d
 
     @property

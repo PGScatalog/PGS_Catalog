@@ -12,6 +12,7 @@
 # below:
 .git
 .gitignore
+.travis.yml
 
 # Static directories (GAE uses the ones in /static instead)
 /catalog/static/
@@ -33,6 +34,7 @@
 /setup.cfg
 
 # Other
+/rest_api/fixtures/
 app.yaml_template
 LICENSE.md
 README.md
