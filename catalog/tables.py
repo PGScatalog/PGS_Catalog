@@ -34,10 +34,6 @@ def publication_format(value, is_external=False):
     return format_html(f'<a href="{publication_path}/{value.id}">{value.id}</a> {citation}{extra_html}')
 
 
-# def individuals_format(value):
-#     return '{:,} individuals'.format(value)
-
-
 class Column_joinlist(tables.Column):
     def render(self, value):
         values = smaller_in_bracket('<br/>'.join(value))
@@ -141,8 +137,11 @@ class Column_format_html(tables.Column):
 
 class Browse_PublicationTable(tables.Table):
     '''Table to browse Publications in the PGS Catalog'''
+    id = tables.Column(accessor='id', verbose_name=format_html('PGS Publication/Study ID <span>(PGP)</span>'))
     scores_count = tables.Column(accessor='scores_count', verbose_name='PGS Developed', orderable=False)
     scores_evaluated = tables.Column(accessor='scores_evaluated_count', verbose_name='PGS Evaluated', orderable=False)
+    doi = tables.Column(accessor='doi', verbose_name=format_html('Digital object identifier <span>(doi)</span>'))
+    PMID = tables.Column(accessor='PMID', verbose_name=format_html('PubMed ID <span>(PMID)</span>'))
 
     class Meta:
         model = Publication
@@ -215,8 +214,8 @@ class Browse_PendingPublicationTable(Browse_PublicationTable):
 
 class Browse_TraitTable(tables.Table):
     '''Table to browse Traits in the PGS Catalog'''
-    label_link = Column_format_html(accessor='display_label', verbose_name='Trait (ontology term label)', orderable=True)
-    display_ext_url = Column_format_html(accessor='display_ext_url', verbose_name='Trait Identifier (ontology ID)')
+    label_link = Column_format_html(accessor='display_label', verbose_name=format_html('Trait <span>(ontology term label)</span>'), orderable=True)
+    display_ext_url = Column_format_html(accessor='display_ext_url', verbose_name=format_html('Trait Identifier <span>(ontology ID)</span>'))
     category_labels = Column_format_html(accessor='display_category_labels', verbose_name='Trait Category')
     scores_count = tables.Column(accessor='scores_count', verbose_name='Number of Related PGS')
 
@@ -243,8 +242,9 @@ class Browse_TraitTable(tables.Table):
 class Browse_ScoreTable(tables.Table):
     '''Table to browse Scores (PGS) in the PGS Catalog'''
     id = tables.Column(accessor='id', verbose_name=format_html('Polygenic Score ID & Name'), orderable=True)
-    trait_efo = tables.Column(accessor='trait_efo', verbose_name='Mapped Trait(s)\n(Ontology)', orderable=False)
-    ftp_link = tables.Column(accessor='link_filename', verbose_name=format_html('PGS Scoring File (FTP Link)'), orderable=False)
+    publication = tables.Column(accessor='publication', verbose_name=format_html('PGS Publication ID <span>(PGP)</span>'), orderable=True)
+    trait_efo = tables.Column(accessor='trait_efo', verbose_name=format_html('Mapped Trait(s) <span>(Ontology)</span>'), orderable=False)
+    ftp_link = tables.Column(accessor='link_filename', verbose_name=format_html('Scoring File <span>(FTP Link)</span>'), orderable=False)
     ancestries =  Column_format_html(accessor='ancestries', verbose_name='Ancestry distribution', orderable=False)
 
     class Meta:
@@ -281,11 +281,12 @@ class Browse_ScoreTable(tables.Table):
         id = value.split('.')[0]
         ftp_link = '{}/scores/{}/ScoringFiles/'.format(constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], id)
         ftp_file_link = ftp_link+value
+        margin_right = ''
         license_icon = ''
         if record.has_default_license == False:
-            license_icon = f'<span class="pgs-info-icon pgs_helpover ml-2" title="Terms and Licenses" data-content="{record.license}" data-placement="left"> <span class="only_export"> - Check </span>Terms/Licenses</span>'
-        return format_html(f'<a class="pgs_no_icon_link file_link" href="{ftp_link}" data-toggle="tooltip" data-placement="left" title="Download PGS Scoring File (variants, weights)"></a> <span class="only_export">{ftp_file_link}</span>{license_icon}')
-
+            margin_right = ' mr2'
+            license_icon = f'<span class="pgs-info-icon pgs_helpover" title="Terms and Licenses" data-content="{record.license}" data-placement="left"> <span class="only_export"> - Check </span>Terms/Licenses</span>'
+        return format_html(f'<a class="pgs_no_icon_link file_link{margin_right}" href="{ftp_link}" data-toggle="tooltip" data-placement="left" title="Download PGS Scoring File (variants, weights)"></a> <span class="only_export">{ftp_file_link}</span>{license_icon}')
 
     def render_variants_number(self, value):
         return '{:,}'.format(value)
@@ -433,7 +434,7 @@ class Browse_SampleSetTable(tables.Table):
     '''Table to browse SampleSets (PSS; used in PGS evaluations) in the PGS Catalog'''
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
-    sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br />(PSS)'), orderable=False)
+    sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br /><span>(PSS)</span>'), orderable=False)
     phenotyping_free = Column_shorten_text_content(accessor='phenotyping_free', verbose_name='Phenotype Definitions and Methods')
     cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
 
@@ -509,10 +510,11 @@ class SampleTable_variants(tables.Table):
                 l.append('<div><a href="{}">{}</a></div>'.format(doi, doi))
             else:
                 l.append(f'<div>{doi}</div>')
-        # Other data
-        elif 'Other' in value:
-            l.append(f'<div>{value["Other"]}</div>')
-        return format_html(''.join(l))
+
+        if len(l) == 0:
+            return '—'
+        else:
+            return format_html(''.join(l))
 
 
 class SampleTable_training(tables.Table):
@@ -547,7 +549,7 @@ class SampleTable_performance(tables.Table):
     '''Table on PGS page - displays information about the samples used in for PGS evaluation (accessed by PSS)'''
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
-    sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br />(PSS)'), orderable=False)
+    sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br /><span>(PSS)</span>'), orderable=False)
     phenotyping_free = tables.Column(accessor='phenotyping_free', verbose_name='Phenotype Definitions and Methods')
     cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
 
@@ -588,10 +590,10 @@ class SampleTable_performance(tables.Table):
 
 class PerformanceTable(tables.Table):
     '''Displays PGS Performance metrics'''
-    id = tables.Column(accessor='id', verbose_name=format_html('PGS Performance<br />Metric ID (PPM)'))
-    sampleset = tables.Column(accessor='sampleset', verbose_name=format_html('PGS Sample Set ID<br />(PSS)'))
+    id = tables.Column(accessor='id', verbose_name=format_html('PGS Performance<br />Metric ID <span>(PPM)</span>'))
+    sampleset = tables.Column(accessor='sampleset', verbose_name=format_html('PGS Sample Set ID<br /><span>(PSS)</span>'))
     trait_info = Column_trait(accessor='display_trait', verbose_name='Trait', orderable=False)
-    effect_sizes = Column_metriclist(accessor='effect_sizes_list', verbose_name=format_html('PGS Effect Sizes<br />(per SD change)'), orderable=False)
+    effect_sizes = Column_metriclist(accessor='effect_sizes_list', verbose_name=format_html('PGS Effect Sizes<br /><span>(per SD change)</span>'), orderable=False)
     class_accuracy = Column_metriclist(accessor='class_acc_list', verbose_name='Classification Metrics', orderable=False)
     othermetrics = Column_metriclist(accessor='othermetrics_list', verbose_name='Other Metrics', orderable=False)
     pub_withexternality = Column_pubexternality(accessor='publication_withexternality', verbose_name='Performance Source', orderable=False)

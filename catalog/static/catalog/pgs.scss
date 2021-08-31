@@ -536,6 +536,9 @@ h2 {
 
 th .th-inner {
   padding: 10px 24px 10px 12px !important;
+  span {
+    font-weight: normal !important;
+  }
 }
 
 th .th-inner-not-sortable {
@@ -543,6 +546,9 @@ th .th-inner-not-sortable {
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 10px 12px;
+  span {
+    font-weight: normal !important;
+  }
 }
 
 
@@ -831,11 +837,14 @@ td > ul {
   }
 }
 
-.pgs-info-icon:before {
-  font-family: 'Font Awesome 5 Free';
-  content:"\f05a";
-  color: $pgs_colour_1;
-  font-weight: 900;
+.pgs-info-icon {
+  white-space: nowrap;
+  &:before {
+    font-family: 'Font Awesome 5 Free';
+    content:"\f05a";
+    color: $pgs_colour_1;
+    font-weight: 900;
+  }
 }
 
 .pgs_pub_details {
@@ -2132,16 +2141,23 @@ footer {
   margin-bottom: 6px;
   text-align:center;
 }
+.filter_form {
+  display:flex;
+  flex-flow: row wrap;
+}
+.filter_study {
+  margin-right: 1rem;
+  padding-right:1rem;
+  border-right:1px solid $pgs_darkC;
+}
 .filter_subheader {
   font-weight: 200;
 }
-.filter_ancestry {
-  float:left;
-  margin-left:1rem;
-  padding-left:1rem;
-  border-left:1px solid #CCC;
-}
 
+#ancestry_legend_content {
+  display:flex;
+  flex-flow: row wrap;
+}
 .ancestry_legend {
   font-size:80%;
   ul {
@@ -2159,13 +2175,12 @@ footer {
 
 
 /* Mobile phone display */
-@media screen and (max-width: 499px) {
+@media screen and (max-width: 1069px) {
+  .filter_study{
+    border-right: 1px solid #FFF;
+  }
   .filter_ancestry {
-    margin-left:0rem;
-    padding-left:0rem;
-    margin-top: 1rem;
-    border-left:none;
-    display:none;
+    margin-top:1rem;
   }
 }
 
@@ -2175,7 +2190,7 @@ footer {
   font-size: 12px;
   div:first-child {
     font-weight: bold;
-    border-bottom:1px solid #CCC;
+    border-bottom:1px solid $pgs_darkC;
     padding-bottom: 4px;
     margin-bottom: 8px;
   }
@@ -2191,7 +2206,7 @@ footer {
   > span {
     display: block;
     margin-top: 8px;
-    border-top:1px solid #CCC;
+    border-top:1px solid $pgs_darkC;
     padding-top: 4px;
   }
   ul {

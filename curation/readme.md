@@ -55,6 +55,34 @@ default_curation_status = 'IP'
 skip_scorefiles = False
 ```
 
+#### Additional attributes for the study_names_list
+
+##### License
+To indicate a license other than the default one ([EBI Terms of Use](https://www.ebi.ac.uk/about/terms-of-use/), a **license** attribute can be added, e.g.:
+```
+...
+study_names_list = [
+    { 'name': 'Bakshi2021' },
+    { 'name': 'Darst2021_E', 'license': 'Creative Commons Attribution 4.0 International (CC BY 4.0)' },
+    { 'name': 'Guffanti2019' },
+    ...
+...
+```
+
+##### Curation status
+To indicate that an imported study has a different curation status (i.e. not the **default_curation_status**), a **status** attribute can be added, e.g.:
+```
+...
+study_names_list = [
+    { 'name': 'Bakshi2021' },
+    { 'name': 'Darst2021_E', 'status': 'E' },
+    { 'name': 'Guffanti2019' },
+    ...
+...
+```
+The value **E** corresponds to the curation status "Embargoed".
+
+
 ### 3 - Update the Django settings
 In order to run the script, you might need to update the global settings of the Django project by adding the **Curation** app (`curation.apps.CurationConfig`) to the list of **INSTALLED_APPS**, in `pgs_web/settings.py`, e.g.:
 ```

@@ -3,10 +3,10 @@
 PGS_REST_API = [
     {
         'version': '1.8.1',
-        'date': '2021-06',
+        'date': '2021-07',
         'changelog': [
-            "Change the data type of the field 'source_PMID' in the Sample schemas.",
-            "New field *'*source_DOI' in the Sample schemas and move the DOI data from 'source_PMID' to this new field."
+            "Change the data type of the field 'source_PMID' to numeric in the Sample schemas.",
+            "New field 'source_DOI' in the Sample schemas and move the DOI data from 'source_PMID' to this new field."
         ]
     },
     {
