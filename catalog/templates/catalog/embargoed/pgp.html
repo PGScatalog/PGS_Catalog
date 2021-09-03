@@ -22,4 +22,10 @@
       </div>
     </div>
 
+    <h4>Associated Polygenic Score(s)<span class="pl-3 pr-3">-</span>Embargoed</h4>
+    <ul>
+      {% for score in scores %}
+        <li><a href="/score/{{ score.id }}">{{ score.id }}</a></li>
+      {% endfor %}
+    </ul>
 {% endblock %}

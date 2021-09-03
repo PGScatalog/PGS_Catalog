@@ -22,7 +22,7 @@ class ScoringFileUpdate():
         lines = []
         try:
             lines = [
-                '### PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp for additional information',
+                '### PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp_scoring for additional information',
                 '## POLYGENIC SCORE (PGS) INFORMATION',
                 f'# PGS ID = {score.id}',
                 f'# PGS Name = {score.name}',
