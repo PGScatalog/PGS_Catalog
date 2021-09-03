@@ -34,40 +34,59 @@
       </div>
     </div>
     <p>
-        This page contains information about the PGS Catalog downloads and FTP.
+      This page contains information about the PGS Catalog downloads and FTP.
     </p>
+    <div class="content_container">
+      <div class="table-of-contents">
+        <nav role="navigation">
+          <h5>Table of Contents</h5>
+          <ul>
+            <li><a href="#dl_ftp_list">Available PGS Catalog downloads</a></li>
+            <li><a href="#dl_ftp">PGS Catalog FTP structure</a></li>
+            <li><a href="#dl_ftp_scoring">PGS Scoring Files</a></li>
+            <li><a href="#dl_ftp_metadata">PGS Catalog Metadata</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
 
     <section>
-      <h3>Available PGS Catalog downloads</h3>
+      <h3 id="dl_ftp_list">Available PGS Catalog downloads</h3>
       <table class="table table-bordered table_pgs_h">
         <tbody>
           <tr>
             <td>
               <span class="pgs_h_big_header">PGS Scoring Files & Metadata</span>
-              <a class="pgs_no_icon_link info-icon" href="#dl_ftp" data-toggle="tooltip" data-placement="bottom" title="Individual PGS variants scoring and metadata files. Click on this icon to see information about the PGS Scoring File format"><i class="fas fa-info-circle"></i></a>
+              <div class="mt-1">
+                <small>Individual PGS variants scoring and metadata files</small>
+              </div>
             </td>
             <td><a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_http_root }}/scores/" target="_blank"><span class="fas fa-folder"></span> View PGS Score Directories (FTP)</a></td>
           </tr>
           <tr>
             <td>
               <span class="pgs_h_big_header">PGS Catalog Metadata</span>
-              <a class="pgs_no_icon_link info-icon" href="#dl_ftp_metadata" data-toggle="tooltip" data-placement="bottom" title="Available PGS global metadata files. Click on this icon to see information about the PGS Metadata File format"><i class="fas fa-info-circle"></i></a>
+              <div class="mt-1">
+                <small>Available PGS global metadata files</small>
+              </div>
             </td>
             <td><a class="btn btn-pgs pgs_no_icon_link" href="{{ pgs_ftp_http_root }}/metadata/pgs_all_metadata.xlsx" target="_blank" download><span class="fas fa-download"></span> Bulk Metadata Downloads<span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a></td>
           </tr>
           <tr>
             <td>
               <span class="pgs_h_big_header">PGS Catalog REST API</span>
-              <span class="pgs_no_icon_link info-icon" href="#dl_ftp_metadata" data-toggle="tooltip" data-placement="bottom" title="Programatic access to the PGS Catalog metadata."><i class="fas fa-info-circle"></i></span>
+              <div class="mt-1">
+                <small>Programmatic access to the PGS Catalog metadata</small>
+              </div>
             </td>
-            <td><a class="btn btn-pgs pgs_no_icon_link" href="../rest/"><span class="fas fa-code"></span> REST API endpoint descriptions</a></td>
+            <td><a class="btn btn-pgs pgs_no_icon_link" href="/rest/"><span class="fas fa-code"></span> REST API endpoint descriptions</a></td>
           </tr>
         </tbody>
       </table>
     </section>
 
     <section>
-        <h3 id="dl_ftp">PGS Catalog FTP</h3>
+        <h3 id="dl_ftp">PGS Catalog FTP structure</h3>
         <p>The PGS Catalog FTP allows for consistent access to the bulk downloads, and is indexed by Polygenic Score (PGS) ID to allow programmatic access to score level data. The following diagram illustrates the FTP structure:</p>
 
         <div class="pgs_formatted_block">
@@ -110,15 +129,15 @@
 
         <div class="pgs_formatted_block">
           <pre>
-<span>### PGS CATALOG SCORING FILE - see www.pgscatalog.org/downloads/#dl_ftp for additional information</span>
+<span>### PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp_scoring for additional information</span>
 <span>## POLYGENIC SCORE (PGS) INFORMATION</span>
-<b># PGS ID</b> = <i>PGS idenfier, e.g. 'PGS000001'</i>
+<b># PGS ID</b> = <i>PGS identifier, e.g. 'PGS000001'</i>
 <b># PGS Name</b> = <i>PGS name, e.g. 'PRS77_BC' - optional</i>
 <b># Reported Trait</b> = <i>trait, e.g. 'Breast Cancer'</i>
 <b># Original Genome Build</b> = <i>Genome build/assembly, e.g. 'GRCh38'</i>
 <b># Number of Variants</b> = <i>Number of variants listed in the PGS</i>
 <span>## SOURCE INFORMATION</span>
-<b># PGP ID</b> = <i>PGS publication idenfier, e.g. 'PGP000001'</i>
+<b># PGP ID</b> = <i>PGS publication identifier, e.g. 'PGP000001'</i>
 <b># Citation</b> = <i>Information about the publication</i>
 <b># LICENSE</b> = <i>License and terms of PGS use/distribution - refers to the EMBL-EBI Terms of Use by default</i>
 <span class="scoring_col">rsID</span><span class="scoring_col">chr_name</span><span class="scoring_col">chr_position</span><span class="scoring_col">effect_allele</span><span class="scoring_col">reference_allele</span><span class="pgs_color_2">...</span></pre>
