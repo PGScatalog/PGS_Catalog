@@ -2,7 +2,6 @@ from django.urls import path, re_path
 from django.views.generic import TemplateView
 from django.views.decorators.cache import cache_page
 from .views import *
-from rest_framework.schemas import get_schema_view
 
 # Seconds * Minutes
 #cache_time = 60 * 2

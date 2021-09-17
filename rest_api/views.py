@@ -149,7 +149,7 @@ class RestPublicationSearch(generics.ListAPIView):
 
 class RestListScores(generics.ListAPIView):
     """
-    Retrieve all the PGS Scores
+    Retrieve all the Polygenic Scores
     """
     queryset = Score.objects.defer(*related_dict['score_defer']).select_related('publication').all().prefetch_related(*related_dict['score_prefetch']).order_by('num')
     serializer_class = ScoreSerializer
@@ -157,7 +157,7 @@ class RestListScores(generics.ListAPIView):
 
 class RestScore(generics.RetrieveAPIView):
     """
-    Retrieve one PGS Score
+    Retrieve one Polygenic Score (PGS)
     """
 
     def get(self, request, pgs_id):
@@ -172,7 +172,7 @@ class RestScore(generics.RetrieveAPIView):
 
 class RestScoreSearch(generics.ListAPIView):
     """
-    Search the PGS Score(s) using query
+    Search the Polygenic Score(s) using query
     """
     serializer_class = ScoreSerializer
 
@@ -538,7 +538,7 @@ class RestCurrentRelease(generics.RetrieveAPIView):
 
 class RestGCST(APIView):
     """
-    Retrieve all the PGS Score IDs using a given GWAS study (GCST)
+    Retrieve all the Polygenic Score IDs using a given GWAS study (GCST)
     """
 
     def get(self, request, gcst_id):

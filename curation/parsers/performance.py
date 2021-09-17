@@ -70,11 +70,16 @@ class PerformanceData(GenericData):
                 except:
                     self.report_error(spreadsheet_name, f'Can\'t extract the estimate value from ({val})')
                     current_metric.add_data('estimate', val)
-                
+
                 matches_square = self.insquarebrackets.findall(val)
                 if len(matches_square) == 1:
-                    if re.search(self.interval_format, matches_square[0]):
-                        ci_match = tuple(map(float, matches_square[0].split(' - ')))
+                    bracket_value = matches_square[0]
+                    # Harmonise by transforming the long dash in normal dash
+                    if '–' in bracket_value:
+                        bracket_value = bracket_value.replace('–','-')
+
+                    if re.search(self.interval_format,bracket_value):
+                        ci_match = tuple(map(float, bracket_value.split(' - ')))
                         current_metric.add_data('ci', NumericRange(lower=ci_match[0], upper=ci_match[1], bounds='[]'))
                         min_ci = float(ci_match[0])
                         max_ci = float(ci_match[1])
