@@ -75,7 +75,7 @@ info:
     <div class="toggle_content" id="content_changelog" style="display:none">
 
       * <span class="badge badge-pill badge-pgs">1.8.1</span> - July 2021:
-        * Change the data type of the field **source_PMID** in the Sample schemas
+        * Change the data type of the field **source_PMID** to numeric in the Sample schemas
         * New field **source_DOI** in the Sample schemas and move the DOI data from **source_PMID** to this new field.
 
       * <span class="badge badge-pill badge-pgs">1.8</span> - June 2021:
@@ -180,11 +180,11 @@ info:
     altText: PGS Catalog logo
 tags:
   - name: "Score endpoints"
-    description: PGS Score metadata with associated traits, publications, samples and cohorts
+    description: Polygenic Score metadata with associated traits, publications, samples and cohorts
   - name: "Publication endpoints"
-    description: PGS Publication metadata (PubMed IDs, doi, authors, associated PGS Scores, ...)
+    description: PGS Publication metadata (PubMed IDs, doi, authors, associated Polygenic Scores, ...)
   - name: "Trait endpoints"
-    description: PGS Trait metadata (ontology data [ID, label, description, URL, ...], associated PGS Scores, ...)
+    description: PGS Trait metadata (ontology data [ID, label, description, URL, ...], associated Polygenic Scores, ...)
   - name: "Performance Metric endpoints"
     description: PGS Performance metrics metadata (odd ratio, beta coefficient, C-index, ...) with associated scores, publications, samples and cohorts
   - name: "Sample endpoints"
@@ -220,17 +220,17 @@ components:
           properties:
             associated_pgs_ids:
               type: object
-              description: "List of associated PGS Score IDs at the development and evaluation stages"
+              description: "List of associated Polygenic Score IDs at the development and evaluation stages"
               properties:
                 development:
                   type: array
-                  description: "List of associated PGS Score IDs at the PGS development stage"
+                  description: "List of associated Polygenic Score IDs at the PGS development stage"
                   example: ["PGS000001", "PGS000002"]
                   items:
                     type: string
                 evaluation:
                   type: array
-                  description: "List of associated PGS Score IDs at the PGS evaluation stage"
+                  description: "List of associated Polygenic Score IDs at the PGS evaluation stage"
                   example: ["PGS000003"]
                   items:
                     type: string
@@ -324,12 +324,12 @@ components:
                 type: string
             associated_pgs_ids:
               type: array
-              description: "List of associated PGS Score IDs"
+              description: "List of associated Polygenic Score IDs"
               items:
                 type: string
 
     EFOTrait_Ontology:
-      description: "Structure containing information about a Trait, with extra ontology information (i.e. children traits and their associated PGS Scores). Mainly extracted from the Experimental Factor Ontology (EFO)."
+      description: "Structure containing information about a Trait, with extra ontology information (i.e. children traits and their associated Polygenic Scores). Mainly extracted from the Experimental Factor Ontology (EFO)."
       type: object
       required:
         - trait_id
@@ -370,13 +370,13 @@ components:
             type: string
         associated_pgs_ids:
           type: array
-          description: "List of associated PGS Score IDs"
+          description: "List of associated Polygenic Score IDs"
           example: ["PGS000001","PGS000004"]
           items:
             type: string
         child_associated_pgs_ids:
           type: array
-          description: "List of PGS Score IDs associated with the children ontology term(s)"
+          description: "List of Polygenic Score IDs associated with the children ontology term(s)"
           example: ["PGS000002","PGS000003"]
           items:
             type: string
@@ -391,7 +391,7 @@ components:
           properties:
             child_traits:
               type: array
-              description: "List of child traits with PGS Score associations."
+              description: "List of child traits with Polygenic Score associations."
               items:
                 $ref: '#/components/schemas/EFOTrait_Ontology'
                 example:
@@ -530,17 +530,17 @@ components:
             example: "Mavaddat N, ... , Garcia-Closas M."
           associated_pgs_ids:
             type: object
-            description: "List of associated PGS Score IDs at the development and evaluation stages"
+            description: "List of associated Polygenic Score IDs at the development and evaluation stages"
             properties:
               development:
                 type: array
-                description: "List of associated PGS Score IDs at the PGS development stage"
+                description: "List of associated Polygenic Score IDs at the PGS development stage"
                 example: ["PGS000001", "PGS000002"]
                 items:
                   type: string
               evaluation:
                 type: array
-                description: "List of associated PGS Score IDs at the PGS evaluation stage"
+                description: "List of associated Polygenic Score IDs at the PGS evaluation stage"
                 example: ["PGS000003"]
                 items:
                   type: string
@@ -555,7 +555,7 @@ components:
           example: "2019-12-18"
         score_count:
           type: integer
-          description: "Count of new PGS Scores"
+          description: "Count of new Polygenic Scores"
           example: 23
         performance_count:
           type: integer
@@ -570,7 +570,7 @@ components:
           example: "This release contains 23 new Score(s), 19 new Publication(s) and 62 new Performance metric(s)"
         released_score_ids:
           type: array
-          description: "List of new PGS Score IDs"
+          description: "List of new Polygenic Score IDs"
           example: ["PGS000037","...","PGS000059"]
           items:
             type: string
@@ -655,7 +655,7 @@ components:
 
     SampleSet:
       type: object
-      description: Group of samples used in one or several PGS Score evaluations
+      description: Group of samples used in one or several Polygenic Score evaluations
       required:
         - pss_id
       properties:
@@ -677,7 +677,7 @@ components:
       properties:
         id:
           type: string
-          description: "PGS Score identifier"
+          description: "Polygenic Score identifier"
           example: "PGS000001"
         name:
           type: string
@@ -866,7 +866,7 @@ paths:
       description: |
         Retrieve all Cohorts, including for each of them:
           * Cohort full name
-          * Associated PGS Scores(s), with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
+          * Associated Polygenic Scores(s), with the distinction between associations with the Polygenic Score at the development phase or at the evaluation phase
 
           Example of request:
           ```
@@ -908,7 +908,7 @@ paths:
       description: |
         Retrieve a Cohort, based on its symbol, including:
           * Cohort full name
-          * Associated PGS Scores(s), with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
+          * Associated Polygenic Scores(s), with the distinction between associations with the Polygenic Score at the development phase or at the evaluation phase
 
           Example of request:
           ```
@@ -943,7 +943,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Cohort_extended'
           description: |
-                Cohort names + list of associated PGS Scores
+                Cohort names + list of associated Polygenic Scores
 
                 ---
 
@@ -1031,7 +1031,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SampleSet'
-          description: 'List of samples used evaluate a PGS Score'
+          description: 'List of samples used evaluate a Polygenic Score'
         '4XX':
           content:
               application/json:
@@ -1060,7 +1060,7 @@ paths:
           schema:
             type: string
           required: true
-          description: 'PGS Score ID (PGS)'
+          description: 'Polygenic Score ID (PGS)'
           examples:
             PGS000001:
               value: "PGS000001"
@@ -1081,7 +1081,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/SampleSet'
           description: |
-              List of sample set(s) used evaluate a PGS Score
+              List of sample set(s) used evaluate a Polygenic Score
 
               ---
 
@@ -1104,7 +1104,7 @@ paths:
         Retrieve all the PGS Performance Metrics, including for each of them:
           * Performance metrics metadata (odd ratio, beta coefficient, C-index, ...)
           * Reported phenotyping
-          * Associated PGS Score(s)
+          * Associated Polygenic Score(s)
           * Publication information
           * List of samples used for the evaluation, with their ancestry and corresponding cohorts
 
@@ -1149,7 +1149,7 @@ paths:
         Retrieve a PGS Performance Metric, including:
           * Performance metrics metadata (odd ratio, beta coefficient, C-index, ...)
           * Reported phenotyping
-          * Associated PGS Score(s)
+          * Associated Polygenic Score(s)
           * Publication information
           * List of samples used for the evaluation, with their ancestry and corresponding cohorts
 
@@ -1175,7 +1175,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PerformanceMetric'
-          description: 'Performance Metric + PGS Score + Publication + Sample Set'
+          description: 'Performance Metric + Polygenic Score + Publication + Sample Set'
         '4XX':
           content:
               application/json:
@@ -1197,7 +1197,7 @@ paths:
         This returns a list of PGS Performance Metrics, including for each of them:
           * Performance metrics metadata (odd ratio, beta coefficient, C-index, ...)
           * Reported phenotyping
-          * Associated PGS Score(s)
+          * Associated Polygenic Score(s)
           * Publication information
           * List of samples used for the evaluation, with their ancestry and corresponding cohorts
       parameters:
@@ -1206,7 +1206,7 @@ paths:
           schema:
             type: string
           required: true
-          description: 'PGS Score ID (PGS)'
+          description: 'Polygenic Score ID (PGS)'
           examples:
             PGS000001:
               value: "PGS000001"
@@ -1227,7 +1227,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/PerformanceMetric'
           description: |
-              Performance Metric + PGS Score + Publication + Sample Set
+              Performance Metric + Polygenic Score + Publication + Sample Set
 
               ---
 
@@ -1250,7 +1250,7 @@ paths:
         Retrieve all the PGS Publications, including for each of them:
           * Pubmed ID and doi
           * Publication title, journal, date and authors
-          * Associated PGS Score(s) with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
+          * Associated Polygenic Score(s) with the distinction between associations with the Polygenic Score at the development phase or at the evaluation phase
 
         Example of request:
         ```
@@ -1293,7 +1293,7 @@ paths:
         Retrieve a PGS Publication, including:
           * Pubmed ID and doi
           * Publication title, journal, date and authors
-          * Associated PGS Score(s) with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
+          * Associated Polygenic Score(s) with the distinction between associations with the Polygenic Score at the development phase or at the evaluation phase
 
         Example of request:
         ```
@@ -1339,14 +1339,14 @@ paths:
         This returns a list of PGS Publications, including for each of them:
           * Pubmed ID and doi
           * Publication title, journal, data and authors
-          * Associated PGS Score(s) with the distinction between associations with the PGS Score at the development phase or at the evaluation phase
+          * Associated Polygenic Score(s) with the distinction between associations with the Polygenic Score at the development phase or at the evaluation phase
       parameters:
         - in: query
           name: pgs_id
           schema:
             type: string
           required: false
-          description: 'PGS Score ID (PGS)'
+          description: 'Polygenic Score ID (PGS)'
           examples:
             pgs_id_sel:
               summary: Select an example or type an ID - click on 'Try it out' first
@@ -1419,8 +1419,8 @@ paths:
       description: |
         Retrieve all the PGS Releases (more recent first), including for each of them:
           * The release date (format YYYY-MM-DD)
-          * The number of new PGS Scores, Publications and Performance Metrics
-          * The list of new PGS Scores, Publications and Performance Metrics IDs
+          * The number of new Polygenic Scores, Publications and Performance Metrics
+          * The list of new Polygenic Scores, Publications and Performance Metrics IDs
 
         Example of request:
         ```
@@ -1462,8 +1462,8 @@ paths:
       description: |
         Retrieve a PGS Release information, including:
           * The release date (format YYYY-MM-DD)
-          * The number of new PGS Scores, Publications and Performance Metrics
-          * The list of new PGS Scores, Publications and Performance Metrics IDs
+          * The number of new Polygenic Scores, Publications and Performance Metrics
+          * The list of new Polygenic Scores, Publications and Performance Metrics IDs
 
         Example of request:
         ```
@@ -1503,8 +1503,8 @@ paths:
       description: |
         Retrieve the current PGS Release, including:
           * The release date (format YYYY-MM-DD)
-          * The number of new PGS Scores, Publications and Performance Metrics
-          * The list of new PGS Scores, Publications and Performance Metrics IDs
+          * The number of new Polygenic Scores, Publications and Performance Metrics
+          * The list of new Polygenic Scores, Publications and Performance Metrics IDs
 
         Example of request:
         ```
@@ -1533,7 +1533,7 @@ paths:
         - "Score endpoints"
       operationId: getAllScores
       description: |
-        Retrieve all the PGS Scores, including for each of them:
+        Retrieve all the Polygenic Scores, including for each of them:
           * The URL to the scoring file
           * Publication information
           * Associated trait(s) (and mapped ontology trait(s))
@@ -1558,12 +1558,12 @@ paths:
                   - $ref: '#/components/schemas/Pagination'
                 properties:
                   results:
-                    description: "List of PGS Scores"
+                    description: "List of Polygenic Scores"
                     type: array
                     items:
                       $ref: '#/components/schemas/Score'
           description: |
-                  All PGS Scores
+                  All Polygenic Scores
 
                   ---
 
@@ -1581,7 +1581,7 @@ paths:
         - "Score endpoints"
       operationId: getScore
       description: |
-        Retrieve a PGS Score, including:
+        Retrieve a Polygenic Score, including:
           * The URL to the scoring file
           * Publication information
           * Associated trait(s) (and mapped ontology trait(s))
@@ -1599,7 +1599,7 @@ paths:
         - name: pgs_id
           in: path
           required: true
-          description: 'PGS Score ID'
+          description: 'Polygenic Score ID'
           examples:
             PGS000001:
               value: "PGS000001"
@@ -1613,7 +1613,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Score'
-          description: 'PGS Score'
+          description: 'Polygenic Score'
         '4XX':
           content:
               application/json:
@@ -1627,12 +1627,12 @@ paths:
         - "Score endpoints"
       operationId: searchScores
       description: |
-        Search PGS Scores using defined parameters (cf. "Parameters" section below).<br />
+        Search Polygenic Scores using defined parameters (cf. "Parameters" section below).<br />
         The parameters can be used directly in the request URL, e.g.:
         ```
         https://www.pgscatalog.org/rest/score/search?trait_id=EFO_1000649
         ```
-        This returns a list of PGS Scores, including for each of them:
+        This returns a list of Polygenic Scores, including for each of them:
           * The URL to the scoring file
           * Publication information
           * Associated trait(s) (and mapped ontology trait(s))
@@ -1693,12 +1693,12 @@ paths:
                   - $ref: '#/components/schemas/Pagination'
                 properties:
                   results:
-                    description: "List of PGS Scores"
+                    description: "List of Polygenic Scores"
                     type: array
                     items:
                       $ref: '#/components/schemas/Score'
           description:  |
-                  Search PGS Score(s)
+                  Search Polygenic Score(s)
 
                   ---
 
@@ -1722,8 +1722,8 @@ paths:
           * Ontology ID, trait label, description and URL
           * Trait categories
           * Synonyms and external mapped terms
-          * Associated PGS Score(s)
-          * Associated PGS Score(s) with child trait(s) - **<span class="colour_2">[</span>** only when the parameter **include_parents** is set to **1** **<span class="colour_2">]</span>**
+          * Associated Polygenic Score(s)
+          * Associated Polygenic Score(s) with child trait(s) - **<span class="colour_2">[</span>** only when the parameter **include_parents** is set to **1** **<span class="colour_2">]</span>**
 
         The default behaviour of this endpoint is to provide a list of traits which have PGS that predict them (matching the traits indexed in the metadata downloads).
         Higher-level trait groupings imported from the Experimental Factor Ontology can be included in the list by setting the **include_parents** flag to **1** (default is 0).
@@ -1784,8 +1784,8 @@ paths:
           * Ontology ID, trait label, description and URL
           * Trait categories
           * Synonyms and external mapped terms
-          * Associated PGS Score(s)
-          * Associated PGS Score(s) with child trait(s)
+          * Associated Polygenic Score(s)
+          * Associated Polygenic Score(s) with child trait(s)
           * Child traits (when the parameter *include_children* is set to 1)
 
         This endpoint can be used to retrieve trait-PGS mappings for any trait in the database
@@ -1851,8 +1851,8 @@ paths:
           * Ontology ID, trait label, description and URL
           * Trait categories
           * Synonyms and external mapped terms
-          * Associated PGS Score(s)
-          * Associated PGS Score(s) with child trait(s)
+          * Associated Polygenic Score(s)
+          * Associated Polygenic Score(s) with child trait(s)
 
         This endpoint can be used to retrieve trait-PGS mappings for any trait in the database
         (including parent terms from the ontology that aren’t included in the `/rest/trait/all` endpoint).
@@ -2194,7 +2194,7 @@ paths:
         - "Other endpoints"
       operationId: getGCST
       description: |
-        Retrieve all the PGS Scores IDs using a given NHGRI-EBI GWAS Catalog study (GCST) as source of variant association
+        Retrieve all the Polygenic Scores IDs using a given NHGRI-EBI GWAS Catalog study (GCST) as source of variant association
 
         Example of request:
         ```
@@ -2217,7 +2217,7 @@ paths:
           content:
             application/json:
               schema:
-                description: "List of PGS Score IDs"
+                description: "List of Polygenic Score IDs"
                 type: array
                 example: ["PGS000001","PGS000002","PGS000003"]
                 items:

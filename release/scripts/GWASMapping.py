@@ -54,29 +54,35 @@ class GWASMapping:
         return url.split('/')[-1]
 
     def get_category_information(self):
-
         for category in self.categories:
             trait_id = self.categories[category]['eg']
+            try:
+                response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%trait_id)
+                response_json = response.json()
+                if response_json and response_json['trait'] != 'None':
+                    category_label  = response_json['colourLabel']
+                    category_colour = response_json['colour']
+                    category_parent = response_json['parent']
+                    if category_label == category:
+                        self.categories[category]['colour'] = category_colour
+                        self.categories[category]['parent'] = category_parent
+                    else:
+                        print("Error: discrepancies between the GWASMapping file and the REST API regarding the trait category for '"+trait_id+"' ("+category+' vs '+category_label+")")
+                        #exit(1)
+            except requests.exceptions.RequestException as e:
+                print(e)
+                exit(1)
 
-            response = requests.get('https://www.ebi.ac.uk/gwas/rest/api/parentMapping/%s'%trait_id)
-            response_json = response.json()
-            if response_json and response_json['trait'] != 'None':
-                category_label  = response_json['colourLabel']
-                category_colour = response_json['colour']
-                category_parent = response_json['parent']
-                if category_label == category:
-                    self.categories[category]['colour'] = category_colour
-                    self.categories[category]['parent'] = category_parent
-                else:
-                    print("Error: discrepancies between the GWASMapping file and the REST API regarding the trait category for '"+trait_id+"' ("+category+' vs '+category_label+")")
-                    #exit(1)
 
     def get_gwas_mapping(self):
         try:
+            print("> Download GWAS file")
             self.download_file()
         except:
             print("Error: can't download the GWAS EFO Mapping file ("+self.gwas_trait_mapping_url+")!")
+        print("> Parse GWAS file")
         self.parse_file()
+        print("> Retrieve extra information on GWAS categories")
         self.get_category_information()
 
 

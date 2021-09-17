@@ -73,22 +73,23 @@ class PGSFTPChecks:
     def check_directories(self):
 
         for pgs_id in os.listdir(self.ftp_scores_path):
-            ftp_pgs_dir = self.ftp_scores_path+pgs_id
-            if not os.path.isdir(ftp_pgs_dir):
-                continue
-            self.pgs_ids.append(pgs_id)
-            ftp_score_dir = ftp_pgs_dir+"/ScoringFiles/"
-            ftp_metadata_dir = ftp_pgs_dir+"/Metadata/"
+            if re.match('^PGS\d+$',pgs_id):
+                ftp_pgs_dir = self.ftp_scores_path+pgs_id
+                if not os.path.isdir(ftp_pgs_dir):
+                    continue
+                self.pgs_ids.append(pgs_id)
+                ftp_score_dir = ftp_pgs_dir+"/ScoringFiles/"
+                ftp_metadata_dir = ftp_pgs_dir+"/Metadata/"
 
-            # 1 - Test PGS ScoringFile directory exists
-            if not os.path.exists(ftp_score_dir):
-                self.log_msg['missing_score_dir'].append(pgs_id)
-                continue
+                # 1 - Test PGS ScoringFile directory exists
+                if not os.path.exists(ftp_score_dir):
+                    self.log_msg['missing_score_dir'].append(pgs_id)
+                    continue
 
-            # 2 - Test PGS Metadata directory exists
-            if not os.path.exists(ftp_metadata_dir):
-                self.log_msg['missing_metadata_dir'].append(pgs_id)
-                continue
+                # 2 - Test PGS Metadata directory exists
+                if not os.path.exists(ftp_metadata_dir):
+                    self.log_msg['missing_metadata_dir'].append(pgs_id)
+                    continue
 
         if len(self.pgs_ids) != self.local_pgs_ids_count:
             self.log_msg['missing_pgs_dir'].append('The number of Score directories are different ('+str(len(self.pgs_ids))+' found vs '+str(self.local_pgs_ids_count)+' expected)!')

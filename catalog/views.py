@@ -27,14 +27,18 @@ pgs_prefetch = {
     'publication_performance': Prefetch('publication_performance', queryset=Performance.objects.only('id', 'publication', 'score').all().prefetch_related(Prefetch('score', queryset=Score.objects.only('id', 'publication').all()))),
 }
 
-def disclaimer_formatting(content):
-    return '<div class="clearfix"><div class="mt-2 float_left pgs_note pgs_note_2"><div><span>Disclaimer: </span>{}</div></div></div>'.format(content)
+def disclaimer_formatting(func):
+    def wrapper(*args):
+        return f'<div class="clearfix"><div class="mt-2 float_left pgs_note pgs_note_2"><div><span>Disclaimer: </span>{func(*args)}</div></div></div>'
+    return wrapper
 
+@disclaimer_formatting
 def performance_disclaimer():
-    return disclaimer_formatting(constants.DISCLAIMERS['performance'])
+    return constants.DISCLAIMERS['performance']
 
+@disclaimer_formatting
 def score_disclaimer(publication_url):
-    return disclaimer_formatting(constants.DISCLAIMERS['score'].format(publication_url))
+    return constants.DISCLAIMERS['score'].format(publication_url)
 
 
 def ancestry_legend():

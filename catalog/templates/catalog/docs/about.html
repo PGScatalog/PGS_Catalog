@@ -54,7 +54,7 @@
               </ul>
             <li><a href="#eligibility">PGS Catalog Inclusion Criteria</a></li>
               <ul>
-                  <li><a href="#submission">Data submission</a></li>
+                  <li><a href="#submission"><i class="fas fa-upload pr-1 pgs_color_2"></i>Data submission</a></li>
               </ul>
             <li><a href="#under_dev">Features Under Development</a></li>
             <li><a href="#contact">Feedback & Contact Information</a></li>
@@ -130,19 +130,31 @@
       <p>If you have a PGS or publication that meets the Catalog's eligibility requirements we invite you to submit your data by e-mail (<a href="mailto:{{ pgs_contact }}"><span class="fas fa-envelope"></span> {{ pgs_contact }}</a>).
           To ensure a speedy curation and inclusion into the catalog it would be helpful if you provide the following information about your study:</p>
       <ul>
-        <li><b>Source Publication.</b> PubMed identifier and/or publication doi.</li>
-        <li>
-          <b>The Polygenic Score(s).</b> If you've developed a new PGS we'll need the variant-level information required to calculate the score on new samples (<i>see our <a href="/downloads/#dl_ftp">Scoring File documentation</a> for more description</i>).
+        <li class="mb-2"><b>Source Publication.</b> PubMed identifier and/or publication doi.</li>
+        <li class="mb-2">
+          <b>The Polygenic Score(s).</b> If you've developed a new PGS we'll need the variant-level information required to calculate the score on new samples (<i>see our <a href="/downloads/#dl_ftp_scoring">Scoring Files documentation</a> for more description</i>).
           If an existing PGS was used it would be helpful if you provided it's PGS ID, or links to the original publication.
         </li>
-        <li>
-          <b><i>Optional:</i> A completed PGS Catalog Curation Template.</b> You can view and download the current <a class="btn btn-pgs-small pgs_no_icon_link" href="/template/current" target="_blank"><span class="fas fa-download"></span> PGS Catalog Curation Template <span class="badge badge-pill badge-pgs-white ml-1">.xlsx</span></a> on GoogleDocs - this template forms the basis of our curation pipeline and future PGS deposition framework.
-          We also provide a set of <a class="btn btn-pgs-small pgs_no_icon_link" href="/docs/curation" target="_blank"><span class="fas fa-download"></span> PGS Catalog Curation Guidelines <span class="badge badge-pill badge-pgs-white ml-1">.docx</span></a> with detailed instructions, and examples of how to record your data in the PGS Catalog template. Filled out curation templates and scoring files can be e-mailed to us at <a href="mailto:{{ pgs_contact }}"><span class="fas fa-envelope"></span> {{ pgs_contact }}</a>.
+        <li class="mb-2">
+          <b>A completed PGS Catalog Curation Template</b> - <i class="pgs_color_2">Optional</i>.
+          <ol>
+            <li class="mt-1">Download the current <a class="btn btn-pgs-small pgs_no_icon_link" href="/template/current" target="_blank"><span class="fas fa-download"></span> PGS Catalog Curation Template <span class="badge badge-pill badge-pgs-white ml-1">.xlsx</span></a> on GoogleDocs - this template forms the basis of our curation pipeline and future PGS deposition framework.
+            <li class="mt-1">Fill out the downloaded PGS Catalog curation template with your study metadata. We provide a set of <a class="btn btn-pgs-small pgs_no_icon_link" href="/docs/curation" target="_blank"><span class="fas fa-download"></span> PGS Catalog Curation Guidelines <span class="badge badge-pill badge-pgs-white ml-1">.docx</span></a> with detailed instructions, and examples of how to record your data in the PGS Catalog template.
+          </ol>
         </li>
       </ul>
-      <p>
-        You can also report/recommend studies for inclusion in the PGS Catalog using this form: <a class="btn btn-pgs-small pgs_no_icon_link" href="/report_study"><span class="fas fa-clipboard-list"></span> Report missing PGS study</a>. However, please send us the PGS by e-mail if you are the paper’s author and can share the variant-level score information.
-      </p>
+
+      <div class="mt-3 pgs_note pgs_note_1">
+        <div>
+          <span>Pre-publication submissions: </span>The PGS Catalog also allows pre-publication submissions that authors may wish to embargo until publication. In this case the journal name can be provided, and a filled out curation template is required. Scores can then be assigned PGS Catalog IDs so that they may be added to the manuscript.
+        </div>
+      </div>
+
+      <div class="mt-3 pgs_note pgs_note_1">
+        <div>
+          <span>Missing PGS studies: </span>You can also report/recommend studies for inclusion in the PGS Catalog using this form: <a class="btn btn-pgs-small pgs_no_icon_link" href="/report_study"><span class="fas fa-clipboard-list"></span> Report missing PGS study</a>. However, please send us the PGS by e-mail if you are the paper’s author and can share the variant-level score information.
+        </div>
+      </div>
     </section>
 
 
