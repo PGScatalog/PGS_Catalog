@@ -330,11 +330,10 @@ class RestEFOTrait(generics.RetrieveAPIView):
             if  param_include_children == '0' or param_include_children == 0:
                 include_children = False
 
-        #if include_children:
-        #    serializer = EFOTraitOntologyChildSerializer(queryset,many=False)
-        #else:
-        #    serializer = EFOTraitOntologySerializer(queryset,many=False)
-        serializer = EFOTraitOntologySerializer(queryset,many=False)
+        if include_children:
+           serializer = EFOTraitOntologyChildSerializer(queryset,many=False)
+        else:
+           serializer = EFOTraitOntologySerializer(queryset,many=False)
         return Response(serializer.data)
 
 
