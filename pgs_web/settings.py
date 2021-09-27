@@ -34,6 +34,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ['SECRET_KEY']
 
+# Define auto field for primary keys (since Django 3.2)
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 if os.environ['DEBUG'] == 'True':
