@@ -134,7 +134,7 @@ class RestPublicationSearch(generics.ListAPIView):
 
         # Search by Pubmed ID
         pmid = self.request.query_params.get('pmid')
-        if pmid and pmid is not None:
+        if pmid and pmid.isnumeric():
             queryset = queryset.filter(PMID=pmid)
             params += 1
 
@@ -194,7 +194,7 @@ class RestScoreSearch(generics.ListAPIView):
 
         # Search by Pubmed ID
         pmid = self.request.query_params.get('pmid')
-        if pmid and pmid is not None:
+        if pmid and pmid.isnumeric():
             queryset = queryset.filter(publication__PMID=pmid)
             params += 1
 
@@ -334,6 +334,7 @@ class RestEFOTrait(generics.RetrieveAPIView):
            serializer = EFOTraitOntologyChildSerializer(queryset,many=False)
         else:
            serializer = EFOTraitOntologySerializer(queryset,many=False)
+
         return Response(serializer.data)
 
 
