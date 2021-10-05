@@ -21,12 +21,17 @@ class ScoringFileUpdate():
         pub = score.publication
         lines = []
         try:
+            traits = score.trait_efo
+            efo_ids = ','.join([x.id for x in traits])
+            mapped_traits = ','.join([x.label for x in traits])
             lines = [
                 '### PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp_scoring for additional information',
                 '## POLYGENIC SCORE (PGS) INFORMATION',
                 f'# PGS ID = {score.id}',
                 f'# PGS Name = {score.name}',
                 f'# Reported Trait = {score.trait_reported}',
+                f'# EFO ID(s) = {efo_ids}',
+                f'# Mapped Trait(s) (EFO) = {mapped_traits}',
                 f'# Original Genome Build = {score.variants_genomebuild}',
                 f'# Number of Variants = {score.variants_number}',
                 '## SOURCE INFORMATION',

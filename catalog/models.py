@@ -225,6 +225,13 @@ class EFOTrait_Base(models.Model):
         return '<a href="%s">%s</a>'%(self.url, self.id)
 
     @property
+    def description_list(self):
+        if self.description:
+            return self.description.split(' | ')
+        else:
+            return []
+
+    @property
     def synonyms_list(self):
         if self.synonyms:
             return self.synonyms.split(' | ')

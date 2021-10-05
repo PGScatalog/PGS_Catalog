@@ -12,7 +12,8 @@ default_num = 1
 efo_id = 'EFO_0000305'
 efo_id_colon = efo_id.replace('_',':')
 efo_name = 'breast carcinoma'
-efo_desc = 'A carcinoma that arises from epithelial cells of the breast'
+efo_desc_list = ['A carcinoma that arises from epithelial cells of the breast']
+efo_desc = ' | '.join(efo_desc_list)
 efo_synonyms_list = ['CA - Carcinoma of breast','Carcinoma of breast NOS','Mammary Carcinoma, Human']
 efo_synonyms = ' | '.join(efo_synonyms_list)
 efo_mapped_terms_list = ['OMIM:615554','NCIT:C4872','UMLS:C0678222']
@@ -228,6 +229,7 @@ class EFOTraitTest(TestCase):
         self.assertEqual(efo_trait_1.id_colon, efo_id_colon)
         self.assertEqual(efo_trait_1.label, efo_name)
         self.assertEqual(efo_trait_1.description, efo_desc)
+        self.assertEqual(efo_trait_1.description_list, efo_desc_list)
         self.assertEqual(efo_trait_1.synonyms, efo_synonyms)
         self.assertEqual(efo_trait_1.mapped_terms, efo_mapped_terms)
         self.assertEqual(efo_trait_1.synonyms_list, efo_synonyms_list)
