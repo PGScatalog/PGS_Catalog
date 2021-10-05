@@ -279,14 +279,14 @@ class Browse_ScoreTable(tables.Table):
 
     def render_ftp_link(self, value, record):
         id = value.split('.')[0]
-        ftp_link = '{}/scores/{}/ScoringFiles/'.format(constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], id)
-        ftp_file_link = ftp_link+value
+        ftp_file_link = '{}/scores/{}/ScoringFiles/{}'.format(constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], id, value)
         margin_right = ''
         license_icon = ''
         if record.has_default_license == False:
             margin_right = ' mr2'
             license_icon = f'<span class="pgs-info-icon pgs_helpover" title="Terms and Licenses" data-content="{record.license}" data-placement="left"> <span class="only_export"> - Check </span>Terms/Licenses</span>'
-        return format_html(f'<a class="pgs_no_icon_link file_link{margin_right}" href="{ftp_link}" data-toggle="tooltip" data-placement="left" title="Download PGS Scoring File (variants, weights)"></a> <span class="only_export">{ftp_file_link}</span>{license_icon}')
+        return format_html(f'<span class="file_link{margin_right}" data-toggle="tooltip" data-placement="left" title="Download PGS Scoring File (variants, weights)"></span> <span class="only_export">{ftp_file_link}</span>{license_icon}')
+
 
     def render_variants_number(self, value):
         return '{:,}'.format(value)
