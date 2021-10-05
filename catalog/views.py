@@ -480,15 +480,6 @@ def efo(request, efo_id):
         'ancestry_form': ancestry_form()
     }
 
-    # Check if there are multiple descriptions
-    try:
-        desc_list = eval(ontology_trait.description)
-        if type(desc_list) == list:
-            context['desc_list'] = desc_list
-    except:
-        pass
-
-
     # Find the evaluations of these scores
     pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
 
@@ -616,6 +607,9 @@ class DownloadView(TemplateView):
 
 class ReportStudyView(TemplateView):
     template_name = "catalog/report_study.html"
+
+class LabsView(TemplateView):
+    template_name = "catalog/labs.html"
 
 class CurrentTemplateView(RedirectView):
     url = constants.USEFUL_URLS['TEMPLATEGoogleDoc_URL']

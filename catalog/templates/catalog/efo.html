@@ -34,9 +34,9 @@
             <tr>
               <td>Description</td>
               <td>
-                {% if desc_list %}
+                {% if trait.description_list|length > 1 %}
                   <ul>
-                    {% for desc in desc_list %}
+                    {% for desc in trait.description_list %}
                       <li>{{ desc }}</li>
                     {% endfor %}
                   </ul>

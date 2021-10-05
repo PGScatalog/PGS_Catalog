@@ -1817,10 +1817,10 @@ paths:
           description: 'Flag to include or not the children of the searched trait (defaut: 1)'
           examples:
             include_children_sel:
-              summary: Include the children terms
+              summary: Include the child terms
               value: 1
             exclude_children_sel:
-              summary: Exclude the children terms
+              summary: Exclude the child terms
               value: 0
       responses:
         '200':
@@ -1842,38 +1842,40 @@ paths:
           - "Trait endpoints"
       operationId: searchTrait
       description: |
-        Search Traits using defined parameters (cf. "Parameters" section below).<br />
-        The parameters can be used directly in the request URL, e.g.:
+        Search for Traits based on terms present in the ID, label, description, synonyms, categories, or external mapped terms.<br />
+        The search term and filters for exact matching and child-term relationships can be included directly in the request URL, e.g.:
         ```
         https://www.pgscatalog.org/rest/trait/search?term=Alzheimer
         ```
-        This returns a list of Traits, including for each of them:
+        This returns a list of Traits matching the search term (and by default their child terms from the ontology), including for each of them:
           * Ontology ID, trait label, description and URL
           * Trait categories
           * Synonyms and external mapped terms
           * Associated Polygenic Score(s)
           * Associated Polygenic Score(s) with child trait(s)
 
-        This endpoint can be used to retrieve trait-PGS mappings for any trait in the database
-        (including parent terms from the ontology that aren’t included in the `/rest/trait/all` endpoint).
-        It searches the provided "term" in the trait ID, trait label, trait description, trait categories, synonyms and external mapped terms.
+        This endpoint searches all traits in the database, including parent terms from the ontology that aren’t included in the `/rest/trait/all` endpoint.<br />
       parameters:
         - in: query
           name: term
           schema:
             type: string
           required: true
-          description: 'Trait ID, trait name, trait category or external ID'
+          description: 'Trait ID, trait name, trait description, trait category, trait synonym or external mapped terms/IDs'
           examples:
             trait_1:
-              summary: Alzheimer
+              summary: Alzheimer - [trait name]
               value: Alzheimer
             trait_2:
-              summary: Neurological disorder
+              summary: Neurological disorder - [trait category]
               value: Neurological disorder
             trait_3:
-              summary: OMIM:605526
+              summary: ICD10:I25 - [external mapped terms/IDs]
+              value: ICD10:I25
+            trait_4:
+              summary: OMIM:605526 - [external mapped terms/IDs]
               value: OMIM:605526
+
         - in: query
           name: exact
           schema:
@@ -1895,10 +1897,10 @@ paths:
           description: 'Flag to include or not the children of the searched trait (defaut: 1)'
           examples:
             include_children_sel:
-              summary: Include the children terms
+              summary: Include the child terms
               value: 1
             exclude_children_sel:
-              summary: Exclude the children terms
+              summary: Exclude the child terms
               value: 0
       responses:
         '200':

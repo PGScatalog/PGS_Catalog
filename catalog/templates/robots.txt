@@ -5,6 +5,7 @@ Allow: /rest/$
 Disallow: /rest/
 Disallow: /search/
 Disallow: /_ah/
+Disallow: /labs/
 {% else %}
 Disallow: /
 {% endif %}

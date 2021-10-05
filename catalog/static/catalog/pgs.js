@@ -43,10 +43,6 @@ $(document).ready(function() {
     });
 
 
-    // Add external link icon and taget blank for external links
-    format_table_content();
-
-
     // Draw ancestry charts
     if ($('.anc_chart').length) {
       var anc_width = 40;
@@ -430,12 +426,6 @@ $(window).on('load', function() {
 
   setTimeout(function(){
 
-    // Add even listener
-    var input = document.querySelectorAll(".form-control");
-    for (var i=0; i < input.length; i++ ) {
-      input[i].addEventListener('input', format_table_event);
-    }
-
     // Hide column search input fields
     $(data_toggle_table).each(function(){
       // Remove column search if the number of rows is too small
@@ -542,6 +532,17 @@ function pgs_tooltip() {
   $('[data-toggle="popover"]').popover();
 }
 
+
+// FTP Scoring File Link
+function scoring_file_link() {
+  $(data_toggle_table).on("click", '.file_link', function(){
+    var ftp_url = $(this).parent().find('.only_export').html();
+    ftp_url = ftp_url.substring(0, ftp_url.lastIndexOf('/'))+'/';
+    window.open(ftp_url,'_blank');
+  });
+}
+
+
 // Reformat the table content (links, shortened text, tooltips)
 function format_table_content(timeout) {
   if (!timeout) {
@@ -551,12 +552,11 @@ function format_table_content(timeout) {
     alter_external_links(data_toggle_table+' tbody');
     shorten_displayed_content();
     pgs_tooltip();
+    scoring_file_link();
   }, timeout);
 }
 
-function format_table_event(e) {
-  format_table_content(750);
-}
+
 
 
 /*

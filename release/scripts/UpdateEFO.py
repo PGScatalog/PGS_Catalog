@@ -89,7 +89,7 @@ class UpdateEFO:
                         str_desc += ' [{}]'.format(x['database'])
             new_desc = str_desc
         except:
-            new_desc = response['description']
+            new_desc = self.items_separator.join(response['description'])
         data['description'] = new_desc
 
         return data

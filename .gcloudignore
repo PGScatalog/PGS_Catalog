@@ -19,17 +19,17 @@
 /rest_api/static/
 
 # Curation and release directories (not needed for the website)
-/curation
-/release
+/curation/
+/release/
 
 # Migrations
-**/migrations
+**/migrations/
 
 # Tests
-**/tests
+**/tests/
 
 # Python pycache:
-**/__pycache__
+**/__pycache__/
 # Ignored by the build system
 /setup.cfg
 
@@ -38,3 +38,4 @@
 app.yaml_template
 LICENSE.md
 README.md
+**/.DS_Store
