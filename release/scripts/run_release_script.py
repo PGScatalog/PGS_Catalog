@@ -4,9 +4,6 @@ import tarfile
 from catalog.models import *
 from release.scripts.CreateRelease import CreateRelease
 from release.scripts.UpdateEFO import UpdateEFO
-from release.scripts.GenerateBulkExport import PGSExportAllMetadata
-from release.scripts.PGSExport import PGSExport
-from release.scripts.PGSBuildFtp import PGSBuildFtp
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
 from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
 from release.scripts.UpdateReleasedCohorts import UpdateReleasedCohorts
@@ -48,7 +45,7 @@ def run(*args):
     # Update the cohorts (update the Cohort "released" field)
     update_released_cohorts()
 
-    # Generate EuropePMC linkage XML file
+    # # Generate EuropePMC linkage XML file
     generate_europePMC_linkage_xml_file()
 
 
