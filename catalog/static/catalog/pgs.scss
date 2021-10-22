@@ -935,7 +935,7 @@ td > ul {
   padding:6px 10px 6px 6px;
   border:1px solid $pgs_grey;
   border-radius:4px;
-  div {
+  > div {
     padding-left:6px;
     > span:first-child {
       font-style: italic;
@@ -944,7 +944,7 @@ td > ul {
   }
 }
 .pgs_note_1 {
-  div {
+  > div {
     border-left:5px solid $pgs_note_title_1;
     > span:first-child {
       color: $pgs_note_title_1;
@@ -952,7 +952,7 @@ td > ul {
   }
 }
 .pgs_note_2 {
-  div {
+  > div {
     border-left:5px solid $pgs_note_title_2;
     > span:first-child {
       color: $pgs_note_title_2;
@@ -960,7 +960,7 @@ td > ul {
   }
 }
 .pgs_note_3 {
-  div {
+  > div {
     border-left:5px solid $pgs_note_title_3;
     > span:first-child {
       color: $pgs_note_title_3;

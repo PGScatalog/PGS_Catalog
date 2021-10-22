@@ -192,13 +192,15 @@ def get_efo_traits_data():
 def index(request):
     current_release = Release.objects.values('date','score_count','publication_count').order_by('-date').first()
 
+    scores_count = Score.objects.count()
     traits_count = EFOTrait.objects.count()
+    pubs_count = Publication.objects.count()
 
     context = {
         'release' : current_release,
-        'num_pgs' : Score.objects.count(),
-        'num_traits' : traits_count,
-        'num_pubs' : Publication.objects.count(),
+        'num_pgs' : f'{scores_count:,}',
+        'num_traits' : f'{traits_count:,}',
+        'num_pubs' : f'{pubs_count:,}',
         'has_ebi_icons' : 1
     }
 
@@ -373,30 +375,35 @@ def pgp(request, pub_id):
             table = Browse_ScoreTable(related_scores)
             context['table_scores'] = table
 
-        #Get PGS evaluated by the PGP
-        pquery = pub.publication_performance.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('publication','score').all().prefetch_related(*pgs_prefetch['perf'], 'score__trait_efo')
+        # Get PGS evaluated by the PGP
+        count_perf = pub.publication_performance.all().count()
 
-        # Check if there any of the PGS are externally developed + display their information
-        external_scores = set()
-        for perf in pquery:
-            perf_score = perf.score
-            if perf_score not in related_scores:
-                external_scores.add(perf_score)
-        if len(external_scores) > 0:
-            table = Browse_ScoreTableEval(external_scores)
-            context['table_evaluated'] = table
+        if count_perf >= constants.TABLE_ROWS_THRESHOLD:
+            context['perf_count'] = count_perf
+        else:
+            pquery = pub.publication_performance.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('publication','score').all().prefetch_related(*pgs_prefetch['perf'], 'score__trait_efo')
 
-        # Evaluations table
-        table = PerformanceTable(pquery)
-        context['table_performance'] = table
+            # Check if there any of the PGS are externally developed + display their information
+            external_scores = set()
+            for perf in pquery:
+                perf_score = perf.score
+                if perf_score not in related_scores:
+                    external_scores.add(perf_score)
+            if len(external_scores) > 0:
+                table = Browse_ScoreTableEval(external_scores)
+                context['table_evaluated'] = table
 
-        pquery_samples = set()
-        for q in pquery:
-            for sample in q.samples():
-                pquery_samples.add(sample)
+            #Find + table the evaluations
+            table = PerformanceTable(pquery)
+            context['table_performance'] = table
 
-        table = SampleTable_performance(pquery_samples)
-        context['table_performance_samples'] = table
+            pquery_samples = set()
+            for q in pquery:
+                for sample in q.samples():
+                    pquery_samples.add(sample)
+
+            table = SampleTable_performance(pquery_samples)
+            context['table_performance_samples'] = table
 
         context['has_table'] = 1
 

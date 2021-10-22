@@ -72,13 +72,17 @@ class Publication(models.Model):
 
     @property
     def scores_evaluated_count(self):
-        return len(self.scores_evaluated)
+        # Different from scores_evaluated as it is faster this way with several calls
+        score_ids_set = set()
+        for performance in self.publication_performance.all():
+            score_ids_set.add(performance.score.id)
+        return len(score_ids_set)
 
     @property
     def scores_evaluated(self):
         # Using 'all()' and filter afterward uses less SQL queries than a direct distinct()
         score_ids_set = set()
-        for performance in self.publication_performance.all():
+        for performance in self.publication_performance.only('score__num','score__id','publication_id').select_related('score').all():
             score_ids_set.add(performance.score.id)
         return sorted(list(score_ids_set))
 
@@ -633,6 +637,9 @@ class Score(models.Model):
     # Ancestry data
     ancestries = models.JSONField('Ancestry distributions', null=True)
 
+    # Weight type
+    weight_type = models.TextField('PGS Weight Type', default='NR')
+
     # Methods
     def __str__(self):
         return ' | '.join([self.id, self.name, '(%s)' % self.publication.__str__()])
@@ -998,6 +1005,8 @@ class Metric(models.Model):
             s = '{} ({})'.format(estimate_value, self.se)
         else:
             s = '{}'.format(estimate_value)
+        if self.unit != '':
+            s += ' {}'.format(self.unit)
         return s
 
 
@@ -1009,6 +1018,8 @@ class Metric(models.Model):
             l['ci_upper'] = float(self.ci.upper)
         elif self.se != None:
             l['se'] = self.se
+        if self.unit != '':
+            l['unit'] = self.unit
         return l
 
 

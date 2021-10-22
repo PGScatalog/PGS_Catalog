@@ -340,26 +340,28 @@ class MetricTest(TestCase):
         e_estimate_4_rounded = -3.42e-7
         e_estimate_5 = 1.24674178
         e_estimate_5_rounded = 1.24674
+        e_unit = 'years'
 
-        metric_effect = self.create_metric(performance.num,e_type,e_name,e_name_short,e_estimate,'years',None,None)
+        metric_effect = self.create_metric(performance.num,e_type,e_name,e_name_short,e_estimate,e_unit,None,None)
         # Instance
         self.assertTrue(isinstance(metric_effect, Metric))
         # Other methods
-        self.assertEqual(metric_effect.display_value(),str(e_estimate))
+        self.assertEqual(metric_effect.display_value(),f'{e_estimate} {e_unit}')
         self.assertEqual(metric_effect.name_tuple(), (e_name,e_name_short))
         self.assertEqual(metric_effect.__str__(), f'{e_name} ({e_name_short}): {e_estimate}')
 
         metric_effect.estimate = e_estimate_2
-        self.assertEqual(metric_effect.display_value(),str(e_estimate_2_rounded))
+        self.assertEqual(metric_effect.display_value(),f'{e_estimate_2_rounded} {e_unit}')
 
         metric_effect.estimate = e_estimate_3
-        self.assertEqual(metric_effect.display_value(),str(e_estimate_3_rounded))
+        self.assertEqual(metric_effect.display_value(),f'{e_estimate_3_rounded} {e_unit}')
 
         metric_effect.estimate = e_estimate_4
-        self.assertEqual(metric_effect.display_value(),str(e_estimate_4_rounded))
+        self.assertEqual(metric_effect.display_value(),f'{e_estimate_4_rounded} {e_unit}')
 
         metric_effect.estimate = e_estimate_5
-        self.assertEqual(metric_effect.display_value(),str(e_estimate_5_rounded))
+        metric_effect.unit = ''
+        self.assertEqual(metric_effect.display_value(),f'{e_estimate_5_rounded}')
 
         # Test Standard error
         s_estimate = 0.123
@@ -871,8 +873,9 @@ class ScoreTest(TestCase):
             "count": 365042
         }
     }
+    weight_type = 'beta'
 
-    def create_score(self, num, name=name, var_number=v_number, build=v_build, m_name=m_name, m_params=m_params):
+    def create_score(self, num, name=name, var_number=v_number, build=v_build, m_name=m_name, m_params=m_params, w_type=weight_type):
         pubtest = PublicationTest()
         pub = pubtest.get_publication_doi(num)
 
@@ -883,7 +886,8 @@ class ScoreTest(TestCase):
             variants_genomebuild=build,
             publication_id=pub.num,
             method_name=m_name,
-            method_params=m_params
+            method_params=m_params,
+            weight_type=w_type
         )
         score.set_score_ids(score.num)
         score.save()
@@ -929,6 +933,7 @@ class ScoreTest(TestCase):
         self.assertTrue(score.flag_asis)
         self.assertIsNotNone(score.license)
         self.assertTrue(score.has_default_license)
+        self.assertEqual(score.weight_type, self.weight_type)
 
         score.license = "Not the default one"
         self.assertFalse(score.has_default_license)

@@ -93,10 +93,33 @@
         <span>Performance Metrics</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.perf_metrics }}"><i class="fas fa-info-circle"></i></span>
       </h3>
       <p>{{ performance_disclaimer|safe }}</p>
-      {% render_table table_performance %}
-      <h4>
-        <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fas fa-info-circle"></i></span>
-      </h4>
-      {% render_table table_performance_samples %}
+      {% if perf_count %}
+        <div class="clearfix mb-5">
+          <div class="mt-2 float_left pgs_note pgs_note_2">
+            <div>
+              <span>Warning: </span>There are too many Performance Metrics to display (<b>{{ perf_count }}</b>) with their evaluated samples. These data can be still be browsed on individual Score or Trait pages. Alternatively the data from this study can also be accessed by:
+              <ul class="mb-0">
+                <li class="mt-3">
+                  Downloading the metadata tables as spreadsheets:
+                  <div class="mt-2"><a class="btn btn-pgs-small pgs_no_icon_link" href="{{ pgs_ftp_http_root }}/metadata/publications/{{ publication.id }}/{{ publication.id }}_metadata_performance_metrics.csv" target="_blank">{{ publication.id }} Performance Metrics table <span class="badge badge-pill badge-pgs-white ml-2">.csv</span></a></div>
+                  <div class="mt-2"><a class="btn btn-pgs-small pgs_no_icon_link" href="{{ pgs_ftp_http_root }}/metadata/publications/{{ publication.id }}/{{ publication.id }}_metadata_evaluation_sample_sets.csv" target="_blank">{{ publication.id }} Evaluated Sample table <span class="badge badge-pill badge-pgs-white ml-2">.csv</span></a></div>
+                  <div class="mt-2"><a class="btn btn-pgs-small pgs_no_icon_link" href="{{ pgs_ftp_http_root }}/metadata/publications/{{ publication.id }}/{{ publication.id }}_metadata.xlsx" target="_blank">{{ publication.id }} Metadata <span class="badge badge-pill badge-pgs-white ml-2">.xlsx</span></a> <small>(includes Score, Trait, Performance Metric, and Sample information)</small></div>
+                </li>
+                <li class="mt-3">
+                  Or use the <a href="/rest/">REST API</a>:
+                  <div class="mt-2"><a class="btn btn-pgs-small pgs_no_icon_link" href="/rest/performance/search?pgp_id={{ publication.id }}" target="_blank">{{ publication.id }} Performance Metrics <span class="badge badge-pill badge-pgs-white ml-2">JSON</span></a></div>
+                  <div class="mt-2"><a class="btn btn-pgs-small pgs_no_icon_link" href="/rest/sample_set/search?pgp_id={{ publication.id }}" target="_blank">{{ publication.id }} Evaluated Samples <span class="badge badge-pill badge-pgs-white ml-2">JSON</span></a></div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        {% render_table table_performance %}
+        <h4>
+          <span>Evaluated Samples</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.sample_sets }}"><i class="fas fa-info-circle"></i></span>
+        </h4>
+        {% render_table table_performance_samples %}
+      {% endif %}
     </section>
 {% endblock %}
