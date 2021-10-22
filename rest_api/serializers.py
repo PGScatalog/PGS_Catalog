@@ -160,7 +160,7 @@ class ScoreSerializer(serializers.ModelSerializer):
         meta_fields = ('id', 'name', 'ftp_scoring_file', 'publication', 'matches_publication',
                     'samples_variants', 'samples_training', 'trait_reported', 'trait_additional',
                     'trait_efo', 'method_name', 'method_params', 'variants_number',
-                    'variants_interactions', 'variants_genomebuild', 'ancestry_distribution', 'license')
+                    'variants_interactions', 'variants_genomebuild', 'weight_type', 'ancestry_distribution', 'license')
         fields = meta_fields
         read_only_fields = meta_fields
 
