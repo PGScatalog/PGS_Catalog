@@ -1,6 +1,6 @@
 import requests
 from catalog.models import EFOTrait, TraitCategory, EFOTrait_Ontology, Score
-from release.scripts.GWASMapping import GWASMapping
+
 
 class UpdateEFO:
 
@@ -8,13 +8,40 @@ class UpdateEFO:
     # Configuration #
     #---------------#
 
+
     parent_key = 'parent'
-    child_key = 'children'
+    child_key  = 'children'
+    colour_key = 'colour'
+    efo_key = 'efo_ids'
     direct_pgs_ids_key = 'direct_pgs_ids'
     child_pgs_ids_key = 'child_pgs_ids'
+
+    categories_info = {
+        'Biological process': { colour_key: '#BEBADA', parent_key: 'biological process', efo_key: ['GO_0008150'] },
+        'Body measurement': { colour_key: '#66CCFF', parent_key: 'body weights and measures', efo_key: ['EFO_0004324'] },
+        'Cancer': { colour_key: '#BC80BD', parent_key: 'neoplasm', efo_key: ['EFO_0000616'] },
+        'Cardiovascular disease': { colour_key: '#B33232', parent_key: 'cardiovascular disease', efo_key: ['EFO_0000319'] },
+        'Cardiovascular measurement': { colour_key: '#80B1D3', parent_key: 'cardiovascular measurement', efo_key: ['EFO_0004298'] },
+        'Digestive system disorder': { colour_key: '#B7704C', parent_key: 'digestive system disease', efo_key: ['EFO_0000405'] },
+        'Hematological measurement': { colour_key: '#8DD3C7', parent_key: 'hematological measurement', efo_key: ['EFO_0004503'] },
+        'Immune system disorder': { colour_key: '#FFED6F', parent_key: 'immune system disease', efo_key: ['EFO_0000540'] },
+        'Inflammatory measurement': { colour_key: '#CCEBC5', parent_key: 'inflammatory biomarker measurement', efo_key: ['EFO_0004872'] },
+        'Lipid or lipoprotein measurement': { colour_key: '#B3DE69', parent_key: 'lipid or lipoprotein measurement', efo_key: ['EFO_0004529','EFO_0004732','EFO_0005105'] },
+        'Liver enzyme measurement': { colour_key: '#669900', parent_key: 'liver enzyme measurement', efo_key: ['EFO_0004582'] },
+        'Metabolic disorder': { colour_key: '#FDB462', parent_key: 'metabolic disease', efo_key: ['EFO_0000589'] },
+        'Neurological disorder': { colour_key: '#FFFFB3', parent_key: 'nervous system disease', efo_key: ['EFO_0000618'] },
+        'Other disease': { colour_key: '#FF3399', parent_key: 'disease', efo_key: ['EFO_0000408'] },
+        'Other measurement': { colour_key: '#006699', parent_key: 'measurement', efo_key: ['EFO_0001444'] },
+        'Other trait': { colour_key: '#FB8072', parent_key: 'experimental factor', efo_key: ['EFO_0000001'] },
+        'Response to drug': { colour_key: '#FCCDE5', parent_key: 'response to drug', efo_key: ['GO_0042493'] },
+        'Sex-specific PGS': { colour_key: '#00adb5', parent_key: 'sex_specific_pgs', efo_key: ['PATO_0000383','PATO_0000384'] } #,'PATO_0001894','PATO_0000047'}
+    }
+
     items_separator = ' | '
+
     exclude_terms = [
         'biological process',
+        'biological sex',
         'disease',
         'disease by anatomical system',
         'disease by cellular process disrupted',
@@ -26,41 +53,43 @@ class UpdateEFO:
         'information entity',
         'material property',
         'measurement',
+        'phenotypic sex',
         'process',
         'quality',
         'Thing'
     ]
-    exclude_categories = [
-        'Other disease',
-        'Other measurement',
-        'Other trait'
-    ]
-    pgs_specific_categories = {
-        'Sex-specific PGS': { 'colour':'#00adb5', 'parent':'sex_specific_pgs' }
-    }
+
     pgs_specific_traits = {
         'sex'   : 'Sex-specific PGS',
         'male'  : 'Sex-specific PGS',
         'female': 'Sex-specific PGS'
     }
-    force_gwas_rest_api = ['EFO_0000319','EFO_0000405','EFO_0000540','EFO_0004298','EFO_0004324','EFO_0004503','EFO_0004872','EFO_0005105']
 
 
     def __init__(self):
         self.ontology_data = {}
-        self.efo_categories_by_trait = {}
+        self.efo_traits_with_category = set()
         self.efo_categories_by_cat = {}
         self.entry_count = 0
         self.total_entries = 0
-        self.gwas_mapping = GWASMapping()
-        self.gwas_mapping.get_gwas_mapping()
-        # For debugging
-        self.gwas_rest_count = 0
+        # Category
+        self.categories = {}
+        self.efotrait_categories = []
+        self.trait_categories = set()
         self.warnings = []
+        self.build_efo_category_labels_dict()
+
+
+    def build_efo_category_labels_dict(self):
+        ''' Build a new dictionary from `categories_info` { EFO ID: Category label}. '''
+        for cat_label in self.categories_info.keys():
+            for efo_id in self.categories_info[cat_label][self.efo_key]:
+                self.categories[efo_id] = cat_label
+        self.efotrait_categories = self.categories.keys()
 
 
     def format_data(self, response):
-        """ Format some of the data to match the format in the database. """
+        ''' Format some of the data to match the format in the database. '''
         data = {}
         # Synonyms
         new_synonyms_string = ''
@@ -89,16 +118,21 @@ class UpdateEFO:
                         str_desc += ' [{}]'.format(x['database'])
             new_desc = str_desc
         except:
-            new_desc = self.items_separator.join(response['description'])
+            if type(response['description']) == list:
+                new_desc = self.items_separator.join(response['description'])
+            else:
+                new_desc = response['description']
         data['description'] = new_desc
 
         return data
 
 
     def update_efo_info(self, trait):
-        """ Fetch EFO information from an EFO ID, using the OLS REST API """
+        ''' Fetch EFO information from an EFO ID, using the OLS REST API '''
         trait_id = trait.id
-        response = requests.get('https://www.ebi.ac.uk/ols/api/ontologies/efo/terms?obo_id=%s'%trait_id.replace('_', ':'))
+        obo_id = trait_id.replace('_',':')
+        ols_url = f'https://www.ebi.ac.uk/ols/api/ontologies/efo/terms?obo_id={obo_id}'
+        response = requests.get(ols_url)
         response = response.json()['_embedded']['terms']
         if len(response) == 1:
             response = response[0]
@@ -136,7 +170,7 @@ class UpdateEFO:
 
 
     def add_efo_trait_to_efotrait_ontology(self, trait):
-        """ Import the entries in the EFOTrait table into EFOTrait_Ontology. """
+        ''' Import the entries in the EFOTrait table into EFOTrait_Ontology. '''
         try:
             queryset = EFOTrait_Ontology.objects.get(id=trait.id)
         except EFOTrait_Ontology.DoesNotExist:
@@ -151,14 +185,9 @@ class UpdateEFO:
 
 
     def add_efo_parents_to_efotrait_ontology(self, trait):
-        """ Fetch EFO information from an EFO ID, using the OLS REST API and
-        import it into the EFOTrait_Ontology table. """
+        ''' Fetch EFO information from an EFO ID, using the OLS REST API and
+        import it into the EFOTrait_Ontology table. '''
         trait_id = trait.id
-        score_ids = trait.associated_pgs_ids
-        ols_url = 'https://www.ebi.ac.uk/ols/api/ontologies/efo/ancestors?id={}'
-        response = requests.get(ols_url.format(trait_id))
-        response_json = response.json()
-
         try:
             ontology_trait = EFOTrait_Ontology.objects.get(id=trait_id)
         except EFOTrait_Ontology.DoesNotExist:
@@ -166,6 +195,7 @@ class UpdateEFO:
             exit(1)
 
         # Direct trait / PGS score associations
+        score_ids = trait.associated_pgs_ids
         if score_ids:
             if not trait_id in self.ontology_data:
                 self.ontology_data[trait_id] = { self.direct_pgs_ids_key: set() }
@@ -175,6 +205,16 @@ class UpdateEFO:
             for score_id in score_ids:
                 self.ontology_data[trait_id][self.direct_pgs_ids_key].add(score_id)
 
+        parents_list = self.get_parents(trait)
+        if parents_list:
+            self.add_parents(parents_list, ontology_trait, score_ids)
+            self.collect_efo_category_info(ontology_trait,parents_list)
+
+
+    def get_parents(self,trait):
+        ols_url = 'https://www.ebi.ac.uk/ols/api/ontologies/efo/ancestors?id={}'
+        response = requests.get(ols_url.format(trait.id))
+        response_json = response.json()
         ols_embedded = '_embedded'
         ols_links = '_links'
         ols_next  = 'next'
@@ -194,12 +234,14 @@ class UpdateEFO:
 
                     if total_terms_count != len(response):
                         print(f'The number of ancestors of "{trait.label}" retrieved doesn\'t match the number of ancestors declared by the REST API: {total_terms_count} vs {len(response)}')
-                    else:
-                        self.add_parents(response, ontology_trait, score_ids)
+                        response = None
+                else:
+                    print("The script can't retrieve the parents of the trait '"+trait.label+"' ("+trait.id+"): the API returned "+str(len(response))+" results.")
+                    response = None
             else:
-                print("The script can't retrieve the parents of the trait '"+trait.label+"' ("+trait_id+"): the API returned "+str(len(response))+" results.")
-        else:
-            print("  >> WARNING: Can't find parents for the trait '"+trait_id+"'.")
+                print("  >> WARNING: Can't find parents for the trait '"+trait.id+"'.")
+                response = None
+        return response
 
 
     def add_parents(self,response,ontology_trait,score_ids):
@@ -250,7 +292,7 @@ class UpdateEFO:
 
 
     def update_parent_child(self, ontology_trait):
-        """ Build the parent/child relations before updating the EFOTrait_Ontology model"""
+        ''' Build the parent/child relations before updating the EFOTrait_Ontology model'''
         ontology_id = ontology_trait.id
         self.entry_count += 1
         # >>>>>>>>>>> PRINT <<<<<<<<<<<<<
@@ -279,114 +321,115 @@ class UpdateEFO:
         ontology_trait.save()
 
 
-    def collect_efo_category_info(self, trait):
-        """ Fetch the trait category from an EFO ID, using the GWAS REST API """
+    def collect_efo_category_info(self, trait, response=None):
+        '''
+        Fetch the trait category from an EFO ID, using its parents
+        > Parameters:
+            - trait: EFOTrait_Ontology object
+            - response: JSON results from the OLS REST API call (if provided)
+        > Return: None
+        '''
         trait_id = trait.id
         trait_label = trait.label
-        category = None
-        category_label = None
-        category_colour = None
-        category_parent = None
 
-        # Fetch category information
-        # PGS-specific category
-        if trait_label in self.pgs_specific_traits.keys():
-            category_label = self.pgs_specific_traits[trait_label]
-            category_colour = self.pgs_specific_categories[category_label]['colour']
-            category_parent = self.pgs_specific_categories[category_label]['parent']
-        # GWAS category from file
-        elif trait_id in self.gwas_mapping.trait_mapping and not trait_id in self.force_gwas_rest_api:
-            category_label = self.gwas_mapping.trait_mapping[trait_id]
-            category_colour = self.gwas_mapping.categories[category_label]['colour']
-            category_parent = self.gwas_mapping.categories[category_label]['parent']
-        # GWAS category not in file
-        else:
-            # For debugging
-            print(">>>> Category fetch from REST - "+trait_id)
-            self.gwas_rest_count += 1
-
-            rest_url = f'https://www.ebi.ac.uk/gwas/rest/api/parentMapping/{trait_id}'
-            try:
-                # First try
-                response = requests.get(rest_url)
-                response_json = response.json()
-            except JSONDecodeError:
-                # Second try
-                response = requests.get(rest_url)
-                response_json = response.json()
-
-            if response_json and response_json['trait'] != 'None':
-                category_label  = response_json['colourLabel']
-                category_colour = response_json['colour']
-                category_parent = response_json['parent']
+        if not trait_id in self.efo_traits_with_category:
+            categories_list = set()
+            # PGS-specific category
+            if trait_label in self.pgs_specific_traits.keys():
+                categories_list.add(self.pgs_specific_traits[trait_label])
+            else:
+                # Fetch the parent terms if none provided (response)
+                if response == None:
+                    response = self.get_parents(trait)
+                # Get Category info
+                categories_list = self.get_category_info(trait,response)
+            self.store_category_info(trait_id,categories_list)
 
 
-        # Add/update category information
-        if category_label:
-            # Update the trait category, if needed
-            try:
-                category = TraitCategory.objects.get(label=category_label)
-                cat_has_changed = 0
-                if (category_colour != category.colour):
-                    category.colour = category_colour
-                    cat_has_changed = 1
-                if (category_parent != category.parent):
-                    category.parent = category_parent
-                    cat_has_changed = 1
-
-                if cat_has_changed == 1:
-                    category.save()
-            except:
-                category = TraitCategory.objects.create(label=category_label,colour=category_colour,parent=category_parent)
-                category.save()
-
-            self.efo_categories_by_trait[trait.id] = set()
-            self.efo_categories_by_trait[trait.id].add(category.label)
-
-
-    def enrich_efo_category_info(self, trait, current_count, total_count):
-        """ Enrich the EFO/TraitCategory relation, using the parents trait category """
+    def get_category_info(self, trait, response):
+        '''
+        Fetch the trait category from an EFO ID, using OLS REST API 'ancestors' results
+        > Parameters:
+            - trait: EFOTrait_Ontology object
+            - response: JSON results from the OLS REST API call
+        > Return: List of Trait categories
+        '''
         trait_id = trait.id
-        print(f' -> Ontology Trait: {trait_id} ({trait.label}) | {current_count}/{total_count}')
-        # try:
-        #     efo_trait = EFOTrait.objects.get(id=trait.id)
-        # except EFOTrait.DoesNotExist:
-        #     efo_trait = None
+        trait_label = trait.label
+        ols_trait_list = set()
+        ols_categories = set()
+        for parent in response:
+            parent_id = parent['short_form']
+            if parent_id in self.efotrait_categories:
+                ols_trait_list.add(parent_id)
+        # Add trait if it part of the Categories list
+        if trait_id in self.efotrait_categories:
+            ols_trait_list.add(trait_id)
+
+        # Exit if no category association found
+        if len(ols_trait_list) == 0:
+            print(f'No Trait category found for the trait "{trait_label}" ({trait_id}).')
+            return
+
+        # Other trait
+        if len(ols_trait_list) > 1 and 'EFO_0000001' in ols_trait_list:
+            ols_trait_list.remove('EFO_0000001')
+        # Other disease
+        if len(ols_trait_list) > 1 and 'EFO_0000408' in ols_trait_list:
+            ols_trait_list.remove('EFO_0000408')
+        # Other measurement
+        if len(ols_trait_list) > 1 and 'EFO_0001444' in ols_trait_list:
+            ols_trait_list.remove('EFO_0001444')
+
+        for ols_trait_id in ols_trait_list:
+            ols_categories.add(self.categories[ols_trait_id])
+
+        return ols_categories
 
 
-        parent_traits = trait.parent_traits.all()
-        if parent_traits:
-            # Add categories from parents (to support multi parent terms for categories)
-            for efo_parent in parent_traits:
-                if efo_parent.id in self.efo_categories_by_trait:
-                    parent_categories = list(self.efo_categories_by_trait[efo_parent.id])
-                    if parent_categories:
-                        for parent_category in parent_categories:
-                            self.efo_categories_by_trait[trait_id].add(parent_category)
-                else:
-                    print("MISSING CATEGORY FOR THE PARENT TRAIT '"+efo_parent.id+"' (of "+trait_id+")")
+    def store_category_info(self,trait_id,categories_list):
+        '''
+        Create TraitCategory instance if it doesn't exist in the DB
+        and add the trait to the list of traits associated with the trait category
+        > Parameters:
+            - trait_id: Ontology trait identifier (e.g. EFO_0001645)
+            - categories_list: List of category labels associated with the trait
+        > Return: None
+        '''
+        # Add/update category information
+        for category_label in categories_list:
+            if not category_label in self.trait_categories:
+                category_colour = self.categories_info[category_label][self.colour_key]
+                category_parent = self.categories_info[category_label][self.parent_key]
+                # Update the trait category, if needed
+                try:
+                    category = TraitCategory.objects.get(label=category_label)
+                    cat_has_changed = 0
+                    if (category_colour != category.colour):
+                        category.colour = category_colour
+                        cat_has_changed = 1
+                    if (category_parent != category.parent):
+                        category.parent = category_parent
+                        cat_has_changed = 1
 
-            # Cleanup the list of categories
-            categories = list(self.efo_categories_by_trait[trait_id])
-            if len(categories) > 1:
-                for category in categories:
-                    if category in self.exclude_categories:
-                        self.efo_categories_by_trait[trait_id].remove(category)
-                # Case when all the categories are in the "self.exclude_categories" list
-                if len(list(self.efo_categories_by_trait[trait_id])) == 0:
-                    self.efo_categories_by_trait[trait_id] = categories
+                    if cat_has_changed == 1:
+                        category.save()
+                except:
+                    category = TraitCategory.objects.create(label=category_label,colour=category_colour,parent=category_parent)
+                    category.save()
+                self.trait_categories.add(category_label)
 
-        categories = list(self.efo_categories_by_trait[trait_id])
-        for category in categories:
-            if not category in self.efo_categories_by_cat.keys():
-                self.efo_categories_by_cat[category] = set()
-            self.efo_categories_by_cat[category].add(trait_id)
+            self.efo_traits_with_category.add(trait_id)
+            if not category_label in self.efo_categories_by_cat.keys():
+                self.efo_categories_by_cat[category_label] = set()
+            self.efo_categories_by_cat[category_label].add(trait_id)
 
 
     def update_efo_category_info(self):
-        """ Update the EFO/TraitCategory relation, using the parents trait category """
+        ''' Update the EFO/TraitCategory relations, using the built up dictionary "efo_categories_by_cat" '''
         # Get all the EFOTrait IDs
-        efo_trait_ids = [ x.id for x in EFOTrait.objects.all() ]
+        # efo_trait_ids = [ x.id for x in EFOTrait.objects.only('id').all() ]
+        efo_trait_ids = EFOTrait.objects.values_list('id', flat=True)
         category_labels = self.efo_categories_by_cat.keys()
         total_cat = len(category_labels)
         count = 1
@@ -418,7 +461,7 @@ class UpdateEFO:
 
 
     def launch_efo_updates(self):
-        """ Method to run the full EFOTrait/EFOTrait_Ontology/TraitCategory update"""
+        ''' Method to run the full EFOTrait/EFOTrait_Ontology/TraitCategory update'''
 
         print("> Truncate EFOTrait_Ontology table")
         EFOTrait_Ontology.objects.all().delete()
@@ -434,9 +477,10 @@ class UpdateEFO:
             # Copy to EFOTrait_Ontology
             self.add_efo_trait_to_efotrait_ontology(trait)
 
-        print("> Add EFOTrait parent data to EFOTrait_Ontology")
+        print("> Add EFOTrait parent data to EFOTrait_Ontology + collect Trait Categories")
         for trait in efotraits:
             self.add_efo_parents_to_efotrait_ontology(trait)
+        print(f'>>> Categories collected for {len(self.efo_traits_with_category)} traits')
 
         # Update parent entries
         efotrait_ontology_list = EFOTrait_Ontology.objects.prefetch_related('child_traits','scores_direct_associations','scores_child_associations').all()
@@ -448,17 +492,7 @@ class UpdateEFO:
             # Fetch trait category
             self.collect_efo_category_info(ontology_trait)
 
-        # For debugging
-        print("COUNT GWAS REST CALLS: "+str(self.gwas_rest_count))
-
-        # Update Trait categories
-        ontology_trait_list = EFOTrait_Ontology.objects.prefetch_related('parent_traits').all()
-        total_count_ontology_traits = str(len(ontology_trait_list))
-        current_count_ontology_traits = 1
-        print(f'\n> Update Trait category associations for EFOTrait and EFOTrait_Ontology ({total_count_ontology_traits} entries):')
-        for ontology_trait in ontology_trait_list:
-            self.enrich_efo_category_info(ontology_trait, current_count_ontology_traits, total_count_ontology_traits)
-            current_count_ontology_traits += 1
+        # Update Trait category associations
         print('\n> Start updating Trait category associations in the database')
         self.update_efo_category_info()
 
@@ -471,7 +505,7 @@ class UpdateEFO:
 
 
 def run():
-    """ Update the EFO entries and add/update the Trait categories (from GWAS Catalog)."""
+    ''' Update the EFO entries and add/update the Trait categories (from GWAS Catalog).'''
 
     efo_update = UpdateEFO()
     efo_update.launch_efo_updates()

@@ -15,7 +15,7 @@ class NonReleasedDataToRemove:
 
 
     def fetch_non_released_publications(self):
-        self.publications = Publication.objects.filter(date_released__isnull=True).exclude(curation_status="C")
+        self.publications = Publication.objects.filter(date_released__isnull=True).exclude(curation_status='C')
 
 
     def update_embargoed_data(self):
@@ -107,7 +107,7 @@ class NonReleasedDataToRemove:
     def get_efotraits_to_delete(self):
         for efo_trait in EFOTrait.objects.all().prefetch_related('associated_scores'):
             if len(efo_trait.associated_scores.all()) == 0:
-                print("Non linked trait: "+efo_trait.id+" ("+efo_trait.label+")")
+                print(" - Non linked trait: "+efo_trait.id+" ("+efo_trait.label+")")
                 self.traits2del[efo_trait.id] = efo_trait
 
 
@@ -136,11 +136,6 @@ def run():
 
     # Entries to delete
     data2remove.list_entries_to_delete()
-
-
-    # Delete history records for the production database
-    #history2remove = RemoveHistory()
-    #history2remove.delete_history()
 
     print("Latest release: "+str(lastest_release.date))
     print("New release: "+str(release_date))

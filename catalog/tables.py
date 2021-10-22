@@ -10,6 +10,7 @@ from .models import *
 publication_path = '/publication'
 trait_path = '/trait'
 page_size = "50"
+empty_cell_char = '—'
 
 def smaller_in_bracket(value):
     bracket_left = '['
@@ -25,12 +26,12 @@ def score_format(value):
 
 def publication_format(value, is_external=False):
     pub_date = value.date_publication.strftime('%Y')
-    citation = format_html(f'<span class="only_export">|</span><div class="pgs_pub_details">{value.firstauthor} <i>et al.</i> {value.journal} ({pub_date})</div>')
+    citation = f'<span class="only_export">|</span><div class="pgs_pub_details">{value.firstauthor} <i>et al.</i> {value.journal} ({pub_date})</div>'
     extra_html = ''
     if is_external:
-        extra_html += format_html('<span class="only_export">|</span><span class="badge badge-pgs-small" data-toggle="tooltip" title="External PGS evaluation">Ext.</span>')
+        extra_html += '<span class="only_export">|</span><span class="badge badge-pgs-small" data-toggle="tooltip" title="External PGS evaluation">Ext.</span>'
     if value.is_preprint:
-        extra_html += format_html('<span class="only_export">|</span><span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
+        extra_html += '<span class="only_export">|</span><span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>'
     return format_html(f'<a href="{publication_path}/{value.id}">{value.id}</a> {citation}{extra_html}')
 
 
@@ -121,7 +122,10 @@ class Column_cohorts(tables.Column):
             qdict[q.name_short] = r
         for k in sorted (qdict):
             qlist.append(qdict[k])
-        if len(qlist) > 5:
+
+        if len(qlist) == 0:
+            return 'NR'
+        elif len(qlist) > 5:
             div_id = get_random_string(10)
             html_list = '<a class="toggle_table_btn" id="'+div_id+'" title="Click to expand/collapse the list">'+str(len(qlist))+' cohorts <i class="fas fa-plus-circle"></i></a>'
             html_list = html_list+'<div class="toggle_list" id="list_'+div_id+'">'
@@ -174,7 +178,7 @@ class Browse_PublicationTable(tables.Table):
         return format_html('<i>{}</i>{}', value, is_preprint)
 
     def render_doi(self, value):
-        return format_html('<a class="pgs_nowrap" href=https://doi.org/{}>{}</a>', value, value)
+        return format_html('<a class="pgs_nowrap" href=https://doi.org/{}">{}</a>', value, value)
 
     def render_PMID(self, value):
         return format_html('<a href="https://www.ncbi.nlm.nih.gov/pubmed/{}">{}</a>', value, value)
@@ -241,7 +245,7 @@ class Browse_TraitTable(tables.Table):
 
 class Browse_ScoreTable(tables.Table):
     '''Table to browse Scores (PGS) in the PGS Catalog'''
-    id = tables.Column(accessor='id', verbose_name=format_html('Polygenic Score ID & Name'), orderable=True)
+    id = tables.Column(accessor='id', verbose_name='Polygenic Score ID & Name', orderable=True)
     publication = tables.Column(accessor='publication', verbose_name=format_html('PGS Publication ID <span>(PGP)</span>'), orderable=True)
     trait_efo = tables.Column(accessor='trait_efo', verbose_name=format_html('Mapped Trait(s) <span>(Ontology)</span>'), orderable=False)
     ftp_link = tables.Column(accessor='link_filename', verbose_name=format_html('Scoring File <span>(FTP Link)</span>'), orderable=False)
@@ -290,6 +294,7 @@ class Browse_ScoreTable(tables.Table):
 
     def render_variants_number(self, value):
         return '{:,}'.format(value)
+
 
     def render_ancestries(self, value, record):
         if not value:
@@ -468,6 +473,7 @@ class SampleTable_variants(tables.Table):
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
     sources = Column_joinlist(accessor='display_sources', verbose_name='Study Identifiers', orderable=False)
     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
+    cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
 
     class Meta:
         model = Sample
@@ -480,7 +486,8 @@ class SampleTable_variants(tables.Table):
         }
         fields = [
             'sources',
-            'sample_merged', 'sample_ancestry'
+            'sample_merged', 'sample_ancestry',
+            'cohorts'
         ]
         template_name = 'catalog/pgs_catalog_django_table.html'
 
@@ -512,7 +519,7 @@ class SampleTable_variants(tables.Table):
                 l.append(f'<div>{doi}</div>')
 
         if len(l) == 0:
-            return '—'
+            return empty_cell_char
         else:
             return format_html(''.join(l))
 

@@ -9,12 +9,12 @@ django-sass-processor==1.0.1
 #### Library to build the HTML tables
 django-tables2==2.4.0
 #### Python PostgreSQL library
-psycopg2-binary==2.8.6
+psycopg2-binary==2.9.1
 #### Django REST API libraries
 djangorestframework==3.12.4
 django-cors-headers==3.7.0
 #### Python & Django Elasticsearch libraries
-elasticsearch==7.13.4
+elasticsearch==7.15.0
 elasticsearch-dsl==7.4.0
 django-elasticsearch-dsl==7.2.0
 #### Version checking library for Django

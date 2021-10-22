@@ -99,6 +99,23 @@
                           <td><b>{{ score.name }}</b></td>
                         </tr>
                         <tr>
+                          <td class="table_subtitle" colspan="2">Development Method</td>
+                        </tr>
+                        <tr>
+                          <td>Name</td>
+                          <td>{{ score.method_name }}</td>
+                        </tr>
+                        <tr>
+                          <td>Parameters</td>
+                          <td id="pgs_params">
+                            {% if score.method_params %}
+                              {{ score.method_params }}
+                            {% else %}
+                              NR
+                            {% endif %}
+                          </td>
+                        </tr>
+                        <tr>
                           <td class="table_subtitle" colspan="2">Variants</td>
                         </tr>
                         <tr>
@@ -116,21 +133,8 @@
                           </tr>
                         {% endif %}
                         <tr>
-                          <td class="table_subtitle" colspan="2">Development Method</td>
-                        </tr>
-                        <tr>
-                          <td>Name</td>
-                          <td>{{ score.method_name }}</td>
-                        </tr>
-                        <tr>
-                          <td>Parameters</td>
-                          <td id="pgs_params">
-                            {% if score.method_params %}
-                              {{ score.method_params }}
-                            {% else %}
-                              NR
-                            {% endif %}
-                          </td>
+                          <td>Effect Weight Type<span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="Variant effect weight type, e.g. 'beta', 'OR/HR'"><i class="fas fa-info-circle"></i></td>
+                          <td><b>{{ score.weight_type }}</b></td>
                         </tr>
                      </tbody>
                 </table>

@@ -86,49 +86,50 @@
     </section>
 
     <section>
-        <h3 id="dl_ftp">PGS Catalog FTP structure</h3>
-        <p>The PGS Catalog FTP allows for consistent access to the bulk downloads, and is indexed by Polygenic Score (PGS) ID to allow programmatic access to score level data. The following diagram illustrates the FTP structure:</p>
+      <h3 id="dl_ftp">PGS Catalog FTP structure</h3>
+      <p>The PGS Catalog FTP allows for consistent access to the bulk downloads, and is indexed by Polygenic Score (PGS) ID to allow programmatic access to score level data. The following diagram illustrates the FTP structure:</p>
 
-        <div class="pgs_formatted_block">
-          <pre>
-<a href="{{ pgs_ftp_root }}">{{ pgs_ftp_root }}</a>
-├── <a href="{{ pgs_ftp_root }}/metadata"><b>metadata/</b></a>
+      <div class="pgs_formatted_block">
+        <pre>
+<a href="{{ pgs_ftp_http_root }}">{{ pgs_ftp_root }}</a>
+├── <a href="{{ pgs_ftp_http_meta }}"><b>metadata/</b></a>
 │   ├── <span class="pgs_hl">pgs_all_metadata.xlsx</span>
 │   ├── <span class="pgs_hl">pgs_all_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(7 files)</small>
 │   ├── <span class="pgs_hl">pgs_all_metadata.tar.gz</span> <small>(xlsx + csv files)</small>
-│   └── <b>previous_releases/</b>
-└── <a href="{{ pgs_ftp_root }}/scores"><b>scores/</b></a>
-    ├── <b>PGS000001/</b>
-    │   ├── <b>Metadata/</b>
+│   ├── <a href="{{ pgs_ftp_http_meta }}/publications/"><b>publications/</b></a> <small>(metadata for large studies)</small>
+│   └── <a href="{{ pgs_ftp_http_meta }}/previous_releases/"><b>previous_releases/</b></a>
+└── <a href="{{ pgs_ftp_http_root }}/scores"><b>scores/</b></a>
+    ├── <a href="{{ pgs_ftp_http_root }}/scores/PGS000001/"><b>PGS000001/</b></a>
+    │   ├── <a href="{{ pgs_ftp_http_root }}/scores/PGS000001/Metadata/"><b>Metadata/</b></a>
     │   │   ├── <span class="pgs_hl">PGS000001_metadata.xlsx</span>
     │   │   ├── <span class="pgs_hl">PGS000001_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(7 files)</small>
     │   │   ├── <span class="pgs_hl">PGS000001_metadata.tar.gz</span> <small>(xlsx + csv files)</small>
     │   │   └── <b>archived_versions/</b>
-    │   └── <b>ScoringFiles/</b>
+    │   └── <a href="{{ pgs_ftp_http_root }}/scores/PGS000001/ScoringFiles"><b>ScoringFiles/</b></a>
     │       ├── <span class="pgs_hl">PGS000001.txt.gz</span>
     │       └── <b>archived_versions/</b>
-    ├── <b>PGS000002/</b>
+    ├── <a href="{{ pgs_ftp_http_root }}/scores/PGS000002/"><b>PGS000002/</b></a>
     &middot;	├─ &middot;&middot;&middot;
     &middot;	└─ &middot;&middot;&middot;
     &middot;
-    └── <b>PGS000.../</b>
+    └── <b>PGS00..../</b>
         ├─ &middot;&middot;&middot;
         └─ &middot;&middot;&middot;</pre>
-        </div>
-      </section>
+      </div>
+    </section>
 
-      <section>
-        <h3 id="dl_ftp_scoring">PGS Scoring Files</h3>
-        <p>Each scoring file (variant information, effect alleles/weights) is formatted to be a gzipped <b>tab-delimited</b> text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
-        <div class="mb-2 float_left pgs_note pgs_note_1">
-          <div>
-            <span>Note: </span>These files are composed of author-reported variants and annotations, and have only been consistently formatted to have the same column headings and data types within each column. We are currently working on methods to provide harmonized versions of each PGS in different genome builds (GRCh37 and GRCh38), ensuring each variant has a chromosomal position (either by adding it based on rsID or using liftover), and flagging potentially problematic variants (e.g. palindromic SNPs) or those that are inconsistent with the current genome build (e.g. strand flips, and variants not found in the Ensembl Variation databases).
-          </div>
+    <section>
+      <h3 id="dl_ftp_scoring">PGS Scoring Files</h3>
+      <p>Each scoring file (variant information, effect alleles/weights) is formatted to be a gzipped <b>tab-delimited</b> text file, labelled by its PGS Catalog Score ID (e.g. <code>PGS000001.txt.gz</code>).
+      <div class="mb-2 float_left pgs_note pgs_note_1">
+        <div>
+          <span>Note: </span>These files are composed of author-reported variants and annotations, and have only been consistently formatted to have the same column headings and data types within each column. We are currently working on methods to provide harmonized versions of each PGS in different genome builds (GRCh37 and GRCh38), ensuring each variant has a chromosomal position (either by adding it based on rsID or using liftover), and flagging potentially problematic variants (e.g. palindromic SNPs) or those that are inconsistent with the current genome build (e.g. strand flips, and variants not found in the Ensembl Variation databases).
         </div>
-        <p>Here is a description of the PGS Scoring Files header:</p>
+      </div>
+      <p>Here is a description of the PGS Scoring Files header:</p>
 
-        <div class="pgs_formatted_block">
-          <pre>
+      <div class="pgs_formatted_block">
+        <pre>
 <span>### PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp_scoring for additional information</span>
 <span>## POLYGENIC SCORE (PGS) INFORMATION</span>
 <b># PGS ID</b> = <i>PGS identifier, e.g. 'PGS000001'</i>
@@ -143,14 +144,33 @@
 <span class="scoring_col">rsID</span><span class="scoring_col">chr_name</span><span class="scoring_col">chr_position</span><span class="scoring_col">effect_allele</span><span class="scoring_col">reference_allele</span><span class="pgs_color_2">...</span></pre>
       </div>
 
-      <p>It also has been edited to have consistent column headings based on the following schema:</p>
+      <i class="fas fa-angle-right"></i> <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="pgs_header_example" title="Click to show/hide an example of Scoring Files header">Example of PGS Scoring Files header <i class="fas fa-plus-circle"></i></a>
+      <div class="toggle_list mt-2" id="list_pgs_header_example">
+        <div class="pgs_formatted_block">
+          <pre>
+<span>### PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp_scoring for additional information</span>
+<span>## POLYGENIC SCORE (PGS) INFORMATION</span>
+<b># PGS ID</b> = PGS000348
+<b># PGS Name</b> = PRS_PrCa
+<b># Reported Trait</b> = Prostate cancer
+<b># Original Genome Build</b> = GRCh37
+<b># Number of Variants</b> = 72
+<span>## SOURCE INFORMATION</span>
+<b># PGP ID</b> = PGP000113
+<b># Citation</b> = Black M et al. Prostate (2020). doi:10.1002/pros.24058
+<b># LICENSE</b> = Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0). © 2020 Ambry Genetics.
+<span class="scoring_col">rsID</span><span class="scoring_col">chr_name</span><span class="scoring_col">chr_position</span><span class="scoring_col">effect_allele</span><span class="scoring_col">reference_allele</span><span class="scoring_col">effect_weight</span><span class="pgs_color_2">...</span></pre>
+        </div>
+      </div>
+
+      <p class="mt-5">It also has been edited to have consistent column headings based on the following schema:</p>
       <div class="table-responsive">
         <table class="table table-striped table_pgs_auto">
           <thead class="thead-light">
             <tr><th>Column Header</th><th>Field Name</th><th>Field Description</th><th>Field Requirement</th></tr>
           </thead>
           <tbody>
-            <tr><td>rsID</td><td>dbSNP Accession ID (rsID) </td><td>The SNP’s rs ID</td><td><span class="pgs_color_amber">Optional</span> - unless both the <i>chr_name</i> and <i>chr_position</i> columns are absent</td></tr>
+            <tr><td>rsID</td><td>dbSNP Accession ID (rsID) </td><td>The SNP’s rs ID</td><td><span class="pgs_color_amber">Optional</span> - unless both the <i>chr_name</i> and <i>chr_position</i> columns are absent. This column also contains HLA alleles in the standard notation (e.g. HLA-DQA1*0102) that aren’t always provided with chromosomal positions.</td></tr>
             <tr><td>chr_name</td><td>Location - Chromosome </td><td>Chromosome name/number associated with the variant</td><td><span class="pgs_color_red">Required</span> - may be optional if an <i>rsID</i> for the variant is provided</td></tr>
             <tr><td>chr_position</td><td>Location - Position within the Chromosome</td><td>Chromosomal position associated with the variant</td><td><span class="pgs_color_red">Required</span> - may be optional if an <i>rsID</i> for the variant is provided</td></tr>
             <tr><td>effect_allele</td><td>Effect Allele</td><td>The allele that's dosage is counted (e.g. {0, 1, 2}) and multiplied by the variant's weight ('effect_weight') when calculating score. The effect allele is also known as the 'risk allele'.</td><td><span class="pgs_color_red">Required</span></td></tr>
@@ -175,6 +195,27 @@
             <tr><td>allelefrequency_effect_<span class="pgs_bracket">Ancestry</span></td><td>Population-specific effect allele frequency</td><td>Reported effect allele frequency in a specific population (described by the authors).</td><td><span class="pgs_color_green">Optional</span></td></tr>
           </tbody>
         </table>
+      </div>
+
+      <i class="fas fa-angle-right"></i> <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="pgs_data_example" title="Click to show/hide an example of Scoring Files data">Example of PGS Scoring Files data <i class="fas fa-plus-circle"></i></a>
+      <div class="toggle_list mt-2" id="list_pgs_data_example">
+        <div class="pgs_formatted_block">
+          <pre><i>Scoring Files header</i>
+<span>rsID        chr_name  chr_position  effect_allele  reference_allele  effect_weight</span>
+rs2843152   1         2245570       G              C                 -2.76009e-02
+rs35465346  1         22132518      G              A                  2.39340e-02
+rs28470722  1         38386727      G              A                 -1.74935e-02
+rs11206510  1         55496039      T              C                  2.93005e-02
+rs9970807   1         56965664      C              T                  4.70027e-02
+rs61772626  1         57015668      A              G                 -2.71202e-02
+rs7528419   1         109817192     A              G                  2.91912e-02
+rs1277930   1         109822143     A              G                  2.60105e-02
+rs11102000  1         110298166     G              C                  2.45969e-02
+rs11810571  1         151762308     G              C                  2.09215e-02
+rs6689306   1         154395946     G              A                 -1.97906e-02
+rs72702224  1         154911689     G              A                 -2.81310e-02
+rs3738591   1         155764808     C              G                  4.23731e-02
+<span class="pgs_color_2">...</span></pre>
       </div>
     </section>
 
