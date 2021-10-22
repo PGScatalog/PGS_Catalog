@@ -35,7 +35,8 @@ related_dict = {
                               Prefetch('sample_set__score_variants', queryset=Score.objects.only('id').all()),
                               Prefetch('sample_set__score_training', queryset=Score.objects.only('id').all())
                             ],
-    'score_defer': [*generic_defer,'ancestries','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
+    'sampleset_samples_cohorts_prefetch': [Prefetch('sampleset__samples__cohorts', queryset=Cohort.objects.only('id','name_short','name_full').all())],
+    'score_defer': [*generic_defer,'publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
     'perf_defer': [*generic_defer,'score__ancestries','score__curation_notes','score__date_released','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
     'publication_defer': [*generic_defer,'curation_status']
 }
@@ -181,7 +182,7 @@ class RestScoreSearch(generics.ListAPIView):
         Optionally restricts the returned purchases to a given user,
         by filtering against one or serveral query parameters in the URL.
         """
-        queryset = Score.objects.defer(*related_dict['score_defer']).select_related('publication').all().prefetch_related(*related_dict['score_prefetch'])
+        queryset = Score.objects.defer(*related_dict['score_defer']).select_related('publication').all().prefetch_related(*related_dict['score_prefetch']).order_by('num')
         params = 0
 
         # Search by list of Score IDs
@@ -196,6 +197,13 @@ class RestScoreSearch(generics.ListAPIView):
         pmid = self.request.query_params.get('pmid')
         if pmid and pmid.isnumeric():
             queryset = queryset.filter(publication__PMID=pmid)
+            params += 1
+
+        # Search by PGP ID
+        pgp_id = self.request.query_params.get('pgp_id')
+        if pgp_id and pgp_id is not None:
+            pgp_id = pgp_id.upper()
+            queryset = queryset.filter(publication__id=pgp_id)
             params += 1
 
         # Search by Trait ID
@@ -217,7 +225,7 @@ class RestListPerformances(generics.ListAPIView):
     """
     Retrieve all the PGS Performance Metrics
     """
-    queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).all().prefetch_related('sampleset__samples','sampleset__samples__cohorts','performance_metric').order_by('num')
+    queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).all().prefetch_related('sampleset__samples',*related_dict['sampleset_samples_cohorts_prefetch'],'performance_metric').order_by('num')
     serializer_class = PerformanceSerializer
 
 
@@ -227,19 +235,33 @@ class RestPerformanceSearch(generics.ListAPIView):
     """
     serializer_class = PerformanceSerializer
 
+
     def get_queryset(self):
 
-        queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).all().prefetch_related('sampleset__samples','sampleset__samples__cohorts','performance_metric').order_by('num')
+        queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).all().prefetch_related('sampleset__samples',*related_dict['sampleset_samples_cohorts_prefetch'],'performance_metric').order_by('num')
+        params = 0
 
         # Search by Score ID
         pgs_id = self.request.query_params.get('pgs_id')
         if pgs_id and pgs_id is not None:
             pgs_id = pgs_id.upper()
-            try:
-                queryset = queryset.filter(score__id=pgs_id)
-            except Score.DoesNotExist:
-                queryset = []
-        else:
+            queryset = queryset.filter(score__id=pgs_id)
+            params += 1
+
+        # Search by PGP ID
+        pgp_id = self.request.query_params.get('pgp_id')
+        if pgp_id and pgp_id is not None:
+            pgp_id = pgp_id.upper()
+            queryset = queryset.filter(publication__id=pgp_id)
+            params += 1
+
+        # Search by Pubmed ID
+        pmid = self.request.query_params.get('pmid')
+        if pmid and pmid.isnumeric():
+            queryset = queryset.filter(publication__PMID=pmid)
+            params += 1
+
+        if params == 0:
             queryset = []
 
         return queryset
@@ -253,7 +275,7 @@ class RestPerformance(generics.RetrieveAPIView):
     def get(self, request, ppm_id):
         ppm_id = ppm_id.upper()
         try:
-            queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).prefetch_related('sampleset__samples','sampleset__samples__cohorts','performance_metric').get(id=ppm_id)
+            queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).prefetch_related('sampleset__samples',*related_dict['sampleset_samples_cohorts_prefetch'],'performance_metric').get(id=ppm_id)
         except Performance.DoesNotExist:
             queryset = None
         serializer = PerformanceSerializer(queryset,many=False)
@@ -440,19 +462,30 @@ class RestSampleSetSearch(generics.ListAPIView):
 
         # Search by Score ID
         pgs_id = self.request.query_params.get('pgs_id')
-        if pgs_id and pgs_id is not None:
-            pgs_id = pgs_id.upper()
-            try:
-                perfs = Performance.objects.select_related('sampleset').filter(score__id=pgs_id).prefetch_related('sampleset__samples','sampleset__samples__cohorts')
-                for perf in perfs.all():
-                    sampleset = perf.sampleset
-                    if not sampleset in queryset:
-                        queryset.append(sampleset)
-                        queryset.sort(key=lambda x: x.id, reverse=False)
-            except Score.DoesNotExist:
-                queryset = []
-        else:
-            queryset = []
+        # Search by PGP ID
+        pgp_id = self.request.query_params.get('pgp_id')
+        # Search by Pubmed ID
+        pmid = self.request.query_params.get('pmid')
+
+        if (pgs_id and pgs_id is not None) or (pgp_id and pgp_id is not None) or (pmid and pmid.isnumeric()):
+            filters = {}
+            if pgs_id and pgs_id is not None:
+                pgs_id = pgs_id.upper()
+                filters['score__id'] = pgs_id
+
+            if pgp_id and pgp_id is not None:
+                pgp_id = pgp_id.upper()
+                filters['publication__id'] = pgp_id
+
+            if pmid and pmid.isnumeric():
+                filters['publication__PMID'] = pmid
+
+            perfs = Performance.objects.only('score_id','publication_id','sampleset_id').select_related('sampleset').filter(**filters).prefetch_related('sampleset__samples',*related_dict['sampleset_samples_cohorts_prefetch'])
+            for perf in perfs:
+                sampleset = perf.sampleset
+                if not sampleset in queryset:
+                    queryset.append(sampleset)
+            queryset.sort(key=lambda x: x.id, reverse=False)
 
         return queryset
 

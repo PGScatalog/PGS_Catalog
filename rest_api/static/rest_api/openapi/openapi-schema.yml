@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.8.1'
+  version: '1.8.2'
   description: |
     Programmatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -73,6 +73,11 @@ info:
 
     <a class="toggle_btn" id="changelog">REST API version changelog <i class="fas fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.8.2</span> - October 2021:
+        * New field **weight_type** in the Score schemas (`/rest/score/` endpoints).
+        * New parameters 'pgp_id' and 'pmid' for the endpoints `/rest/performance/search/` and `/rest/sample_set/search/`.
+        * New parameter 'pgp_id' for the endpoint `/rest/score/search/`.
 
       * <span class="badge badge-pill badge-pgs">1.8.1</span> - July 2021:
         * Change the data type of the field **source_PMID** to numeric in the Sample schemas
@@ -488,7 +493,7 @@ components:
       properties:
         id:
           type: string
-          description: "PGS Publication identifier"
+          description: "PGS Catalog Publication identifier"
           example: "PGP000001"
         title:
           type: string
@@ -737,6 +742,10 @@ components:
           type: string
           description: "The version of the genome assembly that the variants present in the PGS are associated with. Listed as NR (Not Reported) if unknown."
           example: "GRCh38"
+        weight_type:
+          type: string
+          description: "Variant Weight supplied by the author: beta (effect size), or something like an OR/HR (odds/hazard ratio)."
+          example: "beta"
         ancestry_distribution:
           type: object
           description: "Ancestry distribution on each PGS stage. For more information about Ancestry, please go to [Ancestry documentation](/docs/ancestry). To get the full name of the Ancestry categories (e.g. 'European' for 'EUR'), please look at the endpoint **/rest/ancestry_categories**"
@@ -1059,13 +1068,43 @@ paths:
           name: pgs_id
           schema:
             type: string
-          required: true
+          required: false
           description: 'Polygenic Score ID (PGS)'
           examples:
+            pgs_sel:
+              summary: Select an example or type an ID - click on 'Try it out' first
             PGS000001:
               value: "PGS000001"
             PGS000018:
               value: "PGS000018"
+        - in: query
+          name: pgp_id
+          schema:
+            type: string
+          required: false
+          description: PGS Catalog Publication ID (PGP) - optional
+          examples:
+            pgp_sel:
+              summary: Select an example or type an ID - click on 'Try it out' first
+            PGP000001:
+              value: "PGP000001"
+            PGP000006:
+              value: "PGP000006"
+        - in: query
+          name: pmid
+          schema:
+            type: integer
+          required: false
+          description: PubMed ID (without the prefix "PMID:") - *optional*
+          examples:
+            pmid_sel:
+              summary: Select an example or type an ID - click on 'Try it out' first
+            pmid_1:
+              summary: 'PMID: 25855707'
+              value: 25855707
+            pmid_2:
+              summary: 'PMID: 30104762'
+              value: 30104762
       responses:
         '200':
           content:
@@ -1205,13 +1244,43 @@ paths:
           name: pgs_id
           schema:
             type: string
-          required: true
-          description: 'Polygenic Score ID (PGS)'
+          required: false
+          description: Polygenic Score ID (PGS) - optional
           examples:
+            pgs_sel:
+              summary: Select an example or type an ID - click on 'Try it out' first
             PGS000001:
               value: "PGS000001"
             PGS000018:
               value: "PGS000018"
+        - in: query
+          name: pgp_id
+          schema:
+            type: string
+          required: false
+          description: PGS Catalog Publication ID (PGP) - optional
+          examples:
+            pgp_sel:
+              summary: Select an example or type an ID - click on 'Try it out' first
+            PGP000001:
+              value: "PGP000001"
+            PGP000006:
+              value: "PGP000006"
+        - in: query
+          name: pmid
+          schema:
+            type: integer
+          required: false
+          description: PubMed ID (without the prefix "PMID:") - *optional*
+          examples:
+            pmid_sel:
+              summary: Select an example or type an ID - click on 'Try it out' first
+            pmid_1:
+              summary: 'PMID: 25855707'
+              value: 25855707
+            pmid_2:
+              summary: 'PMID: 30104762'
+              value: 30104762
       responses:
         '200':
           content:
@@ -1307,7 +1376,7 @@ paths:
           examples:
             PGP000001:
               value: "PGP000001"
-            PGP000018:
+            PGP000006:
               value: "PGP000018"
           schema:
             type: string
@@ -1359,7 +1428,7 @@ paths:
           schema:
             type: integer
           required: false
-          description: PubMed ID - optional
+          description: PubMed ID (without the prefix "PMID:") - *optional*
           examples:
             pmid_sel:
               summary: Select an example or type an ID - click on 'Try it out' first
@@ -1642,6 +1711,19 @@ paths:
           * The ancestry distribution
           * The Terms/Licenses
       parameters:
+        - in: query
+          name: pgp_id
+          schema:
+            type: string
+          required: false
+          description: PGS Catalog Publication ID (PGP) - optional
+          examples:
+            pgp_sel:
+              summary: Select an example or type an ID - click on 'Try it out' first
+            PGP000001:
+              value: "PGP000001"
+            PGP000006:
+              value: "PGP000006"
         - in: query
           name: pmid
           schema:

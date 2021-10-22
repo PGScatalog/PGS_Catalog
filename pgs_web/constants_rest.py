@@ -2,6 +2,15 @@
 
 PGS_REST_API = [
     {
+        'version': '1.8.2',
+        'date': '2021-10',
+        'changelog': [
+            "New field 'weight_type' in the Score schemas (`/rest/score/` endpoints).",
+            "New parameters 'pgp_id' and 'pmid' for the endpoints `/rest/performance/search/` and `/rest/sample_set/search/`.",
+            "New parameter 'pgp_id' for the endpoint `/rest/score/search/`."
+        ]
+    },
+    {
         'version': '1.8.1',
         'date': '2021-07',
         'changelog': [
