@@ -18,8 +18,6 @@ related_dict = {
         Prefetch('samples_training', queryset=Sample.objects.select_related('sample_age','followup_time').all().order_by('id').prefetch_related('cohorts')),
     ],
     'perf_select': ['score', 'publication', 'sampleset'],
-    'publication_score_prefetch': [Prefetch('publication_score', queryset=Score.objects.only('id','publication__id').all())],
-    'publication_performance_prefetch': [Prefetch('publication_performance', queryset=Performance.objects.only('score__id','publication__id').select_related('score'))],
     'associated_scores_prefetch': [Prefetch('associated_scores', queryset=Score.objects.only('id','trait_efo__id').all())],
     'ontology_associated_scores_prefetch': [
                                              Prefetch('scores_direct_associations', queryset=Score.objects.only('id','trait_efo__id').all()),
@@ -87,7 +85,7 @@ class RestListPublications(generics.ListAPIView):
     """
     Retrieve all the PGS Publications
     """
-    queryset = Publication.objects.defer(*related_dict['publication_defer']).all().prefetch_related(*related_dict['publication_score_prefetch'],*related_dict['publication_performance_prefetch']).order_by('num')
+    queryset = Publication.objects.defer(*related_dict['publication_defer']).all().order_by('num')
     serializer_class = PublicationExtendedSerializer
 
 
@@ -99,7 +97,7 @@ class RestPublication(generics.RetrieveAPIView):
     def get(self, request, pgp_id):
         pgp_id = pgp_id.upper()
         try:
-            queryset = Publication.objects.defer(*related_dict['publication_defer']).prefetch_related(*related_dict['publication_score_prefetch']).get(id=pgp_id)
+            queryset = Publication.objects.defer(*related_dict['publication_defer']).get(id=pgp_id)
         except Publication.DoesNotExist:
             queryset = None
         serializer = PublicationExtendedSerializer(queryset,many=False)
@@ -113,7 +111,7 @@ class RestPublicationSearch(generics.ListAPIView):
     serializer_class = PublicationExtendedSerializer
 
     def get_queryset(self):
-        queryset = Publication.objects.all().prefetch_related(*related_dict['publication_score_prefetch']).order_by('num')
+        queryset = Publication.objects.defer(*related_dict['publication_defer']).all().order_by('num')
         params = 0
 
         # Search by Score ID

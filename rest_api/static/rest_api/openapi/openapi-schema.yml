@@ -1069,7 +1069,7 @@ paths:
           schema:
             type: string
           required: false
-          description: 'Polygenic Score ID (PGS)'
+          description: Polygenic Score ID (PGS) - optional
           examples:
             pgs_sel:
               summary: Select an example or type an ID - click on 'Try it out' first
@@ -1415,9 +1415,9 @@ paths:
           schema:
             type: string
           required: false
-          description: 'Polygenic Score ID (PGS)'
+          description: Polygenic Score ID (PGS) - optional
           examples:
-            pgs_id_sel:
+            pgs_sel:
               summary: Select an example or type an ID - click on 'Try it out' first
             PGS000001:
               value: "PGS000001"
