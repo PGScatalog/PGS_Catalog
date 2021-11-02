@@ -24,9 +24,9 @@ efo_name_2 = 'estrogen-receptor positive breast cancer'
 efo_desc_2 = 'a subtype of breast cancer that is estrogen-receptor positive [EFO: 1000649]'
 
 cohort_name = "ABC"
-cohort_desc = "Cohort description"
+cohort_desc = "Cohort ABC description"
 cohort_name_2 = "DEF"
-cohort_desc_2 = "Cohort description"
+cohort_desc_2 = "Cohort DEF description"
 
 firstauthor = "Inouye M"
 
@@ -36,7 +36,7 @@ def format_date(date_list):
 
 
 class CohortTest(TestCase):
-    """ Test the Cohort model """
+    ''' Test the Cohort model '''
 
     def create_cohort(self, name_short=cohort_name,name_full=cohort_desc):
         return Cohort.objects.create(name_short=name_short,name_full=name_full)
@@ -63,7 +63,7 @@ class CohortTest(TestCase):
         self.assertTrue(cohort.released)
 
 class DemographicTest(TestCase):
-    """ Test the Demographic model """
+    ''' Test the Demographic model '''
 
     def create_demographic(self, estimate, estimate_type, unit, range, range_type, variability, variability_type):
         return Demographic.objects.create(
@@ -76,9 +76,9 @@ class DemographicTest(TestCase):
             variability_type=variability_type
         )
 
-    def test_demographic(self):
 
-        # Type "median" - no variability
+    def test_demographic_a(self):
+        ''' Type "median" - no variability '''
         a_type = 'median'
         a_estimate = 10
         a_unit = 'years'
@@ -118,7 +118,9 @@ class DemographicTest(TestCase):
         self.assertEqual(values_dict_a['interval']['upper'], a_range_upper)
         self.assertEqual(values_dict_a['unit'], a_unit)
 
-        # Type "mean" - no range
+
+    def test_demographic_b(self):
+        ''' Type "mean" - no range '''
         b_type = 'mean'
         b_estimate = 6.3
         b_unit = 'years'
@@ -139,7 +141,9 @@ class DemographicTest(TestCase):
         self.assertEqual(values_dict_b['variability_type'], b_variability_type)
         self.assertEqual(values_dict_b['variability'], b_variability)
 
-        # Type "mean" - no variability
+
+    def test_demographic_c(self):
+        ''' Type "mean" - no variability '''
         c_type = 'mean'
         c_estimate = 11.1
         c_unit = 'years'
@@ -162,7 +166,9 @@ class DemographicTest(TestCase):
         demo_value_c += r'</li><li><span.+>'+c_range_type.title()+r'</span> : '+regex_range_c+r' '+c_unit+r'.+$'
         self.assertRegexpMatches(demographic_c.display_value(), demo_value_c)
 
-        # Type "mean" - no estimate
+
+    def test_demographic_d(self):
+        ''' Type "mean" - no estimate '''
         d_type = 'mean'
         d_estimate = None
         d_unit = 'years'
@@ -180,7 +186,9 @@ class DemographicTest(TestCase):
         demo_value_d =  r'^'+d_range_type.title()+r' : '+regex_range_d+r' '+d_unit+r'$'
         self.assertRegexpMatches(demographic_d.display_value(), demo_value_d)
 
-        # Type "median" - ci range, no unit
+
+    def test_demographic_e(self):
+        ''' Type "median" - ci range, no unit '''
         e_type = 'median'
         e_estimate = 15
         e_unit =  'years'
@@ -204,7 +212,7 @@ class DemographicTest(TestCase):
 
 
 class EFOTraitTest(TestCase):
-    """ Test the EFOTrait model """
+    ''' Test the EFOTrait model '''
 
     def create_efo_trait(self, efo_id=efo_id,label=efo_name, desc=efo_desc, syn=efo_synonyms, terms=efo_mapped_terms):
         return EFOTrait.objects.create(id=efo_id,label=label,description=desc,synonyms=syn,mapped_terms=terms)
@@ -217,7 +225,7 @@ class EFOTraitTest(TestCase):
         return efo_trait
 
 
-    def test_efo_trait(self):
+    def test_efo_trait_1(self):
         efo_trait_1 = self.get_efo_trait(efo_id,efo_name,efo_desc)
         # Instance
         self.assertTrue(isinstance(efo_trait_1, EFOTrait))
@@ -246,7 +254,9 @@ class EFOTraitTest(TestCase):
         self.assertIsNotNone(efo_trait_1.url)
         self.assertEqual(efo_trait_1.category_labels_list, [])
 
-        # Test empty synonyms & mapped_terms
+
+    def test_efo_trait_2(self):
+        ''' Test empty synonyms & mapped_terms '''
         efo_trait_2 = self.create_efo_trait(efo_id='EFO_0000306', syn=None, terms=None)
         # Instance
         self.assertTrue(isinstance(efo_trait_2, EFOTrait))
@@ -255,54 +265,8 @@ class EFOTraitTest(TestCase):
         self.assertEqual(efo_trait_2.mapped_terms_list, [])
 
 
-class EmbargoedPublicationTest(TestCase):
-    def create_embargoed_publication(self, publication_id, author_name):
-        return EmbargoedPublication.objects.create(id=publication_id, firstauthor=author_name)
-
-    def test_embargoed_publication(self):
-        publication_id = 'PGP000007'
-        e_publication = self.create_embargoed_publication(publication_id=publication_id, author_name=firstauthor)
-        # Instance
-        self.assertTrue(isinstance(e_publication, EmbargoedPublication))
-        # Variables
-        self.assertEqual(e_publication.id, publication_id)
-        self.assertEqual(e_publication.firstauthor, firstauthor)
-
-
-class EmbargoedScoreTest(TestCase):
-    def create_embargoed_score(self, score_id, author_name):
-        return EmbargoedScore.objects.create(id=score_id, firstauthor=author_name)
-
-    def test_embargoed_score(self):
-        score_id = 'PGS000018'
-        e_score = self.create_embargoed_score(score_id=score_id, author_name=firstauthor)
-        # Instance
-        self.assertTrue(isinstance(e_score, EmbargoedScore))
-        # Variables
-        self.assertEqual(e_score.id, score_id)
-        self.assertEqual(e_score.firstauthor, firstauthor)
-
-
-class RetiredScore(TestCase):
-    """ Test the Retired model """
-    def create_retired(self, data_id, pub_doi, retirement_notes):
-        return Retired.objects.create(id=data_id, doi=pub_doi, notes=retirement_notes)
-
-    def test_retired_score(self):
-        score_id = 'PGS000999'
-        score_doi = constants.PGS_CITATION['doi']
-        score_notes = 'This score has been retired'
-        retired_score = self.create_retired(score_id, score_doi, score_notes)
-        # Instance
-        self.assertTrue(isinstance(retired_score, Retired))
-        # Variables
-        self.assertEqual(retired_score.id, score_id)
-        self.assertEqual(retired_score.doi, score_doi)
-        self.assertEqual(retired_score.notes, score_notes)
-
-
 class MetricTest(TestCase):
-    """ Test the Metric model """
+    ''' Test the Metric model '''
 
     def create_performance(self, num):
         performancetest = PerformanceTest()
@@ -441,7 +405,7 @@ class MetricTest(TestCase):
 
 
 class PerformanceTest(TestCase):
-    """ Test the Performance model """
+    ''' Test the Performance model '''
     perf_id = 'PPM000001'
     phenotype_reported = 'New reported phenotype'
 
@@ -496,7 +460,7 @@ class PerformanceTest(TestCase):
         self.assertEqual(performance.display_trait['efo'][0], performance.phenotyping_efo.all()[0])
         self.assertEqual(performance.display_trait['reported'], self.phenotype_reported)
         self.assertTrue(isinstance(performance.publication, Publication))
-        self.assertEqual(performance.publication.scores_evaluated, [performance.score.id])
+        self.assertEqual(list(performance.publication.scores_evaluated), [performance.score.id])
         self.assertEqual(performance.publication.scores_evaluated_count, 1)
         self.assertEqual(performance.associated_pgs_id, performance.score.id)
         cohorttest = CohortTest()
@@ -517,7 +481,7 @@ class PerformanceTest(TestCase):
 
 
 class PublicationTest(TestCase):
-    """ Test the Publication model """
+    ''' Test the Publication model '''
     first_author = "Smith J"
 
     def create_publication_by_doi(self, num, date="2018-10-01", id="10.1016/j.jacc.2018.07.079",author=first_author,journal='bioRxiv'):
@@ -571,7 +535,7 @@ class PublicationTest(TestCase):
 
 
 class ReleaseTest(TestCase):
-    """ Test the Release model """
+    ''' Test the Release model '''
 
     date_list = ['2020','03','20']
     date_string = '-'.join(date_list)
@@ -634,7 +598,7 @@ class ReleaseTest(TestCase):
 
 
 class SampleTest(TestCase):
-    """ Test the Sample model """
+    ''' Test the Sample model '''
     number = 10
     cases = 6
     controls = 4
@@ -758,7 +722,7 @@ class SampleTest(TestCase):
 
 
 class SampleSetTest(TestCase):
-    """ Test the SampleSet model """
+    ''' Test the SampleSet model '''
     sample_set_id = 'PSS000001'
     test_ancestry_2 = ['European','African']
     test_ancestry_3 = ['East Asian','African']
@@ -792,8 +756,8 @@ class SampleSetTest(TestCase):
         sampleset.samples.set(samples)
         return sampleset
 
-    def test_sampleset(self):
-        id = 1
+    def test_sampleset_1(self):
+        id = default_num
         sampleset = self.create_sampleset(id)
         sampleset.set_ids(id)
         # Instance
@@ -817,7 +781,8 @@ class SampleSetTest(TestCase):
         self.assertEqual(sampleset.count_individuals, count_ind)
 
 
-        id += 1
+    def test_sampleset_2(self):
+        id = default_num + 1
         sampleset_2 = self.create_sampleset_ancestry(id,self.test_ancestry_2)
         # Instance
         self.assertTrue(isinstance(sampleset_2, SampleSet))
@@ -829,7 +794,9 @@ class SampleSetTest(TestCase):
         for desc, key in constants.ANCESTRY_MAPPINGS.items():
             self.assertEqual(sampleset_2.get_ancestry_key(desc), key)
 
-        id += 1
+
+    def test_sampleset_3(self):
+        id = default_num + 2
         sampleset_3 = self.create_sampleset_ancestry(id,self.test_ancestry_3)
         ancestry_3 = ', '.join(self.test_ancestry_3)
         self.assertEqual(sampleset_3.samples_ancestry, ancestry_3)
@@ -840,7 +807,7 @@ class SampleSetTest(TestCase):
 
 
 class ScoreTest(TestCase):
-    """ Test the Score model """
+    ''' Test the Score model '''
     name = 'PGS_name_1'
     score_id = 'PGS000001'
     v_number = 10
@@ -910,18 +877,19 @@ class ScoreTest(TestCase):
 
         return score
 
-    def get_score(self, num_id, ancestries=None):
+
+    def get_score(self, num_id):
         try:
             score = Score.objects.get(num=num_id)
         except Score.DoesNotExist:
-            score = self.create_score(num_id);#, ancestries)
+            score = self.create_score(num_id)
         return score
 
 
     def test_score(self):
         id = default_num
         # Score creation
-        score = self.get_score(id, self.s_ancestries)
+        score = self.get_score(id)
         # Instance
         self.assertTrue(isinstance(score, Score))
         # Variables
@@ -947,9 +915,12 @@ class ScoreTest(TestCase):
         pub = Publication.objects.get(num=id)
         self.assertEqual(pub.scores_count, 1)
         self.assertEqual(pub.scores_evaluated_count, 0)
-        self.assertEqual(pub.scores_evaluated, [])
-        self.assertEqual(pub.scores_developed, [score.id])
-        self.assertEqual(pub.associated_pgs_ids,  { 'development': [score.id], 'evaluation': [] })
+        self.assertEqual(list(pub.scores_evaluated), [])
+        self.assertEqual(list(pub.scores_developed), [score.id])
+        pgs_associations = pub.associated_pgs_ids
+        for a_type in pgs_associations.keys():
+            pgs_associations[a_type] = list(pgs_associations[a_type])
+        self.assertEqual(pgs_associations, { 'development': [score.id], 'evaluation': [] })
 
         # Test trait/score association
         efo = score.trait_efo.all()
@@ -985,7 +956,7 @@ class ScoreTest(TestCase):
 
 
 class TraitCategoryTest(TestCase):
-    """ Test the Trait Category """
+    ''' Test the Trait Category '''
     trait_label = 'Cancer'
     trait_colour = '#BC80BD'
     trait_parent = 'neoplasm'
@@ -994,6 +965,7 @@ class TraitCategoryTest(TestCase):
         return TraitCategory.objects.create(label=label,colour=colour,parent=parent)
 
     def test_trait_category(self):
+
         trait_category = self.create_trait_category()
         # Instance
         self.assertTrue(isinstance(trait_category, TraitCategory))
@@ -1029,7 +1001,7 @@ class TraitCategoryTest(TestCase):
 
 
 class EFOTrait_OntologyTest(TestCase):
-    """ Test the EFOTrait_Ontology model """
+    ''' Test the EFOTrait_Ontology model '''
 
     def create_efo_trait_ontology(self, efo_id ,label, desc, syn, terms):
         return EFOTrait_Ontology.objects.create(id=efo_id,label=label,description=desc,synonyms=syn,mapped_terms=terms)
@@ -1097,3 +1069,49 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertEqual(efo_trait_1.child_associated_pgs_ids, [x.id for x in associated_pgs_2])
         display_child = r'^\<a\s.*href=".+'+efo_id_2+'"\s*>'+efo_name_2+r'</a>$'
         self.assertRegexpMatches(efo_trait_1.display_child_traits_list[0], display_child)
+
+
+class EmbargoedPublicationTest(TestCase):
+    def create_embargoed_publication(self, publication_id, author_name):
+        return EmbargoedPublication.objects.create(id=publication_id, firstauthor=author_name)
+
+    def test_embargoed_publication(self):
+        publication_id = 'PGP000007'
+        e_publication = self.create_embargoed_publication(publication_id=publication_id, author_name=firstauthor)
+        # Instance
+        self.assertTrue(isinstance(e_publication, EmbargoedPublication))
+        # Variables
+        self.assertEqual(e_publication.id, publication_id)
+        self.assertEqual(e_publication.firstauthor, firstauthor)
+
+
+class EmbargoedScoreTest(TestCase):
+    def create_embargoed_score(self, score_id, author_name):
+        return EmbargoedScore.objects.create(id=score_id, firstauthor=author_name)
+
+    def test_embargoed_score(self):
+        score_id = 'PGS000018'
+        e_score = self.create_embargoed_score(score_id=score_id, author_name=firstauthor)
+        # Instance
+        self.assertTrue(isinstance(e_score, EmbargoedScore))
+        # Variables
+        self.assertEqual(e_score.id, score_id)
+        self.assertEqual(e_score.firstauthor, firstauthor)
+
+
+class RetiredScore(TestCase):
+    ''' Test the Retired model '''
+    def create_retired(self, data_id, pub_doi, retirement_notes):
+        return Retired.objects.create(id=data_id, doi=pub_doi, notes=retirement_notes)
+
+    def test_retired_score(self):
+        score_id = 'PGS000999'
+        score_doi = constants.PGS_CITATION['doi']
+        score_notes = 'This score has been retired'
+        retired_score = self.create_retired(score_id, score_doi, score_notes)
+        # Instance
+        self.assertTrue(isinstance(retired_score, Retired))
+        # Variables
+        self.assertEqual(retired_score.id, score_id)
+        self.assertEqual(retired_score.doi, score_doi)
+        self.assertEqual(retired_score.notes, score_notes)
