@@ -73,26 +73,19 @@ class Publication(models.Model):
     @property
     def scores_evaluated_count(self):
         # Different from scores_evaluated as it is faster this way with several calls
-        score_ids_set = set()
-        for performance in self.publication_performance.all():
-            score_ids_set.add(performance.score.id)
+        score_ids_set = set(performance.score.id for performance in self.publication_performance.all())
         return len(score_ids_set)
 
     @property
     def scores_evaluated(self):
-        # Using 'all()' and filter afterward uses less SQL queries than a direct distinct()
-        score_ids_set = set()
-        for performance in self.publication_performance.only('score__num','score__id','publication_id').select_related('score').all():
-            score_ids_set.add(performance.score.id)
-        return sorted(list(score_ids_set))
+        # Much faster to use the select_related for studies with large number of evaluated scores
+        score_ids_list = self.publication_performance.select_related('score').values_list('score__id', flat=True).all().distinct().order_by('score__id')
+        return score_ids_list
 
     @property
     def scores_developed(self):
-        # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
-        score_ids_set = set()
-        for score in self.publication_score.all():
-            score_ids_set.add(score.id)
-        return sorted(list(score_ids_set))
+        score_ids_list = self.publication_score.values_list('id', flat=True).all().distinct().order_by('id')
+        return score_ids_list
 
     @property
     def associated_pgs_ids(self):
@@ -149,31 +142,26 @@ class Cohort(models.Model):
         sample_ids_list = set()
         pss_ids_list = set()
 
-        # Development association
         for sample in self.sample_set.all():
             if sample.id in sample_ids_list:
                 continue
-            list_pgs_ids = sample.associated_PGS()
-            for pgs_id in list_pgs_ids:
-                if pgs_id != '':
-                    list_dev_associated_pgs_ids.add(pgs_id)
+            for pgs_id in sample.associated_PGS():
+                if pgs_id == '':
+                    continue
+                list_dev_associated_pgs_ids.add(pgs_id)
 
-            pss_ids = sample.associated_PSS()
-            for pss_id in pss_ids:
+            for pss_id in sample.associated_PSS():
                 pss_ids_list.add(pss_id)
 
             sample_ids_list.add(sample.id)
 
-        list_dev_associated_pgs_ids = sorted(list(list_dev_associated_pgs_ids))
+        # Development association
+        list_dev_associated_pgs_ids = sorted(list_dev_associated_pgs_ids)
 
         # Evaluation association
-        perfs = Performance.objects.select_related('score').values('score__id').filter(sampleset__id__in=list(pss_ids_list)).distinct()
-        for perf in perfs:
-            list_eval_associated_pgs_ids.add(perf['score__id'])
+        list_eval_associated_pgs_ids = Performance.objects.select_related('score').values_list('score__id', flat=True).filter(sampleset__id__in=list(pss_ids_list)).distinct().order_by('score__id')
 
-        list_eval_associated_pgs_ids = sorted(list(list_eval_associated_pgs_ids))
-
-        return { 'development': list_dev_associated_pgs_ids, 'evaluation': list_eval_associated_pgs_ids}
+        return { 'development': list_dev_associated_pgs_ids, 'evaluation': list(list_eval_associated_pgs_ids)}
 
 
 class EFOTrait_Base(models.Model):
@@ -291,10 +279,8 @@ class EFOTrait(EFOTrait_Base):
     @property
     def associated_pgs_ids(self):
         # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
-        score_ids_set = set()
-        for score in self.associated_scores.all():
-            score_ids_set.add(score.id)
-        return sorted(list(score_ids_set))
+        score_ids_set = set(score.id for score in self.associated_scores.all())
+        return sorted(score_ids_set)
 
     @property
     def scores_count(self):
@@ -469,14 +455,14 @@ class Sample(models.Model):
             ids.add(x.id)
         for x in self.score_training.all():
             ids.add(x.id)
-        ids = sorted(list(ids))
+        ids = sorted(ids)
         return ids
 
     def associated_PSS(self):
         ids = set()
         for x in self.sampleset.all():
             ids.add(x.id)
-        ids = sorted(list(ids))
+        ids = sorted(ids)
         return ids
 
     def list_cohortids(self):
@@ -1041,18 +1027,14 @@ class EFOTrait_Ontology(EFOTrait_Base):
     @property
     def associated_pgs_ids(self):
         # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
-        score_ids_set = set()
-        for score in self.scores_direct_associations.all():
-            score_ids_set.add(score.id)
-        return sorted(list(score_ids_set))
+        score_ids_set = set(score.id for score in self.scores_direct_associations.all())
+        return sorted(score_ids_set)
 
     @property
     def child_associated_pgs_ids(self):
         # Using 'all' and filter afterward uses less SQL queries than a direct distinct()
-        score_ids_set = set()
-        for score in self.scores_child_associations.all():
-            score_ids_set.add(score.id)
-        return sorted(list(score_ids_set))
+        score_ids_set = set(score.id for score in self.scores_child_associations.all())
+        return sorted(score_ids_set)
 
     @property
     def display_child_traits_list(self):
@@ -1133,15 +1115,15 @@ class Release(models.Model):
 
     @property
     def released_score_ids(self):
-        scores = Score.objects.values('id').filter(date_released__exact=self.date).order_by('id')
-        return [x['id'] for x in scores]
+        scores = Score.objects.values_list('id', flat=True).filter(date_released__exact=self.date).order_by('id')
+        return list(scores)
 
     @property
     def released_publication_ids(self):
-        publications = Publication.objects.values('id').filter(date_released__exact=self.date).order_by('id')
-        return [x['id'] for x in publications]
+        publications = Publication.objects.values_list('id', flat=True).filter(date_released__exact=self.date).order_by('id')
+        return list(publications)
 
     @property
     def released_performance_ids(self):
-        performances = Performance.objects.values('id').filter(date_released__exact=self.date).order_by('id')
-        return [x['id'] for x in performances]
+        performances = Performance.objects.values_list('id', flat=True).filter(date_released__exact=self.date).order_by('id')
+        return list(performances)

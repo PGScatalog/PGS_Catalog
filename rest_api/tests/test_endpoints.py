@@ -18,7 +18,7 @@ class BrowseEndpointTest(APITestCase):
 
     fake_examples = {'string': 'ABC123CDE', 'integer': '00001', 'date': '1990-01-01'}
     empty_resp = ['{}', '{"size":0,"count":0,"next":null,"previous":null,"results":[]}', '[]']
-
+    default_search = ['pgs_id=PGS000001','pgs_id=PGS000002','pgp_id=PGP000001','pmid=25855707']
 
     index_result_mutliplicity = 2
     index_example = 3
@@ -38,20 +38,19 @@ class BrowseEndpointTest(APITestCase):
         }),
         ('Performances', 'performance/all', 1),
         ('Performance metric/ID', 'performance', 0, {'path': ['PPM000001','PPM000002']}),
-        ('Performances Search','performance/search', 1, {'query': ['pgs_id=PGS000001','pgs_id=PGS000002']}),
+        ('Performances Search','performance/search', 1, {'query': default_search}),
         ('Publications', 'publication/all', 1),
         ('Publicsation/ID', 'publication', 0, {'path': ['PGP000001','pgp000002']}),
         ('Publication Search', 'publication/search', 1, {'query': ['pgs_id=PGS000001','pmid=25855707']}),
-        ('Sample Set Search', 'sample_set/search', 1, {'query': ['pgs_id=PGS000001','pgs_id=PGS000002']}),
         ('Releases', 'release/all', 1),
         ('Release/Date', 'release', 0, {'path': ['2019-12-18','2020-02-12']}),
         ('Release current', 'release/current', 0),
         ('Sample Set/ID', 'sample_set', 0, {'path': ['PSS000001','PSS000002']}),
-        ('Sample Set Search', 'sample_set/search', 1, {'query': ['pgs_id=PGS000001','pgs_id=PGS000002']}),
+        ('Sample Set Search', 'sample_set/search', 1, {'query': default_search}),
         ('Sample Sets', 'sample_set/all', 1),
         ('Scores', 'score/all', 1),
         ('Score/ID', 'score', 0, {'path': ['PGS000001','pgs000002']}),
-        ('Scores Search', 'score/search', 1, {'query': ['pmid=25855707','trait_id=MONDO_0007254']}),
+        ('Scores Search', 'score/search', 1, {'query': ['pmid=25855707','trait_id=MONDO_0007254','pgp_id=PGP000001']}),
         ('Scores IDs from a GWAS/ID', 'gwas/get_score_ids', 2, {'path': ['GCST001937','GCST004988']}),
         ('Trait Category', 'trait_category/all', 1),
         ('Info', 'info', 0),

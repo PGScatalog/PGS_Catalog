@@ -12,7 +12,7 @@ PGS_CITATION = {
 USEFUL_URLS = {
     'BAKER_URL'         : 'https://baker.edu.au',
     'EBI_URL'           : 'https://www.ebi.ac.uk',
-    'HDR_UK_CAM_URL'    : 'https://www.hdruk.ac.uk/about/structure/hdr-uk-cambridge/',
+    'HDR_UK_CAM_URL'    : 'https://www.hdruk.ac.uk/about-us/our-locations/health-data-research-uk-hdr-uk-cambridge/',
     'PGS_CONTACT'       : 'pgs-info@ebi.ac.uk',
     'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_FTP_HTTP_ROOT' : 'http://ftp.ebi.ac.uk/pub/databases/spot/pgs',
