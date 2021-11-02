@@ -46,7 +46,11 @@
               </td>
             </tr>
           {% endif %}
-          <td>Trait category</td>
+          {% if trait.category_list|length > 1 %}
+            <td>Trait categories</td>
+          {% else %}
+            <td>Trait category</td>
+          {% endif %}
           <td class="trait_categories">
             {% for category in trait.category_list %}
               <div>
@@ -57,7 +61,11 @@
           </td>
           {% if trait.synonyms %}
             <tr>
-              <td>Synonyms</td>
+              {% if trait.synonyms_list|length > 1 %}
+                <td>Synonyms</td>
+              {% else %}
+                <td>Synonym</td>
+              {% endif %}
               <td>
                 {% if trait.synonyms_list|length > 1 %}
                   <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="trait_synomyms" title="Click to show/hide the list of synonyms"><b>{{ trait.synonyms_list|length }}</b> synonyms <i class="fas fa-plus-circle"></i></a>
@@ -76,7 +84,11 @@
           {% endif %}
           {% if trait.mapped_terms %}
             <tr>
-              <td>Mapped term(s)</td>
+              {% if trait.mapped_terms_list|length > 1 %}
+                <td>Mapped terms</td>
+              {% else %}
+                <td>Mapped term</td>
+              {% endif %}
               <td>
                 {% if trait.mapped_terms_list|length > 1 %}
                   <a class="toggle_btn" data-toggle="tooltip" data-placement="right"  data-delay="500" id="trait_mapped_terms" title="Click to show/hide the list of mapped terms"><b>{{ trait.mapped_terms_list|length }}</b> mapped terms <i class="fas fa-plus-circle"></i></a>
