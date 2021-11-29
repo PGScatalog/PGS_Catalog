@@ -6,6 +6,7 @@ from release.scripts.CreateRelease import CreateRelease
 from release.scripts.UpdateEFO import UpdateEFO
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
 from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
+from release.scripts.UpdateScoreEvaluated import UpdateScoreEvaluated
 from release.scripts.UpdateReleasedCohorts import UpdateReleasedCohorts
 
 
@@ -39,13 +40,16 @@ def run(*args):
     # Update ancestry distribution
     update_ancestry_distribution()
 
+    # Update list of evaluated scores
+    update_score_evaluated()
+
     # Create release
     call_create_release()
 
     # Update the cohorts (update the Cohort "released" field)
     update_released_cohorts()
 
-    # # Generate EuropePMC linkage XML file
+    # Generate EuropePMC linkage XML file
     generate_europePMC_linkage_xml_file()
 
 
@@ -133,6 +137,13 @@ def update_ancestry_distribution():
     print("- Update ancestry distribution")
     score_ancestry = UpdateScoreAncestry()
     score_ancestry.update_ancestry()
+
+
+def update_score_evaluated():
+    """ Update list of evaluated scores """
+    print("- Update list of evaluated scores")
+    score_evaluated = UpdateScoreEvaluated()
+    score_evaluated.update_score_evaluated()
 
 
 def call_create_release():

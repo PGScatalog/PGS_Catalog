@@ -8,6 +8,14 @@ class UpdateScoreAncestry:
     ancestry_cat = constants.ANCESTRY_MAPPINGS
     ancestry_cat_keys = ancestry_cat.keys()
 
+    formatted_anc = {}
+    temp_ancestry_cat_keys = list(ancestry_cat_keys).copy()
+    for anc in temp_ancestry_cat_keys:
+        if ',' in anc:
+            new_anc = anc.replace(',','_')
+            formatted_anc[anc] = new_anc
+            ancestry_cat[new_anc] = ancestry_cat[anc]
+
     ancestry_keys = constants.ANCESTRY_LABELS.keys()
 
     extra_ancestry_cat = {
@@ -22,7 +30,6 @@ class UpdateScoreAncestry:
     def __init__(self,verbose=None):
         self.scores = Score.objects.all().order_by('num')
         self.verbose = verbose
-        #self.scores = Score.objects.filter(num=11)
 
     def script_logs(self,msg):
         if self.verbose:
@@ -75,6 +82,8 @@ class UpdateScoreAncestry:
         ''' Retrieve the list of ancestries from the multi-ancestry data '''
         if anc_key in self.multi_keys:
             # Extract each ancestry from the comma-separated list
+            for anc in self.formatted_anc.keys():
+                ancestry = ancestry.replace(anc,self.formatted_anc[anc])
             ancestries = [ x.strip() for x in ancestry.split(',') ]
             anc_key = 'MAO'
             if 'European' in ancestries:

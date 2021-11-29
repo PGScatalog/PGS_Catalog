@@ -86,6 +86,7 @@ class NonReleasedDataToRemove:
         # Publications to delete
         if len(self.publications) > 0:
             for publication in self.publications:
+                EvaluatedScore.objects.filter(publication=publication).delete()
                 publication.delete()
             print("> Publication(s) deleted")
 
