@@ -25,6 +25,7 @@ $pgs_cases: #3E95CD;
 $pgs_controls: #8E5EA2;
 $pgs_male: #F18F2B;
 
+$pgs_colour_white: #FFF;
 $pgs_colour_red: #E00;
 $pgs_colour_amber: #FFA500;
 $pgs_colour_green: #008000;
@@ -158,8 +159,9 @@ h2 {
 }
 
 .pgs_banner {
-  background-color: $pgs_light_grey2;
-  border: 1px solid $pgs_colour_2;
+  box-shadow: 1px 1px 4px $pgs_darkC;
+  color: $pgs_colour_white;
+  background-color: $pgs_colour_2;
   border-radius: 4px;
   padding: 0.8rem 1rem;
   margin-left:auto;
@@ -167,6 +169,9 @@ h2 {
   width:80%;
   a {
     display:inline-block;
+    i {
+      color: $pgs_colour_white;
+    }
   }
 }
 
@@ -183,7 +188,7 @@ h2 {
 }
 
 .navbar-brand {
-  color: #FFF;
+  color: $pgs_colour_white;
   font-size: 28px;
   border:none;
   margin-right:2rem;
@@ -198,7 +203,7 @@ h2 {
 
 .search_box {
   margin-left:auto;
-  color:#FFF;
+  color:$pgs_colour_white;
   .search_form {
     .form-control {
       font-size: 14px;
@@ -211,10 +216,10 @@ h2 {
     }
   }
   .search_examples {
-    color:#FFF;
+    color:$pgs_colour_white;
     display:block;
     a {
-      color:#FFF !important;
+      color:$pgs_colour_white !important;
       font-size:10px;
       cursor:pointer;
     }
@@ -229,9 +234,9 @@ h2 {
 }
 
 .nav-item {
-  border-left: 1px solid #FFF;
+  border-left: 1px solid $pgs_colour_white;
   &:last-child {
-    border-right:1px solid #FFF;
+    border-right:1px solid $pgs_colour_white;
   }
   &:hover {
     background-color: $pgs_colour_1;
@@ -242,7 +247,7 @@ h2 {
 }
 
 .navbar-toggler {
-  border-color: #FFF;
+  border-color: $pgs_colour_white;
   background-color: $pgs_dark3;
   padding:8px;
   font-size: 20px;
@@ -267,10 +272,10 @@ h2 {
   .nav-link {
     padding: 0.3rem 0.7rem !important;
     font-weight: bold;
-    color: #FFF;
+    color: $pgs_colour_white;
     border-bottom: none;
     &:hover, &:active, &:focus {
-      color: #FFF;
+      color: $pgs_colour_white;
       border-bottom: none;
     }
   }
@@ -294,7 +299,7 @@ h2 {
 .search_facet {
   height:32px;
   padding: 0.4rem 0.6rem;
-  background-color: #FFF;
+  background-color: $pgs_colour_white;
   color: $pgs_colour_1;
   border: 1px solid $pgs_colour_1;
   border-radius: 8px;
@@ -320,19 +325,19 @@ h2 {
   &:hover {
     background-color: $pgs_colour_1_lighter !important;
     border-color: $pgs_colour_1_lighter;
-    color: #FFF;
+    color: $pgs_colour_white;
     > span {
-      background-color: #FFF;
+      background-color: $pgs_colour_white;
       color: $pgs_colour_1_lighter;
     }
   }
 }
 .search_facet.selected {
   background-color: $pgs_colour_1;
-  color: #FFF;
+  color: $pgs_colour_white;
   > span {
     vertical-align: top;
-    background-color: #FFF;
+    background-color: $pgs_colour_white;
     color: $pgs_colour_1;
   }
 }
@@ -340,7 +345,7 @@ h2 {
   font-weight:bold;
   display: inline-block;
   font-size:85%;
-  color: #FFF !important;
+  color: $pgs_colour_white !important;
   border-radius: 50%;
   line-height: 1.5em;
   width: 1.5em;
@@ -408,11 +413,11 @@ h2 {
   border-radius: 0px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
-  border:1px solid #FFF;
+  border:1px solid $pgs_colour_white;
   padding: 0px;
   a:hover {
     background-color: $pgs_colour_1;
-    color: #FFF;
+    color: $pgs_colour_white;
     border:none;
   }
 }
@@ -453,7 +458,7 @@ h2 {
   background-color:$pgs_colour_1;
   border-color: $pgs_dark3;
   i {
-    color:#FFF !important;
+    color:$pgs_colour_white !important;
   }
   &:hover, &:focus, &:active {
     background-color:$pgs_colour_1_lighter !important;
@@ -479,7 +484,7 @@ h2 {
   font-size: 0.9rem;
    &:hover {
     background-color:$pgs_colour_1;
-    color:#FFF;
+    color:$pgs_colour_white;
   }
   .active {
     background-color:$pgs_colour_1;
@@ -512,7 +517,7 @@ h2 {
 }
 
 .fa-info-circle {
-  background-color: #FFF;
+  background-color: $pgs_colour_white;
   border-radius: 20px;
 }
 
@@ -593,7 +598,7 @@ th .th-inner-not-sortable {
     }
 
     > div:first-child {
-      color: #FFF;
+      color: $pgs_colour_white;
       font-weight: 200;
       font-size: 30px;
       text-align: center;
@@ -601,9 +606,9 @@ th .th-inner-not-sortable {
     }
     > div:nth-child(2) {
       font-size: 40px;
-      color: #FFF;
+      color: $pgs_colour_white;
       .icon-dna:hover {
-        color: #FFF !important;
+        color: $pgs_colour_white !important;
       }
     }
 
@@ -645,7 +650,7 @@ th .th-inner-not-sortable {
     font-weight:200;
     font-size:30px;
     &:hover, &:focus {
-      color: #FFF;
+      color: $pgs_colour_white;
       border:1px solid $pgs_colour_1_lighter;
       background-color: $pgs_colour_1_lighter;
       transition: background-color .1s;
@@ -702,6 +707,11 @@ th .th-inner-not-sortable {
 }
 .pgs_big_icons {
   max-height:70px !important;
+}
+
+.pgs_shaded_block {
+  background-color:$pgs_light_grey2;
+  padding: 1rem;
 }
 
 
@@ -786,7 +796,7 @@ td > ul {
   }
   .table_title_c {
     background-color:$pgs_colour_1 !important;
-    color:#FFF;
+    color:$pgs_colour_white;
   }
   .table_title_g {
     background-color:$pgs_grey !important;
@@ -968,6 +978,12 @@ td > ul {
   }
 }
 
+.pgs_comment {
+  border-left: 5px solid $pgs_darkC;
+  font-style:italic;
+  color: $pgs_dark5;
+}
+
 .pgs_bordered_block_container {
   border: 1px solid $pgs_darkC;
   border-radius:4px;
@@ -1026,20 +1042,20 @@ td > ul {
   }
 }
 .badge-pgs {
-  color: #FFF;
+  color: $pgs_colour_white;
   background-color: $pgs_colour_1;
 }
 .badge-pgs-2 {
-  color: #FFF;
+  color: $pgs_colour_white;
   background-color: $pgs_colour_2;
 }
 .badge-pgs-white {
   color: $pgs_colour_1;
-  background-color: #FFF;
+  background-color: $pgs_colour_white;
 }
 
 .badge-pgs-small, .badge-pgs-small-2 {
-  color: #FFF;
+  color: $pgs_colour_white;
   font-size: 75%;
   cursor:default;
 }
@@ -1057,6 +1073,9 @@ td > ul {
 .pgs_color_2 {
   color: $pgs_colour_2 !important;
 }
+.pgs_color_white {
+  color: $pgs_colour_white !important;
+}
 .pgs_color_red {
   color: $pgs_colour_red !important;
 }
@@ -1066,18 +1085,21 @@ td > ul {
 .pgs_color_green {
   color: $pgs_colour_green !important;
 }
+.pgs_color_dark2 {
+  color: $pgs_dark2 !important;
+}
 
 .pgs_bg_light_grey {
   background-color: $pgs_light_grey;
 }
 
 .btn-pgs, .btn-pgs-small {
-  color: #FFF;
+  color: $pgs_colour_white;
   background-color: $pgs_colour_1 !important;
   border: none !important;
   cursor: pointer;
   &:hover, &:focus {
-    color: #FFF;
+    color: $pgs_colour_white;
     background-color: $pgs_colour_1_lighter !important;
     .badge-pgs-white {
       color: $pgs_colour_1_lighter;
@@ -1091,11 +1113,11 @@ td > ul {
     color: $pgs_colour_2;
   }
   &:hover, &:focus {
-    color: #FFF;
+    color: $pgs_colour_white;
     background-color: $pgs_colour_1_lighter;
     border-color: $pgs_colour_1_lighter !important;
     span {
-      color: #FFF;
+      color: $pgs_colour_white;
     }
   }
 }
@@ -1110,7 +1132,7 @@ a.link-with-btn {
     font-size:16px;
     border-radius:4px;
     background-color: $pgs_colour_1;
-    color:#FFF;
+    color:$pgs_colour_white;
     margin-right:0.5rem;
   }
   i.fa-download {
@@ -1291,6 +1313,7 @@ a.link-with-btn {
     padding: 0.5rem 0.75rem;
     border:1px solid $pgs_darkA;
     line-height: 20px;
+    background-color: $pgs_colour_white;
     span {
       font-weight: bold;
       color: $pgs_darkA;
@@ -1491,7 +1514,7 @@ td.trait_categories {
 footer {
   margin-top:2rem;
   background-color: $pgs_dark3;
-  color: #FFF;
+  color: $pgs_colour_white;
   .footer_first_row {
     display:flex;
     justify-content:space-around;
@@ -1511,10 +1534,10 @@ footer {
     span:not(:last-child) {
       padding-right: 5px;
       margin-right: 5px;
-      border-right: 1px solid #FFF;
+      border-right: 1px solid $pgs_colour_white;
     }
     a {
-      color:#FFF !important;
+      color:$pgs_colour_white !important;
       border-bottom: 1px dotted $pgs_colour_1_lighter;
       &:hover {
         border-bottom: 1px dotted $pgs_colour_2;
@@ -1528,7 +1551,7 @@ footer {
     padding:4px 5px;
     width:30px;
     color: $pgs_colour_1;
-    background-color: #FFF;
+    background-color: $pgs_colour_white;
     border-radius: 4px;
     border:none;
     text-align:right;
@@ -1537,7 +1560,7 @@ footer {
       margin-right:8px;
     }
     &:hover {
-      color: #FFF;
+      color: $pgs_colour_white;
       cursor:pointer !important;
       background-color: $pgs_colour_1 !important;
     }
@@ -1557,27 +1580,28 @@ footer {
     h4 {
       a {
         border:none;
-        color: $pgs_colour_1;
-        &:hover {
-          color: $pgs_colour_1_lighter;
-        }
       }
     }
     .pgs_result_subtitles {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
-      height:28px;
+      height:30px;
       line-height:18px;
       vertical-align: middle;
-      padding: 3px 0px;
+      padding: 4px 0px;
       margin-bottom: 0.5rem;
       div {
-        border:1px solid $pgs_colour_2 !important;
         padding: 1px 6px !important;
-        background-color: #FFF;
+        background-color: $pgs_colour_white;
         border-radius: 10px;
         font-size: 0.9em;
+      }
+      div:first-child {
+        border:1px solid $pgs_colour_1 !important;
+      }
+      div:not(:first-child) {
+        border:1px solid $pgs_colour_2 !important;
       }
       div:not(:last-child) {
         margin-right: 1rem;
@@ -1607,13 +1631,17 @@ footer {
   border: 1px solid $pgs_light_grey;
   th {
     background-color: $pgs_colour_1 !important;
-    color: #FFF !important;
+    color: $pgs_colour_white !important;
   }
   th,td {
     padding: 6px;
   }
   tbody > tr > td:first-child {
     font-weight:bold;
+  }
+  tbody > tr > td:nth-child(4),
+  tbody > tr > td:nth-child(5) {
+    text-align:center !important;
   }
 }
 
@@ -1627,7 +1655,7 @@ footer {
 .data-protection-banner a,
 .data-protection-banner a:hover {
   cursor: pointer;
-  color: #fff;
+  color: $pgs_colour_white;
   border-bottom-width: 1px;
   border-bottom-style: dotted;
   border-bottom-color: $pgs_colour_1;
@@ -1703,9 +1731,9 @@ footer {
     .search_examples {
       font-size: 10px;
       padding: 2px 2rem 0px;
-      color: #FFF;
+      color: $pgs_colour_white;
       a {
-        color: #FFF;
+        color: $pgs_colour_white;
       }
     }
   }
@@ -1962,7 +1990,7 @@ footer {
           border-right:none;
         }
         &:hover {
-          border-color: #FFF;
+          border-color: $pgs_colour_white;
         }
         .dropdown-item {
           font-size: 0.9em;
@@ -2177,7 +2205,7 @@ footer {
 /* Mobile phone display */
 @media screen and (max-width: 1069px) {
   .filter_study{
-    border-right: 1px solid #FFF;
+    border-right: 1px solid $pgs_colour_white;
   }
   .filter_ancestry {
     margin-top:1rem;

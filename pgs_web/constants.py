@@ -15,7 +15,7 @@ USEFUL_URLS = {
     'HDR_UK_CAM_URL'    : 'https://www.hdruk.ac.uk/about-us/our-locations/health-data-research-uk-hdr-uk-cambridge/',
     'PGS_CONTACT'       : 'pgs-info@ebi.ac.uk',
     'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
-    'PGS_FTP_HTTP_ROOT' : 'http://ftp.ebi.ac.uk/pub/databases/spot/pgs',
+    'PGS_FTP_HTTP_ROOT' : 'https://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_TWITTER_URL'   : 'https://www.twitter.com/pgscatalog',
     'PGS_WEBSITE_URL'   : 'https://www.pgscatalog.org/',
     'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',

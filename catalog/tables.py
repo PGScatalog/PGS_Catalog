@@ -25,7 +25,7 @@ def score_format(value):
 
 
 def publication_format(value, is_external=False):
-    pub_date = value.date_publication.strftime('%Y')
+    pub_date = value.pub_year
     citation = f'<span class="only_export">|</span><div class="pgs_pub_details">{value.firstauthor} <i>et al.</i> {value.journal} ({pub_date})</div>'
     extra_html = ''
     if is_external:
@@ -64,22 +64,24 @@ class Column_demographic(tables.Column):
     def render(self, value):
         l = []
 
-        #Estimate
+        # Estimate
         e = ''
         if value.estimate != None:
             e = '{} = {} {}'.format(value.estimate_type.title(), value.estimate, value.unit)
             l.append(e)
 
-        #Variability
+        # Variability
         if value.variability != None:
             v = '{} = {} {}'.format(value.variability_type.title(), value.variability, value.unit)
             l.append(v)
 
-        #Range
-        if '[' not in e:
-            if value.range != None:
-                r = '{} = {} {}'.format(value.range_type.title(), smaller_in_bracket(str(value.range)), value.unit)
-                l.append(r)
+        # Range
+        if '[' not in e and value.range != None:
+            range_type = value.range_type
+            if value.range_type != 'IQR':
+                range_type = range_type.title()
+            r = '{} ={} {}'.format(range_type, smaller_in_bracket(str(value.range)), value.unit)
+            l.append(r)
 
         return format_html('<br>'.join(l))
 

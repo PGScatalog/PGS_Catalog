@@ -5,27 +5,35 @@ from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.db.models import Prefetch
-from django.db.models.functions import Lower
 
 from pgs_web import constants
 from .tables import *
 
 
-generic_attributes =['publication__title','publication__PMID','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released']
-sampleset_samples_prefetch = Prefetch('sampleset__samples', queryset=Sample.objects.select_related('sample_age','followup_time').all().prefetch_related('sampleset','cohorts'))
+generic_attributes =['publication__title','publication__PMID','publication__doi','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released']
+pgs_only = {
+    'publication_performance': ['id','score_id','sampleset_id','publication_id','phenotyping_reported','covariates','performance_comments','score__id','score__name','score__publication_id','publication__id','publication__journal','publication__date_publication','publication__firstauthor']
+}
 pgs_defer = {
     'generic': [*generic_attributes, 'curation_notes'],
     'perf'   : [*generic_attributes,'date_released','score__curation_notes','score__date_released'],
     'perf_extra': ['score__method_name','score__method_params','score__variants_interactions','score__ancestries','score__license'],
-    'publication_sel': ['publication__title','publication__authors','publication__curation_notes','publication__curation_status','publication__date_released']
+    'publication_sel': ['publication__title','publication__authors','publication__curation_notes','publication__curation_status','publication__date_released'],
+    'sample': ['sample_age','followup_time','source_GWAS_catalog','source_DOI','source_PMID','ancestry_country']
 }
 pgs_prefetch = {
-    'trait': Prefetch('trait_efo', queryset=EFOTrait.objects.only('id','label').all()),
+    'cohorts': Prefetch('cohorts', queryset=Cohort.objects.only('name_short','name_full').all()),
+    'trait': Prefetch('trait_efo', queryset=EFOTrait.objects.only('id','label').all().order_by('id')),
     'publication': Prefetch('publication', queryset=Publication.objects.only('id','date_publication','journal','firstauthor').all()),
-    'perf' : ['score__publication', 'phenotyping_efo',  sampleset_samples_prefetch, 'performance_metric'],
     'publication_score': Prefetch('publication_score', queryset=Score.objects.only('id', 'publication').all()),
-    'publication_performance': Prefetch('publication_performance', queryset=Performance.objects.only('id', 'publication', 'score').all().prefetch_related(Prefetch('score', queryset=Score.objects.only('id', 'publication').all()))),
+    'publication_score_2': Prefetch('publication_score', queryset=Score.objects.only('id','name','trait_reported','variants_number','ancestries','license','publication').all()),
+    'publication_performance': Prefetch('publication_performance', queryset=Performance.objects.only('id', 'score','publication').all().prefetch_related(Prefetch('score', queryset=Score.objects.only('id', 'publication').all()))),
+    'publication_performance_2': Prefetch('publication_performance', queryset=Performance.objects.only('id', 'score','publication').all().prefetch_related(Prefetch('score', queryset=Score.objects.only('id', 'name').all()))),
+    'sampleset__samples': Prefetch('sampleset__samples', queryset=Sample.objects.select_related('sample_age','followup_time').all().prefetch_related('sampleset','cohorts')),
+    'score__publication': Prefetch('score__publication', queryset=Publication.objects.only('id','date_publication','firstauthor','journal').all())
 }
+performance_prefetch = [pgs_prefetch['score__publication'], pgs_prefetch['sampleset__samples'], 'phenotyping_efo', 'performance_metric']
+
 
 def disclaimer_formatting(func):
     def wrapper(*args):
@@ -255,11 +263,11 @@ def browseby(request, view_selection):
         }
     elif view_selection == 'sample_set':
         context['view_name'] = 'Sample Sets'
-        table = Browse_SampleSetTable(Sample.objects.filter(sampleset__isnull=False).prefetch_related('sampleset', 'cohorts').order_by('sampleset__num'))
+        table = Browse_SampleSetTable(Sample.objects.defer(*pgs_defer['sample']).filter(sampleset__isnull=False).prefetch_related('sampleset', pgs_prefetch['cohorts']).order_by('sampleset__num'))
         context['table'] = table
     elif view_selection == 'scores' :
-        score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
-        table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').all().order_by('num').prefetch_related(pgs_prefetch['trait']), order_by="num")
+        score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
+        table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').all().order_by('num').prefetch_related(pgs_prefetch['trait']))
         context = {
             'view_name': 'Polygenic Scores (PGS)',
             'table': table,
@@ -284,7 +292,7 @@ def pgs(request, pgs_id):
     template_html_file = 'pgs.html'
 
     try:
-        score = Score.objects.defer(*pgs_defer['generic'],*pgs_defer['publication_sel']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
+        score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
 
         pub = score.publication
         citation = format_html(' '.join([pub.firstauthor, '<i>et al. %s</i>'%pub.journal, '(%s)' % pub.date_publication.strftime('%Y')]))
@@ -311,7 +319,7 @@ def pgs(request, pgs_id):
             context['table_sample_training'] = table
 
         # Extract + display Performance + associated samples
-        pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['perf_extra'],*pgs_defer['publication_sel']).select_related('score', 'publication').filter(score=score).prefetch_related(*pgs_prefetch['perf'])
+        pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['perf_extra'],*pgs_defer['publication_sel']).select_related('score','publication').filter(score=score).prefetch_related(*performance_prefetch)
         table = PerformanceTable(pquery)
         table.exclude = ('score')
         context['table_performance'] = table
@@ -359,7 +367,7 @@ def pgp(request, pub_id):
 
     template_html_file = 'pgp.html'
     try:
-        pub = Publication.objects.prefetch_related('publication_score', 'publication_performance').get(id__exact=pub_id)
+        pub = Publication.objects.prefetch_related(pgs_prefetch['publication_score_2'], 'publication_performance').get(id__exact=pub_id)
 
         context = {
             'publication' : pub,
@@ -370,40 +378,58 @@ def pgp(request, pub_id):
         }
 
         # Display scores that were developed by this publication
-        related_scores = pub.publication_score.defer(*pgs_defer['generic'],*pgs_defer['publication_sel']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+        related_scores = pub.publication_score.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
         if related_scores.count() > 0:
             table = Browse_ScoreTable(related_scores)
             context['table_scores'] = table
 
         # Get PGS evaluated by the PGP
         count_perf = pub.publication_performance.all().count()
+        external_scores = set()
 
+        # Very large study
         if count_perf >= constants.TABLE_ROWS_THRESHOLD:
             context['perf_count'] = count_perf
-        else:
-            pquery = pub.publication_performance.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('publication','score').all().prefetch_related(*pgs_prefetch['perf'], 'score__trait_efo')
 
-            # Check if there any of the PGS are externally developed + display their information
+            # Get externally developped scores
             external_scores = set()
+            score_ids = pub.publication_evaluatedscore.values_list('scores_evaluated__id', flat=True).all()
+            score_only_cols = ['id','name','trait_reported','variants_number','ancestries','license']
+            pub_only_cols = ['publication__id','publication__journal','publication__date_publication','publication__firstauthor']
+            scores = Score.objects.only(*score_only_cols,*pub_only_cols).select_related('publication').filter(id__in=score_ids).prefetch_related(pgs_prefetch['trait'])
+            # Check if there any of the PGS are externally developed
+            for score in scores:
+                if score not in related_scores:
+                    external_scores.add(score)
+        # Other study
+        else:
+            extra_score_cols = ['score__trait_reported','score__variants_number','score__ancestries','score__license']
+            pquery = pub.publication_performance.only(*pgs_only['publication_performance'],*extra_score_cols).select_related('score','publication').all().prefetch_related(*performance_prefetch, 'score__trait_efo')
+
+            pquery_samples = set()
+
             for perf in pquery:
+                # Check if there any of the PGS are externally developed
                 perf_score = perf.score
                 if perf_score not in related_scores:
                     external_scores.add(perf_score)
-            if len(external_scores) > 0:
-                table = Browse_ScoreTableEval(external_scores)
-                context['table_evaluated'] = table
 
-            #Find + table the evaluations
+                # Fetch Samples from SampleSets
+                for sample in perf.samples():
+                    pquery_samples.add(sample)
+
+            # Performance table
             table = PerformanceTable(pquery)
             context['table_performance'] = table
 
-            pquery_samples = set()
-            for q in pquery:
-                for sample in q.samples():
-                    pquery_samples.add(sample)
-
+            # SampleSet table
             table = SampleTable_performance(pquery_samples)
             context['table_performance_samples'] = table
+
+        # External Scores Evaluated By This Publication
+        if len(external_scores) > 0:
+            table = Browse_ScoreTableEval(external_scores)
+            context['table_evaluated'] = table
 
         context['has_table'] = 1
 
@@ -466,8 +492,8 @@ def efo(request, efo_id):
         raise Http404("Trait: \"{}\" does not exist".format(efo_id))
 
     # Get list of PGS Scores
-    related_direct_scores = ontology_trait.scores_direct_associations.defer(*pgs_defer['generic'],*pgs_defer['publication_sel']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
-    related_child_scores = ontology_trait.scores_child_associations.defer(*pgs_defer['generic'],*pgs_defer['publication_sel']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+    related_direct_scores = ontology_trait.scores_direct_associations.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+    related_child_scores = ontology_trait.scores_child_associations.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
     if exclude_children:
         related_scores = related_direct_scores
     else:
@@ -488,7 +514,7 @@ def efo(request, efo_id):
     }
 
     # Find the evaluations of these scores
-    pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
+    pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('score','publication').filter(score__in=related_scores).prefetch_related(*performance_prefetch)
 
     table = PerformanceTable(pquery)
     context['table_performance'] = table
@@ -513,7 +539,7 @@ def gwas_gcst(request, gcst_id):
     if len(samples) == 0:
         raise Http404("No PGS Samples are associated with the NHGRI-GWAS Catalog Study: \"{}\"".format(gcst_id))
 
-    related_scores = Score.objects.defer(*pgs_defer['generic'],*pgs_defer['publication_sel']).select_related('publication').filter(samples_variants__in=samples).prefetch_related(pgs_prefetch['trait']).distinct()
+    related_scores = Score.objects.defer(*pgs_defer['generic']).select_related('publication').filter(samples_variants__in=samples).prefetch_related(pgs_prefetch['trait']).distinct()
     if len(related_scores) == 0:
         raise Http404("No PGS Scores are associated with the NHGRI-GWAS Catalog Study: \"{}\"".format(gcst_id))
 
@@ -527,7 +553,7 @@ def gwas_gcst(request, gcst_id):
         'has_chart': 1
     }
 
-    pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('publication','score').filter(score__in=related_scores).prefetch_related(*pgs_prefetch['perf'])
+    pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('score','publication').filter(score__in=related_scores).prefetch_related(*performance_prefetch)
     table = PerformanceTable(pquery)
     context['table_performance'] = table
 
@@ -571,7 +597,7 @@ def pss(request, pss_id):
         'has_chart': 1
     }
 
-    related_performance = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('score', 'publication').filter(sampleset=sample_set).prefetch_related('score__publication', 'score__trait_efo', 'sampleset', 'phenotyping_efo', 'performance_metric')
+    related_performance = Performance.objects.only(*pgs_only['publication_performance']).select_related('score','publication').filter(sampleset=sample_set).prefetch_related(pgs_prefetch['score__publication'], 'score__trait_efo', 'sampleset', 'phenotyping_efo', 'performance_metric')
     if related_performance.count() > 0:
         # Scores
         related_scores = [x.score for x in related_performance]
@@ -589,7 +615,7 @@ def pss(request, pss_id):
 def ancestry_doc(request):
     pgs_id = "PGS000018"
     try:
-        score = Score.objects.defer(*pgs_defer['generic'], *pgs_defer['publication_sel']).select_related('publication').prefetch_related('trait_efo').get(id=pgs_id)
+        score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo').get(id=pgs_id)
         table_score = Browse_ScoreTableExample([score])
         context = {
             'pgs_id_example': pgs_id,
