@@ -78,8 +78,8 @@ class Publication(models.Model):
 
     @property
     def scores_evaluated(self):
-        # Much faster to use the select_related for studies with large number of evaluated scores
-        score_ids_list = self.publication_performance.select_related('score').values_list('score__id', flat=True).all().distinct().order_by('score__id')
+        # Shortcut by using EvaluatedScore
+        score_ids_list = self.publication_evaluatedscore.values_list('scores_evaluated__id', flat=True).all().order_by('scores_evaluated__id')
         return score_ids_list
 
     @property
@@ -713,6 +713,15 @@ class Score(models.Model):
                     html_stage += '</div></td></tr>'
                 html += html_stage
         return html
+
+
+class EvaluatedScore(models.Model):
+    publication = models.ForeignKey(Publication, on_delete=models.PROTECT, verbose_name='PGS Publication ID (PGP)', related_name='publication_evaluatedscore')
+    scores_evaluated = models.ManyToManyField(Score, verbose_name='Evaluated Scores', related_name='score_evaluatedscore')
+
+    @property
+    def evaluated_scores_ids(self):
+        return [x.id for x in self.scores_evaluated.all().order_by('id')]
 
 
 class SampleSet(models.Model):

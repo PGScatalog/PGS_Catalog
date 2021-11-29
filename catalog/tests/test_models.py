@@ -12,7 +12,7 @@ default_num = 1
 efo_id = 'EFO_0000305'
 efo_id_colon = efo_id.replace('_',':')
 efo_name = 'breast carcinoma'
-efo_desc_list = ['A carcinoma that arises from epithelial cells of the breast']
+efo_desc_list = ['A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]']
 efo_desc = ' | '.join(efo_desc_list)
 efo_synonyms_list = ['CA - Carcinoma of breast','Carcinoma of breast NOS','Mammary Carcinoma, Human']
 efo_synonyms = ' | '.join(efo_synonyms_list)
@@ -447,6 +447,10 @@ class PerformanceTest(TestCase):
         id = 1
 
         performance = self.get_performance(id)
+
+        es_test = EvaluatedScoreTest()
+        evaluated_score = es_test.create_evaluatedscore(performance.publication,[performance.score])
+
         # Instance
         self.assertTrue(isinstance(performance, Performance))
         # Variables
@@ -1099,7 +1103,38 @@ class EmbargoedScoreTest(TestCase):
         self.assertEqual(e_score.firstauthor, firstauthor)
 
 
-class RetiredScore(TestCase):
+class EvaluatedScoreTest(TestCase):
+    ''' Test the EvaluatedScore model '''
+
+    def create_evaluatedscore(self, publication, scores):
+        # EvaluatedScore
+        es = EvaluatedScore.objects.create(publication=publication)
+        es.scores_evaluated.set(scores)
+        return es
+
+    def test_evaluatedscore(self):
+        # Publication
+        pubtest = PublicationTest()
+        pub = pubtest.get_publication_doi(default_num)
+
+        # Scores
+        scoretest = ScoreTest()
+        score_1 = scoretest.get_score(default_num)
+        score_2 = scoretest.get_score(default_num+1)
+        scores = [score_1, score_2]
+        score_ids = [x.id for x in scores]
+
+        evaluatedscore = self.create_evaluatedscore(pub,scores)
+        # Instance
+        self.assertTrue(isinstance(evaluatedscore, EvaluatedScore))
+        # Variables
+        self.assertEqual(evaluatedscore.publication.num, default_num)
+        self.assertEqual(len(evaluatedscore.scores_evaluated.all()), 2)
+        self.assertEqual(len(evaluatedscore.evaluated_scores_ids),2)
+        self.assertEqual(evaluatedscore.evaluated_scores_ids,score_ids)
+
+
+class RetiredScoreTest(TestCase):
     ''' Test the Retired model '''
     def create_retired(self, data_id, pub_doi, retirement_notes):
         return Retired.objects.create(id=data_id, doi=pub_doi, notes=retirement_notes)
