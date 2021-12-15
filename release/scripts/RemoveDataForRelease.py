@@ -32,14 +32,25 @@ class NonReleasedDataToRemove:
             # Embargoed Publication
             id = publication.id
             firstauthor = publication.firstauthor
-            EmbargoedPublication.objects.create(id=id, firstauthor=firstauthor)
+            e_pub = EmbargoedPublication.objects.create(id=id, firstauthor=firstauthor)
+            title = publication.title
+            if title and title != '':
+                e_pub.title = title
+                e_pub.save()
             count_e_publications += 1
             # Embargoed Score
             scores = publication.publication_score.all()
             if scores.count() > 0:
                 for score in scores:
                     score_id = score.id
-                    EmbargoedScore.objects.create(id=score_id, firstauthor=firstauthor)
+                    score_name = score.name
+                    score_trait = score.trait_reported
+                    EmbargoedScore.objects.create(
+                        id=score_id,
+                        name=score_name,
+                        trait_reported = score_trait,
+                        firstauthor=firstauthor
+                    )
                     count_e_scores += 1
         print("Embargoed Publications: "+str(count_e_publications))
         print("Embargoed Scores: "+str(count_e_scores))
