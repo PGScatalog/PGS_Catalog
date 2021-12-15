@@ -124,7 +124,8 @@ class StudyImport():
 
 
     def import_score_models(self):
-        ''' Import the Scofe data if the Score is not yet in the database. '''
+        ''' Import the Score data if the Score is not yet in the database. '''
+        print('> Import Scores')
         for score_id, score_data in self.study.parsed_scores.items():
             # Check if Score model already exists
             try:
@@ -140,9 +141,11 @@ class StudyImport():
 
     def import_gwas_dev_samples(self):
         ''' Import the GWAS and Dev/Training Samples and attach them the associated Score(s) '''
+        print('> Import GWAS and Dev/Training Samples')
         try:
             for x in self.study.parsed_samples_scores:
                 scores = []
+                sample_type = x[0][1]
                 # Extract scores
                 for s in x[0][0].split(','):
                     if s.strip() in self.study_scores:
@@ -166,9 +169,9 @@ class StudyImport():
                         else:
                             sample_model = sample.create_sample_model()
 
-                        if x[0][1] == 'GWAS/Variant associations':
+                        if sample_type == 'GWAS/Variant associations':
                             score.samples_variants.add(sample_model)
-                        elif x[0][1] == 'Score development':
+                        elif sample_type == 'Score development':
                             score.samples_training.add(sample_model)
                         else:
                             self.import_warnings.append('ERROR: Unclear how to add samples')
@@ -181,8 +184,11 @@ class StudyImport():
         Check if the Performance Metrics already exist in the DB
         If they exist, we delete them (including the associated SampleSet and Samples)
         '''
+        print('> Remove existing Performance Metrics')
         try:
-            data2delete = {'performance': set(), 'sampleset': set(), 'sample': set()}
+            data_types = ('performance','sampleset','sample')
+            data2delete = { k:set() for k in data_types }
+            model2delete = {'performance': Performance, 'sampleset': SampleSet, 'sample': Sample}
             # Loop over the parsed performances
             for x in self.study.parsed_performances:
                 i, performance = x
@@ -198,6 +204,7 @@ class StudyImport():
                         continue
                 performances = Performance.objects.filter(publication=self.study_publication, score=score)
 
+                # List objects to delete
                 for performance in performances:
                     sampleset = performance.sampleset
                     samples = sampleset.samples.all()
@@ -206,13 +213,19 @@ class StudyImport():
                     data2delete['sampleset'].add(sampleset)
                     for sample in samples:
                         data2delete['sample'].add(sample)
-            # Delete stored objects
-            for data_type in ('performance','sampleset','sample'):
+
+            # Delete stored objects in "bulk"
+            for data_type in data_types:
                 data_list = list(data2delete[data_type])
                 if data_list:
-                    self.import_warnings.append(f'DELETE existing {data_type}(s) [ids]: {", ".join([str(x.id) for x in data_list])}')
-                    for entry in data_list:
-                        entry.delete()
+                    ids = [str(x.id) for x in data_list]
+                    self.import_warnings.append(f'DELETE existing {data_type}(s) [ids]: {", ".join(ids)}')
+                    # Delete associated Metrics (only for Performance data)
+                    if data_type == 'performance':
+                        num_ids = [str(x.num) for x in data_list]
+                        Metric.objects.filter(performance_id__in=num_ids).delete()
+                    # Delete entries
+                    model2delete[data_type].objects.filter(id__in=ids).delete()
 
         except Exception as e:
             self.failed_data_import.append(f'Check existing Performance Metric: {e}')
@@ -220,18 +233,11 @@ class StudyImport():
 
     def import_samplesets(self):
         ''' Import Test (Evaluation) Samples and Sample Sets '''
+        print('> Import Sample Sets')
         self.study_samplesets = {}
         try:
             for x in self.study.parsed_samples_testing:
                 test_name, sample_list = x
-
-                samples_for_sampleset = []
-
-                # Create Samples and store them in a list
-                for sample_test in sample_list:
-                    sample_model = sample_test.create_sample_model()
-                    self.data_ids['sample'].append(sample_model.id)
-                    samples_for_sampleset.append(sample_model)
 
                 # Create the SampleSet object
                 sampleset_model = SampleSet()
@@ -239,18 +245,31 @@ class StudyImport():
                 sampleset_model.save()
                 self.data_ids['sampleset'].append(sampleset_model.num)
 
-                # Add the Sample(s) to the SampleSet
-                for sample in samples_for_sampleset:
-                    sampleset_model.samples.add(sample)
-                    sampleset_model.save()
+                # Create Samples and store them in a list
+                samples_for_sampleset = []
+                sampleset_name = ''
+                for sample_test in sample_list:
+                    sample_model = sample_test.create_sample_model()
+                    self.data_ids['sample'].append(sample_model.id)
+                    samples_for_sampleset.append(sample_model)
+                    sampleset_name = sample_test.sampleset_name
 
+                # Add the Sample(s) to the SampleSet
+                sampleset_model.samples.set(samples_for_sampleset)
+                sampleset_model.name = sampleset_name
+                sampleset_model.save()
+
+                # Add the SampleSet to the list of SampleSets for the study
                 self.study_samplesets[test_name] = sampleset_model
+
         except Exception as e:
             self.failed_data_import.append(f'SampleSet & Evaluation Sample: {e}')
 
 
     def import_performance_metrics(self):
         ''' Import the Performance and the associated Metric(s) '''
+        print('> Import the Performance Metrics')
+        metric_models = []
         try:
             for x in self.study.parsed_performances:
                 i, performance = x
@@ -278,5 +297,11 @@ class StudyImport():
                         msg = ', '.join(performance.report['import']['error'])
                         self.failed_data_import.append(f'Performance Metric: {msg}')
                     continue
+                # Add the performance metrics to the list
+                metric_models.extend(performance.metric_models)
+
+            # Insert Metric data in bulk
+            metrics_list = Metric.objects.bulk_create(metric_models)
+
         except Exception as e:
             self.failed_data_import.append(f'Performance Metric: {e}')

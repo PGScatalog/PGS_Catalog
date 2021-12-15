@@ -30,6 +30,9 @@ urlpatterns = [
     # e.g.: /browse/{scores, traits, studies, sample_set}/
     path('browse/<str:view_selection>/', cache_page(cache_time)(views.browseby), name='Browse data'),
 
+    # e.g.: /latest_release/
+    path('latest_release/', cache_page(cache_time)(views.latest_release), name='Latest Release'),
+
     # e.g.: /about/
     path('about/', views.AboutView.as_view(), name='About'),
 

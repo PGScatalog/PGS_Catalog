@@ -10,6 +10,8 @@ class PerformanceData(GenericData):
     def __init__(self,):
         GenericData.__init__(self)
         self.metrics = []
+        self.metric_models = []
+
 
     def add_metric(self, field, val, spreadsheet_name):
         '''
@@ -113,9 +115,11 @@ class PerformanceData(GenericData):
                         setattr(self.model, field, val)
                 self.model.save()
 
-                # Create associated Metric objects
-                for metric in self.metrics:
-                    metric.create_metric_model(self.model)
+            # Create associated Metric objects
+            for metric in self.metrics:
+                metric_model = metric.create_metric_model(self.model)
+                self.metric_models.append(metric_model)
+
         except IntegrityError as e:
             self.model = None
             self.report_error_import(e)

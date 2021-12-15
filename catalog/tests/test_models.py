@@ -12,7 +12,7 @@ default_num = 1
 efo_id = 'EFO_0000305'
 efo_id_colon = efo_id.replace('_',':')
 efo_name = 'breast carcinoma'
-efo_desc_list = ['A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]']
+efo_desc_list = ['A carcinoma that arises from epithelial cells of the breast']
 efo_desc = ' | '.join(efo_desc_list)
 efo_synonyms_list = ['CA - Carcinoma of breast','Carcinoma of breast NOS','Mammary Carcinoma, Human']
 efo_synonyms = ' | '.join(efo_synonyms_list)
@@ -727,6 +727,7 @@ class SampleTest(TestCase):
 
 class SampleSetTest(TestCase):
     ''' Test the SampleSet model '''
+    sampleset_name="Test_SampleSet"
     sample_set_id = 'PSS000001'
     test_ancestry_2 = ['European','African']
     test_ancestry_3 = ['East Asian','African']
@@ -742,6 +743,7 @@ class SampleSetTest(TestCase):
         # Create SampleSet object and add list of Samples
         sampleset = SampleSet.objects.create(num=num)
         sampleset.samples.set(samples)
+        sampleset.name = self.sampleset_name
         sampleset.set_ids(num)
         return sampleset
 
@@ -758,6 +760,7 @@ class SampleSetTest(TestCase):
         # Create SampleSet object and add list of Samples
         sampleset = SampleSet.objects.create(num=num)
         sampleset.samples.set(samples)
+        sampleset.name = self.sampleset_name
         return sampleset
 
     def test_sampleset_1(self):
@@ -769,6 +772,7 @@ class SampleSetTest(TestCase):
         # Variables
         self.assertEqual(sampleset.id, self.sample_set_id)
         self.assertTrue(len(sampleset.samples.all()) != 0)
+        self.assertTrue(sampleset.name, self.sampleset_name)
         ancestry = '-'
         self.assertEqual(sampleset.samples_ancestry, ancestry)
         self.assertEqual(sampleset.samples_combined_ancestry_key, 'OTH')
@@ -1076,31 +1080,35 @@ class EFOTrait_OntologyTest(TestCase):
 
 
 class EmbargoedPublicationTest(TestCase):
-    def create_embargoed_publication(self, publication_id, author_name):
-        return EmbargoedPublication.objects.create(id=publication_id, firstauthor=author_name)
+    def create_embargoed_publication(self, publication_id, author_name, publication_title):
+        return EmbargoedPublication.objects.create(id=publication_id, firstauthor=author_name, title=publication_title)
 
     def test_embargoed_publication(self):
         publication_id = 'PGP000007'
-        e_publication = self.create_embargoed_publication(publication_id=publication_id, author_name=firstauthor)
+        publication_title = 'This is the title'
+        e_publication = self.create_embargoed_publication(publication_id=publication_id, author_name=firstauthor, publication_title=publication_title)
         # Instance
         self.assertTrue(isinstance(e_publication, EmbargoedPublication))
         # Variables
         self.assertEqual(e_publication.id, publication_id)
         self.assertEqual(e_publication.firstauthor, firstauthor)
+        self.assertEqual(e_publication.title, publication_title)
 
 
 class EmbargoedScoreTest(TestCase):
-    def create_embargoed_score(self, score_id, author_name):
-        return EmbargoedScore.objects.create(id=score_id, firstauthor=author_name)
+    def create_embargoed_score(self, score_id, author_name, reported_trait):
+        return EmbargoedScore.objects.create(id=score_id, firstauthor=author_name, trait_reported=reported_trait)
 
     def test_embargoed_score(self):
         score_id = 'PGS000018'
-        e_score = self.create_embargoed_score(score_id=score_id, author_name=firstauthor)
+        trait = 'Coronary artery disease'
+        e_score = self.create_embargoed_score(score_id=score_id, author_name=firstauthor, reported_trait=trait)
         # Instance
         self.assertTrue(isinstance(e_score, EmbargoedScore))
         # Variables
         self.assertEqual(e_score.id, score_id)
         self.assertEqual(e_score.firstauthor, firstauthor)
+        self.assertEqual(e_score.trait_reported, trait)
 
 
 class EvaluatedScoreTest(TestCase):

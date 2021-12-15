@@ -14,20 +14,22 @@ class CurationImport():
 
     failed_studies = {}
 
-    def __init__(self, data_path, studies_list, curation_status_by_default, skip_scoringfiles):
+    def __init__(self, data_path, studies_list, curation_status_by_default, scoringfiles_format_version, skip_scoringfiles):
         self.curation2schema = pd.read_excel(data_path['template_schema'], sheet_name='Curation', index_col=0)
         self.curation2schema_scoring = pd.read_excel(data_path['scoring_schema'], sheet_name='Columns', index_col=0)
+
 
         self.studies_list = studies_list
         self.studies_path = data_path['studies_dir']
         self.new_scoring_path = data_path['scoring_dir']
+        self.scoringfiles_format_version = scoringfiles_format_version
         self.skip_scoringfiles = skip_scoringfiles
 
         self.curation_status_by_default = curation_status_by_default
 
         self.steps_count = 2
         if self.skip_scoringfiles == False:
-            self.steps_count = 3 
+            self.steps_count = 3
 
 
     def global_report(self):
@@ -69,14 +71,14 @@ class CurationImport():
             if study_import.has_failed:
                 self.failed_studies[study_import.study_name] = 'import error'
                 continue
-            
+
             ## Scoring files ##
             if self.skip_scoringfiles == False:
                 print('\n----------------------------------\n')
                 print(f'==> Step 3/{self.steps_count}: Add header to the Scoring file(s)')
                 if study_import.study_scores:
                     for score_id, score in study_import.study_scores.items():
-                        scoring_file_update = ScoringFileUpdate(score,study_import.study_path,self.new_scoring_path,self.curation2schema_scoring)
+                        scoring_file_update = ScoringFileUpdate(score, study_import.study_path, self.new_scoring_path, self.curation2schema_scoring, self.scoringfiles_format_version)
                         is_failed = scoring_file_update.update_scoring_file()
                         if is_failed == True:
                             self.failed_studies[study_import.study_name] = 'scoring file error'

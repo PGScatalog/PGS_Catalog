@@ -15,6 +15,7 @@ class BrowseUrlTest(TestCase):
             '/docs/',
             '/docs/ancestry/',
             '/downloads/',
+            '/latest_release/',
             '/rest/',
             '/robots.txt'
         ]

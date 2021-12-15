@@ -28,11 +28,14 @@ def run(*args):
     #--------------#
     print("# Start the database release")
 
-    # Check that the publications are associated to at least a Score or a Performance Metric
+    # Check that the publications are associated to at least one Score or one Performance Metric
     check_publications_associations()
 
-    # Check that the EFO Traits are associated to at least a Score or a Performance Metric
+    # Check that the EFO Traits are associated to at least one Score
     check_efotrait_associations()
+
+    # Check that the Performances are associated to at least one Metric
+    check_performance_metric_associations()
 
     # Check of there are duplicated cohort names in the database
     check_duplicated_cohorts()
@@ -103,6 +106,24 @@ def check_efotrait_associations():
         error_report("The following PGS EFO Traits are not associated to a Score or a Performance Metric:\n"+'\n'.join(traits_list))
     else:
         output_report("EFOTrait associations - OK: All the traits are associated to a Score or a Performance Metric!")
+
+
+def check_performance_metric_associations():
+    """ Check the Performance Metric associations """
+    print("- Check the Performance Metric associations")
+
+    performances = Performance.objects.all().order_by('id')
+    perfs_list = []
+
+    for perf in performances:
+        count_metrics = perf.performance_metric.count()
+        if count_metrics == 0:
+            perfs_list.append(perf.id)
+
+    if len(perfs_list) > 0:
+        error_report("The following PGS Performances are not associated to a Metric:\n"+'\n'.join(perfs_list))
+    else:
+        output_report("Performance Metric associations - OK: All the Performances are associated to at least one Metric!")
 
 
 def check_duplicated_cohorts():

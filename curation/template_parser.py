@@ -139,7 +139,7 @@ class CurationTemplate():
                     if type(val) == str or type(val) == int:
                         # Add first author initials
                         if previous_field == 'firstauthor':
-                            parsed_publication.data['firstauthor'] = val+' '+parsed_publication.data['firstauthor']
+                            parsed_publication.data['firstauthor'] = parsed_publication.data['firstauthor']+' '+val
                         else:
                             parsed_publication.add_data(field, val)
                     previous_field = field
@@ -213,7 +213,7 @@ class CurationTemplate():
         for testset_name, testsets in self.table_samples_testing.groupby(level=0):
             results = []
             for sample_id, sample_info in testsets.iterrows():
-                sample_data = self.get_sample_data(sample_info,current_schema,spreadsheet_name)
+                sample_data = self.get_sample_data(sample_info,current_schema,spreadsheet_name,testset_name)
                 results.append(sample_data)
             self.parsed_samples_testing.append((testset_name, results))
 
@@ -244,9 +244,9 @@ class CurationTemplate():
             self.parsed_performances.append((p_key,parsed_performance))
 
 
-    def get_sample_data(self, sample_info, current_schema, spreadsheet_name):
+    def get_sample_data(self, sample_info, current_schema, spreadsheet_name, sampleset_name=None):
         ''' Extract the sample data (gwas and dev/training). '''
-        sample_data = SampleData()
+        sample_data = SampleData(sampleset_name)
         for c, val in sample_info.to_dict().items():
             if c in current_schema.index:
                 if pd.isnull(val) == False:
@@ -352,6 +352,7 @@ def get_gwas_study(gcst_id):
     study_data = []
     gwas_rest_url = 'https://www.ebi.ac.uk/gwas/rest/api/studies/'
     response = requests.get(f'{gwas_rest_url}{gcst_id}')
+
     if not response:
         return study_data
     response_data = response.json()

@@ -1,0 +1,64 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Latest Release - new Publications and Scores{% endblock %}
+
+{% block desc %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebPage",
+      "name": "Browse {{ view_name }}",
+      "description": "Latest Release - new Publications and Scores",
+      "keywords": ["release","score","publication","catalog","catalogue","data"]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Latest Release</li>
+        <li class="breadcrumb-item">{{ release_date }}</li>
+      </ol>
+    </nav>
+
+    <!-- Summary -->
+    <section>
+      <h2>Latest Release - {{ release_date }}</h2>
+      <div class="content_container">
+        <div class="table-of-contents">
+          <nav role="navigation">
+            <ul>
+              {% if publications_count %}
+                <li><a class="mr-2" href="#publications">New Publication{% if publications_count > 1 %}s{% endif %}:</a> <span class="badge badge-pill badge-pgs">{{ publications_count }}</span></li>
+              {% endif %}
+              {% if scores_count %}
+                <li class="mb-1"><a class="mr-2" href="#scores">New Polygenic Score{% if scores_count > 1 %}s{% endif %}:</a><span class="badge badge-pill badge-pgs">{{ scores_count }}</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <!-- Publication(s) -->
+    {% if publications_count %}
+      <section>
+        <h3 class="mt-4" id="publications">New Publication{% if publications_count > 1 %}s{% endif %} (<span class="pgs_color_1">{{ publications_count }}</span>)</h3>
+        {% render_table publications_table %}
+      </section>
+    {% endif %}
+
+    <!-- Score(s) -->
+    {% if scores_count %}
+      <section>
+        <h3 class="mt-5" id="scores">New Polygenic Score{% if scores_count > 1 %}s{% endif %} (<span class="pgs_color_1">{{ scores_count }}</span>)</h3>
+        {% if ancestry_form %}
+          {{ ancestry_form|safe }}
+        {% endif %}
+        {% render_table scores_table %}
+      </section>
+    {% endif %}
+{% endblock %}

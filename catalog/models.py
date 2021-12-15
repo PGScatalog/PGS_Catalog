@@ -68,7 +68,7 @@ class Publication(models.Model):
 
     @property
     def scores_count(self):
-        return self.publication_score.all().count()
+        return self.publication_score.count()
 
     @property
     def scores_evaluated_count(self):
@@ -729,6 +729,8 @@ class SampleSet(models.Model):
     num = models.IntegerField('PGS Sample Set (PSS) Number', primary_key=True)
     id = models.CharField('PGS Sample Set (PSS) ID', max_length=30, db_index=True)
 
+    name = models.CharField('Sample Set ID (curation template)', max_length=100, null=True)
+
     # Link to the description of the sample(s) in the other table
     samples = models.ManyToManyField(Sample, verbose_name='Sample Set Descriptions', related_name='sampleset')
 
@@ -781,7 +783,7 @@ class SampleSet(models.Model):
 
     @property
     def count_samples(self):
-        return self.samples.all().count()
+        return self.samples.count()
 
     @property
     def count_individuals(self):
@@ -1090,6 +1092,7 @@ class EmbargoedPublication(models.Model):
     """Class to store the list of embargoed Publications"""
     # Stable identifier
     id = models.CharField('PGS Publication/Study ID (PGP)', max_length=30, primary_key=True)
+    title = models.TextField('Title', null=True)
     firstauthor = models.CharField('First Author', max_length=50)
 
 
@@ -1097,6 +1100,8 @@ class EmbargoedScore(models.Model):
     """Class to store the list of embargoed Scores"""
     # Stable identifier
     id = models.CharField('Polygenic Score ID', max_length=30, primary_key=True)
+    name = models.CharField('PGS Name', max_length=100)
+    trait_reported = models.TextField('Reported Trait')
     firstauthor = models.CharField('First Author', max_length=50)
 
 

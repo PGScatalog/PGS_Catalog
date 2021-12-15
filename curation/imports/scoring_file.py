@@ -8,11 +8,15 @@ from catalog.models import Score
 class ScoringFileUpdate():
     ''' Updating the Scoring file by adding a header and gzip it. '''
 
-    def __init__(self, score, study_path, new_scoring_dir, score_file_schema):
+    value_separator = '|'
+    weight_type_label = 'weight_type'
+
+    def __init__(self, score, study_path, new_scoring_dir, score_file_schema, score_file_format_version):
         self.score = score
         self.score_file_path = f'{study_path}/raw_scores'
         self.new_score_file_path = new_scoring_dir
         self.score_file_schema = score_file_schema
+        self.score_file_format_version = score_file_format_version
 
 
     def create_scoringfileheader(self):
@@ -21,28 +25,30 @@ class ScoringFileUpdate():
         pub = score.publication
         lines = []
         try:
-            traits = score.trait_efo
-            efo_ids = ','.join([x.id for x in traits])
-            mapped_traits = ','.join([x.label for x in traits])
+            traits = score.trait_efo.all()
+            efo_ids = self.value_separator.join([x.id for x in traits])
+            mapped_traits = self.value_separator.join([x.label for x in traits])
             lines = [
-                '### PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp_scoring for additional information',
-                '## POLYGENIC SCORE (PGS) INFORMATION',
-                f'# PGS ID = {score.id}',
-                f'# PGS Name = {score.name}',
-                f'# Reported Trait = {score.trait_reported}',
-                f'# EFO ID(s) = {efo_ids}',
-                f'# Mapped Trait(s) (EFO) = {mapped_traits}',
-                f'# Original Genome Build = {score.variants_genomebuild}',
-                f'# Number of Variants = {score.variants_number}',
-                '## SOURCE INFORMATION',
-                f'# PGP ID = {pub.id}'
+                '###PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp_scoring for additional information',
+                f'#format_version={self.score_file_format_version}',
+                '##POLYGENIC SCORE (PGS) INFORMATION',
+                f'#pgs_id={score.id}',
+                f'#pgs_name={score.name}',
+                f'#trait_reported={score.trait_reported}',
+                f'#trait_mapped={mapped_traits}',
+                f'#trait_efo={efo_ids}',
+                f'#genome_build={score.variants_genomebuild}',
+                f'#variants_number={score.variants_number}',
+                f'#weight_type={score.weight_type}',
+                '##SOURCE INFORMATION',
+                f'#pgp_id={pub.id}'
             ]
             if pub.firstauthor and pub.journal and pub.pub_year and pub.doi:
-                lines.append(f'# Citation = {pub.firstauthor} et al. {pub.journal} ({pub.pub_year}). doi:{pub.doi}')
+                lines.append(f'#citation={pub.firstauthor} et al. {pub.journal} ({pub.pub_year}). doi:{pub.doi}')
 
             if score.license != Score._meta.get_field('license')._get_default():
                 ltext = score.license.replace('\n', ' ')     # Make sure there are no new-lines that would screw up the commenting
-                lines.append('# LICENSE = {}'.format(ltext)) # Append to header
+                lines.append('#license={}'.format(ltext)) # Append to header
         except Exception as e:
             print(f'Header creation issue: {e}')
         return lines
@@ -57,42 +63,52 @@ class ScoringFileUpdate():
             raw_scorefile = f'{self.score_file_path}/{score_name}.txt'
             df_scoring = pd.read_table(raw_scorefile, dtype='str', engine = 'python')
 
+            # Rename reference_allele column
+            if 'other_allele' not in df_scoring.columns and 'reference_allele' in df_scoring.columns:
+                df_scoring.rename(columns={'reference_allele': 'other_allele'})
+
             # Check that all columns are in the schema
             column_check = True
             for x in df_scoring.columns:
-                if not x in self.score_file_schema.index:
+                if not x in self.score_file_schema.index and x != self.weight_type_label:
                     column_check = False
                     print(f'The column "{x}" is not in the Schema index')
                     break
 
             if column_check == True:
+
+                # Check if weight_type in columns
+                if self.weight_type_label in df_scoring.columns:
+                    if all(df_scoring[self.weight_type_label]):
+                        val = df_scoring[self.weight_type_label][0]
+                        if val == 'OR':
+                            df_scoring = df_scoring.rename({'effect_weight' : 'OR'}, axis='columns').drop([self.weight_type_label], axis=1)
+                if 'effect_weight' not in df_scoring.columns:
+                    if 'OR' in df_scoring.columns:
+                        df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['OR']))
+                        df_scoring[self.weight_type_label] = 'log(OR)'
+                    elif 'HR' in df_scoring.columns:
+                        df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['HR']))
+                        df_scoring[self.weight_type_label] = 'log(HR)'
+
+                # Update Score model with weight_type data
+                if self.weight_type_label in df_scoring:
+                    self.score.weight_type = df_scoring[self.weight_type_label]
+                    self.score.save()
+
                 # Get new header
                 header = self.create_scoringfileheader()
                 if len(header) == 0:
                     failed_update = True
                     return failed_update
 
-                # Check if weight_type in columns
-                if 'weight_type' in df_scoring.columns:
-                    if all(df_scoring['weight_type']):
-                        val = df_scoring['weight_type'][0]
-                        if val == 'OR':
-                            df_scoring = df_scoring.rename({'effect_weight' : 'OR'}, axis='columns').drop(['weight_type'], axis=1)
-                if 'effect_weight' not in df_scoring.columns:
-                    if 'OR' in df_scoring.columns:
-                        df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['OR']))
-                        df_scoring['weight_type'] = 'log(OR)'
-                    elif 'HR' in df_scoring.columns:
-                        df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['HR']))
-                        df_scoring['weight_type'] = 'log(HR)'
-
                 # Reorganize columns according to schema
-                corder = []
+                col_order = []
                 for x in self.score_file_schema.index:
                     if x in df_scoring.columns:
-                        corder.append(x)
+                        col_order.append(x)
 
-                df_scoring = df_scoring[corder]
+                df_scoring = df_scoring[col_order]
                 df_csv = df_scoring.to_csv(sep='\t', index=False)
                 # Cleanup the file by removing empty lines
                 new_df_csv = []
