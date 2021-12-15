@@ -18,6 +18,8 @@ study_names_list = [
     { 'name': 'ThirdTest2021', 'status': 'E' }
 ]
 
+scoringfiles_format_version = '2.0'
+
 default_curation_status = 'IP'
 
 skip_scorefiles = True
@@ -34,16 +36,18 @@ data_counts = {
 
 class ImportTest(TestCase):
 
-    @classmethod
-    def setUpTestData(self):
-        ''' Run once to set up non-modified data for all class methods. '''
-        # Run the import
-        curation_import = CurationImport(curation_directories, study_names_list, default_curation_status, skip_scorefiles)
+    def run_import(self):
+        # Main script
+        curation_import = CurationImport(curation_directories, study_names_list, default_curation_status, scoringfiles_format_version, skip_scorefiles)
         curation_import.run_curation_import()
 
 
-    def test_count_imported_data(self):
-        ''' Check that the number of models in the DB match the expected number of entries from the files. '''
+    def test_import(self):
+        ## Run the import ##
+        self.run_import()
+
+
+        ## Counting tests ##
         # Publication
         pubs = Publication.objects.all()
         self.assertEqual(pubs.count(), data_counts['publication'])
@@ -69,8 +73,7 @@ class ImportTest(TestCase):
         self.assertEqual(samplesets.count(), data_counts['sampleset'])
 
 
-    def test_check_imported_data(self):
-        ''' Check the imported data '''
+        ## Other tests ##
         for id, study in enumerate(study_names_list, start=1):
 
             # Status
@@ -79,16 +82,13 @@ class ImportTest(TestCase):
             else:
                 status = default_curation_status
 
-            publication = None
             try:
                 publication = Publication.objects.get(num=id)
-                # Values
                 self.assertIsNotNone(publication.id)
                 self.assertIsNotNone(publication.firstauthor)
                 self.assertEqual(publication.curation_status, status)
             except Publication.DoesNotExist:
-                msg = f'Can\'t find a Publication with num={id}'
-                self.assertTrue(isinstance(publication, Publication),msg=msg)
+                print(f'Test - Can\'t find a Publication with num={id}')
                 continue
 
             # Scores
@@ -105,30 +105,7 @@ class ImportTest(TestCase):
                 performances = Performance.objects.filter(score=score, publication=publication)
                 self.assertGreater(performances.count(), 0)
 
-                # Performance Metrics
+                # Metrics
                 for performance in performances:
-                    # Metrics
                     metrics = Metric.objects.filter(performance=performance)
                     self.assertGreater(metrics.count(), 0)
-                    # Sample Sets
-                    self.assertTrue(isinstance(performance.sampleset, SampleSet))
-
-
-    def test_regression(self):
-        ''' Run regression tests '''
-        for score in Score.objects.all():
-            # GWAS Samples - regression test
-            gwas_samples = set()
-            sample_variants = score.samples_variants.all()
-            for sample in sample_variants:
-                id = sample.source_GWAS_catalog
-                if not id:
-                    id = sample.source_PMID
-                if not id:
-                    id = sample.source_DOI
-                s_number = sample.sample_number
-                s_ancestry = sample.ancestry_broad
-
-                key = f'{id}_{s_number}_{s_ancestry}'
-                gwas_samples.add(key)
-            self.assertEqual(len(gwas_samples), sample_variants.count())
