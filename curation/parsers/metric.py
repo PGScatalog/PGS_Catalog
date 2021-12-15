@@ -54,8 +54,6 @@ class MetricData(GenericData):
             with transaction.atomic():
                 self.model = Metric(**self.data)
                 self.model.performance = performance
-                self.model.save()
         except IntegrityError as e:
             print('Error with the creation of the Metric')
-
         return self.model

@@ -7,6 +7,10 @@ from catalog.models import Sample
 
 class SampleData(GenericData):
 
+    def __init__(self,sampleset_name=None):
+        GenericData.__init__(self)
+        self.sampleset_name = sampleset_name
+
     def str2demographic(self, field, val, spreadsheet_name):
         '''
         Parse the sample_age and followup_time information to store it into the DemographicData object
@@ -43,6 +47,8 @@ class SampleData(GenericData):
                         current_demographic.add_data('range', NumericRange(lower=range_match[0], upper=range_match[1], bounds='[]'))
                     else:
                         self.report_error(spreadsheet_name, f'Data Range for the value "{value}" is not in the expected format (e.g. \'1.00 [0.80 - 1.20]\')')
+                    if name.lower() == 'iqr':
+                        name = name.upper()
                     current_demographic.add_data('range_type', name)
                 else:
                     # Estimate
@@ -84,6 +90,7 @@ class SampleData(GenericData):
             elif field not in ['sample_age', 'followup_time']: # 'sample_age' and 'followup_time' not populated by GWAS Catalog
                 sample_data[field] = val
         samples = Sample.objects.filter(**sample_data)
+
         if len(samples) != 0:
             for sample in samples:
                 cohorts = '|'.join(sorted([x.name_short for x in sample.cohorts.all()]))
@@ -123,13 +130,12 @@ class SampleData(GenericData):
                     self.model.ancestry_broad = 'Not reported'
 
                 # Need to create the Sample object first (with an ID)
-                for cohort in cohorts:
-                    self.model.cohorts.add(cohort)
+                self.model.cohorts.set(cohorts)
 
                 # Save updates
                 self.model.save()
         except IntegrityError as e:
             self.model = None
-            print('Error with the creation of the Sample(s) and/or the Demographic(s) and/or the Cohort(s)')
+            print(f'Error with the creation of the Sample(s) and/or the Demographic(s) and/or the Cohort(s): {e}')
 
         return self.model
