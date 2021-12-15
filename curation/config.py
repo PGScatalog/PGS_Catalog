@@ -1,16 +1,17 @@
 curation_directories = {
     'template_schema': './curation/templates/TemplateColumns2Models.xlsx',
     'scoring_schema': './curation/templates/ScoringFileSchema.xlsx',
-    'studies_dir': '..../SourceFiles/Input/MyStudies/',       # To be replaced with existing path
-    'scoring_dir': '..../SourceFiles/Output/ScoringFiles/'    # To be replaced with existing path
+    'studies_dir': '/Users/lg10/Workspace/datafiles/SourceFiles/',
+    'scoring_dir': '/Users/lg10/Workspace/datafiles/SourceFiles/ScoringFiles/'
 }
 
-# To be replaced with existing study names
 study_names_list = [
-    { 'name': 'Lambert2021' },
-    { 'name': 'Inouye2021' }
+    { 'name': 'Chen2018' },
+    { 'name': 'Kolin2021' }
 ]
 
 default_curation_status = 'IP'
 
-skip_scorefiles = False
+scoringfiles_format_version = '2.0'
+
+skip_scoringfiles = False

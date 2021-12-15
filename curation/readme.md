@@ -15,14 +15,19 @@ pip install pandas xlrd openpyxl numpy
 
 ### 2 - Setup the configuration file
 It is located under curation (`curation/config.py`). There you can configure different variables:
+* the scoring file schema version: `schema_version`
 * the study input directory: `curation_directories['studies_dir']`
 * the scoring files output directory: `curation_directories['scoring_dir']`
 * the list of study names to import: `study_names_list`
 
 You might need to change the value of `skip_scorefiles` to **True** if you only want to import the metadata (to test the study data for instance)
 
+The default values of the attributes `default_curation_status` and `scoringfiles_format_version` shouldn't be changed.
+
 Example of config file:
 ```
+schema_version = '2.0'
+
 curation_directories = {
     'template_schema': './curation/templates/TemplateColumns2Models.xlsx',
     'scoring_schema': './curation/templates/ScoringFileSchema.xlsx',
@@ -36,21 +41,12 @@ study_names_list = [
     { 'name': 'Guffanti2019' },
     { 'name': 'Lahrouchi2021' },
     { 'name': 'Sordillo2021' },
-    { 'name': 'ToroMartin2019' },
-    { 'name': 'Chen2020' },
-    { 'name': 'Du2021' },
-    { 'name': 'Innes2020' },
-    { 'name': 'Liu2021' },
-    { 'name': 'Tadros2021' },
-    { 'name': 'Zhou2020' },
-    { 'name': 'Clark2019' },
-    { 'name': 'Fahmideh2019' },
-    { 'name': 'Kachuri2020' },
-    { 'name': 'Severance2019' },
-    { 'name': 'Tangtanatakul2020' }
+    { 'name': 'ToroMartin2019' }
 ]
 
 default_curation_status = 'IP'
+
+scoringfiles_format_version = '2.0'
 
 skip_scorefiles = False
 ```
@@ -93,6 +89,7 @@ INSTALLED_APPS = [
     'search.apps.SearchConfig',
     ...
 ```
+
 
 ### 4 - Run the import script
 The command line is fairly simple, from the root of the Django project:
