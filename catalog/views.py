@@ -284,6 +284,40 @@ def browseby(request, view_selection):
     return render(request, 'catalog/browseby.html', context)
 
 
+def latest_release(request):
+
+    context = {
+        'ancestry_form': ancestry_form(),
+        'release_date': 'NA',
+        'publications_count': 0,
+        'scores_count': 0,
+        'has_table': 1,
+        'has_chart': 1
+    }
+
+    latest_release = Release.objects.values('date','score_count','publication_count').order_by('-date').first()
+    if latest_release:
+        release_date = latest_release['date']
+
+        context['release_date'] = release_date
+
+        # Publications
+        publication_defer = ['authors','curation_status','curation_notes']
+        publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
+        publications = Publication.objects.defer(*publication_defer).filter(date_released=release_date).prefetch_related(*publication_prefetch_related)
+        publications_table = Browse_PublicationTable(publications, order_by="num")
+        context['publications_table'] = publications_table
+        context['publications_count'] = latest_release['publication_count']
+
+        # Scores
+        score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
+        scores_table = Browse_ScoreTable(Score.objects.only(*score_only_attributes,'date_released').select_related('publication').filter(date_released=release_date).order_by('num').prefetch_related(pgs_prefetch['trait']))
+        context['scores_table'] = scores_table
+        context['scores_count'] = latest_release['score_count']
+
+    return render(request, 'catalog/latest_release.html', context)
+
+
 def pgs(request, pgs_id):
     # If ID in lower case, redirect with the ID in upper case
     if not pgs_id.isupper():
@@ -437,8 +471,10 @@ def pgp(request, pub_id):
         try:
             embargoed_pub = EmbargoedPublication.objects.get(id=pub_id)
             embargoed_scores = EmbargoedScore.objects.filter(firstauthor=embargoed_pub.firstauthor).order_by('id')
+            table = EmbargoedScoreTable(embargoed_scores)
+            embargoed_scores_count = EmbargoedScore.objects.filter(firstauthor=embargoed_pub.firstauthor).count()
             template_html_file = 'embargoed/'+template_html_file
-            context = { 'publication' : embargoed_pub, 'scores': embargoed_scores }
+            context = { 'publication' : embargoed_pub, 'scores_count': embargoed_scores_count, 'scores_table': table, 'has_table': 1}
         except EmbargoedPublication.DoesNotExist:
             try:
                 retired_publication = Retired.objects.get(id=pub_id)

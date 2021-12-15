@@ -348,7 +348,7 @@ h2 {
   color: $pgs_colour_white !important;
   border-radius: 50%;
   line-height: 1.5em;
-  width: 1.5em;
+  width: 1.6em;
   text-align: center;
 }
 .search_facet_type_1 {
@@ -371,7 +371,7 @@ h2 {
 }
 .result_facet_type {
   font-weight:bold;
-  font-size:18px;
+  font-size:20px;
   color: white;
   display: inline-block;
   margin-right: 1rem;
@@ -380,21 +380,21 @@ h2 {
 }
 .result_facet_type_1 {
   background-color:$pgs_facet_1;
-  padding: 4px 9px;
+  padding: 3px 9px 2px;
   &::before {
     content:"T";
   }
 }
 .result_facet_type_2 {
   background-color:$pgs_facet_2;
-  padding: 4px 8.5px;
+  padding: 2.5px 8.5px;
   &::before {
     content:"P";
   }
 }
 .result_facet_type_3 {
   background-color:$pgs_facet_3;
-  padding: 4px 9px;
+  padding: 2.5px 8.5px;
   &::before {
     content:"S";
   }
@@ -1830,8 +1830,7 @@ footer {
     padding: 4.5px 8px 4px;
   }
   .result_facet_type_2 {
-    //padding: 4px 8.5px;
-    padding: 4.5px 7.5px 4px;
+    padding: 4.5px 8px 4px;
   }
   .result_facet_type_3 {
     padding: 4.5px 8px 4px;

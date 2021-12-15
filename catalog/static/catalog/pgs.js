@@ -649,7 +649,7 @@ function display_category_list(data_json) {
   var trait_elem = document.getElementById("trait_cat");
   var subtrait_elem = document.getElementById("trait_subcat");
 
-  item_height = 31;
+  item_height = 31.5;
   number_of_cat = Object.keys(data_json).length;
 
   cat_div_height = number_of_cat * item_height;
