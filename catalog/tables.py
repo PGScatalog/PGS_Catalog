@@ -2,6 +2,7 @@ import re
 import django_tables2 as tables
 from django.utils.html import format_html
 from django.utils.crypto import get_random_string
+from django.conf import settings
 from pgs_web import constants
 from catalog import common
 from .models import *
@@ -11,6 +12,8 @@ publication_path = '/publication'
 trait_path = '/trait'
 page_size = "50"
 empty_cell_char = '—'
+is_pgs_on_curation_site = settings.PGS_ON_CURATION_SITE
+
 
 def smaller_in_bracket(value):
     bracket_left = '['
@@ -180,7 +183,7 @@ class Browse_PublicationTable(tables.Table):
         return format_html('<i>{}</i>{}', value, is_preprint)
 
     def render_doi(self, value):
-        return format_html('<a class="pgs_nowrap" href=https://doi.org/{}">{}</a>', value, value)
+        return format_html('<a class="pgs_nowrap" href="https://doi.org/{}">{}</a>', value, value)
 
     def render_PMID(self, value):
         return format_html('<a href="https://www.ncbi.nlm.nih.gov/pubmed/{}">{}</a>', value, value)
@@ -464,7 +467,10 @@ class Browse_SampleSetTable(tables.Table):
         template_name = 'catalog/pgs_catalog_django_table.html'
 
     def render_sampleset(self, value):
-         return format_html('<a href="/sampleset/{}">{}</span>', value, value)
+        sampleset = f'<a href="/sampleset/{value.id}">{value.id}</a>'
+        if is_pgs_on_curation_site == 'True' and value.name:
+            sampleset += f' <div class="small">({value.name})</div>'
+        return format_html(sampleset)
 
     def render_cohorts_additional(self, value):
         return format_html('<span class="more">{}</span>', value)
@@ -588,7 +594,10 @@ class SampleTable_performance(tables.Table):
         template_name = 'catalog/pgs_catalog_django_table.html'
 
     def render_sampleset(self, value):
-         return format_html('<a id="{}" href="/sampleset/{}">{}</span>', value, value, value)
+        sampleset = f'<a id="{value.id}" href="/sampleset/{value.id}">{value.id}</a>'
+        if is_pgs_on_curation_site == 'True' and value.name:
+            sampleset += f' <div class="small">({value.name})</div>'
+        return format_html(sampleset)
 
     def render_phenotyping_free(self, value):
         return format_html('<span class="more">{}</span>', value)
@@ -630,7 +639,10 @@ class PerformanceTable(tables.Table):
         ancestry_key = value.samples_combined_ancestry_key
         ancestry = constants.ANCESTRY_GROUP_LABELS[ancestry_key]
         count_ind = common.individuals_format(value.count_individuals,True)
-        return format_html('<a href="#{}">{}</a><span class="only_export">|</span><div class="small"><span class="anc_colour_{} mr-1"></span>{}<span class="only_export">|</span>{}</div>', value, value, ancestry_key, ancestry,count_ind)
+        sampleset_name = ''
+        if is_pgs_on_curation_site == 'True' and value.name:
+            sampleset_name = format_html(f'<div>({value.name})</div>')
+        return format_html('<a href="#{}">{}</a><span class="only_export">|</span><div class="small">{}<span class="anc_colour_{} mr-1"></span>{}<span class="only_export">|</span>{}</div>', value, value, sampleset_name, ancestry_key, ancestry, count_ind)
 
     def render_score(self, value):
         return score_format(value)
@@ -664,3 +676,25 @@ class CohortTable(tables.Table):
             'name_short', 'name_full'
         ]
         template_name = 'catalog/pgs_catalog_django_table.html'
+
+
+class EmbargoedScoreTable(tables.Table):
+    ''' Displays information about Embargoed Scores '''
+
+    class Meta:
+        model = EmbargoedScore
+        attrs = {
+            "data-show-columns" : "false",
+            "data-sort-name" : "id",
+            "data-page-size" : page_size,
+            "data-export-options" : '{"fileName": "pgs_embargoedscores_data"}'
+        }
+        fields = [
+            'id',
+            'name',
+            'trait_reported'
+        ]
+        template_name = 'catalog/pgs_catalog_django_table.html'
+
+    def render_id(self, value):
+        return format_html(f'<a href="/score/{value}">{value}</a>')
