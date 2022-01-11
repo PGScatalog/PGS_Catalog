@@ -11,6 +11,7 @@ class NonReleasedDataToRemove:
         self.perfs2del = {}
         self.pss2del = {}
         self.traits2del = {}
+        self.non_asso_traits2del = {}
         self.publications = []
 
 
@@ -52,8 +53,8 @@ class NonReleasedDataToRemove:
                         firstauthor=firstauthor
                     )
                     count_e_scores += 1
-        print("Embargoed Publications: "+str(count_e_publications))
-        print("Embargoed Scores: "+str(count_e_scores))
+        print(" - Embargoed Publications: "+str(count_e_publications))
+        print(" - Embargoed Scores: "+str(count_e_scores))
 
 
     def list_entries_to_delete(self):
@@ -79,95 +80,102 @@ class NonReleasedDataToRemove:
 
 
     def delete_entries(self):
+        print('\n >> Start data deletion')
         # Performances to delete
         if len(self.perfs2del.keys()) > 0:
             for performance in self.perfs2del.values():
                 performance.delete()
-            print("> Performance(s) deleted")
+            print("  - Performance(s) deleted")
         # Samplesets to delete
         if len(self.pss2del.keys()) > 0:
             for sample_set in self.pss2del.values():
                 sample_set.delete()
-            print("> Sample Set(s) deleted")
+            print("  - Sample Set(s) deleted")
         # Scores to delete
         if len(self.scores2del.keys()) > 0:
             for score in self.scores2del.values():
                 score.delete()
-            print("> Score(s) deleted")
+            print("  - Score(s) deleted")
         # Publications to delete
         if len(self.publications) > 0:
             for publication in self.publications:
                 EvaluatedScore.objects.filter(publication=publication).delete()
                 publication.delete()
-            print("> Publication(s) deleted")
-
-        # Fetch EFOTrait not associated with a Score
-        self.get_efotraits_to_delete()
+            print("  - Publication(s) deleted")
         # Traits to delete
         if len(self.traits2del.keys()) > 0:
             for trait in self.traits2del.values():
                 trait.delete()
-            print("> Trait(s) deleted")
+            print("  - Trait(s) deleted")
+        print('\n >> Extra data deletion')
+        # Fetch EFOTrait not associated with a Score
+        self.get_efotraits_to_delete()
+        if len(self.non_asso_traits2del.keys()) > 0:
+            for trait in self.non_asso_traits2del.values():
+                trait.delete()
+            print("  - Non associated Trait(s) deleted")
+
 
 
     def get_performances_list_to_delete(self, publication):
         return Performance.objects.filter(date_released__isnull=True, publication=publication)
 
+
     def get_scores_list_to_delete(self, publication):
         return Score.objects.filter(date_released__isnull=True, publication=publication)
+
 
     def get_efotraits_to_delete(self):
         for efo_trait in EFOTrait.objects.all().prefetch_related('associated_scores'):
             if len(efo_trait.associated_scores.all()) == 0:
-                print(" - Non linked trait: "+efo_trait.id+" ("+efo_trait.label+")")
-                self.traits2del[efo_trait.id] = efo_trait
+                self.non_asso_traits2del[efo_trait.id] = efo_trait
+        print("  - Number of non-associated EFOTraits to remove: "+str(len(self.non_asso_traits2del.keys())))
+        if len(self.non_asso_traits2del.keys()) > 0:
+            for trait_id in sorted(self.non_asso_traits2del.keys()):
+                efo_trait = self.non_asso_traits2del[trait_id]
+                print("\t> "+efo_trait.id+" ("+efo_trait.label+")")
 
 
+    def remove_non_released_data(self):
 
-class RemoveHistory:
+        # Release
+        lastest_release = Release.objects.latest('date')
+        release_date = datetime.today().strftime('%Y-%m-%d')
+        print(" - Latest release: "+str(lastest_release.date))
+        print(" - New release: "+str(release_date))
 
-    def delete_history(self):
-        # Performance history to delete
-        Performance.history.all().delete()
-        # Publication history to delete
-        Publication.history.all().delete()
-        # Scores history to delete
-        Score.history.all().delete()()
+        # Update the list of embargoed scores and publications
+        self.update_embargoed_data()
 
+        # Entries to delete
+        self.list_entries_to_delete()
+
+        print(" - Number of non curated Publications: "+str(self.publications.count()))
+
+        print(" - Number of Scores to remove: "+str(len(self.scores2del.keys())))
+        if len(self.scores2del.keys()) > 0:
+            print('\t> '+'\n\t> '.join(sorted(self.scores2del.keys())))
+
+        print("\n - Number of EFOTraits to remove: "+str(len(self.traits2del.keys())))
+        if len(self.traits2del.keys()) > 0:
+            print('\t> '+'\n\t> '.join(sorted(self.traits2del.keys())))
+
+        print("\n - Number of Performances to remove : "+str(len(self.perfs2del.keys())))
+        if len(self.perfs2del.keys()) > 0:
+            print('\t> '+', '.join(sorted(self.perfs2del.keys())))
+
+        print("\n - Number of Sample Sets to remove: "+str(len(self.pss2del.keys())))
+        if len(self.pss2del.keys()) > 0:
+            print('\t> '+', '.join(sorted(self.pss2del.keys())))
+
+        # Delete selected entries
+        self.delete_entries()
+
+
+################################################################################
 
 def run():
-    # Release
-    lastest_release = Release.objects.latest('date')
-    release_date = datetime.today().strftime('%Y-%m-%d')
 
     # Create object to remove the non released data
     data2remove = NonReleasedDataToRemove()
-
-    # Update the list of embargoed scores and publications
-    data2remove.update_embargoed_data()
-
-    # Entries to delete
-    data2remove.list_entries_to_delete()
-
-    print("Latest release: "+str(lastest_release.date))
-    print("New release: "+str(release_date))
-    print("Number of non curated Publications: "+str(data2remove.publications.count()))
-
-    print("Number of Scores to remove: "+str(len(data2remove.scores2del.keys())))
-    if len(data2remove.scores2del.keys()) > 0:
-        print( ' - '+'\n - '.join(data2remove.scores2del.keys()))
-
-    print("Number of Performances to remove : "+str(len(data2remove.perfs2del.keys())))
-    if len(data2remove.perfs2del.keys()) > 0:
-        print( ' - '+'\n - '.join(data2remove.perfs2del.keys()))
-
-    print("Number of Sample Sets to remove: "+str(len(data2remove.pss2del.keys())))
-    if len(data2remove.pss2del.keys()) > 0:
-        print( ' - '+'\n - '.join(data2remove.pss2del.keys()))
-
-    print("Number of EFOTraits to remove: "+str(len(data2remove.traits2del.keys())))
-    if len(data2remove.traits2del.keys()) > 0:
-        print( ' - '+'\n - '.join(data2remove.traits2del.keys()))
-
-    # Delete selected entries
-    data2remove.delete_entries()
+    data2remove.remove_non_released_data()
