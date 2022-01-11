@@ -29,15 +29,15 @@ class EuropePMCLinkage:
         Retrieve the PPR of the preprint via Europe PMC REST API, using the DOI
         Return the PPR if found
         '''
+        ppr = None
         payload = {'format': 'json'}
         payload['query'] = 'doi:' + doi
         r = requests.get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', params=payload)
         r = r.json()
-        r = r['resultList']['result'][0]
-        if r['pubType'] == 'preprint':
-        	ppr = r['id']
-        else:
-        	ppr = None
+        if r['resultList']['result']:
+            r = r['resultList']['result'][0]
+            if r['pubType'] == 'preprint':
+                ppr = r['id']
         return ppr
 
 

@@ -1,32 +1,25 @@
 import sys, os.path, shutil, glob
 from datetime import date
-import tarfile
 from catalog.models import *
 from release.scripts.CreateRelease import CreateRelease
-from release.scripts.UpdateEFO import UpdateEFO
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
-from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
-from release.scripts.UpdateScoreEvaluated import UpdateScoreEvaluated
-from release.scripts.UpdateReleasedCohorts import UpdateReleasedCohorts
 
 
 error_prefix = '  /!\  Error:'
 output_prefix = '  > '
 
-def run(*args):
+
+def run():
     """
         Main method executed by the Django command:
         `python manage.py runscript run_release_script`
     """
 
-    today = date.today()
+    #-------------#
+    #  DB checks  #
+    #-------------#
 
-    previous_release_date = get_previous_release_date()
-
-    #--------------#
-    #  DB release  #
-    #--------------#
-    print("# Start the database release")
+    print("\n#### Prepare the database release ####")
 
     # Check that the publications are associated to at least one Score or one Performance Metric
     check_publications_associations()
@@ -40,17 +33,15 @@ def run(*args):
     # Check of there are duplicated cohort names in the database
     check_duplicated_cohorts()
 
-    # Update ancestry distribution
-    update_ancestry_distribution()
 
-    # Update list of evaluated scores
-    update_score_evaluated()
+    #--------------#
+    #  DB release  #
+    #--------------#
 
-    # Create release
+    print("\n\n#### Start the database release ####")
+
+    # # Create release
     call_create_release()
-
-    # Update the cohorts (update the Cohort "released" field)
-    update_released_cohorts()
 
     # Generate EuropePMC linkage XML file
     generate_europePMC_linkage_xml_file()
@@ -64,7 +55,7 @@ def run(*args):
 
 def check_publications_associations():
     """ Check the publications associations """
-    print("- Check the publications associations")
+    report_header("Check the publications associations")
 
     publications = Publication.objects.all().order_by('num')
     pub_list = []
@@ -87,7 +78,7 @@ def check_publications_associations():
 
 def check_efotrait_associations():
     """ Check the EFO Trait associations """
-    print("- Check the EFO Trait associations")
+    report_header("Check the EFO Trait associations")
 
     efo_traits = EFOTrait.objects.all().order_by('id')
     traits_list = []
@@ -110,7 +101,7 @@ def check_efotrait_associations():
 
 def check_performance_metric_associations():
     """ Check the Performance Metric associations """
-    print("- Check the Performance Metric associations")
+    report_header("Check the Performance Metric associations")
 
     performances = Performance.objects.all().order_by('id')
     perfs_list = []
@@ -128,7 +119,7 @@ def check_performance_metric_associations():
 
 def check_duplicated_cohorts():
     """ Check if there are duplicated cohorts """
-    print("- Check duplicated cohorts")
+    report_header("Check duplicated cohorts")
     cohorts_first_found = {}
     cohorts_found_lower = set()
     cohorts_duplicated = {}
@@ -153,23 +144,9 @@ def check_duplicated_cohorts():
         output_report("Cohort duplication - OK: No duplicated cohort found!")
 
 
-def update_ancestry_distribution():
-    """ Update the ancestry distribution in scores """
-    print("- Update ancestry distribution")
-    score_ancestry = UpdateScoreAncestry()
-    score_ancestry.update_ancestry()
-
-
-def update_score_evaluated():
-    """ Update list of evaluated scores """
-    print("- Update list of evaluated scores")
-    score_evaluated = UpdateScoreEvaluated()
-    score_evaluated.update_score_evaluated()
-
-
 def call_create_release():
     """ Create a new PGS Catalog release """
-    print("- Create a new PGS Catalog release")
+    report_header("Create a new PGS Catalog release")
 
     lastest_release = Release.objects.latest('date').date
 
@@ -189,16 +166,9 @@ def call_create_release():
         error_report("at least one of the main components (Score, Publication or Performance Metrics) hasn't a new entry this release")
 
 
-def update_released_cohorts():
-    """ Update the Cohort model entries, setting the flag 'released' """
-    print("- Update the Cohort model entries, setting the flag 'released'")
-    released_cohorts = UpdateReleasedCohorts()
-    released_cohorts.update_cohorts()
-
-
 def generate_europePMC_linkage_xml_file():
     """ Generate the XML linkage file for EuropePMC """
-    print("- Generate the XML linkage file for EuropePMC")
+    report_header("Generate the XML linkage file for EuropePMC")
     # EuropePMC linkage (XML file)
     xml_link = EuropePMCLinkage()
     # Fetch data and generate XML file
@@ -207,15 +177,12 @@ def generate_europePMC_linkage_xml_file():
     xml_link.print_xml_report()
 
 
-def get_previous_release_date():
-    """ Fetch the previous release date (i.e. the release date of the current live database) """
-    releases = Release.objects.all().order_by('-date')
-    return str(releases[1].date)
-
-
 def error_report(msg):
     print('  /!\  Error: '+msg)
     exit(1)
 
+def report_header(msg):
+    print('\n# '+msg)
+
 def output_report(msg):
-    print('  > '+msg)
+    print(output_prefix+msg)

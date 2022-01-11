@@ -30,9 +30,9 @@ class UpdateReleasedCohorts:
 
         db_count_released = Cohort.objects.filter(released=True).count()
         db_count_not_released = Cohort.objects.filter(released=False).count()
-        print(f'> Cohorts - all: {len(self.cohorts)}')
-        print(f'> Cohorts - released: {len(self.cohorts_released)} | DB: {db_count_released}')
-        print(f'> Cohorts - not released: {len(self.cohorts_not_released)} | DB: {db_count_not_released}')
+        print(f' > Cohorts - all: {len(self.cohorts)}')
+        print(f' > Cohorts - released: {len(self.cohorts_released)} | DB: {db_count_released}')
+        print(f' > Cohorts - not released: {len(self.cohorts_not_released)} | DB: {db_count_not_released}')
 
 
 def run():

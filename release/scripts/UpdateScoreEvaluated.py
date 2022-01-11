@@ -37,7 +37,7 @@ class UpdateScoreEvaluated:
             score_evaluated.scores_evaluated.set(scores)
             score_evaluated.save()
 
-            if score_ids.keys():
+            if score_ids.keys() and self.verbose:
                 print(f'> {publication.id}: {len(score_ids.keys())} scores evaluated | {len(external_score_ids)} external scores evaluated')
 
 ################################################################################
