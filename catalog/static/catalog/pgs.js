@@ -45,8 +45,6 @@ $(document).ready(function() {
 
     // Draw ancestry charts
     if ($('.anc_chart').length) {
-      var anc_width = 40;
-      var anc_height = 40;
 
       // Magic formula to convert RGB colours to HEX
       const rgb2hex = (rgb) => `#${rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/).slice(1).map(n => parseInt(n, 10).toString(16).padStart(2, '0')).join('')}`
@@ -84,7 +82,7 @@ $(document).ready(function() {
           $('#'+id).html(svg_code);
         }
         else {
-          var pgs_samples_chart = new PGSPieChartTiny(id,data_chart,anc_width,anc_height,0);
+          var pgs_samples_chart = new PGSPieChartTiny(id,data_chart,0);
           pgs_samples_chart.draw_piechart();
           pgs_samples_chart.add_text(type_letter);
           // Store the generated SVG HTML code
@@ -305,10 +303,6 @@ $(document).ready(function() {
 
       anc_filter_length = anc_filter.length;
 
-      // console.log("Filters: "+anc_filter);
-      // console.log("Filter length: "+anc_filter_length);
-      console.log("Selection: "+anc_filter);
-
 
       /** Filter the PGS Scores table **/
 
@@ -384,14 +378,12 @@ $(document).ready(function() {
 
           var perf_data = $(perf_table_id).bootstrapTable('getData');
           $.each(perf_data,function(i, row) {
-            //console.log(row);
             var pgs_td = row['score'];
             var pgs_id = $(pgs_td).html(); // Only take the <a> text
-            //console.log("PGS_ID: "+pgs_id);
+
             if ($.inArray(pgs_id, pgs_ids_list) != -1) {
               // PPM
               var ppm_id = row['id'];
-              //console.log("PGS_ID: "+pgs_id+"| PPM_ID: "+ppm_id+"|");
               ppm_ids_list.push(ppm_id);
               // PSS
               var pss_td = row['sampleset'];
@@ -523,16 +515,6 @@ function alter_external_links(prefix) {
 }
 
 
-// Tooltip | Popover
-function pgs_tooltip() {
-  $('.pgs_helptip').attr('data-toggle','tooltip').attr('data-placement','bottom').attr('data-delay','800');
-  $('.pgs_helpover').attr('data-toggle','popover').attr('data-placement','right');
-
-  $('[data-toggle="tooltip"]').tooltip();
-  $('[data-toggle="popover"]').popover();
-}
-
-
 // FTP Scoring File Link
 function scoring_file_link() {
   $(data_toggle_table).on("click", '.file_link', function(){
@@ -540,6 +522,48 @@ function scoring_file_link() {
     ftp_url = ftp_url.substring(0, ftp_url.lastIndexOf('/'))+'/';
     window.open(ftp_url,'_blank');
   });
+}
+
+
+// Add HTML code to the ancestries tooltip text
+function ancestries_tooltip_content() {
+  $('.anc_chart').mouseover(function(){
+    var title = $(this).attr('data-original-title');
+    if (title) {
+      var type = $(this).attr('data-type');
+      var ac_class = 'anc_box_'+type;
+      // Add extra tags and classes
+      if (title.indexOf(ac_class) == -1) {
+        title = title.replaceAll("class='","class='anc_bd_");
+        $(this).attr('data-original-title', '<div class="'+ac_class+'"><div></div>'+title+'</div>');
+      }
+    }
+  });
+}
+
+
+// Add tooltip title for the Scoring files link
+function scoring_file_link_tooltip_content() {
+  $('.file_link').mouseover(function(){
+    if (!$(this).attr('data-original-title')) {
+      $(this).attr('data-original-title', 'Download PGS Scoring File (variants, weights)');
+    }
+  });
+}
+
+
+// Tooltip | Popover
+function pgs_tooltip() {
+  // Ancestry tooltips
+  ancestries_tooltip_content();
+  // Scoring file tooltips
+  scoring_file_link_tooltip_content();
+
+  $('.pgs_helptip').attr('data-toggle','tooltip').attr('data-placement','bottom').attr('data-delay','800');
+  $('.pgs_helpover').attr('data-toggle','popover').attr('data-placement','right');
+
+  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="popover"]').popover();
 }
 
 
@@ -551,8 +575,8 @@ function format_table_content(timeout) {
   setTimeout(function(){
     alter_external_links(data_toggle_table+' tbody');
     shorten_displayed_content();
-    pgs_tooltip();
     scoring_file_link();
+    pgs_tooltip();
   }, timeout);
 }
 
@@ -711,7 +735,7 @@ function display_category_list(data_json) {
     se_left.className = class_name;
     se_left.style.color = t_colour;
     se_left.innerHTML = category_arrow;
-    var subcat_div_height_left = cat_index * item_height - 4;
+    var subcat_div_height_left = cat_index * item_height - 2;
     se_left.style.marginTop = subcat_div_height_left+"px";
     se.appendChild(se_left);
 
@@ -789,12 +813,14 @@ function display_category_list(data_json) {
 // Build and draw the Trait category piechart
 class PGSPieChart {
 
-  constructor(svg_id,data,width,height,margin) {
+  constructor(svg_id,data,margin) {
     this.svg_id = '#'+svg_id;
+    this.svg = d3.select(this.svg_id)
+
     this.data = data;
 
-    this.width = width;
-    this.height = height;
+    this.width = parseInt(this.svg.style("width").replace('px',''));
+    this.height = parseInt(this.svg.style("height").replace('px',''));
     this.margin = margin;
 
     this.set_radius();
@@ -833,12 +859,6 @@ class PGSPieChart {
       .range(this.data.map(d => d.colour));
   }
 
-  set_svg() {
-    this.svg = d3.select(this.svg_id)
-      .attr("width", this.width)
-      .attr("height", this.height);
-  }
-
   set_g() {
     this.g = this.svg.append("g")
       .attr("transform", "translate(" + this.width / 2 + "," + this.height / 2 + ")");
@@ -869,7 +889,6 @@ class PGSPieChart {
   draw_piechart() {
     var obj = this;
 
-    obj.set_svg();
     obj.set_g();
 
     obj.set_piechart();
@@ -963,8 +982,8 @@ class PGSPieChart {
 // Build and draw sample distribution piecharts
 class PGSPieChartSmall extends PGSPieChart {
 
-  constructor(svg_id,data,width,height,margin,type) {
-    super(svg_id,data,width,height,margin);
+  constructor(svg_id,data,margin,type) {
+    super(svg_id,data,margin);
     this.type = type;
 
     this.set_radius();
@@ -1072,15 +1091,12 @@ class PGSPieChartSmall extends PGSPieChart {
 
 class PGSPieChartTiny extends PGSPieChart {
 
-  constructor(svg_id,data,width,height,margin) {
-    super(svg_id,data,width,height,margin);
+  constructor(svg_id,data,margin) {
+    super(svg_id,data,margin);
 
     this.set_radius();
     this.arc_val = 0.55;
-    // this.arcOver_min_val = 0.52;
-    // this.arcOver_max_val = 1.02;
     this.arc = this.get_d3_arc(this.arc_val);
-    // this.arcOver = this.get_d3_arc(this.arcOver_min_val, this.arcOver_max_val);
     this.arcOver = undefined;
 
     this.use_external_interaction = 0;
@@ -1107,10 +1123,6 @@ class PGSPieChartTiny extends PGSPieChart {
       .join("path")
         .attr("fill", d => obj.colours(d.data[0]))
         .attr("d", obj.arc);
-        // .each(function(d,i){
-        //   var title = '<b>'+d.data[0] +"</b>: "+d.data[1];
-        //   obj.add_tooltip($(this), title);
-        // });
   }
 
   add_text(label) {

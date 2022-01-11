@@ -126,16 +126,14 @@
           <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function(event) {
               var data_chart = {{ sample.display_sample_category_number|safe }};
-              var pgs_samples_piechart = new PGSPieChartSmall('sample_piechart_{{ forloop.counter }}',data_chart,200,140,65,'sample');
+              var pgs_samples_piechart = new PGSPieChartSmall('sample_piechart_{{ forloop.counter }}',data_chart,65,'sample');
               pgs_samples_piechart.draw_piechart();
               pgs_samples_piechart.draw_legend();
             });
           </script>
           <div class="sample_piechart_container mr-5">
             <div>Sample distribution</div>
-            <div>
-              <svg id="sample_piechart_{{ forloop.counter }}"></svg>
-            </div>
+            <svg id="sample_piechart_{{ forloop.counter }}"></svg>
           </div>
         {% endif %}
         {% if sample.display_sample_gender_percentage.0|length > 0 %}
@@ -143,16 +141,14 @@
           <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function(event) {
               var data_chart = {{ sample.display_sample_gender_percentage|safe }};
-              var pgs_samples_piechart = new PGSPieChartSmall('sample_piechart_gender_{{ forloop.counter }}',data_chart,200,140,65,'gender');
+              var pgs_samples_piechart = new PGSPieChartSmall('sample_piechart_gender_{{ forloop.counter }}',data_chart,65,'gender');
               pgs_samples_piechart.draw_piechart();
               pgs_samples_piechart.draw_legend();
             });
           </script>
           <div class="sample_piechart_container">
             <div>Sample gender distribution</div>
-            <div>
-              <svg id="sample_piechart_gender_{{ forloop.counter }}" width="200" height="150"></svg>
-            </div>
+            <svg id="sample_piechart_gender_{{ forloop.counter }}" width="200" height="150"></svg>
           </div>
         {% endif %}
         </div>

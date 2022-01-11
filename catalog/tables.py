@@ -294,7 +294,7 @@ class Browse_ScoreTable(tables.Table):
         if record.has_default_license == False:
             margin_right = ' mr2'
             license_icon = f'<span class="pgs-info-icon pgs_helpover" title="Terms and Licenses" data-content="{record.license}" data-placement="left"> <span class="only_export"> - Check </span>Terms/Licenses</span>'
-        return format_html(f'<span class="file_link{margin_right}" data-toggle="tooltip" data-placement="left" title="Download PGS Scoring File (variants, weights)"></span> <span class="only_export">{ftp_file_link}</span>{license_icon}')
+        return format_html(f'<span class="file_link{margin_right}" data-toggle="tooltip" data-placement="left"></span> <span class="only_export">{ftp_file_link}</span>{license_icon}')
 
 
     def render_variants_number(self, value):
@@ -354,7 +354,7 @@ class Browse_ScoreTable(tables.Table):
                     extra_title = ''
                     if key in multi_title:
                         extra_title += '<ul>'+''.join(multi_title[key])+'</ul>'
-                    data_title[stage].append(f'<div class=\'anc_bd_{key}\'>{val}%{extra_title}</div>')
+                    data_title[stage].append(f'<div class=\'{key}\'>{val}%{extra_title}</div>')
 
                     if key == 'MAE':
                         continue
@@ -392,7 +392,7 @@ class Browse_ScoreTable(tables.Table):
                 count = ancestries_data[stage]['count']
                 if count != 0:
                     title_count = '<span>{:,}</span>'.format(count)
-                title = '<div class=\'anc_box_'+stage+'\'><div></div>'+''.join(data_title[stage])+title_count+'</div>'
+                title = ''.join(data_title[stage])+title_count
                 html_chart = f'<div class="anc_chart" data-toggle="tooltip" title="'+title+'" data-id="'+id+'" data-type="'+stage+'" data-chart=\'[['+'],['.join(data_stage[stage])+']]\'><svg id="'+id+'"></svg></div>'
                 html_list.append(html_chart)
             else:
