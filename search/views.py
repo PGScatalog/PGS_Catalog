@@ -83,12 +83,12 @@ def format_efo_traits_results(request, data):
         hmtl_results += '    '+icon+'{}'.format(get_efo_trait_url(d.id, d.label))
         hmtl_results += '  </h4>'
         hmtl_results += '  <div class="pgs_result_subtitles">'
-        hmtl_results += '    <div>{}</div>'.format(categories)
-        hmtl_results += '    <div>{}</div>'.format(d.id)
+        hmtl_results += '    <div title="Trait ID">{}</div>'.format(d.id)
+        hmtl_results += '    <div title="Trait Category">{}</div>'.format(categories)
         hmtl_results += '  </div>'
         hmtl_results += '</div>'
         hmtl_results += '<div class="more">{}</div>'.format(desc)
-        hmtl_results += '<div class="pgs_result_coun mt-1"><span class="pgs_result_count">Associated PGS <span class="badge badge-pill badge-pgs">{}</span></span> {}</div>'.format(len(scores), score_html)
+        hmtl_results += '<div class="mt-1"><span class="pgs_result_count">Associated PGS <span class="badge badge-pill badge-pgs">{}</span></span> {}</div>'.format(len(scores), score_html)
         hmtl_results += '</div>'
 
         result_score = d.meta.score
@@ -141,14 +141,11 @@ def format_score_results(request, data):
         hmtl_results =  '<div class="pgs_result scores_entry mb-4">'
         hmtl_results += '<div class="pgs_result_title"><h4 class="mt-0 mb-2">'+icon+'<a href="/score/{}">{}</a></h4></div>'.format(d.id, d.id)
         hmtl_results += '<div class="pgs_result_content"><b>Name</b>: {}'.format(d.name)
-        hmtl_results += '<span><b>Number of Variants</b>: {:,}</span>'.format(d.variants_number)
+        hmtl_results += '<span><b>Number of Variants</b>: <span class="badge badge-pill badge-pgs">{:,}</span></span>'.format(d.variants_number)
         hmtl_results += '<span><b>Publication ID</b>: {}</span></div>'.format(get_publication_url(d.publication.id, d.publication.id))
         hmtl_results += '<div class="pgs_result_content mt-1"><b>Reported trait</b>: {}'.format( d.trait_reported)
         hmtl_results += '<span><b>Mapped trait(s)</b>: {}</span>'.format(', '.join(mapped_traits))
-        #hmtl_results += '<span><b>doi</b>:{}</span></div>'.format(d.doi)
         hmtl_results += '</div>'
-        # hmtl_results += '<div class="mt-1"><span class="pgs_result_count">PGS developed <span class="badge badge-pill badge-pgs">{}</span></span> - '.format(d.scores_count);
-        # hmtl_results += '<span class="pgs_result_count">PGS evaluated <span class="badge badge-pill badge-pgs-2">{}</span></span> {}</div>'.format(d.scores_evaluated_count, score_html)
         hmtl_results += '</div>'
 
         result_score = d.meta.score
@@ -176,7 +173,7 @@ def score_mini_table(id, scores_developed, scores_evaluated=None):
     extra_columns = ''
     if scores_evaluated:
         extra_columns = '<th>Developed</th><th>Evaluated</th>'
-    score_html =  '<span class="pgs_result_list ml-1 pl-2 pr-1"><a class="toggle_btn" id="{}_scores">Show PGS <i class="fa fa-plus-circle"></i></a></span>'.format(id)
+    score_html =  '<span class="pgs_result_button"> <a class="toggle_btn" id="{}_scores">Show PGS <i class="fa fa-plus-circle"></i></a></span>'.format(id)
     score_html += '<div class="toggle_content" id="list_{}_scores" style="display:none">'.format(id)
     score_html += """<table class="table table-striped table_pgs_score_results mt-2">
         <thead class="thead-light">
@@ -198,8 +195,9 @@ def score_mini_table(id, scores_developed, scores_evaluated=None):
                 scores[score_id] = { 'score': se, 'developed': 0, 'evaluated': 1 }
 
     for score in sorted(scores, key=lambda x: scores[x]['score'].trait_reported, reverse=False):
-        score_name = scores[score]['score'].name
-        trait_reported = scores[score]['score'].trait_reported
+        score_entry = scores[score]['score']
+        score_name = score_entry.name
+        trait_reported = score_entry.trait_reported
 
         if scores_evaluated:
             score_dev = '-'
@@ -208,7 +206,7 @@ def score_mini_table(id, scores_developed, scores_evaluated=None):
             score_eval = '-'
             if scores[score]['evaluated']:
                 score_eval = '<i class="fa fa-check-circle pgs_color_2"></i>'
-            score_html += '<tr><td>{}</td><td>{}</td><td>{}</td><td style="text-align:center">{}</td><td style="text-align:center">{}</td></tr>'.format(get_score_url(score), score_name, trait_reported, score_dev, score_eval)
+            score_html += '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(get_score_url(score), score_name, trait_reported, score_dev, score_eval)
         else:
             score_html += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(get_score_url(score), score_name, trait_reported)
     score_html += '</tbody></table></div>'

@@ -18,7 +18,6 @@ class PublicationData(GenericData):
         Retrieve the main publication information from EuropePMC (via their REST API),
         using the DOI or the PubMed ID.
         '''
-        payload = {'format' : 'json'}
         try:
             result = self.rest_api_call_to_epmc(f'doi:{self.doi}')
         except:
