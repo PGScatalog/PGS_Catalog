@@ -33,6 +33,9 @@ urlpatterns = [
     # e.g.: /latest_release/
     path('latest_release/', cache_page(cache_time)(views.latest_release), name='Latest Release'),
 
+    # e.g.: /news/
+    # path('news/', views.NewsView.as_view(), name='News'),
+
     # e.g.: /about/
     path('about/', views.AboutView.as_view(), name='About'),
 
@@ -41,6 +44,9 @@ urlpatterns = [
 
     # e.g.: /docs/
     path('docs/', views.DocsView.as_view(), name='Documentation'),
+
+    # e.g.: /docs/faq/
+    path('docs/faq/', views.FaqDocsView.as_view(), name='Frequently Asked Questions'),
 
     # e.g.: /downloads/
     path('downloads/', views.DownloadView.as_view(), name='Downloads'),

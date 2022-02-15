@@ -26,50 +26,49 @@ class PublicationDocument(Document):
     id = fields.TextField(
         analyzer=id_analyzer,
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
-            'suggest': fields.CompletionField()
+            'raw': fields.TextField()
         }
     )
     title = fields.TextField(
-        analyzer=html_strip,
+        analyzer=name_delimiter,
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
+            'raw': fields.TextField()
         }
     )
     journal = fields.TextField(
         analyzer=html_strip,
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
+            'raw': fields.TextField()
         }
     )
     pub_year = fields.TextField(
         analyzer=html_strip,
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
+            'raw': fields.TextField()
         }
     )
     PMID = fields.TextField(
         analyzer=html_strip,
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
+            'raw': fields.TextField()
         }
     )
     firstauthor = fields.TextField(
         analyzer=html_strip,
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
+            'raw': fields.TextField()
         }
     )
     authors = fields.TextField(
         analyzer=html_strip,
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
+            'raw': fields.TextField()
         }
     )
     doi = fields.TextField(
         analyzer=html_strip,
         fields={
-            'raw': fields.TextField(analyzer='keyword'),
+            'raw': fields.TextField()
         }
     )
     scores_count = fields.IntegerField()
@@ -78,15 +77,15 @@ class PublicationDocument(Document):
         properties={
             'id': fields.TextField(analyzer=id_analyzer),
             'name': fields.TextField(
-                analyzer=name_delimiter,#html_strip,
+                analyzer=html_strip,
                 fields={
-                    'raw': fields.TextField(analyzer='keyword'),
+                    'raw': fields.KeywordField()
                 }
             ),
             'trait_reported': fields.TextField(
                 analyzer=html_strip,
                 fields={
-                    'raw': fields.TextField(analyzer='keyword'),
+                    'raw': fields.TextField()
                 }
             ),
             'trait_efo': fields.ObjectField(
@@ -96,8 +95,7 @@ class PublicationDocument(Document):
                     'label': fields.TextField(
                         analyzer=html_strip,
                         fields={
-                            'raw': fields.TextField(analyzer='keyword'),
-                            'suggest': fields.CompletionField()
+                            'raw': fields.TextField()
                         }
                     )
                 }
@@ -110,15 +108,15 @@ class PublicationDocument(Document):
                 properties={
                     'id': fields.TextField(analyzer=id_analyzer),
                     'name': fields.TextField(
-                        analyzer=html_strip,
+                        analyzer=name_delimiter,
                         fields={
-                            'raw': fields.TextField(analyzer='keyword'),
+                            'raw': fields.TextField()
                         }
                     ),
                     'trait_reported': fields.TextField(
                         analyzer=html_strip,
                         fields={
-                            'raw': fields.TextField(analyzer='keyword'),
+                            'raw': fields.TextField()
                         }
                     ),
                     'trait_efo': fields.ObjectField(
@@ -128,8 +126,7 @@ class PublicationDocument(Document):
                             'label': fields.TextField(
                                 analyzer=html_strip,
                                 fields={
-                                    'raw': fields.TextField(analyzer='keyword'),
-                                    'suggest': fields.CompletionField()
+                                    'raw': fields.TextField()
                                 }
                             )
                         }
@@ -144,10 +141,3 @@ class PublicationDocument(Document):
         """Inner nested class Django."""
 
         model = Publication  # The model associated with this Document
-    #    # Optional - Only used to update data and indexes
-    #    related_models = [Score]
-    #
-    # def get_instances_from_related(self, related_instance):
-    #     """If related_models is set, define how to retrieve the Publication instance from the related model."""
-    #     if isinstance(related_instance, Score):
-    #         return related_instance.publication

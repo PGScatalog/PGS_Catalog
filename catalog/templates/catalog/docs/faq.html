@@ -1,0 +1,318 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}PGS Catalog - FAQ{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Documentation</li>
+        <li class="breadcrumb-item">FAQ</li>
+      </ol>
+    </nav>
+
+    <h2>Frequently Asked Questions</h2>
+    <div class="content_container">
+      <div class="table-of-contents">
+        <nav role="navigation">
+          <h5>Table of Contents</h5>
+          <ul>
+            <li class="content_group">
+              <a href="#general_pgs"><b>General</b></a>
+              <ul>
+                <li><a href="#access_how">How to access PGS Catalog data?</a></li>
+                <li><a href="#cite_how">How to cite the PGS Catalog?</a></li>
+                <li><a href="#submit_how">How to submit data to the PGS Catalog?</a></li>
+              </ul>
+            </li>
+            <li class="content_group">
+              <a href="#search_pgs"><b>Searching the PGS Catalog</b></a>
+              <ul>
+                <li><a href="#search_how">How to search the PGS Catalog?</a></li>
+                <li><a href="#search_res">How to look at the search results?</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <!-- General -->
+    <section>
+      <h2 class="mt-5 mb-0 pt-4"  style="border-top: 1px solid #DDD" id="general_pgs">General</h2>
+
+      <h3 class="mt-5" id="access_how">How to access PGS Catalog data?</h3>
+      <p>
+        <i class="fas fa-angle-right pgs_color_1 mr-2"></i>PGS Catalog <b>metadata</b> (i.e. traits, authors, methods, performance metrics, cohort, etc...) is available through:
+        <ul>
+          <li><span class="badge badge-pgs mr-2 mb-1"><i class="far fa-window-maximize"></i></span>The PGS Catalog web interface: via the "Search bar" and the 3 different "Browse" pages (Scores, Traits and Publications).</li>
+          <li><span class="badge badge-pgs mr-2 mb-1"><i class="fas fa-folder"></i></span>The <a href="{{ pgs_ftp_http_meta }}">PGS Catalog FTP</a>: in bulk download (whole Catalog), by individual score or by study (for the large ones only). For more information, please see the <a href="/downloads">Download</a> page.</li>
+          <li><span class="badge badge-pgs mr-1"><i class="fas fa-code"></i></span>The <a href="/rest">PGS Catalog REST API</a>:  Programmatic access to the PGS Catalog metadata.</li>
+        </ul>
+        On the web interface, separate pages are available for each Score, Trait and Publication so that each of these can be explored individually.
+        It works the same way in the REST API with separated endpoints for score, trait and publication.
+      </p>
+      <p>
+        <i class="fas fa-angle-right pgs_color_1 mr-2"></i>PGS Catalog <b>scoring files</b> (i.e. variants, weights, etc...) are available in the <a href="{{ pgs_ftp_root }}/scores/">PGS Catalog FTP</a>, however links to these files are available in the web interface and REST API.
+      </p>
+
+
+      <h3 class="mt-5" id="cite_how">How to cite the PGS Catalog?</h3>
+      <p>The PGS Catalog development is led by <a href="{{ ebi_url }}/about/people/samuel-lambert">Samuel Lambert</a>
+          under the supervision of <a href="https://www.inouyelab.org/home/people">Michael Inouye</a> (<a href="https://sysgenresearch.org/">University of Cambridge & Baker Institute</a>)
+          in collaboration with <a href="{{ hdr_uk_cam_url }}">Health Data Research - UK</a> (Laurent Gil)
+          and the <a href="{{ ebi_url }}/gwas/">NHGRI-EBI GWAS Catalog</a> (Aoife McMahon & Laura Harris).</p>
+      <p>The Catalog is under active development, and we continue to add new features and curate new data. If you use the Catalog in your research we ask that you cite our recent paper:
+      <div class="clearfix mb-3">
+        <div class="highlight_content">
+          <p>{{ pgs_citation.authors }}</p>
+          <p><u>{{ pgs_citation.title }}</u></p>
+          <p><span class="with_sep_right"><i>{{ pgs_citation.journal }}</i></span>doi: <a href="https://doi.org/{{ pgs_citation.doi }}">{{ pgs_citation.doi }}</a> ({{ pgs_citation.year }}).</p>
+        </div>
+      </div>
+      <p>Individual PGS obtained from the database should also be cited appropriately, and used in accordance with any licensing restrictions set by the authors (see our <a href="{{ terms_of_use }}">Terms of Use</a> for more information).</p>
+
+
+      <h3 class="mt-5" id="submit_how">How to submit data to the PGS Catalog?</h3>
+      <p>
+        Published or preprinted polygenic score data meeting our <a href="/about/#eligibility">inclusion criteria</a> can be indexed in the Catalog. Please see the <a href="/about/#submission">About</a> page for a guide for authors looking to submit their data to the Catalog.<br />Pre-publication data can also be submitted and embargoed until publication to meet journal requirements.
+      </p>
+    </section>
+
+
+    <!-- Searching the PGS Catalog -->
+    <section>
+      <h2 class="mt-5 mb-0 pt-4"  style="border-top: 1px solid #DDD" id="search_pgs">Searching the PGS Catalog</h2>
+
+      <h3 class="mt-5" id="search_how">How to search the PGS Catalog?</h3>
+      <p>
+        Type your query, e.g. “<b><span class="search_link">breast carcinoma</span></b>”, into the search box and hit return or click the search icon <span class="badge badge-pgs"><i class="fas fa-search "></i></span>.
+        You can type any text you wish into the search bar.
+      </p>
+
+      <div class="d-flex mt-4">
+        <div class="mb-2 pgs_note pgs_note_1">
+          <div>
+            <span>Note 1: </span>The search is <i>case insensitive</i>, e.g. typing <b><span class="search_link">breast cancer</span></b> or <b><span class="search_link">Breast Cancer</span></b> will return the same results.
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex mt-2">
+        <div class="mb-2 pgs_note pgs_note_1">
+          <div>
+            <span>Note 2: </span>Autocomplete is available for the trait <i>terms</i> and trait <i>synonyms</i>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Trait -->
+      <div class="mb-5">
+        <h4 id="search_trait"><i class="fas fa-angle-right pgs_color_1"></i> Searching by trait</h4>
+        Here are the trait information that are searchable:
+        <div class="table-responsive mt-2">
+          <table class="table table-striped table_pgs_auto">
+            <thead class="thead-light">
+              <tr><th>Data type</th><th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Ontology identifier</td><td><span class="search_link">EFO_0001645</span>, <span class="search_link">EFO:0001645</span></td></tr>
+              <tr><td>Ontology term</td><td><span class="search_link">coronary artery disease</span></td></tr>
+              <tr><td>Ontology synomym</td><td><span class="search_link">CAD</span></td></tr>
+              <tr><td>Ontology mapped terms</td><td><span class="search_link">ICD10:I25</span>, <span class="search_link">OMIM:608901</span></td></tr>
+              <tr><td>Trait category</td><td><span class="search_link">Cardiovascular disease</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>More information about the Trait data in the PGS Catalog can be found <a href="/docs/#desc_trait">here</a>.</p>
+      </div>
+
+      <!-- Publication -->
+      <div class="mb-5">
+        <h4 id="search_pub"><i class="fas fa-angle-right pgs_color_1"></i> Searching by publication</h4>
+        Here are the publication information that are searchable:
+        <div class="table-responsive mt-2">
+          <table class="table table-striped table_pgs_auto">
+            <thead class="thead-light">
+              <tr><th>Data type</th><th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>PGS Catalog Publication identifier (PGP ID)</td><td><span class="search_link">PGP000007</span></td></tr>
+              <tr><td>Publication title</td><td><span class="search_link">Genomic Risk Prediction of Coronary Artery Disease in 480,000 Adults: Implications for Primary Prevention.</span></td></tr>
+              <tr><td>Publication authors</td><td><span class="search_link">Inouye</span></td></tr>
+              <tr><td>PubMed identifier</td><td><span class="search_link">30309464</span></td></tr>
+              <tr><td>DOI</td><td><span class="search_link">10.1016/j.jacc.2018.07.079</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>More information about the Publication data in the PGS Catalog can be found <a href="/docs/#desc_pub">here</a>.</p>
+      </div>
+
+      <!-- Score -->
+      <div class="mb-5">
+        <h4 id="search_pub"><i class="fas fa-angle-right pgs_color_1"></i> Searching by score</h4>
+        Here are the score information that are searchable:
+        <div class="table-responsive mt-2">
+          <table class="table table-striped table_pgs_auto">
+            <thead class="thead-light">
+              <tr><th>Data type</th><th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>PGS Catalog Score identifier (PGP ID)</td><td><span class="search_link">PGS001530</span></td></tr>
+              <tr><td>Score name</td><td><span class="search_link">GBE_INI4103</span></td></tr>
+              <tr><td>Score reported trait</td><td><span class="search_link">Speed of sound through heel (L)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>More information about the Score data in the PGS Catalog can be found <a href="/docs/#desc_score">here</a>.</p>
+      </div>
+
+
+      <!-- Results -->
+      <div class="mb-5">
+        <h3 id="search_res">How to look at the search results?</h3>
+        <p>
+          The search then returns any <b>Traits</b> (marked with the letter <span class="search_facet_type search_facet_type_1"></span>), <b>Publications</b> (<span class="search_facet_type search_facet_type_2"></span>) or <b>Scores</b> (<span class="search_facet_type search_facet_type_3"></span>) in the Catalog that contain a string match within a number of data fields.
+        </p>
+        <p>
+          By default all the results are showed. However you can use the buttons at the top of the page results to show only Traits, Publications or Scores, e.g.:
+        </p>
+        <div class="pgs_result d-inline-flex">
+          <div class="search_facet_container mt-2">
+
+            <div class="search_facet selected" id="all_facet">
+              <i class="fas fa-check-circle"></i>
+              <div>All results</div>
+              <span class="badge badge-pill badge-pgs">37</span>
+            </div>
+
+            <div class="search_facet" id="efo_traits_facet">
+              <i class="far fa-circle"></i>
+              <span class="search_facet_type search_facet_type_1"></span>
+              <div>Traits</div>
+              <span class="badge badge-pill badge-pgs">11</span>
+            </div>
+
+            <div class="search_facet" id="publications_facet">
+              <i class="far fa-circle"></i>
+              <span class="search_facet_type search_facet_type_2"></span>
+              <div>Publications</div>
+              <span class="badge badge-pill badge-pgs">11</span>
+            </div>
+
+            <div class="search_facet" id="scores_facet">
+              <i class="far fa-circle"></i>
+              <span class="search_facet_type search_facet_type_3"></span>
+              <div>Scores</div>
+              <span class="badge badge-pill badge-pgs">15</span>
+            </div>
+
+          </div>
+        </div>
+
+        <p class="mt-5">
+          Each result is displayed as a card, with different information whether it is a Trait, a Publication or a Score, e.g.:
+        </p>
+        <div>
+          <!-- Trait result -->
+          <div class="pgs_result efo_traits_entry mb-4">
+            <div class="pgs_result_title">
+              <h4 class="mt-0 mb-2 mr-4">
+                <span class="result_facet_type result_facet_type_1" title="Trait"></span><a href="/trait/EFO_0004340">body mass index</a>
+              </h4>
+              <div class="pgs_result_subtitles">
+                <div title="Trait ID">EFO_0004340</div><div title="Trait Category">Body measurement</div>
+              </div>
+            </div>
+            <div class="more">An indicator of body density as determined by the relationship of BODY WEIGHT&nbsp;to&nbsp;BODY HEIG<span class="moreellipses">...&nbsp;</span><span class="morecontent">HT. BMI=weight (kg)/height squared (m2). BMI correlates with body fat (ADIPOSE TISSUE). Their relationship varies with age and gender. For adults, BMI falls into these categories: below 18.5 (underweight); 18.5-24.9 (normal); 25.0-29.9 (overweight); 30.0 and above (obese). (National Center for Health Statistics, Centers for Disease Control and Prevention)</span><span class="morelink link_more">Show more</span></div>
+            <div class="mt-1"><span class="pgs_result_count">Associated PGS <span class="badge badge-pill badge-pgs">17</span></span> <span class="pgs_result_button"> <a class="toggle_btn" id="EFO_0004340_scores">Show PGS <i class="fa fa-plus-circle"></i></a></span>
+              <div class="toggle_content" id="list_EFO_0004340_scores" style="display:none">
+                <table class="table table-striped table_pgs_score_results mt-2">
+                  <thead class="thead-light">
+                    <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><a href="/score/PGS000034">PGS000034</a></td><td>GRS_BMI</td><td>Adult Body Mass Index</td></tr>
+                    <tr><td><a href="/score/PGS000717">PGS000717</a></td><td>PGS557_albs</td><td>Adult life body size</td></tr>
+                    <tr><td><a href="/score/PGS000027">PGS000027</a></td><td>GPS_BMI</td><td>Body Mass Index</td></tr>
+                    <tr><td colspan="2">...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Publication result -->
+          <div class="pgs_result publications_entry mb-4" style="">
+            <div class="pgs_result_title">
+              <h4 class="mt-0 mb-2">
+                <span class="result_facet_type result_facet_type_2" title="Publication"></span><a href="/publication/PGP000021">Longitudinal Analysis of Genetic Susceptibility and BMI Throughout Adult Life.</a>
+              </h4>
+            </div>
+            <div class="pgs_result_content">Song M et al. (2017) - Diabetes<span><b>PMID</b>:29212779</span><span><b>doi</b>:10.2337/db17-1156</span><span><b>PGP</b>000021</span></div>
+            <div class="mt-1"><span class="pgs_result_count">PGS developed <span class="badge badge-pill badge-pgs">1</span></span> - <span class="pgs_result_count">PGS evaluated <span class="badge badge-pill badge-pgs-2">1</span></span> <span class="pgs_result_button"> <a class="toggle_btn" id="pub_0_scores">Show PGS <i class="fa fa-plus-circle"></i></a></span>
+              <div class="toggle_content" id="list_pub_0_scores" style="display:none">
+                <table class="table table-striped table_pgs_score_results mt-2">
+                  <thead class="thead-light">
+                    <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th><th>Developed</th><th>Evaluated</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><a href="/score/PGS000034">PGS000034</a></td><td>GRS_BMI</td><td>Adult Body Mass Index</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Score result -->
+          <div class="pgs_result scores_entry mb-4">
+            <div class="pgs_result_title">
+              <h4 class="mt-0 mb-2">
+                <span class="result_facet_type result_facet_type_3" title="Score"></span><a href="/score/PGS000841">PGS000841</a>
+              </h4>
+            </div>
+            <div class="pgs_result_content"><b>Name</b>: BMI<span><b>Number of Variants</b>: <span class="badge badge-pill badge-pgs">122</span></span><span><b>Publication ID</b>: <a href="/publication/PGP000211">PGP000211</a></span></div>
+            <div class="pgs_result_content mt-1"><b>Reported trait</b>: Body mass index<span><b>Mapped trait(s)</b>: <a href="/trait/EFO_0004340">body mass index <span class="pgs_bracket">EFO_0004340</span></a></span></div>
+          </div>
+        </div>
+
+        <p class="mt-5">
+          The buttons "<b>Show PGS</b>" display the list of Polygenic Score(s) associated with the Trait or the Publication.
+        </p>
+        <h6>Trait example:</h6>
+        <table class="table table-striped table_pgs_score_results mt-2 mb-4">
+          <thead class="thead-light">
+            <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
+          </thead>
+          <tbody><tr><td><a href="/score/PGS000002">PGS000002</a></td><td>PRS77_ERpos</td><td>ER-positive Breast Cancer</td></tr>
+            <tr><td><a href="/score/PGS000005">PGS000005</a></td><td>PRS313_ERpos</td><td>ER-positive Breast Cancer</td></tr>
+            <tr><td><a href="/score/PGS000008">PGS000008</a></td><td>PRS3820_ERpos</td><td>ER-positive Breast Cancer</td></tr>
+            <tr><td><a href="/score/PGS000046">PGS000046</a></td><td>BCPRS_ER+</td><td>Estrogen receptor [ER]-positive breast cancer</td></tr>
+            <tr><td><a href="/score/PGS000347">PGS000347</a></td><td>PRS287_ERpos</td><td>Estrogen receptor positive breast cancer</td></tr>
+            <tr><td><a href="/score/PGS000774">PGS000774</a></td><td>PRS179_ERpos</td><td>Estrogen receptor positive breast cancer</td></tr>
+          </tbody>
+        </table>
+
+        <h6>Publication example:</h6>
+        <table class="table table-striped table_pgs_score_results mt-2">
+          <thead class="thead-light">
+            <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th><th>Developed</th><th>Evaluated</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="/score/PGS000004">PGS000004</a></td><td>PRS313_BC</td><td>Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+            <tr><td><a href="/score/PGS000007">PGS000007</a></td><td>PRS3820_BC</td><td>Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+            <tr><td><a href="/score/PGS000001">PGS000001</a></td><td>PRS77_BC</td><td>Breast Cancer</td><td>-</td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+            <tr><td><a href="/score/PGS000006">PGS000006</a></td><td>PRS313_ERneg</td><td>ER-negative Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+            <tr><td><a href="/score/PGS000009">PGS000009</a></td><td>PRS3820_ERneg</td><td>ER-negative Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+            <tr><td><a href="/score/PGS000003">PGS000003</a></td><td>PRS77_ERneg</td><td>ER-negative Breast Cancer</td><td>-</td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+            <tr><td><a href="/score/PGS000005">PGS000005</a></td><td>PRS313_ERpos</td><td>ER-positive Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+            <tr><td><a href="/score/PGS000008">PGS000008</a></td><td>PRS3820_ERpos</td><td>ER-positive Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_2"></i></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+{% endblock %}

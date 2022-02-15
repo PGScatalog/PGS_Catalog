@@ -209,7 +209,8 @@ def index(request):
         'num_pgs' : f'{scores_count:,}',
         'num_traits' : f'{traits_count:,}',
         'num_pubs' : f'{pubs_count:,}',
-        'has_ebi_icons' : 1
+        'has_ebi_icons' : 1,
+        'is_homepage': 1
     }
 
     if hasattr(constants, 'ANNOUNCEMENT'):
@@ -326,7 +327,7 @@ def pgs(request, pgs_id):
     template_html_file = 'pgs.html'
 
     try:
-        score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training').get(id__exact=pgs_id)
+        score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training','samples_variants__cohorts','samples_training__cohorts').get(id__exact=pgs_id)
 
         pub = score.publication
         citation = format_html(' '.join([pub.firstauthor, '<i>et al. %s</i>'%pub.journal, '(%s)' % pub.date_publication.strftime('%Y')]))
@@ -665,11 +666,17 @@ def ancestry_doc(request):
     return render(request, 'catalog/docs/ancestry.html', context)
 
 
+class NewsView(TemplateView):
+    template_name = "catalog/news.html"
+
 class AboutView(TemplateView):
     template_name = "catalog/docs/about.html"
 
 class DocsView(TemplateView):
     template_name = "catalog/docs/docs.html"
+
+class FaqDocsView(TemplateView):
+    template_name = "catalog/docs/faq.html"
 
 class DownloadView(TemplateView):
     template_name = "catalog/download.html"

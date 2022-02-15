@@ -6,14 +6,41 @@
 {% block content %}
 <div class="columns">
   <section>
+
+    <!-- Release -->
     <div class="release_label">
-      <span data-toggle="tooltip" data-placement="bottom" data-html="true" title="New Polygenic Scores: <b>{{ release.score_count }}</b><br />New Publications: <b>{{ release.publication_count }}</b>">
-        <i class="fas fa-calendar-alt pgs_color_1"></i> <a href="/latest_release">Latest release: <b>{{ release.date }}</b></a>
-      </span>
+      <div>
+        <span data-toggle="tooltip" data-placement="bottom" data-html="true" title="New Polygenic Scores: <b>{{ release.score_count }}</b><br />New Publications: <b>{{ release.publication_count }}</b>">
+          <i class="fas fa-calendar-alt pgs_color_1"></i> <a href="/latest_release">Latest release: <b>{{ release.date }}</b></a>
+        </span>
+      {% if is_pgs_curation_site %}
+        <i class="fas fa-arrow-right" class="pl-3 pr-3"></i>
+        <a href="/releases"  data-toggle="tooltip" data-placement="bottom" title="Releases details"><i class="far fa-chart-bar pgs_color_1"></i></a>
+      {% endif %}
+      </div>
     </div>
-    <div class="pgs_centered mb-5">
+
+    <!-- Title -->
+    <div class="pgs_centered mb-4">
       <h2><b>The Polygenic Score (PGS) Catalog</b></h2>
       <h5 class="mt-0">An open database of polygenic scores and the relevant metadata required for accurate application and evaluation.</h5>
+    </div>
+
+    <!-- Large search bar -->
+    <div class="search_box_home_container mb-5">
+      <div class="search_box_home">
+        <form class="input-group search_form" id="search_form" action="/search" method="get">
+          <input class="form-control" id="q" name="q" type="text" placeholder="Search the PGS Catalog" spellcheck="false">
+          <div class="input-group-append">
+            <button type="button" class="btn btn-pgs pgs_no_icon_link" id="search_btn" value="Submit">
+              <span class="fas fa-search"></span>
+            </button>
+          </div>
+        </form>
+        <div class="search_examples mt-1">
+          <span class="pr-2">Examples:</span>{{ pgs_search_examples|safe }}
+        </div>
+      </div>
     </div>
 
     <!-- PGS announcement -->
@@ -23,9 +50,14 @@
       </div>
     {% endif %}
 
-    <div class="row no-gutters pgs_section">
+    <!-- PGS Browse -->
+    <div class="row no-gutters pgs_section mt-5 mb-2">
       <div class="col">
         <div class="pgs_section_title">Explore the Data</div>
+      </div>
+    </div>
+    <div class="row no-gutters pgs_centered">
+      <div class="col">
         <p class="mb-2">In the current PGS Catalog you can <b>browse</b> the scores and metadata through the following categories:</p>
       </div>
     </div>
@@ -33,9 +65,7 @@
       <div class="col-xs-6 col-md-4">
         <a class="pgs_no_icon_link clearfix" href="/browse/scores/">
           <div>Polygenic Scores</div>
-          <div class="pgs_browse_score clearfix">
-            <div class="icon icon-conceptual icon-dna"></div><div>{{ num_pgs }}{% if num_pgs_not_released %}*{% endif %}</div>
-          </div>
+          <div><i class="fas fa-dna pgs_color_white"></i> {{ num_pgs }}{% if num_pgs_not_released %}*{% endif %}</div>
           {% if num_pgs_not_released %}
             <div style="color:#FFF">
               <i class="fas fa-asterisk" style="color:#FFF"></i> <b>{{ num_pgs_not_released }}</b> not yet released
@@ -123,7 +153,7 @@
           To <b>submit a PGS to the catalog</b>, <b>provide feedback</b>, or <b>ask questions</b>: contact the PGS Catalog team at <a href="mailto:{{ pgs_contact }}">{{ pgs_contact }}</a>!
         </p>
         <p class="mb-0">
-          <b>Recommend missing PGS publications and scores</b> for inclusion in the Catalog using this <a href="/report_study"><b><i class="fas fa-clipboard-list"></i> form</b></a>.
+          <b>Recommend missing PGS publications and scores</b> for inclusion in the Catalog using this <a href="/report_study"><i class="fas fa-clipboard-list pgs_color_1"></i> <b>form</b></a>.
         </p>
       </div>
     </div>

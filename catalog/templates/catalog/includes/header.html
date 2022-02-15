@@ -1,53 +1,68 @@
 {% load static %}
   <div>
     <nav class="navbar fixed-top navbar-expand-lg">
-        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+      <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-        <a class="navbar-brand" href="/" data-original-title="" title="Polygenic Score Catalog">
-            <img src="{% static 'catalog/imgs/PGS_Logo.png' %}" style="height:60px"/> <span>PGS Catalog</span>
-        </a>
-
-        <!--/.navbar-collapse - begin -->
-
-        <!-- Horizontal menu -->
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <ul class="nav navbar-nav">
-            <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
-              <li class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Browse</a>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="/browse/scores/">Polygenic Scores</a>
-                  <a class="dropdown-item" href="/browse/traits/">Traits</a>
-                  <a class="dropdown-item" href="/browse/studies/">Publications</a>
-                  {% if is_pgs_curation_site %}
-                    <a class="dropdown-item" href="/browse/pending_studies/">Pending Publications</a>
-                  {% endif %}
-                </div>
-              </li>
-              <li class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Downloads</a>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item"  href="/downloads/">Data Downloads</a>
-                  <a class="dropdown-item"  href="/rest/">REST API</a>
-                </div>
-              </li>
-              <li class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation</a>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="/about/">About</a>
-                  <a class="dropdown-item" href="/docs/ancestry/">Ancestry Data</a>
-                  <a class="dropdown-item" href="/docs/">Data Description</a>
-                </div>
-              </li>
-            </ul>
+      {% if is_benchmark %}
+        <a class="navbar-brand clearfix" href="/" title="Polygenic Score Catalog">
+          <img src="{% static 'catalog/imgs/PGS_Logo.png' %}" style="float:left;height:60px"/>
+          <div style="padding-left:5px;float:left">
+            <div>PGS Catalog</div>
+            <div style="text-align:left;font-size:12px;font-weight:bold;margin-top:-2px;color:#FFF">
+              <span class="far fa-chart-bar pgs_color_1"></span> Benchmarking
+            </div>
           </div>
-        <!--/.navbar-collapse - end -->
+        </a>
+      {% else %}
+        <a class="navbar-brand" href="/" data-original-title="" title="Polygenic Score Catalog">
+          <img src="{% static 'catalog/imgs/PGS_Logo.png' %}" style="height:60px"/> <span>PGS Catalog</span>
+        </a>
+      {% endif %}
 
-        <div class="search_box">
+      <!--/.navbar-collapse - begin -->
+
+      <!-- Horizontal menu -->
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="nav navbar-nav">
+          <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Browse</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="/browse/scores/">Polygenic Scores</a>
+                <a class="dropdown-item" href="/browse/traits/">Traits</a>
+                <a class="dropdown-item" href="/browse/studies/">Publications</a>
+                {% if is_pgs_curation_site %}
+                  <a class="dropdown-item" href="/browse/pending_studies/">Pending Publications</a>
+                {% endif %}
+              </div>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Downloads</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item"  href="/downloads/">Data Downloads</a>
+                <a class="dropdown-item"  href="/rest/">REST API</a>
+              </div>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="/about/">About</a>
+                <a class="dropdown-item" href="/docs/ancestry/">Ancestry Data</a>
+                <a class="dropdown-item" href="/docs/">Data Description</a>
+                <a class="dropdown-item" href="/docs/faq">FAQ</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      <!--/.navbar-collapse - end -->
+
+      <!-- Search box -->
+      <div class="search_box">
+        {% if not is_homepage %}
           <form class="input-group search_form" id="search_form" action="/search" method="get">
-            <input class="form-control" id="q" name="q" type="text" placeholder="Search...">
+            <input class="form-control" id="q" name="q" type="text" placeholder="Search..." spellcheck="false">
             <div class="input-group-append">
               <button type="button" class="btn btn-pgs pgs_no_icon_link" id="search_btn" value="Submit">
                 <span class="fas fa-search"></span>
@@ -57,13 +72,14 @@
           <div class="search_examples">
             {{ pgs_search_examples|safe }}
           </div>
-        </div>
-
+        {% endif %}
+      </div>
     </nav>
   </div>
+
   <div class="search_box_2" style="display:none">
     <form class="input-group search_form" id="search_form_2" action="/search" method="get">
-      <input class="form-control" id="q2" name="q" type="text" placeholder="Search...">
+      <input class="form-control" id="q2" name="q" type="text" placeholder="Search..." spellcheck="false">
       <div class="input-group-append">
         <button type="button" class="btn btn-pgs pgs_no_icon_link" id="search_btn_2" value="Submit">
           <span class="fas fa-search"></span>

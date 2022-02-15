@@ -22,14 +22,21 @@ class ScoreDocument(Document):
 
     id = fields.TextField()
     name = fields.TextField(
-        analyzer=name_delimiter
+        analyzer=name_delimiter,
+        fields={
+            'raw': fields.KeywordField()
+        }
     )
     publication = fields.ObjectField(
         properties={
             'id': fields.TextField()
         }
     )
-    trait_reported = fields.TextField()
+    trait_reported = fields.TextField(
+        fields={
+            'raw': fields.KeywordField()
+        }
+    )
     trait_efo = fields.ObjectField(
         properties={
             'id': fields.TextField(),

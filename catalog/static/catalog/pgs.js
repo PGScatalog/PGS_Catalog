@@ -42,6 +42,11 @@ $(document).ready(function() {
         return false;
     });
 
+    // Search documentation
+    $('body').on("click", 'span.search_link', function(){
+      var q = $(this).html();
+      window.open('/search/?q='+q);
+    });
 
     // Draw ancestry charts
     if ($('.anc_chart').length) {
@@ -101,6 +106,55 @@ $(document).ready(function() {
     document.head.appendChild(newDataProtectionNotificationBanner);
     newDataProtectionNotificationBanner.onload = function() {
       ebiFrameworkRunDataProtectionBanner(localFrameworkVersion); // invoke the banner
+    };
+
+
+    // Search autocompletion
+    var autocomplete_url = "/autocomplete/";
+    $("#q").autocomplete({
+      minLength: 3,
+      source: function (request, response) {
+        $.ajax({
+          url: autocomplete_url,
+          data: { 'q': request.term },
+          success: function (data) {
+            response(data.results);
+          },
+          error: function () {
+            response([]);
+          }
+        });
+      },
+      select: function(event, ui) {
+        $("#q").val(ui.item.id);
+        $("#search_form").submit();
+      }
+    })
+    .autocomplete( "instance" )._renderItem = function( ul, item ) {
+      return format_autocomplete(ul,item);
+    };
+    // Search autocompletion - small screen
+    $("#q2").autocomplete({
+      minLength: 3,
+      source: function (request, response) {
+        $.ajax({
+          url: autocomplete_url,
+          data: { 'q': request.term },
+          success: function (data) {
+            response(data.results);
+          },
+          error: function () {
+            response([]);
+          }
+        });
+      },
+      select: function(event, ui) {
+        $("#q2").val(ui.item.id);
+        $("#search_form_2").submit();
+      }
+    })
+    .autocomplete( "instance" )._renderItem = function( ul, item ) {
+      return format_autocomplete(ul,item);
     };
 
 
@@ -522,6 +576,18 @@ function scoring_file_link() {
     ftp_url = ftp_url.substring(0, ftp_url.lastIndexOf('/'))+'/';
     window.open(ftp_url,'_blank');
   });
+}
+
+
+// Format the autocomplete results into an HTML <ul>.
+function format_autocomplete(ul,entry) {
+  var option = entry.label;
+  if (entry.label != entry.id) {
+    option += '<div class="sub-menu-item-wrapper"><i class="fas fa-angle-double-right"></i> synonym for <span>' + entry.id + '</span></div>';
+  }
+  return $( "<li>" )
+    .append( '<div class="pt-1 pb-1">' + option + "</div>" )
+    .appendTo( ul );
 }
 
 
