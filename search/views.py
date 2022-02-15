@@ -4,6 +4,7 @@ from search.documents.efo_trait import EFOTraitDocument
 from search.documents.publication import PublicationDocument
 from search.documents.score import ScoreDocument
 from search.search import EFOTraitSearch, PublicationSearch, ScoreSearch
+from django.http import JsonResponse
 
 all_results_scores = {}
 
@@ -19,7 +20,8 @@ def search(request):
     all_results_scores = {}
 
     if q:
-        # EFO Traits
+
+        # Scores
         score_search = ScoreSearch(q)
         score_results = score_search.search()
         score_count = score_search.count
@@ -28,6 +30,7 @@ def search(request):
         # EFO Traits
         efo_trait_search = EFOTraitSearch(q)
         efo_trait_results = efo_trait_search.search()
+        efo_trait_suggestions = efo_trait_search.suggest()
         efo_trait_count = efo_trait_search.count
         format_efo_traits_results(request, efo_trait_results)
 
@@ -60,6 +63,21 @@ def search(request):
     return render(request, 'search/search.html', context)
 
 
+def autocomplete(request):
+    """ Return suggestions for the autocomplete form. """
+    max_items = 15
+    results = []
+    q = request.GET.get('q')
+    if q:
+        # EFO Traits
+        efo_trait_search = EFOTraitSearch(q)
+        efo_trait_suggestions = efo_trait_search.suggest()
+
+        results = [ result for result in efo_trait_suggestions[:max_items]]
+
+    return JsonResponse({ 'results': results })
+
+
 def format_efo_traits_results(request, data):
     """ Convert the EFO Trait results into HTML. """
     results = []
@@ -67,7 +85,7 @@ def format_efo_traits_results(request, data):
     for d in data:
         desc = d.description
         if desc:
-            desc = desc.replace("['",'').replace("']",'')
+            desc = desc.replace("['",'').replace("']",'').replace('<','&lt;').replace('>','&gt;')
         else:
             desc = ''
 

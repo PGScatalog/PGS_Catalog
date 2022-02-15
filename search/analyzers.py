@@ -1,4 +1,4 @@
-from elasticsearch_dsl import analysis, analyzer
+from elasticsearch_dsl import analysis, analyzer, tokenizer
 
 
 def id_analyzer():
@@ -15,8 +15,17 @@ def html_strip_analyzer():
     return analyzer(
         'html_strip',
         tokenizer="standard",
-        filter=["lowercase", "stop", "snowball", "remove_duplicates"],
+        filter=["lowercase", "stop", "snowball", "asciifolding", "remove_duplicates"],
         char_filter=["html_strip"]
+    )
+
+
+def ngram_analyzer():
+    ''' N-gram analyser for the PGS indexes '''
+    return analyzer(
+        'ngram',
+        tokenizer=tokenizer('ngram', 'ngram', min_gram=3, max_gram=10),
+        filter=['lowercase', 'stop', 'asciifolding', 'remove_duplicates']
     )
 
 
@@ -30,5 +39,5 @@ def name_delimiter_analyzer():
     return analyzer(
         'name_delimiter',
         tokenizer="keyword",
-        filter=[word_delimiter_graph_preserve_original, "flatten_graph", "lowercase", "stop", "snowball", "remove_duplicates"]
+        filter=[word_delimiter_graph_preserve_original, "flatten_graph", "lowercase", "stop", "snowball", "asciifolding", "remove_duplicates"]
     )

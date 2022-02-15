@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <title>PGS Catalog - {% block title %}{% endblock %}</title>
     <meta name="keywords" content="polygenic score, polygenic risk score, pgs, prs, catalog, catalogue, database, genetic, genomic, prediction, disease, gwas, ebi" /><!-- 3 to 10 keywords about the content of this page (not the whole project) -->
-    <meta name="author" content="PGS Catalog" /><!-- Your [project-name] here -->
+    <meta name="author" content="PGS Catalog" />
     <meta name="description" content="The Polygenic Score (PGS) Catalog is an open database of
       published PGS and the relevant metadata needed to apply and evaluate them correctly.">
     <meta name="HandheldFriendly" content="true" />
@@ -41,8 +41,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" crossorigin="anonymous">
     {% if has_table %}
-      <link href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" rel="stylesheet"/>
+      <link href="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.css" rel="stylesheet"/>
     {% endif %}
+
+    <!-- jQuery UI -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
     <!-- CSS: implied media=all -->
     <!-- CSS concatenated and minified via ant build script-->
@@ -60,25 +63,28 @@
     {% endif %}
 
     <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <!-- jQuery UI -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+    <!-- Use of GWAS API - Javascript file -->
     {% if use_gwas_api %}
-      <!-- Use of GWAS API - Javascript file -->
-      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
       <script defer src="{% static 'catalog/pgs_gwas.js' %}"></script>
-    {% elif use_release_charts %}
-      <!-- Use of Release JS - Javascript file -->
-      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    {% endif %}
+
+    <!-- Use of Release JS - Javascript file -->
+    {% if use_release_charts %}
       <script defer src="{% static 'catalog/pgs_bar_charts.js' %}"></script>
-    {% else %}
-      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     {% endif %}
 
     <!-- Bootstrap bundle include Popper.js and Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
     {% if has_table %}
       <script defer src="https://unpkg.com/tableexport.jquery.plugin@1.10.20/tableExport.min.js"></script>
-      <script defer src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
-      <script defer src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/export/bootstrap-table-export.min.js"></script>
-      <script defer src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+      <script defer src="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.js"></script>
+      <script defer src="https://unpkg.com/bootstrap-table@1.19.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
+      <script defer src="https://unpkg.com/bootstrap-table@1.19.1/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
     {% endif %}
 
     <!-- D3 graph library -->

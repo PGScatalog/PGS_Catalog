@@ -532,12 +532,9 @@ class SampleTable_variants(tables.Table):
             return format_html(''.join(l))
 
 
-class SampleTable_training(tables.Table):
+class SampleTable_training(SampleTable_variants):
     '''Table on PGS page - displays information about the samples used in Score Development/Training'''
-    phenotyping_free = Column_shorten_text_content(accessor='phenotyping_free', verbose_name='Phenotype Definitions and Methods')
-    sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
-    sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
-    cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
+    phenotyping_free = Column_shorten_text_content(accessor='phenotyping_free', verbose_name='Phenotype Definitions & Methods')
 
     # Demographics (Column_demographic)
     followup_time = Column_demographic(accessor='followup_time', verbose_name='Participant Follow-up Time', orderable=False)
@@ -550,12 +547,15 @@ class SampleTable_training(tables.Table):
             "data-export-options" : '{"fileName": "pgs_sample_development_data"}'
         }
         fields = [
-            'phenotyping_free',
-            'followup_time',
+            'sources',
             'sample_merged',
+            'sample_ancestry',
+            'cohorts',
+            'phenotyping_free',
             'sample_age',
-            'sample_ancestry','ancestry_additional',
-            'cohorts', 'cohorts_additional'
+            'followup_time',
+            'ancestry_additional',
+            'cohorts_additional'
         ]
         template_name = 'catalog/pgs_catalog_django_table.html'
 
@@ -673,7 +673,7 @@ class CohortTable(tables.Table):
         }
         model = Cohort
         fields = [
-            'name_short', 'name_full'
+            'name_short', 'name_full', 'name_others'
         ]
         template_name = 'catalog/pgs_catalog_django_table.html'
 

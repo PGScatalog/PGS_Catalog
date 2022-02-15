@@ -126,6 +126,7 @@ class Cohort(models.Model):
     """Class to describe cohorts used in samples"""
     name_short = models.CharField('Cohort Short Name', max_length=100, db_index=True)
     name_full = models.CharField('Cohort Full Name', max_length=1000)
+    name_others = models.TextField('Previous/other/additional names (e.g. sub-cohorts)', null=True)
 
     # Used to identify cohorts with associated released scores
     released = models.BooleanField('Associated with released Score(s)', default=False)
