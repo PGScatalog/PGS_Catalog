@@ -24,8 +24,8 @@
 
     <!-- CSS libraries -->
     <link rel="stylesheet" type="text/css" href="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui.css' %}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" crossorigin="anonymous"/>
 
     <!-- PGS (S)CSS file -->
     {% if is_pgs_app_on_gae %}
@@ -39,8 +39,8 @@
     {% endif %}
 
     <!-- Javascript libraries -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
     <script src="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui-bundle.js' %}"></script>
     <script src="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui-standalone-preset.js' %}"></script>
     <script>
@@ -97,6 +97,51 @@
           var servers_list = document.getElementsByClassName("scheme-container")[0];
           servers_list.parentNode.removeChild(servers_list);
 
+          // Remove website URL
+          contact_elem = document.getElementsByClassName("info__contact");
+          url_elem = contact_elem[0].getElementsByTagName("div")[0];
+          url_elem.parentNode.removeChild(url_elem);
+
+
+          // List of Endpoints
+          var info_block = document.getElementsByClassName("info")[0];
+          info_block.appendChild(document.createElement("hr"));
+
+          var parent_info = info_block.parentNode;
+          // Create a container for the list of endpoints
+          var ep_list = document.createElement("div");
+          ep_list.classList.add('endpoints_list');
+          // Add title to the list of endpoints
+          var ep_title = document.createElement("span");
+          ep_title.innerHTML = 'Endpoints: ';
+          ep_list.appendChild(ep_title);
+          // Create link for each endpoint
+          var endpoint_headers = document.getElementsByClassName('opblock-tag');
+          for (i=0; i < endpoint_headers.length; i++) {
+            // Fetch endpoint information
+            var ep_header_title = endpoint_headers[i].getAttribute('data-tag');
+            // Endpoint name
+            ep_header_title = ep_header_title.replace(' endpoints', '');
+            // Endpoint ID
+            var ep_header_id = endpoint_headers[i].getAttribute('id');
+            // Endpoint description
+            var endpoint_desc =  endpoint_headers[i].getElementsByClassName('renderedMarkdown')[0].innerHTML;
+            endpoint_desc = endpoint_desc.replace(/<\/?[^>]+(>|$)/g, "");
+
+            // Add information to the link element
+            var ep_header = document.createElement("a");
+            ep_header.href = '#'+ep_header_id;
+            ep_header.className = 'btn btn-pgs-small pgs_no_icon_link'
+            ep_header.innerHTML = ep_header_title;
+            ep_header.title = endpoint_desc;
+            ep_header.setAttribute("data-toggle", "tooltip");
+            ep_header.setAttribute("data-placement", "bottom");
+            ep_list.appendChild(ep_header);
+          }
+
+
+          parent_info.appendChild(ep_list);
+
           // Replace content
           var endpoints_list = document.getElementsByClassName("opblock-summary-path");
           for (i=0; i < endpoints_list.length; i++) {
@@ -104,11 +149,6 @@
             span.innerHTML = span.innerHTML.replace(/(\/)/g, "<span class=\"colour_1\">$1</span>");
             span.innerHTML = span.innerHTML.replace(/(\{|\})/g, "<span class=\"colour_2\">$1</span>");
           }
-
-          // Remove website URL
-          contact_elem = document.getElementsByClassName("info__contact");
-          url_elem = contact_elem[0].getElementsByTagName("div")[0];
-          url_elem.parentNode.removeChild(url_elem);
 
           // Remove from schema
           models_to_remove = ['Pagination','Error_4XX', 'Demographic'];
@@ -119,11 +159,14 @@
 
           document.getElementsByTagName("footer")[0].style.display='block';
 
+          // jQuery code
           $('.toggle_btn').click(function() {
             $(this).find('i').toggleClass("fa-plus-circle fa-minus-circle");
             id = $(this).attr('id');
             $('#content_'+id).toggle();
           });
+
+          $('[data-toggle="tooltip"]').tooltip();
         }, 150);
       }
     </script>

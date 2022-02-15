@@ -79,14 +79,38 @@ def custom_exception_handler(exc, context):
     return response
 
 
+def get_ids_list(object):
+    ids_list = []
+
+    # List of IDs provided in the URL
+    ids = object.request.query_params.get('filter_ids')
+    if ids and ids is not None:
+        ids = ids.upper()
+        ids_list = ids.split(',')
+    # List of IDs provided in a JSON object
+    elif 'filter_ids' in object.request.data:
+        ids_list = [ x.upper() for x in object.request.data['filter_ids']]
+    return ids_list
+
+
 ## Publications ##
 
 class RestListPublications(generics.ListAPIView):
     """
-    Retrieve all the PGS Publications
+    Retrieve the PGS Publications
     """
-    queryset = Publication.objects.defer(*related_dict['publication_defer']).all().order_by('num')
     serializer_class = PublicationExtendedSerializer
+
+    def get_queryset(self):
+        # Fetch all the Publications
+        queryset = Publication.objects.defer(*related_dict['publication_defer']).all().order_by('num')
+
+        # Filter by list of Publications IDs
+        ids_list = get_ids_list(self)
+        if ids_list:
+            queryset = queryset.filter(id__in=ids_list)
+
+        return queryset
 
 
 class RestPublication(generics.RetrieveAPIView):
@@ -148,10 +172,20 @@ class RestPublicationSearch(generics.ListAPIView):
 
 class RestListScores(generics.ListAPIView):
     """
-    Retrieve all the Polygenic Scores
+    Retrieve the Polygenic Scores
     """
-    queryset = Score.objects.defer(*related_dict['score_defer']).select_related('publication').all().prefetch_related(*related_dict['score_prefetch']).order_by('num')
     serializer_class = ScoreSerializer
+
+    def get_queryset(self):
+        # Fetch all the Scores
+        queryset = Score.objects.defer(*related_dict['score_defer']).select_related('publication').all().prefetch_related(*related_dict['score_prefetch']).order_by('num')
+
+        # Filter by list of Score IDs
+        ids_list = get_ids_list(self)
+        if ids_list:
+            queryset = queryset.filter(id__in=ids_list)
+
+        return queryset
 
 
 class RestScore(generics.RetrieveAPIView):
@@ -176,10 +210,6 @@ class RestScoreSearch(generics.ListAPIView):
     serializer_class = ScoreSerializer
 
     def get_queryset(self):
-        """
-        Optionally restricts the returned purchases to a given user,
-        by filtering against one or serveral query parameters in the URL.
-        """
         queryset = Score.objects.defer(*related_dict['score_defer']).select_related('publication').all().prefetch_related(*related_dict['score_prefetch']).order_by('num')
         params = 0
 
@@ -221,10 +251,20 @@ class RestScoreSearch(generics.ListAPIView):
 
 class RestListPerformances(generics.ListAPIView):
     """
-    Retrieve all the PGS Performance Metrics
+    Retrieve the PGS Performance Metrics
     """
-    queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).all().prefetch_related('sampleset__samples',*related_dict['sampleset_samples_cohorts_prefetch'],'performance_metric').order_by('num')
     serializer_class = PerformanceSerializer
+
+    def get_queryset(self):
+        # Fetch all the Performances
+        queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).all().prefetch_related('sampleset__samples',*related_dict['sampleset_samples_cohorts_prefetch'],'performance_metric').order_by('num')
+
+        # Filter by list of Performance IDs
+        ids_list = get_ids_list(self)
+        if ids_list:
+            queryset = queryset.filter(id__in=ids_list)
+
+        return queryset
 
 
 class RestPerformanceSearch(generics.ListAPIView):
@@ -293,6 +333,11 @@ class RestListEFOTraits(generics.ListAPIView):
         # include_parents parameter
         if self.get_include_parents_param():
             queryset = EFOTrait_Ontology.objects.all().prefetch_related(*related_dict['ontology_associated_scores_prefetch'], *related_dict['traitcategory_ontology_prefetch']).order_by('label').distinct()
+
+        # Filter by list of Score IDs
+        ids_list = get_ids_list(self)
+        if ids_list:
+            queryset = queryset.filter(id__in=ids_list)
         return queryset
 
     def get_serializer_class(self):
@@ -308,17 +353,21 @@ class RestListEFOTraits(generics.ListAPIView):
     def get_include_parents_param(self):
         ''' Fetch the "include_parents" parameter and return True if it is set to 1 '''
         param_include_parents = self.request.query_params.get('include_parents')
-        if param_include_parents != None:
-            if  param_include_parents == '1' or param_include_parents == 1:
-                return True
+        if (not param_include_parents or param_include_parents == None) and 'include_parents' in self.request.data:
+            param_include_parents = self.request.data['include_parents']
+
+        if param_include_parents == '1' or param_include_parents == 1:
+            return True
         return False
 
     def get_include_children_param(self):
         ''' Fetch the "include_children" parameter and return True if it is set to 1 '''
         param_include_children = self.request.query_params.get('include_children')
-        if param_include_children != None:
-            if  param_include_children == '1' or param_include_children == 1:
-                return True
+        if (not param_include_children or param_include_children == None) and 'include_children' in self.request.data:
+            param_include_children = self.request.data['include_children']
+
+        if param_include_children == '1' or param_include_children == 1:
+            return True
         return False
 
 
@@ -432,6 +481,17 @@ class RestListSampleSets(generics.ListAPIView):
     queryset = SampleSet.objects.all().prefetch_related('samples', 'samples__cohorts').order_by('id')
     serializer_class = SampleSetSerializer
 
+    def get_queryset(self):
+        # Fetch all the SampleSets
+        queryset = SampleSet.objects.all().prefetch_related('samples', 'samples__cohorts').order_by('id')
+
+        # Filter by list of SampleSet IDs
+        ids_list = get_ids_list(self)
+        if ids_list:
+            queryset = queryset.filter(id__in=ids_list)
+
+        return queryset
+
 
 class RestSampleSet(generics.RetrieveAPIView):
     """
@@ -497,19 +557,30 @@ class RestListCohorts(generics.ListAPIView):
     serializer_class = CohortExtendedSerializer
 
     def get_queryset(self):
-
-        fetch_all_cohorts = False
+        queryset = Cohort.objects.all().prefetch_related(*related_dict['sample_set_prefetch']).order_by('name_short')
 
         # 'fetch_all' parameter: fetch released and non released Cohorts
+        fetch_all_cohorts = False
         param_fetch_all = self.request.query_params.get('fetch_all')
-        if param_fetch_all != None:
-            if param_fetch_all == '1' or param_fetch_all == 1:
-                fetch_all_cohorts = True
+        if (not param_fetch_all or param_fetch_all == None) and 'fetch_all' in self.request.data:
+            param_fetch_all = self.request.data['fetch_all']
 
-        if fetch_all_cohorts:
-            queryset = Cohort.objects.all().prefetch_related(*related_dict['sample_set_prefetch']).order_by('name_short')
-        else:
-            queryset = Cohort.objects.filter(released=True).prefetch_related(*related_dict['sample_set_prefetch']).order_by('name_short')
+        if param_fetch_all == '1' or param_fetch_all == 1:
+            fetch_all_cohorts = True
+
+        # 'filter_ids' parameter: fetch the cohorts from the list of cohort short names
+        names_list = get_ids_list(self)
+
+        # Filter the query depending on the parameters used
+        if names_list:
+            names_list = r'^('+'|'.join(names_list)+')$'
+            if fetch_all_cohorts:
+                queryset = queryset.filter(name_short__iregex=names_list, released=True)
+            else:
+                queryset = queryset.filter(name_short__iregex=names_list)
+        elif fetch_all_cohorts:
+            queryset = queryset.filter(released=True)
+
         return queryset
 
 

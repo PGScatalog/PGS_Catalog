@@ -2,6 +2,14 @@
 
 PGS_REST_API = [
     {
+        'version': '1.8.3',
+        'date': '2022-02',
+        'changelog': [
+            "New parameter 'filter_ids' to narrow down the results in the following endpoints: `/rest/score/all`, `/rest/publication/all`, `/rest/trait/all`, `/rest/performance/all`, `/rest/cohort/all`, `/rest/sample_set/all`.",
+            "New field 'name_others' in the Cohort schemas (`/rest/cohort/` endpoints)."
+        ]
+    },
+    {
         'version': '1.8.2',
         'date': '2021-10',
         'changelog': [
