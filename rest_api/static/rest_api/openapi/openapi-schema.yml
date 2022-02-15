@@ -1,10 +1,10 @@
 openapi: 3.0.3
 servers:
-  - url: https://www.pgscatalog.org/
+  - url: https://test-dot-pgs-catalog.appspot.com/
 info:
 
   title: PGS Catalog REST API
-  version: '1.8.2'
+  version: '1.8.3'
   description: |
     Programmatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -74,10 +74,20 @@ info:
     <a class="toggle_btn" id="changelog">REST API version changelog <i class="fas fa-plus-circle"></i></a>
     <div class="toggle_content" id="content_changelog" style="display:none">
 
+      * <span class="badge badge-pill badge-pgs">1.8.3</span> - February 2022:
+        * New parameter 'filter_ids' to narrow down the results in the following endpoints:
+          * `/rest/score/all`
+          * `/rest/publication/all`
+          * `/rest/trait/all`
+          * `/rest/performance/all`
+          * `/rest/cohort/all`
+          * `/rest/sample_set/all`
+        * New field **name_others** in the Cohort schemas (`/rest/cohort/` endpoints).
+
       * <span class="badge badge-pill badge-pgs">1.8.2</span> - October 2021:
         * New field **weight_type** in the Score schemas (`/rest/score/` endpoints).
-        * New parameters 'pgp_id' and 'pmid' for the endpoints `/rest/performance/search/` and `/rest/sample_set/search/`.
-        * New parameter 'pgp_id' for the endpoint `/rest/score/search/`.
+        * New parameters 'pgp_id' and 'pmid' for the endpoints `/rest/performance/search` and `/rest/sample_set/search`.
+        * New parameter 'pgp_id' for the endpoint `/rest/score/search`.
 
       * <span class="badge badge-pill badge-pgs">1.8.1</span> - July 2021:
         * Change the data type of the field **source_PMID** to numeric in the Sample schemas
@@ -214,6 +224,10 @@ components:
           type: string
           description: "Cohort full name"
           example: "Australian Breast Cancer Family Study"
+        name_others:
+          type: string
+          description: "Previous/other/additional names (e.g. sub-cohorts)"
+          example: "GHS-I, GHS-II"
 
     Cohort_extended:
       description: "Based on the **Cohort** schema, with the addition of the '**associated_pgs_ids**'."
@@ -877,11 +891,38 @@ paths:
           * Cohort full name
           * Associated Polygenic Scores(s), with the distinction between associations with the Polygenic Score at the development phase or at the evaluation phase
 
-          Example of request:
-          ```
-          https://www.pgscatalog.org/rest/cohort/all
-          ```
-      parameters: []
+        Example of request:
+        ```
+        https://www.pgscatalog.org/rest/cohort/all
+        ```
+        ---
+        ###### **Filtering**
+
+        You can choose to filter the results of this endpoint to a specified list of cohorts by providing a list of cohort symbols in one of two ways:
+        1. A comma-seperated list of cohort symbols in the request URL (this will not work for larger queries), e.g.:
+        ```
+        https://www.pgscatalog.org/rest/cohort/all?filter_ids=ABCFS,ESTHER
+        ```
+        2. A json-formatted list of IDs, e.g.: `{ "filter_ids" : ["ABCFS","ESTHER"] }`. Example with curl:
+        ```
+        curl -X GET 'https://www.pgscatalog.org/rest/cohort/all' -H 'Content-type:application/json' -d '{ "filter_ids" : ["ABCFS", "ESTHER"] }'
+        ```
+      parameters:
+        - in: query
+          name: filter_ids
+          required: false
+          schema:
+            type: string
+          description: Comma-separated list of cohort symbols or JSON object with an array of cohort symbols
+          examples:
+            pgs_cohort_sel:
+              summary: Select an example or type cohort symbol(s) - click on 'Try it out' first
+            pgs_cohort_1:
+              summary: 'ABCFS, ESTHER'
+              value: 'ABCFS,ESTHER'
+            pgs_cohort_2:
+              summary: 'NHS2, SISTER, PROFILE'
+              value: 'NHS2,SISTER,PROFILE'
       responses:
         '200':
           content:
@@ -979,7 +1020,34 @@ paths:
           ```
           https://www.pgscatalog.org/rest/sample_set/all
           ```
-      parameters: []
+          ---
+          ###### **Filtering**
+
+          You can choose to filter the results of this endpoint to a specified list of sample sets by providing a list of PGS Sample Set IDs (PSS) in one of two ways:
+          1. A comma-seperated list of PSS IDs in the request URL (this will not work for larger queries), e.g.:
+          ```
+          https://www.pgscatalog.org/rest/sample_set/all?filter_ids=PSS000018,PSS000070
+          ```
+          2. A json-formatted list of IDs, e.g.: `{ "filter_ids" : ["PSS000018","PSS000070"] }`. Example with curl:
+          ```
+          curl -X GET 'https://www.pgscatalog.org/rest/sample_set/all' -H 'Content-type:application/json' -d '{ "filter_ids" : ["PSS000018", "PSS000070"] }'
+          ```
+      parameters:
+        - in: query
+          name: filter_ids
+          required: false
+          schema:
+            type: string
+          description: Comma-separated list of PGS Sample Set IDs or JSON object with an array of PGS Sample Set IDs
+          examples:
+            pss_ids_sel:
+              summary: Select an example or type PGS Sample Set ID(s) - click on 'Try it out' first
+            pss_ids_1:
+              summary: 'PSS000018, PSS000070'
+              value: 'PSS000018,PSS000070'
+            pss_ids_2:
+              summary: 'PSS000018, PSS000597, PSS001058'
+              value: 'PSS000018,PSS000597,PSS001058'
       responses:
         '200':
           content:
@@ -1151,7 +1219,34 @@ paths:
         ```
         https://www.pgscatalog.org/rest/performance/all
         ```
-      parameters: []
+        ---
+        ###### **Filtering**
+
+        You can choose to filter the results of this endpoint to a specified list of performance metrics by providing a list of PGS Performance Metric IDs (PPM) in one of two ways:
+        1. A comma-seperated list of PPM IDs in the request URL (this will not work for larger queries), e.g.:
+        ```
+        https://www.pgscatalog.org/rest/performance/all?filter_ids=PPM000001,PPM000002
+        ```
+        2. A json-formatted list of IDs, e.g.: `{ "filter_ids" : ["PPM000001","PPM000002"] }`. Example with curl:
+        ```
+        curl -X GET 'https://www.pgscatalog.org/rest/performance/all' -H 'Content-type:application/json' -d '{ "filter_ids" : ["PPM000001", "PPM000002"] }'
+        ```
+      parameters:
+        - in: query
+          name: filter_ids
+          required: false
+          schema:
+            type: string
+          description: Comma-separated list of PGS Performance Metric IDs or JSON object with an array of PGS Performance Metric IDs
+          examples:
+            ppm_ids_sel:
+              summary: Select an example or type PGS Performance Metric ID(s) - click on 'Try it out' first
+            ppm_ids_1:
+              summary: 'PPM000001, PPM000002'
+              value: 'PPM000001,PPM000002'
+            ppm_ids_2:
+              summary: 'PPM000027, PPM001367, PPM002168'
+              value: 'PPM000027,PPM001367,PPM002168'
       responses:
         '200':
           content:
@@ -1325,7 +1420,34 @@ paths:
         ```
         https://www.pgscatalog.org/rest/publication/all
         ```
-      parameters: []
+        ---
+        ###### **Filtering**
+
+        You can choose to filter the results of this endpoint to a specified list of studies by providing a list of PGS Publication IDs (PGP) in one of two ways:
+        1. A comma-seperated list of PGP IDs in the request URL (this will not work for larger queries), e.g.:
+        ```
+        https://www.pgscatalog.org/rest/publication/all?filter_ids=PGP000001,PGP000018
+        ```
+        2. A json-formatted list of IDs, e.g.: `{ "filter_ids" : ["PGP000001","PGP000018"] }`. Example with curl:
+        ```
+        curl -X GET 'https://www.pgscatalog.org/rest/publication/all' -H 'Content-type:application/json' -d '{ "filter_ids" : ["PGP000001", "PGP000018"] }'
+        ```
+      parameters:
+        - in: query
+          name: filter_ids
+          required: false
+          schema:
+            type: string
+          description: Comma-separated list of PGS Publication IDs or JSON object with an array of PGS Publication IDs
+          examples:
+            pgp_ids_sel:
+              summary: Select an example or type PGS Publication ID(s) - click on 'Try it out' first
+            pgp_ids_1:
+              summary: 'PGP000001, PGP000018'
+              value: 'PGP000001,PGP000018'
+            pgp_ids_2:
+              summary: 'PGP000007, PGP000011, PGP000014'
+              value: 'PGP000007,PGP000011,PGP000014'
       responses:
         '200':
           content:
@@ -1616,7 +1738,34 @@ paths:
         ```
         https://www.pgscatalog.org/rest/score/all
         ```
-      parameters: []
+        ---
+        ###### **Filtering**
+
+        You can choose to filter the results of this endpoint to a specified list of polygenic scores by providing a list of PGS IDs in one of two ways:
+        1. A comma-seperated list of scores in the request URL (this will not work for larger queries), e.g.:
+        ```
+        https://www.pgscatalog.org/rest/score/all?filter_ids=PGS000001,PGS000002
+        ```
+        2. A json-formatted list of IDs, e.g.: `{ "filter_ids" : ["PGS000001","PGS000002"] }`. Example with curl:
+        ```
+        curl -X GET 'https://www.pgscatalog.org/rest/score/all' -H 'Content-type:application/json' -d '{ "filter_ids" : ["PGS000001", "PGS000002"] }'
+        ```
+      parameters:
+        - in: query
+          name: filter_ids
+          required: false
+          schema:
+            type: string
+          description: Comma-separated list of PGS IDs or JSON object with an array of PGS IDs
+          examples:
+            pgs_ids_sel:
+              summary: Select an example or type PGS ID(s) - click on 'Try it out' first
+            pgs_ids_1:
+              summary: 'PGS000001, PGS000002'
+              value: 'PGS000001,PGS000002'
+            pgs_ids_2:
+              summary: 'PGS000014, PGS000020, PGS000031'
+              value: 'PGS000014,PGS000020,PGS000031'
       responses:
         '200':
           content:
@@ -1814,7 +1963,35 @@ paths:
         ```
         https://www.pgscatalog.org/rest/trait/all
         ```
+        ---
+        ###### **Filtering**
+
+        You can choose to filter the results of this endpoint to a specified list of traits by providing a list of ontology IDs in one of two ways:
+        1. A comma-seperated list of ontology IDs in the request URL (this will not work for larger queries), e.g.:
+        ```
+        https://www.pgscatalog.org/rest/trait/all?filter_ids=EFO_0000305,EFO_0001645
+        ```
+        2. A json-formatted list of IDs, e.g.: `{ "filter_ids" : ["EFO_0000305","EFO_0001645"] }`. Example with curl:
+        ```
+        curl -X GET 'https://www.pgscatalog.org/rest/trait/all' -H 'Content-type:application/json' -d '{ "filter_ids" : ["EFO_0000305", "EFO_0001645"] }'
+        ```
+        The 2 parameters can be used in JSON: `{ "filter_ids" : ["EFO_0000305","EFO_0001645"], "include_parents" : 1 }`
       parameters:
+        - in: query
+          name: filter_ids
+          required: false
+          schema:
+            type: string
+          description: Comma-separated list of ontology trait IDs or JSON object with an array of ontology trait IDs
+          examples:
+            trait_ids_sel:
+              summary: Select an example or type ontology ID(s) - click on 'Try it out' first
+            trait_ids_1:
+              summary: 'EFO_0000305, EFO_0001645'
+              value: 'EFO_0000305,EFO_0001645'
+            pgs_ids_2:
+              summary: 'EFO_0000400, EFO_0004340, MONDO_0007576'
+              value: 'EFO_0000400,EFO_0004340,MONDO_0007576'
         - in: query
           name: include_parents
           schema:

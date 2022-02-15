@@ -11,6 +11,9 @@ $pgs_dark3: #333; // Header & footer background-color
 $pgs_darkC: #CCC;
 $pgs_light_grey2: #FAFAFA;
 $pgs_rest_light_bg: #E2E9E9;
+$pgs_block_bg: #F1F8F8;
+$pgs_swagger_grey: #DEE2E6;
+$pgs_swagger_grey2: rgba(59, 65, 81, 0.2); // #374150
 $status_ok: #89bf04;
 $status_error: #ff4c4c;
 
@@ -129,7 +132,7 @@ hgroup > div {
 .opblock-tag {
   background-color: rgba(0,0,0,.05) !important;
   border-radius: 4px;
-  border: 1px solid #dee2e6 !important;
+  border: 1px solid $pgs_swagger_grey !important;
   margin-bottom: 1rem !important;
 }
 .opblock-tag-section {
@@ -137,7 +140,7 @@ hgroup > div {
   margin-bottom: 1rem !important;
 }
 .swagger-ui .opblock.opblock-get {
-  background-color: #F1F8F8;
+  background-color: $pgs_block_bg;
   border-color: $pgs_colour_1 !important;
 }
 .swagger-ui .opblock.opblock-get .opblock-summary {
@@ -199,12 +202,21 @@ hgroup > div {
   color: $pgs_colour_2 !important;
   background-color: #FFF !important;
 }
-.renderedMarkdown pre > code {
-  margin-left: 2rem !important;
-  margin-right: 2rem !important;
-  max-width: 600px;
-  border: 1px solid  $pgs_darkC !important;
-  color: $pgs_dark2 !important;
+.renderedMarkdown pre {
+  display:flex;
+  > code {
+    margin-left: 2rem !important;
+    margin-right: 2rem !important;
+    min-width: 600px;
+    border: 1px solid  $pgs_darkC !important;
+    color: $pgs_dark2 !important;
+    background-color: #FFF !important;
+    font-size: 12px !important;
+  }
+}
+
+.renderedMarkdown code {
+  color: $pgs_colour_2 !important;
   background-color: #FFF !important;
   font-size: 12px !important;
 }
@@ -234,7 +246,7 @@ small {
   font-weight: bold !important;
 }
 .parameters > tbody > tr:not(:first-child) > td {
-  border-top: 1px dashed rgba(59, 65, 81, 0.2) !important;
+  border-top: 1px dashed $pgs_swagger_grey2 !important;
 }
 .parameters > tbody > tr:not(:last-child) > td.parameters-col_description {
   padding-bottom: 10px !important;
@@ -323,7 +335,7 @@ table.responses-table td {
   padding-left: 0.5em !important;
 }
 table.responses-table > tbody > tr:not(:last-child) > td {
-  border-bottom: 1px solid rgba(59, 65, 81, 0.2) !important;
+  border-bottom: 1px solid $pgs_swagger_grey2 !important;
   padding-bottom: 2rem;
 }
 table.responses-table > tbody > tr:first-child td.response-col_status {
@@ -379,6 +391,32 @@ table.model .model-toggle, table.model .model-toggle:after {
   font-weight: 900;
   padding-right: 5px;
 }
+
+
+div.endpoints_list {
+  margin-top:3rem !important;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content: flex-start;
+  background-color: $pgs_block_bg;
+  padding:0.5rem 1rem;
+  border: 1px solid $pgs_swagger_grey !important;
+  border-radius: 4px;
+  span {
+    font-weight: bold;
+    line-height: 31px;
+    margin-right: 1rem;
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+  a {
+    margin-right: 1rem;
+    color: #FFF !important;
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+}
+
 
 @media screen and (max-width: 499px) {
   hgroup {
