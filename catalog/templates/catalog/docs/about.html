@@ -26,15 +26,15 @@
 
     <div class="clearfix">
       <h2 class="pgs_title_left">About the PGS Catalog</h2>
-      <div class="pgs_buttons_right clearfix">
+      <div class="pgs_buttons_right clearfix mb-2">
         <div class="mr-2">
           <a class="btn btn-pgs pgs_no_icon_link" title="Email" href="mailto:{{ pgs_contact }}" target="_blank">
-            <span class="fas fa-envelope" ></span> Contact us
+            <span class="fas fa-envelope"></span><br/><span>Contact us</span>
           </a>
         </div>
         <div>
-          <a class="btn btn-pgs pgs_no_icon_link" title="Twitter" href="{{ pgs_twitter_url }}"  target="_blank">
-            <span class="fab fa-twitter"></span> Follow us
+          <a class="btn btn-pgs pgs_no_icon_link" title="Twitter {{ pgs_twitter }}" href="{{ pgs_twitter_url }}"  target="_blank">
+            <span class="fab fa-twitter"></span> <small>{{ pgs_twitter }}</small><br/><span>Follow us</span>
           </a>
         </div>
       </div>
@@ -127,7 +127,7 @@
 
     <section>
       <h4 id="submission"><i class="fas fa-upload pr-2 pgs_color_2"></i>Data Submission</h4>
-      <p>If you have a PGS or publication that meets the Catalog's eligibility requirements we invite you to submit your data by e-mail (<a href="mailto:{{ pgs_contact }}"><span class="fas fa-envelope"></span> {{ pgs_contact }}</a>).
+      <p>If you have a PGS or publication that meets the Catalog's eligibility requirements we invite you to submit your data by e-mail (<a href="mailto:{{ pgs_contact }}"><span class="fas fa-envelope pgs_color_1"></span> {{ pgs_contact }}</a>).
           To ensure a speedy curation and inclusion into the catalog it would be helpful if you provide the following information about your study:</p>
       <ul>
         <li class="mb-2"><b>Source Publication.</b> PubMed identifier and/or publication doi.</li>
@@ -171,7 +171,7 @@
 
     <section>
       <h3 id="contact">Feedback & Contact Information</h3>
-      <p>To submit a PGS to the catalog, provide feedback, or ask questions please contact the PGS Catalog team at <a href="mailto:{{ pgs_contact }}"><span class="fa fa-envelope"></span> {{ pgs_contact }}</a>.</p>
+      <p>To submit a PGS to the catalog, provide feedback, or ask questions please contact the PGS Catalog team at <a href="mailto:{{ pgs_contact }}"><span class="fas fa-envelope pgs_color_1"></span> {{ pgs_contact }}</a>.</p>
     </section>
 
 

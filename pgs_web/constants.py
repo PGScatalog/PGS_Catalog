@@ -16,11 +16,12 @@ USEFUL_URLS = {
     'PGS_CONTACT'       : 'pgs-info@ebi.ac.uk',
     'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_FTP_HTTP_ROOT' : 'https://ftp.ebi.ac.uk/pub/databases/spot/pgs',
+    'PGS_TWITTER'       : '@PGSCatalog',
     'PGS_TWITTER_URL'   : 'https://www.twitter.com/pgscatalog',
     'PGS_WEBSITE_URL'   : 'https://www.pgscatalog.org/',
     'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',
     'TERMS_OF_USE'      : 'https://www.ebi.ac.uk/about/terms-of-use',
-    'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1CGZUhxRraztW4k7p_6blfBmFndYTcmghn3iNnzJu1_0/edit?usp=sharing',
+    'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1kVhi4GhXUVCl5THgbrmq2oiegjFFeuY3/edit?usp=sharing',
     'CurationGoogleDoc_URL' : 'https://drive.google.com/file/d/1iYoa0R3um7PtyfVO37itlGbK1emoZmD-/view',
     'CATALOG_PUBLICATION_URL' : 'https://doi.org/'+PGS_CITATION['doi']
 }

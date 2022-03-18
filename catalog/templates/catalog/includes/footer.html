@@ -18,7 +18,7 @@
       <div>
         <div class="pgs_social">
           <a class="pgs_no_icon_link fas fa-envelope" title="Contact us" href="mailto:{{ pgs_contact }}" target="_blank"></a>
-          <a class="pgs_no_icon_link fab fa-twitter" title="Twitter" href="{{ pgs_twitter_url }}" target="_blank"></a>
+          <a class="pgs_no_icon_link fab fa-twitter" title="Twitter {{ pgs_twitter }}" href="{{ pgs_twitter_url }}" target="_blank"></a>
         </div>
       </div>
     </div>
@@ -33,4 +33,12 @@
   {% if is_pgs_live_site == 'True' %}
     <!-- Google Analytics details... -->
     <script type="text/javascript">!function(e,a,n,t,i,o,c){e.GoogleAnalyticsObject=i,e[i]=e[i]||function(){(e[i].q=e[i].q||[]).push(arguments)},e[i].l=1*new Date,o=a.createElement(n),c=a.getElementsByTagName(n)[0],o.async=1,o.src="//www.google-analytics.com/analytics.js",c.parentNode.insertBefore(o,c)}(window,document,"script",0,"ga"),ga("create","UA-145149243-1",{cookieDomain:"auto"}),ga("require","linkid","linkid.js"),ga("set","anonymizeIp",!0),ga("send","pageview");</script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9B3G71V98V"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9B3G71V98V');
+    </script>
   {% endif %}
