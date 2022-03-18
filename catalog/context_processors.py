@@ -17,6 +17,7 @@ def pgs_urls(request):
         'pgs_ftp_root'     : constants.USEFUL_URLS['PGS_FTP_ROOT'],
         'pgs_ftp_http_root': constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'],
         'pgs_ftp_http_meta': constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT']+'/metadata/',
+        'pgs_twitter'      : constants.USEFUL_URLS['PGS_TWITTER'],
         'pgs_twitter_url'  : constants.USEFUL_URLS['PGS_TWITTER_URL'],
         'uoc_url'          : constants.USEFUL_URLS['UOC_URL'],
         'terms_of_use'     : constants.USEFUL_URLS['TERMS_OF_USE'],
@@ -31,11 +32,11 @@ def pgs_search_examples(request):
         link = f'<a href="/search?q={example}">{example}</a>'
         eg_count += 1
         if eg_count > 1:
-            if eg_count == 3:
+            if eg_count == 4:
                 html += '<span class="extra_example">'
             html += ', '
         html += link
-    if eg_count > 2:
+    if eg_count > 3:
         html += '</span>'
     return {
         'pgs_search_examples': html

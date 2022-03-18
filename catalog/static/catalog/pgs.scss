@@ -1679,9 +1679,18 @@ footer {
     }
   }
   .pgs_result_count {
+    display:inline-block;
     background-color: rgba(0,0,0,.05);
     border-radius:10px;
-    padding:3px 2px 4px 6px;
+    padding-left: 6px;
+    padding-right: 1px;
+    height: 22px;
+    span {
+      vertical-align:middle;
+    }
+    .badge {
+      margin-top: 1px;
+    }
   }
   .pgs_result_list {
     border-left:1px solid $pgs_colour_2;

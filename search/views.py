@@ -106,7 +106,7 @@ def format_efo_traits_results(request, data):
         hmtl_results += '  </div>'
         hmtl_results += '</div>'
         hmtl_results += '<div class="more">{}</div>'.format(desc)
-        hmtl_results += '<div class="mt-1"><span class="pgs_result_count">Associated PGS <span class="badge badge-pill badge-pgs">{}</span></span> {}</div>'.format(len(scores), score_html)
+        hmtl_results += '<div class="mt-1"><span class="pgs_result_count"><span>Associated PGS</span> <span class="badge badge-pill badge-pgs">{}</span></span> {}</div>'.format(len(scores), score_html)
         hmtl_results += '</div>'
 
         result_score = d.meta.score
@@ -136,7 +136,7 @@ def format_publications_results(request, data):
         hmtl_results += '<span><b>doi</b>:{}</span>'.format(d.doi)
         hmtl_results += '<span><b>PGP</b>{}</span></div>'.format(id_suffix)
         hmtl_results += '<div class="mt-1"><span class="pgs_result_count">PGS developed <span class="badge badge-pill badge-pgs">{}</span></span> - '.format(d.scores_count);
-        hmtl_results += '<span class="pgs_result_count">PGS evaluated <span class="badge badge-pill badge-pgs-2">{}</span></span> {}</div>'.format(d.scores_evaluated_count, score_html)
+        hmtl_results += '<span class="pgs_result_count"><span>PGS evaluated</span> <span class="badge badge-pill badge-pgs">{}</span></span> {}</div>'.format(d.scores_evaluated_count, score_html)
         hmtl_results += '</div>'
 
         result_score = d.meta.score
@@ -223,7 +223,7 @@ def score_mini_table(id, scores_developed, scores_evaluated=None):
                 score_dev = '<i class="fa fa-check-circle pgs_color_1"></i>'
             score_eval = '-'
             if scores[score]['evaluated']:
-                score_eval = '<i class="fa fa-check-circle pgs_color_2"></i>'
+                score_eval = '<i class="fa fa-check-circle pgs_color_1"></i>'
             score_html += '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(get_score_url(score), score_name, trait_reported, score_dev, score_eval)
         else:
             score_html += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(get_score_url(score), score_name, trait_reported)
