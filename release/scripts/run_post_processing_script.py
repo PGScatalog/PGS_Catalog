@@ -4,6 +4,7 @@ from release.scripts.RemoveDataForRelease import NonReleasedDataToRemove
 from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
 from release.scripts.UpdateScoreEvaluated import UpdateScoreEvaluated
 from release.scripts.UpdateReleasedCohorts import UpdateReleasedCohorts
+from release.scripts.UpdateEFO import UpdateEFO
 
 
 def run():
@@ -28,6 +29,9 @@ def run():
 
     # Update the cohorts (update the Cohort "released" field)
     update_released_cohorts()
+
+    # Update the trait information and ontology
+    update_efo()
 
 
 #-----------#
@@ -60,6 +64,13 @@ def update_released_cohorts():
     report_header("Update the Cohort model entries, setting the flag 'released'")
     released_cohorts = UpdateReleasedCohorts()
     released_cohorts.update_cohorts()
+
+
+def update_efo():
+    """ Update the EFO entries and add/update the Trait categories (from GWAS Catalog) """
+    report_header("Update the EFO entries and add/update the Trait categories (from GWAS Catalog)")
+    update_efo = UpdateEFO()
+    update_efo.launch_efo_updates()
 
 
 def report_header(msg):
