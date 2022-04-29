@@ -65,7 +65,7 @@ class ScoringFileUpdate():
 
             # Rename reference_allele column
             if 'other_allele' not in df_scoring.columns and 'reference_allele' in df_scoring.columns:
-                df_scoring.rename(columns={'reference_allele': 'other_allele'})
+                df_scoring.rename(columns={'reference_allele': 'other_allele'}, inplace=True)
 
             # Check that all columns are in the schema
             column_check = True
@@ -76,24 +76,25 @@ class ScoringFileUpdate():
                     break
 
             if column_check == True:
-
                 # Check if weight_type in columns
+                weight_type_value = None
                 if self.weight_type_label in df_scoring.columns:
                     if all(df_scoring[self.weight_type_label]):
                         val = df_scoring[self.weight_type_label][0]
+                        weight_type_value = val
                         if val == 'OR':
                             df_scoring = df_scoring.rename({'effect_weight' : 'OR'}, axis='columns').drop([self.weight_type_label], axis=1)
                 if 'effect_weight' not in df_scoring.columns:
                     if 'OR' in df_scoring.columns:
                         df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['OR']))
-                        df_scoring[self.weight_type_label] = 'log(OR)'
+                        weight_type_value = 'log(OR)'
                     elif 'HR' in df_scoring.columns:
                         df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['HR']))
-                        df_scoring[self.weight_type_label] = 'log(HR)'
+                        weight_type_value = 'log(HR)'
 
                 # Update Score model with weight_type data
-                if self.weight_type_label in df_scoring:
-                    self.score.weight_type = df_scoring[self.weight_type_label]
+                if weight_type_value:
+                    self.score.weight_type = weight_type_value
                     self.score.save()
 
                 # Get new header
