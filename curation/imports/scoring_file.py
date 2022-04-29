@@ -1,7 +1,6 @@
-import gzip
+import os, re, gzip
 import pandas as pd
 import numpy as np
-import re
 from catalog.models import Score
 
 
@@ -13,10 +12,12 @@ class ScoringFileUpdate():
 
     def __init__(self, score, study_path, new_scoring_dir, score_file_schema, score_file_format_version):
         self.score = score
-        self.score_file_path = f'{study_path}/raw_scores'
         self.new_score_file_path = new_scoring_dir
         self.score_file_schema = score_file_schema
         self.score_file_format_version = score_file_format_version
+        self.score_file_path = f'{study_path}/raw_scores'
+        if not os.path.isdir(self.score_file_path):
+            self.score_file_path = f'{study_path}/raw scores'
 
 
     def create_scoringfileheader(self):
@@ -71,9 +72,11 @@ class ScoringFileUpdate():
             column_check = True
             for x in df_scoring.columns:
                 if not x in self.score_file_schema.index and x != self.weight_type_label:
-                    column_check = False
-                    print(f'The column "{x}" is not in the Schema index')
-                    break
+                    # Skip custom allele frequency effect columns
+                    if not x.startswith('allelefrequency_effect_'):
+                        column_check = False
+                        print(f'The column "{x}" is not in the Schema index')
+                        break
 
             if column_check == True:
                 # Check if weight_type in columns

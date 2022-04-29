@@ -22,25 +22,19 @@
     <link rel="icon" type="image/png" sizes="384x384" href="{% static 'catalog/imgs/favicons/android-chrome-384x384.png' %}" /> <!-- Android (384px) -->
     <meta name="msapplication-TileImage" content="{% static 'catalog/imgs/favicons/mstile-150x150.png' %}" />
 
-    <!-- CSS libraries -->
-    <link rel="stylesheet" type="text/css" href="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui.css' %}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" crossorigin="anonymous"/>
-
-    <!-- PGS (S)CSS file -->
+    <!-- (S)CSS libraries -->
+    <link rel="stylesheet" type="text/css" href="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui.css' %}"/>
+    {% include "catalog/libs/css.html" %}
     {% if is_pgs_app_on_gae %}
-      <link rel="stylesheet" href="{% static 'catalog/pgs.min.css' %}" type="text/css" media="all" />
       <link rel="stylesheet" href="{% static 'rest_api/pgs_rest.min.css' %}" type="text/css" media="all" />
     {% else %}
       {% compress css %}
-        <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen">
         <link type="text/x-scss" href="{% static 'rest_api/pgs_rest.scss' %}" rel="stylesheet" media="screen">
       {% endcompress %}
     {% endif %}
 
     <!-- Javascript libraries -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+    {% include "catalog/libs/js.html" %}
     <script src="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui-bundle.js' %}"></script>
     <script src="{% static 'rest_api/openapi/swagger-dist-ui/swagger-ui-standalone-preset.js' %}"></script>
     <script>

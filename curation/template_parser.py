@@ -73,6 +73,7 @@ class CurationTemplate():
             if type(cohort_name) != str:
                 continue
             cohort_long_name = cohort_name
+            cohort_others_name = None
             # Loop throught the columns
             for col, val in cohort_info.iteritems():
                 if col in current_schema.index:
@@ -80,8 +81,10 @@ class CurationTemplate():
                         field = current_schema.loc[col, 'Field']
                         if field == 'name_full':
                             cohort_long_name = val
-                            break
-            parsed_cohort = CohortData(cohort_name,cohort_long_name)
+                        elif field == 'name_others':
+                            cohort_others_name = val
+
+            parsed_cohort = CohortData(cohort_name,cohort_long_name,cohort_others_name)
             cohort_id = cohort_name.upper()
             if cohort_id in self.parsed_cohorts:
                 self.report_warning(spreadsheet_name, f'Ambiguity found in the Cohort spreadsheet: the cohort ID "{cohort_name}" has been found more than once!')

@@ -39,7 +39,6 @@
             <li><a href="#desc_trait">Trait</a></li>
             <li><a href="#desc_smpl">Sample</a></li>
             <li><a href="#desc_perf">Performance Metrics</a></li>
-            <!-- <li><a href="#desc_anc">Ancestry Distribution</a></li> -->
           </ul>
         </nav>
       </div>
@@ -50,30 +49,30 @@
         <p>Each publication in the database is given a <u>Polygenic Publication (<b>PGP</b>) ID</u> so that scores and evaluations link to the same source object.
         When browsing by publications the <u>Number of PGS Developed</u> refers to the number of newly developed PGS in the paper, and the <u>Number of PGS Evaluated</u>
         refers to the number of PGS (new and existing) that have performance metrics derived in the study. For each publication the following information is extracted:</p>
-        <table class="table table-bordered table-left-col-filled">
+        <table class="table table-bordered table-left-col-filled table-left-col-bold">
           <tbody>
             <tr>
-              <td><b>PubMed ID (PMID)</b></td>
+              <td>PubMed ID <span>(PMID)</span></td>
               <td>PubMed Identification number.</td>
             </tr>
             <tr>
-              <td><b>Digital Object Identifier (doi)</b></td>
+              <td>Digital Object Identifier <span>(doi)</span></td>
               <td>The doi of each publication is curated in addition to the PMID to allow unpublished work (<i>e.g.</i> pre-prints) to be added to the catalog.</td>
             </tr>
             <tr>
-              <td><b>Title</b></td>
+              <td>Title</td>
               <td>Title of the publication.</td>
             </tr>
             <tr>
-              <td><b>Author(s)</b></td>
+              <td>Author(s)</td>
               <td>List of publication authors, the first author is also extracted for a shorter display.</td>
             </tr>
             <tr>
-              <td><b>Journal</b></td>
+              <td>Journal</td>
               <td>The name of the publication source.</td>
             </tr>
             <tr>
-              <td><b>Publication Date</b></td>
+              <td>Publication Date</td>
               <td>Date of publication (with respect to the PMID or doi upon upload to the Catalog).</td>
             </tr>
           </tbody>
@@ -84,14 +83,14 @@
         <p>Each PGS in the database is given a unique <u>Polygenic Score (<b>PGS</b>) ID</u> to identify it. The following information is extracted, and associated with each PGS in the catalog:</p>
 
         <h5>Predicted Trait</h5>
-        <table class="table table-bordered table-left-col-filled">
+        <table class="table table-bordered table-left-col-filled table-left-col-bold">
             <tbody>
                 <tr>
-                    <td><b>Reported Trait</b></td>
+                    <td>Reported Trait</td>
                     <td>The author-reported trait (<i>e.g.</i> body mass index [BMI], or coronary artery disease) that the PGS has been developed to predict.</td>
                 </tr>
                 <tr>
-                    <td><b>Mapped Trait(s)</b></td>
+                    <td>Mapped Trait(s)</td>
                     <td>The <u>Reported Trait</u> is mapped to <a href="https://www.ebi.ac.uk/ols/ontologies/efo">Experimental Factor Ontology (EFO)</a> terms and their respective identifiers by PGS Catalog curators.
                         For more information about the ontology traits see the <a href="#desc_trait">Trait</a> section.</td>
                 </tr>
@@ -99,42 +98,46 @@
         </table>
 
         <h5>Score Details</h5>
-        <table class="table table-bordered table-left-col-filled">
+        <table class="table table-bordered table-left-col-filled table-left-col-bold">
           <tbody>
             <tr>
-              <td><b>PGS Name</b></td>
+              <td>PGS Name</td>
               <td>This may be the name that the authors use to refer to the PGS, or a name that a curator has assigned to identify the score during the curation process (before a PGS ID has been given).</td>
             </tr>
             <tr>
-              <td><b>Original Genome Build</b></td>
+              <td>Original Genome Build</td>
               <td>The version of the genome that the variants present in the PGS are associated with. Listed as NR (Not Reported) if unknown.</td>
             </tr>
             <tr>
-              <td><b>Number of Variants</b></td>
+              <td>Number of Variants</td>
               <td>Number of variants used to calculate the PGS. In the future this will include a more detailed description of the types of variants present.</td>
             </tr>
             <tr>
-              <td><b>Number of Variant Interaction Terms</b></td>
+              <td>Number of Variant Interaction Terms</td>
               <td>Number of higher-order variant interactions included in the PGS.</td>
             </tr>
             <tr>
-              <td><b>PGS Development Method</b></td>
+              <td>PGS Development Method</td>
               <td>The name or description of the method or computational algorithm used to develop the PGS.</td>
             </tr>
             <tr>
-              <td><b>PGS Development Details/Relevant Parameters</b></td>
+              <td>PGS Development Details/Relevant Parameters</td>
               <td>A description of the relevant inputs and parameters relevant to the PGS development method/process.</td>
             </tr>
             <tr>
-              <td><b>PGS Catalog Publication (PGP) ID</b></td>
+              <td>PGS Catalog Publication ID <span>(PGP ID)</span></td>
               <td>A PGP ID links the PGS to the publication in which it was described.</td>
             </tr>
             <tr>
-              <td><b>Citation</b></td>
+              <td>Citation</td>
               <td>External link to the original publication source.</td>
             </tr>
             <tr>
-              <td><b>Terms and Licenses</b></td>
+              <td>Weight Type</td>
+              <td>Whether the author supplied Variant Weight is a: <i>beta</i> (effect size), or something like an <i>OR/HR</i> (odds/hazard ratio).</td>
+            </tr>
+            <tr>
+              <td>Terms and Licenses</td>
               <td>The PGS Catalog distributes its data according to EBI’s standard <a href="{{ ebi_url }}/about/terms-of-use">Terms of use</a>.
                   Some PGS have specific terms, licenses, or restrictions (e.g. non-commercial use) that we highlight in this field, if known.</td>
             </tr>
@@ -143,32 +146,32 @@
 
         <p>The following information about the PGS are captured in tables and described in subsequent sections:</p>
 
-        <table class="table table-bordered table-left-col-filled">
+        <table class="table table-bordered table-left-col-filled table-left-col-bold">
           <tbody>
             <tr>
-              <td><b>Development Samples</b></td>
+              <td>Development Samples</td>
               <td>
                 <p>Information about the samples used for the development of the PGS. Relevant column descriptions are in the <a href="#desc_smpl">Sample Description</a> section.</p>
-                <table class="table table-bordered table-left-col-filled">
+                <table class="table table-bordered table-left-col-filled table-left-col-bold">
                   <tbody>
                     <tr>
-                      <td><b>Source of Variant Associations</b> (GWAS)</td>
+                      <td>Source of Variant Associations <span>(GWAS)</span></td>
                       <td>A table describing the samples used to define the variant associations/effect-sizes used in the PGS. These data are extracted from the NHGRI-EBI GWAS Catalog when a study ID (GCST) is available.</td>
                     </tr>
                     <tr>
-                      <td><b>Score Development/Training</b></td>
+                      <td>Score Development/Training</td>
                       <td>A table describing the samples used to develop or train the score (<i>e.g.</i> not used for variant discovery, and non-overlapping with the samples used to evaluate the PGS predictive ability).</td>
                     </tr>
                   </tbody>
                 </table>
             </tr>
             <tr>
-              <td><b>Performance Metrics</b></td>
+              <td>Performance Metrics</td>
               <td>A record of the performance metrics that have been reported for the PGS. Relevant column descriptions are in the <a href="#desc_perf">Performance Metrics</a> section</td>
             </tr>
             <tr>
-              <td><b>Evaluated Samples</b></td>
-              <td>Information about the samples used in PGS performance evaluation. These samples have an <u>PGS Catalog Sample Set (<b>PSS</b>) ID</u> to link them to their associated performance metrics (and across different PGS). Relevant column descriptions are in the <a href="#desc_smpl">Sample Description</a> section.</td>
+              <td>Evaluated Samples</td>
+              <td>Information about the samples used in PGS performance evaluation. These samples have an <u>PGS Catalog Sample Set ID (<b>PSS ID</b>)</u> to link them to their associated performance metrics (and across different PGS). Relevant column descriptions are in the <a href="#desc_smpl">Sample Description</a> section.</td>
             </tr>
           </tbody>
         </table>
@@ -179,27 +182,27 @@
         For a complete description of why the trait ontology is employed please refer to <a href="https://www.ebi.ac.uk/gwas/docs/ontology">related documentation</a> from the NHGRI-EBI GWAS Catalog.
         The Experimental Factor Ontology is hosted and described here: <a href="https://www.ebi.ac.uk/efo/">Experimental Factor Ontology (EFO)</a>. The information for each EFO trait ID that is stored in the PGS catalog is:</p>
 
-        <table class="table table-bordered table-left-col-filled">
+        <table class="table table-bordered table-left-col-filled table-left-col-bold">
           <tbody>
             <tr>
-              <td><b>Trait</b></td>
+              <td>Trait</td>
               <td>The trait label from the ontology.</td>
             </tr>
             <tr>
-              <td><b>Identifier</b></td>
+              <td>Identifier</td>
               <td>The Experimental Factor Ontology ID (EFO_ID) identifier to consistently refer to traits using the <a href="https://www.ebi.ac.uk/efo/">EFO</a>, and to other resources like the <a href="https://www.ebi.ac.uk/gwas">NHGRI-EBI GWAS Catalog</a>.</td>
             </tr>
 
             <tr>
-              <td><b>Description</b></td>
+              <td>Description</td>
               <td>Detailed description of the trait from EFO.</td>
             </tr>
             <tr>
-                <td><b>Synonyms</b></td>
+                <td>Synonyms</td>
                 <td>Other names for the trait.</td>
             </tr>
             <tr>
-                <td><b>Mapped Term(s)</b></td>
+                <td>Mapped Term(s)</td>
                 <td>Includes references to terms in other databases and ontologies (<i>e.g.</i> ICD9/ICD10, MONDO, SNOMEDCT, <i>etc.</i>).</td>
             </tr>
           </tbody>
@@ -209,56 +212,56 @@
         <h4 id="desc_smpl">Sample</h4>
         <p>A consistent set of fields are used to describe the samples used to develop and evaluate each PGS:</p>
 
-        <table class="table table-bordered table-left-col-filled">
+        <table class="table table-bordered table-left-col-filled table-left-col-bold">
           <tbody>
             <tr>
-              <td><b>PGS Catalog Sample Set ID</b> (PSS ID)</td>
+              <td>PGS Catalog Sample Set ID <span>(PSS ID)</span></td>
               <td>PSS IDs are assigned to describe samples used in PGS evaluations (<i>e.g.</i> Performance Metrics). PSS IDs are not uniquely associated with a single PGS, multiple PGS can be evaluated on the sample sets (PSS ID).</td>
             </tr>
             <tr>
-              <td><b>Phenotype Definitions and Methods</b></td>
+              <td>Phenotype Definitions and Methods</td>
               <td>A description of how the phenotype was measured or defined (<i>e.g.</i> ICD codes used to identify cases/phenotypes in EHR data). </td>
             </tr>
             <tr>
-              <td><b>Participant Follow-up Time</b></td>
+              <td>Participant Follow-up Time</td>
               <td>A summary of the follow-up time (mean/median, range/confidence intervals) for participants that are part of a prospective cohort/study design (used to measure disease incidence).</td>
             </tr>
             <tr>
             <tr>
-              <td><b>Study Identifiers</b></td>
+              <td>Study Identifiers</td>
               <td>Identifiers used to link the samples to their initial descriptions (<i>e.g.</i> using PubMed IDs) and if they were used for variant associations to their associated GWAS studies (using NHGRI-EBI GWAS Catalog GCST IDs).</td>
             </tr>
             <tr>
-              <td><b>Sample Numbers</b></td>
-              <td>This field describes the number of individuals included in the sample, along with the number of cases and controls (if the trait is dichotomous), and the percent of participants that are male (if available).</td>
+              <td>Sample Numbers</td>
+              <td>This field describes the number of individuals included in the sample, along with the number of cases and controls (if the trait is dichotomous), and the percent of participants that are male (if available). In cases where the study does not provide the exact sample size we display the value as  NR (not reported) and as missing in the API/metadata downloads.</td>
             </tr>
             <tr>
-              <td><b>Age of Study Participants</b></td>
+              <td>Age of Study Participants</td>
               <td>A summary (mean/median, range/confidence intervals) of study participants ages.</td>
             </tr>
             <tr>
-              <td><b>Ancestry fields:</b></td>
+              <td>Ancestry fields:</td>
               <td><p>Fields describing sample ancestry are curated according to the framework used to record ancestry data from the NHGRI-EBI GWAS Catalog. See our <a href="/docs/ancestry/">Ancestry Documentation</a> page for a complete description of how ancestry is represented and described in the PGS Catalog.</p>
-                <table class="table table-bordered table-left-col-filled">
+                <table class="table table-bordered table-left-col-filled table-left-col-bold">
                   <tbody>
                     <tr>
-                      <td><b>Broad Ancestry Category</b></td>
+                      <td>Broad Ancestry Category</td>
                       <td>Author reported ancestry is mapped to the best matching ancestry category from the NHGRI-EBI GWAS Catalog framework (<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5815218/table/Tab1/?report=objectonly">Table 1, Morales <i>et al.</i> (2018)</a>).</td>
                     </tr>
                     <tr>
-                      <td><b>Ancestry</b></td>
+                      <td>Ancestry</td>
                       <td>A more detailed description of sample ancestry that usually matches the most specific description described by the authors (e.g. French, Chinese).</td>
                     </tr>
                     <tr>
-                      <td><b>Sample Ancestry</b></td>
+                      <td>Sample Ancestry</td>
                       <td>Is displayed on the website, and represents a combination of the two ancestry categories (with the more specific terms in brackets).</td>
                     </tr>
                     <tr>
-                      <td><b>Country of recruitment</b></td>
+                      <td>Country of recruitment</td>
                       <td>Author reported countries of recruitment (if available).</td>
                     </tr>
                     <tr>
-                      <td><b>Additional Ancestry Description</b></td>
+                      <td>Additional Ancestry Description</td>
                       <td>Any additional description not captured in the structured data (<i>e.g.</i> founder or genetically isolated populations, or further description of admixed samples).</td>
                     </tr>
                   </tbody>
@@ -266,11 +269,11 @@
               </td>
             </tr>
             <tr>
-              <td><b>Cohort(s)</b></td>
+              <td>Cohort(s)</td>
                 <td><p>A list of cohorts that collected the samples.</p>The initial list of common cohorts used in genetics studies that seeded these annotations is from <a href="https://doi.org/10.1038/s42003-018-0261-x">Mills & Rahal. <i>Communications Biology</i> (2019)</a>.</td>
             </tr>
             <tr>
-              <td><b>Additional Sample/Cohort Information</b></td>
+              <td>Additional Sample/Cohort Information</td>
               <td>Any additional description about the samples and what they were used for that is not captured by the structured categories (<i>e.g.</i> sub-cohort information).</td>
             </tr>
           </tbody>
@@ -279,36 +282,36 @@
         <br />
         <h4 id="desc_perf">Performance Metrics</h4>
         <p>Each evaluation of a PGS is given a <u>PGS Performance Metric (<b>PPM</b>) ID</u> that links it to a description of the results:</p>
-        <table class="table table-bordered table-left-col-filled">
+        <table class="table table-bordered table-left-col-filled table-left-col-bold">
           <tbody>
             <tr>
-              <td><b>PGS Catalog Sample Set (PSS) ID</b></td>
+              <td>PGS Catalog Sample Set ID <span>(PSS ID)</span></td>
               <td>ID that links to the samples the displayed PGS evaluated.</td>
             </tr>
             <tr>
-              <td><b>Performance Source</b></td>
+              <td>Performance Source</td>
               <td>ID that links to the publication where the performance metrics were reported. </td>
             </tr>
             <tr>
-              <td><b>Trait</b></td>
+              <td>Trait</td>
               <td>This field displays both the <u>Reported</u> and <u>Mapped Traits</u>. The reported trait often corresponds to the test set names reported in the publication, or more specific aspects of the phenotype being tested (<i>e.g.</i> if the disease cases are incident vs. recurrent events).</td>
             </tr>
             <tr>
-              <td><b>Reported values:</b></td>
+              <td>Reported values:</td>
               <td>
               	<p>The reported values of the performance metrics are all reported similarly (<i>e.g.</i> the estimate is recorded along with the 95% confidence interval (if supplied)) and grouped according to the type of statistic they represent:</p>
-                <table class="table table-bordered table-left-col-filled">
+                <table class="table table-bordered table-left-col-filled table-left-col-bold">
                   <tbody>
                     <tr>
-                		  <td><b>PGS Effect Sizes (per SD change)</b></td>
+                		  <td>PGS Effect Sizes (per SD change)</td>
                 		  <td>Standardized effect sizes, per standard deviation [SD] change in PGS. Examples include regression coefficients (betas) for continuous traits, Odds ratios (OR) and/or Hazard ratios (HR) for dichotomous traits depending on the availability of time-to-event data.</td>
                 		</tr>
                 		<tr>
-                		  <td><b>PGS Classification Metrics</b></td>
+                		  <td>PGS Classification Metrics</td>
                 		  <td>Examples include the Area under the Receiver Operating Characteristic (AUROC) or Harrell's C-index (Concordance statistic).</td>
                 		</tr>
                 		<tr>
-                		  <td><b>Other Metrics</b></td>
+                		  <td>Other Metrics</td>
                 		  <td>Metrics that do not fit into the other two categories. Examples include: <i>R<sup>2</sup></i> (proportion of the variance explained), or reclassification metrics.</td>
                 		</tr>
               	  </tbody>
@@ -316,11 +319,11 @@
               </td>
             </tr>
                <tr>
-              <td><b>Covariates Included in PGS Model</b></td>
+              <td>Covariates Included in PGS Model</td>
               <td>A comma-separated list of covariates used in the prediction model to evaluate the PGS. Examples include: age, sex, smoking habits, etc.</td>
             </tr>
             <tr>
-              <td><b>PGS Performance: Other Relevant Information</b></td>
+              <td>PGS Performance: Other Relevant Information</td>
               <td>Any other information relevant to the understanding of the performance metrics.</td>
             </tr>
           </tbody>

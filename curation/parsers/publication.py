@@ -76,7 +76,11 @@ class PublicationData(GenericData):
         payload['query'] = query
         result = requests.get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', params=payload)
         result = result.json()
-        result = result['resultList']['result'][0]
+        try:
+            result = result['resultList']['result'][0]
+        except:
+            result = {}
+            print("ERROR: Can't find the paper in EuropePMC!")
         return result
 
 

@@ -5,11 +5,14 @@ from catalog.models import Cohort
 
 class CohortData(GenericData):
 
-    def __init__(self,name,name_long):
+    def __init__(self,name,name_long,name_others):
         GenericData.__init__(self)
         self.name = name.strip()
         self.name_long = name_long.strip()
-        self.cohort_tuple = (self.name,self.name_long)
+        self.name_others = name_others
+        if self.name_others:
+            self.name_others = self.name_others.strip()
+        self.cohort_tuple = (self.name,self.name_long,self.name_others)
 
     def check_cohort(self):
         '''
@@ -33,9 +36,9 @@ class CohortData(GenericData):
                 print(f'New cohort "{self.name}".')
                 self.model = None
             except:
-                print(f'ERROR with cohort {self.name} duplicated!')    
+                print(f'ERROR with cohort {self.name} duplicated!')
         except:
-            print(f'ERROR with cohort {self.name} ({self.name_long}) duplicated!')    
+            print(f'ERROR with cohort {self.name} ({self.name_long}) duplicated!')
 
 
     @transaction.atomic
@@ -51,9 +54,11 @@ class CohortData(GenericData):
                     self.model = Cohort()
                     self.model.name_short=self.name
                     self.model.name_full=self.name_long
+                    if self.name_others:
+                        self.model.name_others=self.name_others
                     self.model.save()
         except IntegrityError as e:
             self.model = None
             print('Error with the creation of the Cohort')
-        
+
         return self.model

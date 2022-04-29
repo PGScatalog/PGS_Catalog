@@ -61,6 +61,9 @@ class UpdateScoreAncestry:
         for sample in samples:
             ancestry = sample.ancestry_broad.strip()
             sample_number = sample.sample_number
+            if not sample_number:
+                continue
+
             anc_code = self.get_ancestry_code(ancestry,stage)
             self.script_logs(f'\t\t- {ancestry} ({anc_code}): {sample_number}')
             if not anc_code in data_ancestry:
@@ -71,6 +74,7 @@ class UpdateScoreAncestry:
                 data_ancestry[anc_code] += sample_number
 
             data_ancestry_total += sample_number
+
         # Simplify values
         if len(data_ancestry.keys())==1 and data_ancestry_total == 0:
             for key,value in data_ancestry.items():
