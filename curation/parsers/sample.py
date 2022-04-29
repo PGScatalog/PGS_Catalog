@@ -25,7 +25,7 @@ class SampleData(GenericData):
             current_demographic.add_data('estimate', val)
         else:
             # Split by ; in case of multiple sub-fields
-            l = val.split(';')
+            l = str(val).split(';')
             for x in l:
                 values = x.split('=')
                 if len(values) == 2:
