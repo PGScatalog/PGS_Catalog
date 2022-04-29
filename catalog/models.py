@@ -420,7 +420,7 @@ class Sample(models.Model):
 
     # Sample Information
     ## Numbers
-    sample_number = models.IntegerField('Number of Individuals', validators=[MinValueValidator(1)])
+    sample_number = models.IntegerField('Number of Individuals', null=True)
     sample_cases = models.IntegerField('Number of Cases', null=True)
     sample_controls = models.IntegerField('Number of Controls', null=True)
     sample_percent_male = models.FloatField('Percent of Participants Who are Male', validators=[MinValueValidator(0), MaxValueValidator(100)], null=True)
@@ -522,7 +522,9 @@ class Sample(models.Model):
 
     @property
     def display_sample_number_total(self):
-        ssinfo = common.individuals_format(self.sample_number)
+        ssinfo = 'NR'
+        if self.sample_number != None:
+            ssinfo = common.individuals_format(self.sample_number)
         return ssinfo
 
     @property

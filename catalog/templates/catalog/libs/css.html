@@ -1,0 +1,29 @@
+{% load static %}
+{% if is_pgs_app_on_gae == 0 %}
+  {% load compress %}
+{% endif %}
+
+<!-- Boostrap CSS libraries -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css" crossorigin="anonymous"/>
+{% if has_table %}
+  <link href="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.css" rel="stylesheet"/>
+{% endif %}
+
+<!-- jQuery UI -->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+
+<!-- CSS: implied media=all -->
+<!-- CSS concatenated and minified via ant build script -->
+{% if has_ebi_icons %}
+  <link rel="stylesheet" href="https://dev.ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
+{% endif %}
+
+<!-- PGS (S)CSS file -->
+{% if is_pgs_app_on_gae %}
+  <link rel="stylesheet" href="{% static 'catalog/pgs.min.css' %}" type="text/css" media="all" />
+{% else %}
+  {% compress css %}
+    <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen"/>
+  {% endcompress %}
+{% endif %}
