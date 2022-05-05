@@ -354,7 +354,6 @@ $(document).ready(function() {
           anc_filter.push($(this).val());
         }
       });
-
       anc_filter_length = anc_filter.length;
 
 
@@ -434,7 +433,6 @@ $(document).ready(function() {
           $.each(perf_data,function(i, row) {
             var pgs_td = row['score'];
             var pgs_id = $(pgs_td).html(); // Only take the <a> text
-
             if ($.inArray(pgs_id, pgs_ids_list) != -1) {
               // PPM
               var ppm_id = row['id'];
@@ -495,7 +493,6 @@ $(window).on('load', function() {
 
     // Alter the table display
     format_table_content(0);
-
   }, 500);
 });
 
@@ -512,7 +509,7 @@ function search_validator(){
 
 
 function pgs_toggle_btn(el) {
-  el.find('i').toggleClass("fa-plus-circle fa-minus-circle");
+  el.toggleClass("pgs_btn_plus pgs_btn_minus");
   id = el.attr('id');
   prefix = '#list_';
   $(prefix+id).toggle();
@@ -1071,7 +1068,15 @@ class PGSPieChartSmall extends PGSPieChart {
   }
 
   set_colours() {
-    this.colours_list = (this.type == 'sample') ? ["#3E95CD", "#8E5EA2"] : ["#F18F2B", "#4F78A7"];
+    if (this.type == 'sample') {
+      this.colours_list = ["#3E95CD", "#8E5EA2"];
+    }
+    else if (this.type == 'gender') {
+      this.colours_list = ["#F18F2B", "#4F78A7"];
+    }
+    else {
+      this.colours_list = this.data.map(d => d.colour)
+    }
     this.colours = d3.scaleOrdinal()
       .domain(this.data.map(d => d.name))
       .range(this.colours_list);

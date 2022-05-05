@@ -24,6 +24,7 @@
                 <li><a href="#access_how">How to access PGS Catalog data?</a></li>
                 <li><a href="#cite_how">How to cite the PGS Catalog?</a></li>
                 <li><a href="#submit_how">How to submit data to the PGS Catalog?</a></li>
+                <li><a href="#terms_of_use">What are the terms and conditions to use the PGS Catalog data?</a></li>
               </ul>
             </li>
             <li class="content_group">
@@ -46,9 +47,9 @@
       <p>
         <i class="fas fa-angle-right pgs_color_1 mr-2"></i>PGS Catalog <b>metadata</b> (i.e. traits, authors, methods, performance metrics, cohort, etc...) is available through:
         <ul>
-          <li><span class="badge badge-pgs mr-2 mb-1"><i class="far fa-window-maximize"></i></span>The PGS Catalog web interface: via the "Search bar" and the 3 different "Browse" pages (Scores, Traits and Publications).</li>
-          <li><span class="badge badge-pgs mr-2 mb-1"><i class="fas fa-folder"></i></span>The <a href="{{ pgs_ftp_http_meta }}">PGS Catalog FTP</a>: in bulk download (whole Catalog), by individual score or by study (for the large ones only). For more information, please see the <a href="/downloads">Download</a> page.</li>
-          <li><span class="badge badge-pgs mr-1"><i class="fas fa-code"></i></span>The <a href="/rest">PGS Catalog REST API</a>:  Programmatic access to the PGS Catalog metadata.</li>
+          <li class="mb-1"><span class="btn-pgs-like mr-2"><i class="far fa-window-maximize"></i></span>The PGS Catalog web interface: via the "Search bar" and the 3 different "Browse" pages (Scores, Traits and Publications).</li>
+          <li class="mb-1"><span class="btn-pgs-like mr-2"><i class="fas fa-folder"></i></span>The <a href="{{ pgs_ftp_http_meta }}">PGS Catalog FTP</a>: in bulk download (whole Catalog), by individual score or by study (for the large ones only). For more information, please see the <a href="/downloads">Download</a> page.</li>
+          <li><span class="btn-pgs-like mr-1"><i class="fas fa-code"></i></span>The <a href="/rest">PGS Catalog REST API</a>:  Programmatic access to the PGS Catalog metadata.</li>
         </ul>
         On the web interface, separate pages are available for each Score, Trait and Publication so that each of these can be explored individually.
         It works the same way in the REST API with separated endpoints for score, trait and publication.
@@ -78,6 +79,13 @@
       <p>
         Published or preprinted polygenic score data meeting our <a href="/about/#eligibility">inclusion criteria</a> can be indexed in the Catalog. Please see the <a href="/about/#submission">About</a> page for a guide for authors looking to submit their data to the Catalog.<br />Pre-publication data can also be submitted and embargoed until publication to meet journal requirements.
       </p>
+
+
+      <h3 class="mt-5" id="terms_of_use">What are the terms and conditions to use the PGS Catalog data?</h3>
+      <p>
+        The PGS Catalog and all its contents are made available through the standard <a href="{{ terms_of_use }}">EMBL-EBI terms of use</a>.<br/>
+        Some scores have a known specific license (e.g. Creative Commons or specific non-commercial terms). These licenses are listed in the scoring file header, API/metadata and web display.
+      </p>
     </section>
 
 
@@ -87,7 +95,7 @@
 
       <h3 class="mt-5" id="search_how">How to search the PGS Catalog?</h3>
       <p>
-        Type your query, e.g. “<b><span class="search_link">breast carcinoma</span></b>”, into the search box and hit return or click the search icon <span class="badge badge-pgs"><i class="fas fa-search "></i></span>.
+        Type your query, e.g. “<b><span class="search_link">breast carcinoma</span></b>”, into the search box and hit return or click the search icon <span class="btn-pgs-like"><i class="fas fa-search "></i></span>.
         You can type any text you wish into the search bar.
       </p>
 
@@ -113,7 +121,7 @@
         Here are the trait information that are searchable:
         <div class="table-responsive mt-2">
           <table class="table table-striped table_pgs_auto">
-            <thead class="thead-light">
+            <thead class="thead_pgs">
               <tr><th>Data type</th><th>Example</th>
               </tr>
             </thead>
@@ -135,7 +143,7 @@
         Here are the publication information that are searchable:
         <div class="table-responsive mt-2">
           <table class="table table-striped table_pgs_auto">
-            <thead class="thead-light">
+            <thead class="thead_pgs">
               <tr><th>Data type</th><th>Example</th>
               </tr>
             </thead>
@@ -157,7 +165,7 @@
         Here are the score information that are searchable:
         <div class="table-responsive mt-2">
           <table class="table table-striped table_pgs_auto">
-            <thead class="thead-light">
+            <thead class="thead_pgs">
               <tr><th>Data type</th><th>Example</th>
               </tr>
             </thead>
@@ -190,25 +198,22 @@
               <span class="badge badge-pill badge-pgs">37</span>
             </div>
 
+            <div class="search_facet" id="scores_facet">
+              <i class="far fa-circle"></i>
+              <div class="search_facet_type_1">Scores</div>
+              <span class="badge badge-pill badge-pgs">15</span>
+            </div>
+
             <div class="search_facet" id="efo_traits_facet">
               <i class="far fa-circle"></i>
-              <span class="search_facet_type search_facet_type_1"></span>
-              <div>Traits</div>
+              <div class="search_facet_type_2">Traits</div>
               <span class="badge badge-pill badge-pgs">11</span>
             </div>
 
             <div class="search_facet" id="publications_facet">
               <i class="far fa-circle"></i>
-              <span class="search_facet_type search_facet_type_2"></span>
-              <div>Publications</div>
+              <div class="search_facet_type_3">Publications</div>
               <span class="badge badge-pill badge-pgs">11</span>
-            </div>
-
-            <div class="search_facet" id="scores_facet">
-              <i class="far fa-circle"></i>
-              <span class="search_facet_type search_facet_type_3"></span>
-              <div>Scores</div>
-              <span class="badge badge-pill badge-pgs">15</span>
             </div>
 
           </div>
@@ -229,10 +234,10 @@
               </div>
             </div>
             <div class="more">An indicator of body density as determined by the relationship of BODY WEIGHT&nbsp;to&nbsp;BODY HEIG<span class="moreellipses">...&nbsp;</span><span class="morecontent">HT. BMI=weight (kg)/height squared (m2). BMI correlates with body fat (ADIPOSE TISSUE). Their relationship varies with age and gender. For adults, BMI falls into these categories: below 18.5 (underweight); 18.5-24.9 (normal); 25.0-29.9 (overweight); 30.0 and above (obese). (National Center for Health Statistics, Centers for Disease Control and Prevention)</span><span class="morelink link_more">Show more</span></div>
-            <div class="mt-1"><span class="pgs_result_count">Associated PGS <span class="badge badge-pill badge-pgs">17</span></span> <span class="pgs_result_button"> <a class="toggle_btn" id="EFO_0004340_scores">Show PGS <i class="fa fa-plus-circle"></i></a></span>
+            <div class="mt-1"><span class="pgs_result_count">Associated PGS <span class="badge badge-pill badge-pgs">17</span></span> <span class="pgs_result_button"> <a class="toggle_btn pgs_btn_plus" id="EFO_0004340_scores">Show PGS</a></span>
               <div class="toggle_content" id="list_EFO_0004340_scores" style="display:none">
                 <table class="table table-striped table_pgs_score_results mt-2">
-                  <thead class="thead-light">
+                  <thead>
                     <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
                   </thead>
                   <tbody>
@@ -254,10 +259,10 @@
               </h4>
             </div>
             <div class="pgs_result_content">Song M et al. (2017) - Diabetes<span><b>PMID</b>:29212779</span><span><b>doi</b>:10.2337/db17-1156</span><span><b>PGP</b>000021</span></div>
-            <div class="mt-1"><span class="pgs_result_count">PGS developed <span class="badge badge-pill badge-pgs">1</span></span> - <span class="pgs_result_count">PGS evaluated <span class="badge badge-pill badge-pgs">1</span></span> <span class="pgs_result_button"> <a class="toggle_btn" id="pub_0_scores">Show PGS <i class="fa fa-plus-circle"></i></a></span>
+            <div class="mt-1"><span class="pgs_result_count">PGS developed <span class="badge badge-pill badge-pgs">1</span></span> - <span class="pgs_result_count">PGS evaluated <span class="badge badge-pill badge-pgs">1</span></span> <span class="pgs_result_button"> <a class="toggle_btn pgs_btn_plus" id="pub_0_scores">Show PGS</a></span>
               <div class="toggle_content" id="list_pub_0_scores" style="display:none">
                 <table class="table table-striped table_pgs_score_results mt-2">
-                  <thead class="thead-light">
+                  <thead>
                     <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th><th>Developed</th><th>Evaluated</th></tr>
                   </thead>
                   <tbody>
@@ -285,7 +290,7 @@
         </p>
         <h6>Trait example:</h6>
         <table class="table table-striped table_pgs_score_results mt-2 mb-4">
-          <thead class="thead-light">
+          <thead>
             <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
           </thead>
           <tbody><tr><td><a href="/score/PGS000002">PGS000002</a></td><td>PRS77_ERpos</td><td>ER-positive Breast Cancer</td></tr>
@@ -299,7 +304,7 @@
 
         <h6>Publication example:</h6>
         <table class="table table-striped table_pgs_score_results mt-2">
-          <thead class="thead-light">
+          <thead>
             <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th><th>Developed</th><th>Evaluated</th></tr>
           </thead>
           <tbody>

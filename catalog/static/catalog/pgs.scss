@@ -19,9 +19,9 @@ $pgs_light_grey2: #FAFAFA;
 $pgs_note_title_1: $pgs_colour_1;
 $pgs_note_title_2: #F00;
 $pgs_note_title_3: $pgs_colour_2;
-$pgs_facet_1: $pgs_colour_2;
-$pgs_facet_2: #F58F22;
-$pgs_facet_3: $pgs_dark2;
+$pgs_facet_1: $pgs_dark2;
+$pgs_facet_2: $pgs_colour_2;
+$pgs_facet_3: #F58F22;
 $pgs_cases: #3E95CD;
 $pgs_controls: #8E5EA2;
 $pgs_male: #F18F2B;
@@ -176,6 +176,12 @@ h2 {
   }
 }
 
+.pgs_benchmark_logo:before {
+  font-family: 'Font Awesome 6 Free';
+  content:"\e0e3";
+  font-weight:900;
+}
+
 
 /* Navbar and horizontal menu */
 .navbar {
@@ -290,7 +296,6 @@ h2 {
   }
 }
 
-
 .nav-item {
   border-left: 1px solid $pgs_colour_white;
   &:last-child {
@@ -372,11 +377,11 @@ h2 {
     font-size: 18px;
     height:18px;
     vertical-align: top;
-    padding-right: 8px;
+    margin-right: 8px;
   }
   > div {
     display:inline;
-    padding-right: 4px;
+    margin-right: 4px;
     line-height: 18px;
     vertical-align: top;
   }
@@ -402,64 +407,46 @@ h2 {
     color: $pgs_colour_1;
   }
 }
-.search_facet_type {
-  font-weight:bold;
-  display: inline-block;
-  font-size:85%;
-  color: $pgs_colour_white !important;
-  border-radius: 50%;
-  line-height: 1.5em;
-  width: 1.6em;
-  text-align: center;
-}
 .search_facet_type_1 {
-  background-color:$pgs_facet_1 !important;
-  &::before {
-    content:"T";
-  }
+  border-bottom: 2px solid $pgs_facet_1;
 }
 .search_facet_type_2 {
-  background-color:$pgs_facet_2 !important;
-  &::before {
-    content:"P";
-  }
+  border-bottom: 2px solid $pgs_facet_2;
 }
 .search_facet_type_3 {
-  background-color:$pgs_facet_3 !important;
-  &::before {
-    content:"S";
-  }
+  border-bottom: 2px solid $pgs_facet_3;
 }
 .result_facet_type {
   font-weight:bold;
-  font-size:20px;
+  font-size:18px;
   color: white;
   display: inline-block;
   margin-right: 1rem;
+  padding: 3.5px 7.5px 2px;
   vertical-align: middle;
   border-radius: 50%;
 }
 .result_facet_type_1 {
   background-color:$pgs_facet_1;
-  padding: 3px 9px 2px;
-  &::before {
-    content:"T";
-  }
-}
-.result_facet_type_2 {
-  background-color:$pgs_facet_2;
-  padding: 2.5px 8.5px;
-  &::before {
-    content:"P";
-  }
-}
-.result_facet_type_3 {
-  background-color:$pgs_facet_3;
-  padding: 2.5px 8.5px;
   &::before {
     content:"S";
   }
 }
+.result_facet_type_2 {
+  background-color:$pgs_facet_2;
+  padding-left:8px !important;
+  padding-right:8px !important;
+  &::before {
+    content:"T";
+  }
+}
+.result_facet_type_3 {
+  background-color:$pgs_facet_3;
+  &::before {
+    content:"P";
+  }
+}
+
 
 
 /* Dropdown menu */
@@ -546,6 +533,9 @@ h2 {
    &:hover {
     background-color:$pgs_colour_1;
     color:$pgs_colour_white;
+    i {
+      color: $pgs_colour_white !important;
+    }
   }
   .active {
     background-color:$pgs_colour_1;
@@ -553,7 +543,7 @@ h2 {
 }
 
 .breadcrumb {
-  padding: 4px 14px;
+  padding: 4px 12px;
   margin-top: 1rem;
   .breadcrumb-item a {
     border:none;
@@ -659,8 +649,10 @@ th .th-inner-not-sortable {
     border-radius: 2px;
     box-shadow: 2px 2px 8px $pgs_darkC;
     background-color: $pgs_colour_1;
+    border-bottom: 4px solid $pgs_colour_1;
 
     &:hover, &:focus {
+      border-bottom: 4px solid $pgs_colour_1_lighter;
       background-color: $pgs_colour_1_lighter;
       transition: background-color .1s;
     }
@@ -675,12 +667,21 @@ th .th-inner-not-sortable {
     > div:nth-child(2) {
       font-size: 40px;
       color: $pgs_colour_white;
-      .fa-dna {
-        font-size:32px !important;
-        padding:4px;
-      }
     }
   }
+}
+#browse_score_btn {
+  border-color: $pgs_facet_1 !important;
+  .fa-dna {
+    font-size:32px !important;
+    padding:4px;
+  }
+}
+#browse_trait_btn {
+  border-color: $pgs_facet_2 !important;
+}
+#browse_publication_btn {
+  border-color: $pgs_facet_3 !important;
 }
 
 .pgs_benchmark {
@@ -765,15 +766,9 @@ th .th-inner-not-sortable {
 .toggle_btn, .toggle_table_btn {
   cursor:pointer !important;
   white-space: nowrap;
-  i {
-    color: $pgs_colour_1;
-    &:hover {
-      color: $pgs_colour_1_lighter;
-    }
-  }
   &:hover {
-    i {
-      color: $pgs_colour_1_lighter;
+    &:after {
+      color: $pgs_colour_1_lighter !important;
     }
   }
 }
@@ -783,6 +778,21 @@ th .th-inner-not-sortable {
     padding-inline-start: 20px;
     margin-bottom: 0.5em;
   }
+}
+.pgs_btn_plus:after {
+  color: $pgs_colour_1;
+  padding-left: 4px;
+  font-family: "Font Awesome 6 Free";
+  content: "\f055";
+  font-weight:900;
+
+}
+.pgs_btn_minus:after {
+  color: $pgs_colour_1;
+  padding-left: 4px;
+  font-family: "Font Awesome 6 Free";
+  content: "\f056";
+  font-weight:900;
 }
 
 
@@ -806,6 +816,13 @@ th .th-inner-not-sortable {
   }
 }
 
+tr.table-tr-hl > td {
+  background-color: $pgs_dark2;
+  color: $pgs_colour_white;
+  padding: 8px;
+  font-style: normal !important;
+}
+
 td > ul {
   padding-inline-start: 1.5rem;
   margin-bottom: 0px;
@@ -817,6 +834,15 @@ td > ul {
   tbody > tr > td:first-child {
     font-weight:bold;
     font-style: italic;
+  }
+}
+
+.thead_pgs {
+  th {
+    color: $pgs_colour_white;
+    background-color: $pgs_colour_1;
+    border-bottom: 2px solid $pgs_colour_1_lighter !important;
+    padding:12px;
   }
 }
 
@@ -866,7 +892,7 @@ td > ul {
 
 /* Icons related CSS */
 .external-link:after {
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f35d";
   display: inline-block;
   font-size: 0.6rem;
@@ -905,7 +931,7 @@ td > ul {
 .pgs-info-icon {
   white-space: nowrap;
   &:before {
-    font-family: 'Font Awesome 5 Free';
+    font-family: 'Font Awesome 6 Free';
     content:"\f05a";
     color: $pgs_colour_1;
     font-weight: 900;
@@ -916,7 +942,7 @@ td > ul {
   display: block;
   font-size: 80%;
   &:before {
-    font-family: 'Font Awesome 5 Free';
+    font-family: 'Font Awesome 6 Free';
     content:"\f101";
     padding-right:4px;
     font-weight: 900;
@@ -944,7 +970,7 @@ td > ul {
   padding-left: 0.1rem;
   padding-right: 0.25rem;
   &:before {
-    font-family: 'Font Awesome 5 Free';
+    font-family: 'Font Awesome 6 Free';
     content:"\f15c";
     font-weight: 900;
   }
@@ -1127,6 +1153,9 @@ td > ul {
 .pgs_color_1 {
   color: $pgs_colour_1 !important;
 }
+.pgs_color_1l {
+  color: $pgs_colour_1_lighter !important;
+}
 .pgs_color_2 {
   color: $pgs_colour_2 !important;
 }
@@ -1147,7 +1176,23 @@ td > ul {
 }
 
 .pgs_bg_light_grey {
-  background-color: $pgs_light_grey;
+  background-color: $pgs_light_grey !important;
+}
+.pgs_bg_color_1 {
+  background-color: $pgs_colour_1 !important;
+  color: $pgs_colour_white;
+}
+.pgs_bg_color_red {
+  background-color: $pgs_colour_red !important;
+  color: $pgs_colour_white;
+}
+.pgs_bg_color_amber {
+  background-color: $pgs_colour_amber !important;
+  color: $pgs_colour_white;
+}
+.pgs_bg_color_green {
+  background-color: $pgs_colour_green !important;
+  color: $pgs_colour_white;
 }
 
 .btn-pgs, .btn-pgs-small {
@@ -1181,6 +1226,16 @@ td > ul {
 .btn-pgs-small {
   font-size: 14px;
   padding: 3px 8px;
+}
+
+.btn-pgs-like {
+  i {
+    font-size:14px;
+    border-radius:4px;
+    background-color: $pgs_colour_1;
+    color:$pgs_colour_white;
+    padding:3px 3px;
+  }
 }
 
 a.link-with-btn {
@@ -1261,7 +1316,7 @@ a.link-with-btn {
   }
 }
 .link_more:after {
-    font-family: 'Font Awesome 5 Free';
+    font-family: 'Font Awesome 6 Free';
     content:"\f054";
     vertical-align: baseline;
     padding-left:4px;
@@ -1269,7 +1324,7 @@ a.link-with-btn {
     font-weight: 900;
 }
 .link_less:before {
-    font-family: 'Font Awesome 5 Free';
+    font-family: 'Font Awesome 6 Free';
     content:"\f053";
     vertical-align: baseline;
     padding-right:4px;
@@ -1298,7 +1353,7 @@ a.link-with-btn {
 .sample_controls:before,
 .sample_male:before
  {
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f007";
   font-weight: 400;
   padding-right: 8px;
@@ -1673,9 +1728,9 @@ footer {
   }
   .pgs_result_content {
     > span {
-      border-left:1px solid $pgs_colour_2;
-      padding-left: .5rem!important;
-      margin-left: .5rem!important;
+      padding-left: .5rem !important;
+      margin-left: .5rem !important;
+      border-left: 1px solid $pgs_colour_2;
     }
   }
   .pgs_result_count {
@@ -1698,7 +1753,7 @@ footer {
   .pgs_result_button {
     &:before {
       color: $pgs_colour_1;
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       content: "\f101";
       font-weight:900;
     }
@@ -1939,7 +1994,10 @@ footer {
         border-left: none;
         display: block;
         padding-left: 0px !important;
-        margin-left: 0px !important;
+        &:before {
+          content:"";
+          padding-right: 0px;
+        }
       }
     }
   }
@@ -2438,7 +2496,7 @@ $ancestry_labels: (
     color: $anc_colour;
     &:before {
       color: $anc_colour;
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       content: "\f0c8";
       font-weight:900;
     }

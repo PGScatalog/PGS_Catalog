@@ -11,11 +11,11 @@
     <div class="release_label">
       <div>
         <span data-toggle="tooltip" data-placement="bottom" data-html="true" title="New Polygenic Scores: <b>{{ release.score_count }}</b><br />New Publications: <b>{{ release.publication_count }}</b>">
-          <i class="fas fa-calendar-alt pgs_color_1"></i> <a href="/latest_release">Latest release: <b>{{ release.date }}</b></a>
+          <i class="far fa-calendar-check pgs_color_1"></i> <a href="/latest_release">Latest release: <b>{{ release.date }}</b></a>
         </span>
       {% if is_pgs_curation_site %}
         <i class="fas fa-arrow-right" class="pl-3 pr-3"></i>
-        <a href="/releases"  data-toggle="tooltip" data-placement="bottom" title="Releases details"><i class="far fa-chart-bar pgs_color_1"></i></a>
+        <a href="/releases"  data-toggle="tooltip" data-placement="bottom" title="Releases details"><i class="fas fa-chart-line pgs_color_1"></i></a>
       {% endif %}
       </div>
     </div>
@@ -63,34 +63,34 @@
     </div>
     <div class="row no-gutters pgs_browse">
       <div class="col-xs-6 col-md-4">
-        <a class="pgs_no_icon_link clearfix" href="/browse/scores/">
+        <a id="browse_score_btn" class="pgs_no_icon_link clearfix" href="/browse/scores/">
           <div>Polygenic Scores</div>
           <div><i class="fas fa-dna pgs_color_white"></i> {{ num_pgs }}{% if num_pgs_not_released %}*{% endif %}</div>
           {% if num_pgs_not_released %}
-            <div style="color:#FFF">
-              <i class="fas fa-asterisk" style="color:#FFF"></i> <b>{{ num_pgs_not_released }}</b> not yet released
+            <div class="pgs_color_white">
+              <i class="fas fa-asterisk pgs_color_white" ></i> <b>{{ num_pgs_not_released }}</b> not yet released
             </div>
           {% endif %}
         </a>
       </div>
       <div class="col-xs-6 col-md-4">
-        <a class="pgs_no_icon_link" href="/browse/traits/">
+        <a id="browse_trait_btn" class="pgs_no_icon_link" href="/browse/traits/">
           <div>Traits</div>
           <div class="icon icon-species" data-icon="H"> {{ num_traits }}{% if num_traits_not_released %}*{% endif %}</div>
           {% if num_traits_not_released %}
-            <div style="color:#FFF">
-              <i class="fas fa-asterisk" style="color:#FFF"></i> <b>{{ num_traits_not_released }}</b> not yet released
+            <div class="pgs_color_white">
+              <i class="fas fa-asterisk pgs_color_white"></i> <b>{{ num_traits_not_released }}</b> not yet released
             </div>
           {% endif %}
         </a>
       </div>
       <div class="col-xs-6 col-md-4">
-        <a class="pgs_no_icon_link" href="/browse/studies/">
+        <a id="browse_publication_btn" class="pgs_no_icon_link" href="/browse/studies/">
           <div>Publications</div>
           <div class="icon icon-common" data-icon="&#xf2ec;"> {{ num_pubs }}{% if num_pubs_not_released %}*{% endif %}</div>
           {% if num_pubs_not_released %}
-            <div style="color:#FFF">
-              <i class="fas fa-asterisk" style="color:#FFF"></i> <b>{{ num_pubs_not_released }}</b> not yet released
+            <div class="pgs_color_white">
+              <i class="fas fa-asterisk pgs_color_white"></i> <b>{{ num_pubs_not_released }}</b> not yet released
             </div>
           {% endif %}
         </a>
@@ -101,7 +101,7 @@
     <div class="row no-gutters pgs_section mb-5">
       <div class="col">
         <a class="btn btn-pgs-2 pgs_no_icon_link" href="/submit/">
-          <span class="fas fa-upload pr-2"></span>Submit a PGS
+          <span class="fas fa-file-import pr-2"></span>Submit a PGS
         </a>
       </div>
     </div>

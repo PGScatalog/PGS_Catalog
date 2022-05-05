@@ -215,7 +215,11 @@ class EFOTrait_Base(models.Model):
 
     @property
     def display_ext_url(self):
-        return '<a href="%s">%s</a>'%(self.url, self.id)
+        if not self.id.startswith('EFO'):
+            url = 'https://www.ebi.ac.uk/ols/ontologies/efo/terms?iri='+self.url
+        else:
+            url = self.url
+        return '<a href="%s">%s</a>'%(url, self.id)
 
     @property
     def description_list(self):
@@ -503,7 +507,7 @@ class Sample(models.Model):
         div_id = "sample_"+str(self.pk)
         sstring = ''
         if self.sample_cases != None:
-            sstring += '<div><a class="toggle_table_btn pgs_helptip" id="{}" title="Click to show/hide the details">{} <i class="fas fa-plus-circle"></i></a></div>'.format(div_id,common.individuals_format(self.sample_number))
+            sstring += '<div><a class="toggle_table_btn pgs_btn_plus pgs_helptip" id="{}" title="Click to show/hide the details">{}</a></div>'.format(div_id,common.individuals_format(self.sample_number))
             sstring += '<div class="toggle_list" id="list_'+div_id+'">'
             sstring += '<span class="only_export">[</span>'
             sstring += '<ul>\n<li>{:,} cases</li>\n'.format(self.sample_cases)
@@ -697,7 +701,7 @@ class Score(models.Model):
                         label = ancestry_labels[key]
                         multi_anc_html = ''
                         if key in multi_legend:
-                            multi_anc_html += f' <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="{key}_{stage}" title="" data-original-title="Click to show/hide the list of ancestries"><i class="fas fa-plus-circle"></i></a></div>'
+                            multi_anc_html += f' <a class="toggle_btn pgs_btn_plus" data-toggle="tooltip" data-placement="right" data-delay="500" id="{key}_{stage}" title="" data-original-title="Click to show/hide the list of ancestries"></a></div>'
                             multi_anc_html += f'<div class="toggle_list" id="list_{key}_{stage}"><ul>{"".join(multi_legend[key])}</ul>'
                         legend += f'<div><span class="fas fa-square ancestry_box_legend anc_colour_{key}" data-key="{key}"></span>{label}: {val}%{multi_anc_html}</div>'
 

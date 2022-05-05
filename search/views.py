@@ -78,17 +78,43 @@ def autocomplete(request):
     return JsonResponse({ 'results': results })
 
 
+def format_score_results(request, data):
+    """ Convert the Score results into HTML. """
+    results = []
+    icon = '<span class="result_facet_type result_facet_type_1" title="Score"></span>'
+    for idx, d in enumerate(data):
+
+        mapped_traits = []
+        for trait in d.trait_efo:
+            mapped_traits.append(get_efo_trait_url(trait.id, '{} <span class="pgs_bracket">{}</span>'.format(trait.label,trait.id)))
+
+        hmtl_results =  '<div class="pgs_result scores_entry mb-4">'
+        hmtl_results += '<div class="pgs_result_title"><h4 class="mt-0 mb-2">'+icon+'<a href="/score/{}">{}</a></h4></div>'.format(d.id, d.id)
+        hmtl_results += '<div class="pgs_result_content"><b>Name</b>: {}'.format(d.name)
+        hmtl_results += '<span><b>Number of Variants</b>: <span class="badge badge-pill badge-pgs">{:,}</span></span>'.format(d.variants_number)
+        hmtl_results += '<span><b>Publication ID</b>: {}</span></div>'.format(get_publication_url(d.publication.id, d.publication.id))
+        hmtl_results += '<div class="pgs_result_content mt-1"><b>Reported trait</b>: {}'.format( d.trait_reported)
+        hmtl_results += '<span><b>Mapped trait(s)</b>: {}</span>'.format(', '.join(mapped_traits))
+        hmtl_results += '</div>'
+        hmtl_results += '</div>'
+
+        result_score = d.meta.score
+        if result_score in all_results_scores:
+            all_results_scores[result_score].append(hmtl_results)
+        else:
+            all_results_scores[result_score] = [hmtl_results]
+
+
 def format_efo_traits_results(request, data):
     """ Convert the EFO Trait results into HTML. """
     results = []
-    icon = '<span class="result_facet_type result_facet_type_1" title="Trait"></span>'
+    icon = '<span class="result_facet_type result_facet_type_2" title="Trait"></span>'
     for d in data:
         desc = d.description
         if desc:
             desc = desc.replace("['",'').replace("']",'').replace('<','&lt;').replace('>','&gt;')
         else:
             desc = ''
-
 
         scores = list(d.scores_direct_associations) + list(d.scores_child_associations)
         score_html =  score_mini_table(d.id, scores)
@@ -116,14 +142,13 @@ def format_efo_traits_results(request, data):
             all_results_scores[result_score] = [hmtl_results]
 
 
-
 def format_publications_results(request, data):
     """ Convert the Publication results into HTML. """
 
     results = []
     doi_url = 'https://doi.org/'
     pubmed_url = 'https://www.ncbi.nlm.nih.gov/pubmed/'
-    icon = '<span class="result_facet_type result_facet_type_2" title="Publication"></span>'
+    icon = '<span class="result_facet_type result_facet_type_3" title="Publication"></span>'
     for idx, d in enumerate(data):
 
         score_html =  score_mini_table("pub_"+str(idx), d.publication_score, [x.score for x in d.publication_performance])
@@ -137,33 +162,6 @@ def format_publications_results(request, data):
         hmtl_results += '<span><b>PGP</b>{}</span></div>'.format(id_suffix)
         hmtl_results += '<div class="mt-1"><span class="pgs_result_count">PGS developed <span class="badge badge-pill badge-pgs">{}</span></span> - '.format(d.scores_count);
         hmtl_results += '<span class="pgs_result_count"><span>PGS evaluated</span> <span class="badge badge-pill badge-pgs">{}</span></span> {}</div>'.format(d.scores_evaluated_count, score_html)
-        hmtl_results += '</div>'
-
-        result_score = d.meta.score
-        if result_score in all_results_scores:
-            all_results_scores[result_score].append(hmtl_results)
-        else:
-            all_results_scores[result_score] = [hmtl_results]
-
-
-def format_score_results(request, data):
-    """ Convert the Score results into HTML. """
-    results = []
-    icon = '<span class="result_facet_type result_facet_type_3" title="Score"></span>'
-    for idx, d in enumerate(data):
-
-        mapped_traits = []
-        for trait in d.trait_efo:
-            mapped_traits.append(get_efo_trait_url(trait.id, '{} <span class="pgs_bracket">{}</span>'.format(trait.label,trait.id)))
-
-        hmtl_results =  '<div class="pgs_result scores_entry mb-4">'
-        hmtl_results += '<div class="pgs_result_title"><h4 class="mt-0 mb-2">'+icon+'<a href="/score/{}">{}</a></h4></div>'.format(d.id, d.id)
-        hmtl_results += '<div class="pgs_result_content"><b>Name</b>: {}'.format(d.name)
-        hmtl_results += '<span><b>Number of Variants</b>: <span class="badge badge-pill badge-pgs">{:,}</span></span>'.format(d.variants_number)
-        hmtl_results += '<span><b>Publication ID</b>: {}</span></div>'.format(get_publication_url(d.publication.id, d.publication.id))
-        hmtl_results += '<div class="pgs_result_content mt-1"><b>Reported trait</b>: {}'.format( d.trait_reported)
-        hmtl_results += '<span><b>Mapped trait(s)</b>: {}</span>'.format(', '.join(mapped_traits))
-        hmtl_results += '</div>'
         hmtl_results += '</div>'
 
         result_score = d.meta.score
@@ -191,7 +189,7 @@ def score_mini_table(id, scores_developed, scores_evaluated=None):
     extra_columns = ''
     if scores_evaluated:
         extra_columns = '<th>Developed</th><th>Evaluated</th>'
-    score_html =  '<span class="pgs_result_button"> <a class="toggle_btn" id="{}_scores">Show PGS <i class="fa fa-plus-circle"></i></a></span>'.format(id)
+    score_html =  '<span class="pgs_result_button"> <a class="toggle_btn pgs_btn_plus" id="{}_scores">Show PGS</a></span>'.format(id)
     score_html += '<div class="toggle_content" id="list_{}_scores" style="display:none">'.format(id)
     score_html += """<table class="table table-striped table_pgs_score_results mt-2">
         <thead class="thead-light">
