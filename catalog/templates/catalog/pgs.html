@@ -53,7 +53,7 @@
             </tbody>
           </table>
           {% if score.date_released %}
-            <div><i class="fas fa-calendar-alt pgs_color_1"></i> Released in PGS Catalog: <b>{{ score.date_released }}</b></div>
+            <div><i class="far fa-calendar-check pgs_color_1"></i> Released in PGS Catalog: <b>{{ score.date_released }}</b></div>
           {% endif %}
         </div>
 
@@ -68,7 +68,7 @@
           </a>
           <div class="mt-2">
             <i class="fas fa-info-circle pgs_color_1"></i>
-            <a class="toggle_btn" data-toggle="tooltip" data-placement="right" data-delay="500" id="license_score" title="Click to show/hide the license for this score">Terms and Licenses <i class="fas {{ score.has_default_license|yesno:'fa-plus-circle,fa-minus-circle' }}"></i></a>
+            <a class="toggle_btn {{ score.has_default_license|yesno:'pgs_btn_plus,pgs_btn_minus' }}" data-toggle="tooltip" data-placement="right" data-delay="500" id="license_score" title="Click to show/hide the license for this score">Terms and Licenses</a>
             <div class="toggle_list mt-2 licence_container" id="list_license_score" style="{{ score.has_default_license|yesno:',display:block' }}">
               <div class="pgs_note pgs_note_1">
                 <div>

@@ -113,7 +113,7 @@
                     <td>
                       <b>{{ sample.list_cohortids|length }}</b>
                       {% if sample_count|length > 1 %}
-                        <a class="toggle_btn pgs_no_icon_link" data-toggle="tooltip" data-placement="bottom" id="cohort_{{ forloop.counter }}" title="Click to show/hide the cohort table"><i class="fas fa-plus-circle"></i></a>
+                        <a class="toggle_btn pgs_btn_plus pgs_no_icon_link" data-toggle="tooltip" data-placement="bottom" id="cohort_{{ forloop.counter }}" title="Click to show/hide the cohort table"></a>
                       {% endif %}
                     </td>
                   </tr>
@@ -131,7 +131,7 @@
               pgs_samples_piechart.draw_legend();
             });
           </script>
-          <div class="sample_piechart_container mr-5">
+          <div class="sample_piechart_container {% if sample.display_sample_gender_percentage.0|length > 0 %}mr-5{% endif %}">
             <div>Sample distribution</div>
             <svg id="sample_piechart_{{ forloop.counter }}"></svg>
           </div>

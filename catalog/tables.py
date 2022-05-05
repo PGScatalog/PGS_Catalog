@@ -132,7 +132,7 @@ class Column_cohorts(tables.Column):
             return 'NR'
         elif len(qlist) > 5:
             div_id = get_random_string(10)
-            html_list = '<a class="toggle_table_btn" id="'+div_id+'" title="Click to expand/collapse the list">'+str(len(qlist))+' cohorts <i class="fas fa-plus-circle"></i></a>'
+            html_list = '<a class="toggle_table_btn pgs_btn_plus" id="'+div_id+'" title="Click to expand/collapse the list">'+str(len(qlist))+' cohorts</a>'
             html_list = html_list+'<div class="toggle_list" id="list_'+div_id+'">'
             html_list = html_list+"<ul><li>"+'</li><li><span class="only_export">,</span>'.join(qlist)+'</li></ul></div>'
             return format_html(html_list)

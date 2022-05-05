@@ -155,7 +155,7 @@
 
           // jQuery code
           $('.toggle_btn').click(function() {
-            $(this).find('i').toggleClass("fa-plus-circle fa-minus-circle");
+            $(this).toggleClass("pgs_btn_plus pgs_btn_minus");
             id = $(this).attr('id');
             $('#content_'+id).toggle();
           });
