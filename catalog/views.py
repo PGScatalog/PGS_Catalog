@@ -666,6 +666,81 @@ def ancestry_doc(request):
     return render(request, 'catalog/docs/ancestry.html', context)
 
 
+def stats(request):
+    # Variant numbers
+    variants_number_list = Score.objects.values_list('variants_number', flat=True).all()
+    variants_number_per_score = round(sum(variants_number_list) / len(variants_number_list))
+
+    # Global Counts
+    publications_count = Publication.objects.count()
+    scores_count = Score.objects.count()
+    performances_count = Performance.objects.count()
+
+    # Studies per score
+    eval_scores_pubs = Performance.objects.values_list('score_id','publication_id').distinct()
+
+    colours = TraitCategory.objects.values_list('colour', flat=True).all().order_by('colour')
+
+    # Genome builds
+    genebuild_data = get_data_distribution('variants_genomebuild',scores_count,colours)
+
+    # Weight types
+    weight_type_data = get_data_distribution('weight_type',scores_count,colours,1)
+
+    # Methods
+    method_data = get_data_distribution('method_name',scores_count,colours)
+
+    context = {
+        'variants_number_per_score': '{:,}'.format(variants_number_per_score),
+        'scores_per_pub': round(scores_count/publications_count,1),
+        'pub_eval_per_score': round(len(eval_scores_pubs)/scores_count,1),
+        'evals_per_score': round(performances_count/scores_count,1),
+        'genebuild_data': genebuild_data,
+        'weight_type_data': weight_type_data,
+        'method_data': method_data,
+        'has_chart': 1
+    }
+    return render(request, 'catalog/docs/stats.html', context)
+
+
+def get_data_distribution(model_attribute,scores_count,colours,use_others=None):
+    items = Score.objects.values_list(model_attribute, flat=True).all()
+    tmp_data = {}
+    for item in items:
+        if item in tmp_data.keys():
+            tmp_data[item] += 1
+        else:
+            tmp_data[item] = 1
+    data_list = []
+    data_others_list = []
+    index = 0
+    for label in tmp_data.keys():
+        # Group minor entry (e.g. with only 1 occurence)
+        if use_others and tmp_data[label] == 1:
+            data_others_list.append({ 'name': label, 'count': '{:,}'.format(tmp_data[label]) })
+        else:
+            percent = round((tmp_data[label]/scores_count)*100,2)
+            data_list.append(
+                { 'name': label, 'value': percent, 'count': '{:,}'.format(tmp_data[label]), 'colour': colours[index] }
+            )
+            index += 1
+        if index == len(colours):
+            index = 0
+    data_list = sorted(data_list, key=lambda d: d['name'].lower())
+    # Build the "Others" row
+    if use_others and data_others_list:
+        label_id = 'stats_others_'+model_attribute
+        label = '<a class="toggle_btn pgs_btn_plus" id="'+label_id+'" title="Click to expand/collapse the list">Others ('+str(len(data_others_list))+')</a>'
+        label += '<div class="toggle_list" id="list_'+label_id+'"><ul>'
+        for other_entry in sorted(data_others_list, key=lambda d: d['name'].lower()):
+            label += f"<li>{other_entry['name']}: {other_entry['count']}</li>"
+        label += '</ul></div>'
+        data_list.append(
+            { 'name': label, 'value': percent, 'count': '{:,}'.format(len(data_others_list)), 'colour': colours[index] }
+        )
+    return data_list
+
+
 class NewsView(TemplateView):
     template_name = "catalog/news.html"
 

@@ -1,0 +1,106 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+<nav aria-label="You are here:">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+    <li class="breadcrumb-item"><i class="fas fa-chart-pie pgs_color_1"></i> Stats</li>
+  </ol>
+</nav>
+
+  <h2>PGS Catalog statistics</h2>
+
+  <div class="d-flex justify-content-between mt-5">
+    <div class="mr-5">
+      <table class="table table-bordered table_pgs_h">
+        <tbody>
+          <tr>
+            <td class="table_title table_title_c font_16" colspan="2">Data Average</td>
+          </tr>
+          <tr>
+            <td>Variants Number per Score</td>
+            <td>{{ variants_number_per_score }}</td>
+          </tr>
+          <tr>
+            <td>Scores per Publication</td>
+            <td>{{ scores_per_pub }}</td>
+          </tr>
+          <tr>
+            <td>Publications per Score</td>
+            <td>{{ pub_eval_per_score }}</td>
+          </tr>
+          <tr>
+            <td>Evaluations per Score</td>
+            <td>{{ evals_per_score }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="clearfix">
+      <div class="float-left mr-5">
+        <table class="table table-bordered table_pgs_h">
+          <thead class="thead-dark">
+            <tr>
+              <th class="table_title table_title_c font_16" colspan="4">Genebuild distribution</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th>Genebuild</th>
+              <th>%age</th>
+              <th>Count</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          {% for genebuild in genebuild_data %}
+            <tr>
+              <td style="background-color:{{ genebuild.colour }}"></td>
+              <td>{{ genebuild.name }}</td>
+              <td>{{ genebuild.value }}%</td>
+              <td>{{ genebuild.count }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="float-left mr-5">
+
+        <!-- Genebuild distribution -->
+        <script type="text/javascript">
+          document.addEventListener("DOMContentLoaded", function(event) {
+            var data_chart = {{ genebuild_data|safe }};
+            var pgs_genebuild_piechart = new PGSPieChartSmall('genebuild_dist',data_chart,10,'genebuild');
+            pgs_genebuild_piechart.draw_piechart();
+          });
+        </script>
+        <div style="border:1px solid #CCC;padding:4px">
+          <svg id="genebuild_dist" style="width:200px;height:200px"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5">
+    <table class="table table-bordered table_pgs_h">
+      <thead class="thead-dark">
+        <tr>
+          <th class="table_title table_title_c font_16" colspan="4">Methods distribution</th>
+        </tr>
+        <tr>
+          <th>Method name</th>
+          <th>%age</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for method in method_data %}
+        <tr>
+          <td style="max-width:600px;white-space:normal;text-align:left">{{ method.name }}</td>
+          <td>{{ method.value }}%</td>
+          <td>{{ method.count }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{%endblock%}

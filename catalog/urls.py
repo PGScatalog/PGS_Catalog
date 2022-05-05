@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import path
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.decorators.cache import cache_page
@@ -72,3 +73,7 @@ urlpatterns = [
     # Setup robots.txt
     path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain"))
 ]
+
+if settings.PGS_ON_CURATION_SITE:
+    # e.g.: /stats/
+    urlpatterns.append(path('stats/', views.stats, name='Stats'))
