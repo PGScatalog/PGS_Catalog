@@ -6,18 +6,18 @@
       </button>
 
       {% if is_benchmark %}
-        <a class="navbar-brand clearfix" href="/" title="Polygenic Score Catalog">
-          <img src="{% static 'catalog/imgs/PGS_Logo.png' %}" style="float:left;height:60px"/>
-          <div style="padding-left:5px;float:left">
-            <div>PGS Catalog</div>
-            <div style="text-align:left;font-size:12px;font-weight:bold;margin-top:-2px;color:#FFF">
+        <a class="navbar-brand d-flex" href="/" title="Polygenic Score Catalog">
+          <img src="{% static 'catalog/imgs/PGS_Logo.png' %}"/>
+          <span>
+            <span>PGS Catalog</span>
+            <span class="pgs_logo_subtype">
               <span class="pgs_benchmark_logo pgs_color_1"></span> Benchmarking
-            </div>
-          </div>
+            </span>
+          </span>
         </a>
       {% else %}
         <a class="navbar-brand" href="/" data-original-title="" title="Polygenic Score Catalog">
-          <img src="{% static 'catalog/imgs/PGS_Logo.png' %}" style="height:60px"/> <span>PGS Catalog</span>
+          <img src="{% static 'catalog/imgs/PGS_Logo.png' %}"/><span>PGS Catalog</span>
         </a>
       {% endif %}
 

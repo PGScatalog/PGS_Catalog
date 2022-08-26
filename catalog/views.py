@@ -682,7 +682,7 @@ def stats(request):
     colours = TraitCategory.objects.values_list('colour', flat=True).all().order_by('colour')
 
     # Genome builds
-    genebuild_data = get_data_distribution('variants_genomebuild',scores_count,colours)
+    genomebuild_data = get_data_distribution('variants_genomebuild',scores_count,colours)
 
     # Weight types
     weight_type_data = get_data_distribution('weight_type',scores_count,colours,1)
@@ -695,7 +695,7 @@ def stats(request):
         'scores_per_pub': round(scores_count/publications_count,1),
         'pub_eval_per_score': round(len(eval_scores_pubs)/scores_count,1),
         'evals_per_score': round(performances_count/scores_count,1),
-        'genebuild_data': genebuild_data,
+        'genomebuild_data': genomebuild_data,
         'weight_type_data': weight_type_data,
         'method_data': method_data,
         'has_chart': 1
