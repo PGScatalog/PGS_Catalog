@@ -157,7 +157,7 @@ class ScoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Score
-        meta_fields = ('id', 'name', 'ftp_scoring_file', 'publication', 'matches_publication',
+        meta_fields = ('id', 'name', 'ftp_scoring_file', 'ftp_harmonized_scoring_files', 'publication', 'matches_publication',
                     'samples_variants', 'samples_training', 'trait_reported', 'trait_additional',
                     'trait_efo', 'method_name', 'method_params', 'variants_number',
                     'variants_interactions', 'variants_genomebuild', 'weight_type', 'ancestry_distribution', 'license')

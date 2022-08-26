@@ -682,6 +682,7 @@ class RestInfo(generics.RetrieveAPIView):
             'rest_api': constants_rest.PGS_REST_API[0],
             'latest_release': latest_release,
             'citation': constants.PGS_CITATION,
+            'ensembl_version': constants.ENSEMBL_VERSION,
             'terms_of_use': constants.USEFUL_URLS['TERMS_OF_USE']
         }
 

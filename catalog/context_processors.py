@@ -45,5 +45,6 @@ def pgs_search_examples(request):
 def pgs_info(request):
     return {
         'pgs_citation': constants.PGS_CITATION,
-        'pgs_table_helper': constants.TABLE_HELPER
+        'pgs_table_helper': constants.TABLE_HELPER,
+        'ensembl_version': constants.ENSEMBL_VERSION
     }

@@ -2,6 +2,14 @@
 
 PGS_REST_API = [
     {
+        'version': '1.8.4',
+        'date': '2022-08',
+        'changelog': [
+            "New field 'ftp_harmonized_scoring_files' in the Score schemas (`/rest/score/` endpoints), listing the URLs to the different harmonized scoring files.",
+            "New field 'ensembl_version' in `/rest/info/` endpoint: Ensembl version used to generate the harmonized scoring files."
+        ]
+    },
+    {
         'version': '1.8.3',
         'date': '2022-02',
         'changelog': [
@@ -14,8 +22,8 @@ PGS_REST_API = [
         'date': '2021-10',
         'changelog': [
             "New field 'weight_type' in the Score schemas (`/rest/score/` endpoints).",
-            "New parameters 'pgp_id' and 'pmid' for the endpoints `/rest/performance/search/` and `/rest/sample_set/search/`.",
-            "New parameter 'pgp_id' for the endpoint `/rest/score/search/`."
+            "New parameters 'pgp_id' and 'pmid' for the endpoints `/rest/performance/search` and `/rest/sample_set/search`.",
+            "New parameter 'pgp_id' for the endpoint `/rest/score/search`."
         ]
     },
     {
