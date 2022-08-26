@@ -25,6 +25,7 @@ efo_desc_2 = 'a subtype of breast cancer that is estrogen-receptor positive [EFO
 
 cohort_name = "ABC"
 cohort_desc = "Cohort ABC description"
+cohort_others = "ABC-1"
 cohort_name_2 = "DEF"
 cohort_desc_2 = "Cohort DEF description"
 
@@ -38,23 +39,24 @@ def format_date(date_list):
 class CohortTest(TestCase):
     ''' Test the Cohort model '''
 
-    def create_cohort(self, name_short=cohort_name,name_full=cohort_desc):
-        return Cohort.objects.create(name_short=name_short,name_full=name_full)
+    def create_cohort(self, name_short=cohort_name,name_full=cohort_desc,name_others=cohort_others):
+        return Cohort.objects.create(name_short=name_short,name_full=name_full,name_others=name_others)
 
-    def get_cohort(self,name_short,name_full):
+    def get_cohort(self,name_short,name_full,name_others):
         try:
             cohort = Cohort.objects.get(name_short=name_short)
         except Cohort.DoesNotExist:
-            cohort = self.create_cohort(name_short=name_short,name_full=name_full)
+            cohort = self.create_cohort(name_short=name_short,name_full=name_full,name_others=name_others)
         return cohort
 
     def test_cohort(self):
-        cohort= self.get_cohort(cohort_name, cohort_desc)
+        cohort= self.get_cohort(cohort_name,cohort_desc,cohort_others)
         # Instance
         self.assertTrue(isinstance(cohort, Cohort))
         # Variables
         self.assertEqual(cohort.name_short, cohort_name)
-        self.assertEqual(cohort.name_full,cohort_desc)
+        self.assertEqual(cohort.name_full, cohort_desc)
+        self.assertEqual(cohort.name_others, cohort_others)
         # Other methods
         self.assertEqual(cohort.__str__(), cohort.name_short)
         self.assertFalse(cohort.released)
@@ -468,7 +470,7 @@ class PerformanceTest(TestCase):
         self.assertEqual(performance.publication.scores_evaluated_count, 1)
         self.assertEqual(performance.associated_pgs_id, performance.score.id)
         cohorttest = CohortTest()
-        cohort = cohorttest.get_cohort(cohort_name, cohort_desc)
+        cohort = cohorttest.get_cohort(cohort_name,cohort_desc,cohort_others)
         sampleset.samples.all()[0].cohorts.add(cohort)
         self.assertEqual(cohort.associated_pgs_ids, { 'development': [], 'evaluation': [performance.score.id] })
 
@@ -641,9 +643,9 @@ class SampleTest(TestCase):
     def create_sample_cohorts(self, sample_number=number):
         sample = Sample.objects.create(sample_number=sample_number)
         cohorttest = CohortTest()
-        cohort = cohorttest.get_cohort(cohort_name,cohort_desc)
+        cohort = cohorttest.get_cohort(cohort_name,cohort_desc,cohort_others)
         sample.cohorts.add(cohort)
-        cohort_2 = cohorttest.get_cohort(cohort_name_2,cohort_desc_2)
+        cohort_2 = cohorttest.get_cohort(cohort_name_2,cohort_desc_2,None)
         sample.cohorts.add(cohort_2)
         return sample
 
@@ -918,6 +920,10 @@ class ScoreTest(TestCase):
         self.assertEqual(score.__str__(),  score.id+" | "+score.name+" | ("+score.publication.__str__()+")")
         self.assertRegexpMatches(score.link_filename, r'^PGS\d+\.txt\.gz$')
         self.assertRegexpMatches(score.ftp_scoring_file, r'^http.+PGS\d+.*$')
+        ftp_hm_files = score.ftp_harmonized_scoring_files
+        self.assertEqual(len(ftp_hm_files.keys()), 2)
+        genomebuild = constants.GENEBUILDS[0]
+        self.assertRegexpMatches(ftp_hm_files[genomebuild]['positions'], r'^http.+PGS\d+.*$')
 
         # Fetch publication object and number of associated score(s)
         pub = Publication.objects.get(num=id)
@@ -953,7 +959,7 @@ class ScoreTest(TestCase):
 
         # Test cohort/score association
         cohorttest = CohortTest()
-        cohort = cohorttest.get_cohort(cohort_name, cohort_desc)
+        cohort = cohorttest.get_cohort(cohort_name, cohort_desc, cohort_others)
         sample_t.cohorts.add(cohort)
         self.assertEqual(cohort.associated_pgs_ids, { 'development': [score.id], 'evaluation': [] })
 

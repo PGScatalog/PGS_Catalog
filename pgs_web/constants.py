@@ -9,6 +9,8 @@ PGS_CITATION = {
     'year': 2021
 }
 
+ENSEMBL_VERSION = 104
+
 USEFUL_URLS = {
     'BAKER_URL'         : 'https://baker.edu.au',
     'EBI_URL'           : 'https://www.ebi.ac.uk',
@@ -57,6 +59,8 @@ TABLE_ROWS_THRESHOLD = 1000
 TRAIT_SOURCE_TO_REPLACE = ['Orphanet']
 
 PGS_STAGES = ('gwas','dev','eval')
+
+GENEBUILDS = ('GRCh37','GRCh38')
 
 PGS_STAGES_HELPER = {
     'gwas': {

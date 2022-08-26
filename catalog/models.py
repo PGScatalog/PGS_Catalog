@@ -657,6 +657,17 @@ class Score(models.Model):
         return ftp_url
 
     @property
+    def ftp_harmonized_scoring_files(self):
+        urls = {}
+        url_base_position = '{}/scores/{}/ScoringFiles/Harmonized/{}_hmPOS_'.format(constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'], self.id, self.id)
+        for gb in constants.GENEBUILDS:
+            urls[gb] = {}
+            hm_type = 'positions'
+            ftp_url = f'{url_base_position}{gb}.txt.gz'
+            urls[gb][hm_type] = ftp_url
+        return urls
+
+    @property
     def list_traits(self):
         l = [] # tuples (id, label)
         for t in self.trait_efo.all():

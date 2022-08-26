@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.8.3'
+  version: '1.8.4'
   description: |
     Programmatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -16,7 +16,7 @@ info:
     ###### REST API settings
 
     * `pagination`: This REST API is using pagination for the endpoints returning more than 1 results. It is currently set to **50** results per page.
-      <a class="toggle_btn" id="pagination">More information <i class="fas fa-plus-circle"></i></a>
+      <a class="toggle_btn pgs_btn_plus" id="pagination">More information</a>
       <div class="toggle_content" id="content_pagination" style="display:none">
 
         ###### **Pagination structure**
@@ -55,7 +55,7 @@ info:
 
 
     * `rate limit`: The limit number of queries is set to **100** queries per minute.
-      <a class="toggle_btn" id="rate_limit">More information <i class="fas fa-plus-circle"></i></a>
+      <a class="toggle_btn pgs_btn_plus" id="rate_limit">More information</a>
       <div class="toggle_content" id="content_rate_limit" style="display:none">
         Here is an example of the JSON message returned if the rate limit is reached:
 
@@ -71,8 +71,12 @@ info:
 
     ---
 
-    <a class="toggle_btn" id="changelog">REST API version changelog <i class="fas fa-plus-circle"></i></a>
+    <a class="toggle_btn pgs_btn_plus" id="changelog">REST API version changelog</a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.8.4</span> - August 2022:
+        * New field **ftp_harmonized_scoring_files** in the Score schemas (`/rest/score/` endpoints), listing the URLs to the different harmonized scoring files.
+        * New field **ensembl_version** in the `/rest/info/` endpoint: Ensembl version used to generate the harmonized scoring files.
 
       * <span class="badge badge-pill badge-pgs">1.8.3</span> - February 2022:
         * New parameter 'filter_ids' to narrow down the results in the following endpoints:
@@ -705,7 +709,27 @@ components:
         ftp_scoring_file:
           type: string
           description: "URL to the scoring file on the PGS FTP"
-          example: "http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/PGS000001.txt.gz"
+          example: "https://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/PGS000001.txt.gz"
+        ftp_harmonized_scoring_files:
+          type: object
+          description: "Harmonized scoring files indexed by genome build"
+          properties:
+            GRCh37:
+              type: object
+              description: "Scoring file with position in build GRCh37."
+              properties:
+                positions:
+                  type: string
+                  description: "Scoring file containing the harmonized positions to GRCh37"
+                  example: "https://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/Harmonized/PGS000001_hmPOS_GRCh37.txt.gz"
+            GRCh38:
+              type: object
+              description: "Scoring file with position in build GRCh38."
+              properties:
+                positions:
+                  type: string
+                  description: "Scoring file containing the harmonized positions to GRCh38"
+                  example: "https://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/Harmonized/PGS000001_hmPOS_GRCh38.txt.gz"
         publication:
           description: "Citation for the paper that developed the PGS"
           $ref: '#/components/schemas/Publication'
@@ -2245,6 +2269,7 @@ paths:
         * REST API version and latest changelog
         * Latest release date and data count
         * PGS citation
+        * Ensembl version used to generate the Harmonized Scoring files
         * Link to terms of use
 
         Example of request:
@@ -2323,6 +2348,10 @@ paths:
                         type: number
                         description: "Year of publication"
                         example: 2021
+                  ensembl_version:
+                    type: number
+                    description: "Ensembl version used to generate the Harmonized Scoring files"
+                    example: 104
                   terms_of_use:
                     type: string
                     description: "URL to the terms of use"
