@@ -28,8 +28,10 @@ class UpdateScoreAncestry:
     anc_not_found = []
 
     def __init__(self,verbose=None):
-        self.scores = Score.objects.all().order_by('num')
+        # self.scores = Score.objects.all().order_by('num')
         self.verbose = verbose
+        # self.scores = Score.objects.filter(num__gte=2731)
+        self.scores = Score.objects.filter(num=2736)
 
     def script_logs(self,msg):
         if self.verbose:
@@ -62,7 +64,11 @@ class UpdateScoreAncestry:
             ancestry = sample.ancestry_broad.strip()
             sample_number = sample.sample_number
             if not sample_number:
-                continue
+                # Return the 100% of the ancestry even though we don't have the sample number
+                if len(samples) == 1:
+                    sample_number = 0
+                else:
+                    continue
 
             anc_code = self.get_ancestry_code(ancestry,stage)
             self.script_logs(f'\t\t- {ancestry} ({anc_code}): {sample_number}')

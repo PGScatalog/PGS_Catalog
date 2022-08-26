@@ -23,6 +23,13 @@ def smaller_in_bracket(value):
     return value
 
 
+def smaller_in_parenthesis(value):
+    parenthesis_left = '('
+    value = value.replace(parenthesis_left,'<span class="smaller_90">(')
+    value = value.replace(')',')</span>')
+    return value
+
+
 def score_format(value):
     return format_html(f'<a href="/score/{value.id}">{value.id}</a> <div class="small">({value.name})</div>')
 
@@ -52,12 +59,16 @@ class Column_metriclist(tables.Column):
         l = []
         for x in value:
             name, val = x
+            helptip_str = ''
             if len(name) == 2:
                 label = name[1]
             else:
                 label = name[0]
+            if label != name[0]:
+                helptip_str = f' title="{name[0]}" class="pgs_helptip"'
             label = smaller_in_bracket(label)
-            name_html = f'<span title="{name[0]}" class="pgs_helptip">{label}</span>'
+            label = smaller_in_parenthesis(label)
+            name_html = f'<span{helptip_str}>{label}</span>'
             l.append((name_html, '<span class="pgs_nowrap">'+smaller_in_bracket(str(val))+'</span>'))
 
         values = '<br>'.join([': '.join(x) for x in l])
@@ -119,10 +130,9 @@ class Column_pubexternality(tables.Column):
 
 class Column_cohorts(tables.Column):
     def render(self, value):
-        qset = value.all()
         qdict = {}
         qlist = []
-        for q in qset:
+        for q in value.all():
             r = format_html('<span title="{}" data-content="{}" class="pgs_helpover">{}</span>', q.name_short, q.name_full, q.name_short)
             qdict[q.name_short] = r
         for k in sorted (qdict):
@@ -488,8 +498,6 @@ class SampleTable_variants(tables.Table):
         attrs = {
             "data-show-columns" : "false",
             "data-sort-name" : "display_sources",
-            #'data-search' : "false",
-            #'data-filter-control': "false",
             "data-export-options" : '{"fileName": "pgs_sample_source_data"}'
         }
         fields = [

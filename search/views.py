@@ -156,7 +156,8 @@ def format_publications_results(request, data):
 
         hmtl_results =  '<div class="pgs_result publications_entry mb-4">'
         hmtl_results += '<div class="pgs_result_title"><h4 class="mt-0 mb-2">'+icon+'{}</h4></div>'.format(get_publication_url(d.id, d.title))
-        hmtl_results += '<div class="pgs_result_content">{} et al. ({}) - {}'.format(d.firstauthor, d.pub_year, d.journal)
+        hmtl_results += '<div class="pgs_result_content">'
+        hmtl_results += '<span>{} et al. ({}) - {}</span>'.format(d.firstauthor, d.pub_year, d.journal)
         hmtl_results += '<span><b>PMID</b>:{}</span>'.format( d.PMID)
         hmtl_results += '<span><b>doi</b>:{}</span>'.format(d.doi)
         hmtl_results += '<span><b>PGP</b>{}</span></div>'.format(id_suffix)

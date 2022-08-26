@@ -35,72 +35,120 @@
         </tbody>
       </table>
     </div>
+  </div>
 
-    <div class="clearfix">
-      <div class="float-left mr-5">
-        <table class="table table-bordered table_pgs_h">
-          <thead class="thead-dark">
-            <tr>
-              <th class="table_title table_title_c font_16" colspan="4">Genebuild distribution</th>
-            </tr>
-            <tr>
-              <th></th>
-              <th>Genebuild</th>
-              <th>%age</th>
-              <th>Count</th>
-            </tr>
-          </thead>
-          <tbody>
 
-          {% for genebuild in genebuild_data %}
-            <tr>
-              <td style="background-color:{{ genebuild.colour }}"></td>
-              <td>{{ genebuild.name }}</td>
-              <td>{{ genebuild.value }}%</td>
-              <td>{{ genebuild.count }}</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
+  <div class="d-flex justify-content-between mt-5">
+    <!-- Genomebuild distribution -->
+    <div class="mr-5">
+      <h5 class="pgs_bg_color_1 mb-0" style="padding:6px 8px;text-align:center"><b>Genome build</b> distribution</h5>
+      <div class="clearfix" style="border:1px solid #CCC;padding:12px">
+        <div class="float-left mr-2">
+          <table class="table table-bordered table_pgs_h">
+            <thead class="thead-dark">
+              <tr>
+                <th></th>
+                <th>Genome build</th>
+                <th>%age</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            {% for genomebuild in genomebuild_data %}
+              <tr>
+                <td style="background-color:{{ genomebuild.colour }}"></td>
+                <td>{{ genomebuild.name }}</td>
+                <td>{{ genomebuild.value }}%</td>
+                <td>{{ genomebuild.count }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="float-left">
+          <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function(event) {
+              var data_chart = {{ genomebuild_data|safe }};
+              var pgs_genomebuild_piechart = new PGSPieChartSmall('genomebuild_dist',data_chart,10,'Genomebuild');
+              pgs_genomebuild_piechart.draw_piechart();
+            });
+          </script>
+          <div style="margin:6px 8px">
+            <svg id="genomebuild_dist" style="width:200px;height:200px"></svg>
+          </div>
+        </div>
       </div>
-      <div class="float-left mr-5">
+    </div>
 
-        <!-- Genebuild distribution -->
-        <script type="text/javascript">
-          document.addEventListener("DOMContentLoaded", function(event) {
-            var data_chart = {{ genebuild_data|safe }};
-            var pgs_genebuild_piechart = new PGSPieChartSmall('genebuild_dist',data_chart,10,'genebuild');
-            pgs_genebuild_piechart.draw_piechart();
-          });
-        </script>
-        <div style="border:1px solid #CCC;padding:4px">
-          <svg id="genebuild_dist" style="width:200px;height:200px"></svg>
+    <!-- Weight Type distribution -->
+    <div class="mr-5">
+      <h5 class="pgs_bg_color_1 mb-0" style="padding:6px 8px;text-align:center"><b>Weight type</b> distribution</h5>
+      <div class="clearfix" style="border:1px solid #CCC;padding:12px">
+        <div class="float-left mr-2">
+          <table class="table table-bordered table_pgs_h">
+            <thead class="thead-dark">
+              <tr>
+                <th></th>
+                <th>Weight type</th>
+                <th>%age</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            {% for weight_type in weight_type_data %}
+              <tr>
+                <td style="background-color:{{ weight_type.colour }}"></td>
+                <td style="max-width:250px">{{ weight_type.name|safe }}</td>
+                <td>{{ weight_type.value }}%</td>
+                <td>{{ weight_type.count }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="float-left">
+
+          <!-- Weight_type distribution -->
+          <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function(event) {
+              var data_chart = {{ weight_type_data|safe }};
+              var pgs_weight_type_piechart = new PGSPieChartSmall('weight_type_dist',data_chart,10,'weight_type');
+              pgs_weight_type_piechart.draw_piechart();
+            });
+          </script>
+          <div style="margin:6px 8px">
+            <svg id="weight_type_dist" style="width:200px;height:200px"></svg>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
+
   <div class="mt-5">
-    <table class="table table-bordered table_pgs_h">
-      <thead class="thead-dark">
-        <tr>
-          <th class="table_title table_title_c font_16" colspan="4">Methods distribution</th>
-        </tr>
-        <tr>
-          <th>Method name</th>
-          <th>%age</th>
-          <th>Count</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for method in method_data %}
-        <tr>
-          <td style="max-width:600px;white-space:normal;text-align:left">{{ method.name }}</td>
-          <td>{{ method.value }}%</td>
-          <td>{{ method.count }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    <hr/>
+    <h5><span class="toggle_btn pgs_btn_plus" id="method_dist" data-toggle="tooltip" title="Click to display the Method distribution table"><b>Score Method</b> distribution </span></h5>
+    <div class="toggle_list mt-2" id="list_method_dist">
+      <table class="table table-bordered table_pgs_h">
+        <thead class="thead-dark">
+          <tr>
+            <th>Method name</th>
+            <th>%age</th>
+            <th>Count</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for method in method_data %}
+          <tr>
+            <td style="max-width:600px;white-space:normal;text-align:left">{{ method.name }}</td>
+            <td>{{ method.value }}%</td>
+            <td>{{ method.count }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 {%endblock%}

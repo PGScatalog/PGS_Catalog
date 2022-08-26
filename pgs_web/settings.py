@@ -213,10 +213,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 STATICFILES_FINDERS = [
 	'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder'
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder'
 ]
-if not os.getenv('GAE_APPLICATION', None):
-    STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
 
 
 COMPRESS_PRECOMPILERS = ''
