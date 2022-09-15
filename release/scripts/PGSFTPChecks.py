@@ -4,7 +4,7 @@ from os import path
 
 class PGSFTPChecks:
 
-    ftp_std_scoringfile_suffix = '.txt.gz'
+    ftp_scoringfile_suffix = '.txt.gz'
     ftp_metadata_file_prefix = '_metadata'
     ftp_metadata_file_suffixes = {
         'tar': '.tar.gz',
@@ -24,7 +24,7 @@ class PGSFTPChecks:
         'missing_score_dir': [],
         'missing_metadata_dir': [],
         'missing_std_scoring_file': [],
-        'missing_harm_scoring_file': [],
+        'missing_hmpos_scoring_file': [],
         'missing_metadata_tar_file': [],
         'missing_metadata_excel_file': [],
         'missing_metadata_csv_file': [],
@@ -118,21 +118,27 @@ class PGSFTPChecks:
 
             ftp_pgs_dir = self.ftp_scores_path+pgs_id
             ftp_score_dir = ftp_pgs_dir+"/ScoringFiles/"
-            ftp_std_scoring_file = ftp_score_dir+pgs_id+self.ftp_std_scoringfile_suffix
+            ftp_std_scoring_file = ftp_score_dir+pgs_id+self.ftp_scoringfile_suffix
 
             # 1 - Test PGS "Standard" ScoringFile file exists and is not empty
             if not os.path.exists(ftp_std_scoring_file):
                 self.log_msg['missing_std_scoring_file'].append(pgs_id)
-                continue
             elif os.path.getsize(ftp_std_scoring_file) == 0:
                 self.log_msg['missing_std_scoring_file'].append(pgs_id)
-                continue
 
-            # 2 - Test PGS "Harmonised" ScoringFile file exists and is not empty
-            # TODO
+            # 2 - Test PGS "Harmonised - Position" ScoringFile file exists and is not empty
+            ftp_hmpos_score_dir = ftp_score_dir+"/Harmonized/"
+            for genome_build in ['37','38']:
+                ftp_hmpos_scoring_file = ftp_hmpos_score_dir+pgs_id+'_hmPOS_GRCh'+genome_build+self.ftp_scoringfile_suffix
+                if not os.path.exists(ftp_hmpos_scoring_file):
+                    self.log_msg['missing_hmpos_scoring_file'].append(f'{pgs_id} (GRCh{genome_build}')
+                elif os.path.getsize(ftp_hmpos_scoring_file) == 0:
+                    self.log_msg['missing_hmpos_scoring_file'].append(f'{pgs_id} (GRCh{genome_build}')
 
         # Missing PGS Scoring Files
-        self.print_log_msg('missing_std_scoring_file', 'Missing PGS Standard Scoring Files')
+        self.print_log_msg('missing_std_scoring_file', 'Missing PGS Formatted Scoring Files')
+        # Missing PGS Harmonized (Position) Scoring Files
+        self.print_log_msg('missing_hmpos_scoring_file', 'Missing PGS Harmonized (Position) Scoring Files')
 
 
     def check_metadata_files(self):

@@ -6,7 +6,7 @@ import hashlib
 
 class CopyScoringFiles:
 
-    ftp_scoring_files_dir = '/ebi/ftp/pub/databases/spot/pgs/scores/'
+    ftp_scoring_files_dir = '/nfs/ftp/public/databases/spot/pgs/scores/'
     ftp_std_scoringfile_suffix = '.txt.gz'
     scores_list_file = 'pgs_scores_list.txt'
 
@@ -16,9 +16,9 @@ class CopyScoringFiles:
         'skipped': []
     }
 
-    def __init__(self, new_ftp_scores_dir, private_ftp_scoring_files_dir, scoring_files_dir):
+    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir):
         self.new_ftp_scores_dir = new_ftp_scores_dir
-        self.scoring_files_ftp_dir = private_ftp_scoring_files_dir
+        self.new_scoringfiles_dir = staged_scores_dir
         self.scoring_files_dir = scoring_files_dir
 
         if not os.path.exists(new_ftp_scores_dir):
@@ -27,8 +27,8 @@ class CopyScoringFiles:
         if not os.path.exists(new_ftp_scores_dir+'/'+self.scores_list_file):
             print(f'Error: The file listing the score ID is missing ({new_ftp_scores_dir}/{self.scores_list_file}).')
             exit(1)
-        if not os.path.exists(private_ftp_scoring_files_dir):
-            print(f'Error: The path to the private FTP scoring files directory can\'t be found ({private_ftp_scoring_files_dir}).')
+        if not os.path.exists(staged_scores_dir):
+            print(f'Error: The path to the private FTP scoring files directory can\'t be found ({staged_scores_dir}).')
             exit(1)
         if not os.path.exists(scoring_files_dir):
             print(f'Error: The path to the scoring files directory can\'t be found ({scoring_files_dir}).')
@@ -71,8 +71,10 @@ class CopyScoringFiles:
             report_content = ''
             if list_length == 0:
                 report_content = str(list_length)
-            elif list_length > 20:
+            elif 20 < list_length < 100:
                 report_content = '\n'+','.join(log_data_list)+'\n'
+            elif list_length > 100 and key == 'skipped':
+                report_content = '\nToo many PGS IDs to display\n'
             else:
                 report_content = '\n - '+'\n - '.join(log_data_list)+'\n'
             print("# "+label+" ("+str(list_length)+"): "+report_content)
@@ -92,7 +94,7 @@ class CopyScoringFiles:
         count_updated_pgs = 0
         count_skipped_pgs = 0
         # Extract list of files on private FTP
-        scoring_files = [f for f in os.listdir(self.scoring_files_ftp_dir) if os.path.isfile('/'.join([self.scoring_files_ftp_dir, f])) and re.match('^PGS\d+\.txt\.gz$',f)]
+        scoring_files = [f for f in os.listdir(self.new_scoringfiles_dir) if os.path.isfile('/'.join([self.new_scoringfiles_dir, f])) and re.match('^PGS\d+\.txt\.gz$',f)]
         # Check if corresponding ID in the list of scores to be published.
         # If so checks if it exists and if it needs to be copied (new/update)
         for scoring_file in scoring_files:
@@ -106,7 +108,7 @@ class CopyScoringFiles:
                 continue
 
             # Score ID in the list
-            scoring_file_ftp_priv = f'{self.scoring_files_ftp_dir}/{scoring_file}'
+            scoring_file_ftp_priv = f'{self.new_scoringfiles_dir}/{scoring_file}'
             scoring_file_prod = f'{self.scoring_files_dir}/{scoring_file}'
             # Scoring file already in the Production directory - will check if it differs from the one on the private FTP
             if os.path.isfile(scoring_file_prod):
@@ -231,16 +233,16 @@ class CopyScoringFiles:
 
 def main():
 
-    defaut_scores_dir = '/nfs/production3/spot/pgs/data-files/ScoringFiles/'
+    defaut_scores_dir = '/nfs/production/parkinso/spot/pgs/data-files/ScoringFiles/'
 
-    argparser = argparse.ArgumentParser(description='Script to check that the expected FTP files and directories exist.')
-    argparser.add_argument("--data_dir", type=str, help='The path to the data directory (only containing the metadata)', required=True)
-    argparser.add_argument("--ftp_scores_dir", type=str, help='The path to the scoring files directory on the private FTP', required=True)
+    argparser = argparse.ArgumentParser(description='Script to copy the scoring files.')
+    argparser.add_argument("--new_ftp_dir", type=str, help='The path to the data directory (only containing the metadata)', required=True)
+    argparser.add_argument("--staged_scores_dir", type=str, help='The path to the staged scoring files directory', required=True)
     argparser.add_argument("--scores_dir", type=str, help='The path to the scoring files directory', default=defaut_scores_dir, required=False)
 
     args = argparser.parse_args()
 
-    pgs_scoring_files = CopyScoringFiles(args.data_dir,args.ftp_scores_dir,args.scores_dir)
+    pgs_scoring_files = CopyScoringFiles(args.new_ftp_dir,args.staged_scores_dir,args.scores_dir)
     pgs_scoring_files.get_previous_release()
     pgs_scoring_files.get_list_of_scores()
     pgs_scoring_files.copy_scoring_files_to_production()
