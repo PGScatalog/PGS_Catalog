@@ -28,10 +28,10 @@ class UpdateScoreAncestry:
     anc_not_found = []
 
     def __init__(self,verbose=None):
-        # self.scores = Score.objects.all().order_by('num')
+        self.scores = Score.objects.all().order_by('num')
         self.verbose = verbose
         # self.scores = Score.objects.filter(num__gte=2731)
-        self.scores = Score.objects.filter(num=2736)
+        # self.scores = Score.objects.filter(num=2736)
 
     def script_logs(self,msg):
         if self.verbose:
