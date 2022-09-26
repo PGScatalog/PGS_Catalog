@@ -17,6 +17,7 @@ def pgs_urls(request):
         'pgs_ftp_root'     : constants.USEFUL_URLS['PGS_FTP_ROOT'],
         'pgs_ftp_http_root': constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'],
         'pgs_ftp_http_meta': constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT']+'/metadata/',
+        'pgs_github'       : constants.USEFUL_URLS['PGS_GITHUB'],
         'pgs_twitter'      : constants.USEFUL_URLS['PGS_TWITTER'],
         'pgs_twitter_url'  : constants.USEFUL_URLS['PGS_TWITTER_URL'],
         'uoc_url'          : constants.USEFUL_URLS['UOC_URL'],
