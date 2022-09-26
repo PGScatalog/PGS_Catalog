@@ -64,6 +64,10 @@ class ScoringFileUpdate():
             raw_scorefile = f'{self.score_file_path}/{score_name}.txt'
             df_scoring = pd.read_table(raw_scorefile, dtype='str', engine = 'python')
 
+            # Remove empty columns
+            df_scoring.replace("", float("NaN"), inplace=True)
+            df_scoring.dropna(how='all', axis=1, inplace=True)
+
             # Rename reference_allele column
             if 'other_allele' not in df_scoring.columns and 'reference_allele' in df_scoring.columns:
                 df_scoring.rename(columns={'reference_allele': 'other_allele'}, inplace=True)

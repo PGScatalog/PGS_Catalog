@@ -9,7 +9,7 @@ PGS_CITATION = {
     'year': 2021
 }
 
-ENSEMBL_VERSION = 104
+ENSEMBL_VERSION = 105
 
 USEFUL_URLS = {
     'BAKER_URL'         : 'https://baker.edu.au',
@@ -18,6 +18,7 @@ USEFUL_URLS = {
     'PGS_CONTACT'       : 'pgs-info@ebi.ac.uk',
     'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_FTP_HTTP_ROOT' : 'https://ftp.ebi.ac.uk/pub/databases/spot/pgs',
+    'PGS_GITHUB'        : 'https://github.com/PGScatalog/',
     'PGS_TWITTER'       : '@PGSCatalog',
     'PGS_TWITTER_URL'   : 'https://www.twitter.com/pgscatalog',
     'PGS_WEBSITE_URL'   : 'https://www.pgscatalog.org/',
