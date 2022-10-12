@@ -75,7 +75,7 @@ class CurationTemplate():
             cohort_long_name = cohort_name
             cohort_others_name = None
             # Loop throught the columns
-            for col, val in cohort_info.iteritems():
+            for col, val in cohort_info.items():
                 if col in current_schema.index:
                     if pd.isnull(val) == False:
                         field = current_schema.loc[col, 'Field']
@@ -136,7 +136,7 @@ class CurationTemplate():
             current_schema = self.table_mapschema.loc[spreadsheet_name].set_index('Column')
             previous_field = None
             # Loop throught the columns
-            for col, val in pinfo.iteritems():
+            for col, val in pinfo.items():
                 if val and col in current_schema.index:
                     field = current_schema.loc[col][1]
                     if type(val) == str or type(val) == int:
@@ -167,7 +167,7 @@ class CurationTemplate():
             if license:
                 parsed_score.add_data('license', license)
             # Loop throught the columns
-            for col, val in score_info.iteritems():
+            for col, val in score_info.items():
                 if pd.isnull(val) is False:
                     # Map to schema
                     m, f = self.get_model_field_from_schema(col,current_schema)
@@ -227,7 +227,7 @@ class CurationTemplate():
         current_schema = self.table_mapschema.loc[spreadsheet_name].set_index('Column')
         for p_key, performance_info in self.table_performances.iterrows():
             parsed_performance = PerformanceData()
-            for col, val in performance_info.iteritems():
+            for col, val in performance_info.items():
                 if pd.isnull(val) == False:
                     m, f = self.get_model_field_from_schema(col,current_schema)
 

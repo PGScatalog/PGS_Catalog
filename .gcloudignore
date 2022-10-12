@@ -13,7 +13,6 @@
 .git
 .github/
 .gitignore
-.travis.yml
 
 # Static directories (GAE uses the ones in /static instead)
 /catalog/static/
