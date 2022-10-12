@@ -1,6 +1,6 @@
 # [START django_app]
 
-runtime: python38
+runtime: python310
 
 # For the live site, comment the following line (it uses the default service value 'default')
 service: <service_name>
@@ -25,7 +25,7 @@ inbound_services:
 - warmup
 automatic_scaling:
   min_instances: 1
-  max_instances: 3
+  max_instances: 4
   min_idle_instances: 1
   max_idle_instances: 1
 
@@ -35,11 +35,14 @@ env_variables:
     PGS_LIVE_SITE: '<False_or_True>' # Need to be set to True for live website
     PGS_CURATION_SITE: '<False_or_True>' # Line optional: Only used for the curation website
     ALLOWED_HOSTS: '*'
+    # PGS database
     DATABASE_NAME: '<db_name>'
     DATABASE_USER: '<db_user>'
     DATABASE_PASSWORD: '<db_password>'
     DATABASE_PORT: '<db_port>'
+    DATABASE_PORT_LOCAL: '<db_port_local>'
     DATABASE_HOST: '<db_host>' # e.g.: localhost, IP address, /cloudsql/...
+    # Search
     ELASTICSEARCH_URL_ROOT: '<url_to_elasticsearch_service>'
 
 # [END django_app]
