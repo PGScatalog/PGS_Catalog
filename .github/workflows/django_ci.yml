@@ -1,0 +1,50 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  DEBUG=False
+  ALLOWED_HOSTS=localhost
+  PGS_LIVE_SITE='True'
+  DATABASE_NAME=travis_ci_test
+  DATABASE_USER=postgres
+  DATABASE_PASSWORD=password
+  DATABASE_HOST=localhost
+  DATABASE_PORT=5432
+  DATABASE_PORT_LOCAL=5432
+  REST_URL_ROOT=http://127.0.0.1/rest/
+  ELASTICSEARCH_URL_ROOT=http://localhost:9200 SECRET_KEY=1234
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: 3.10
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Elasticsearch
+      run: |
+        curl https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.15.0-amd64.deb -o elasticsearch.deb
+        sudo dpkg -i --force-confnew elasticsearch.deb
+        sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
+        sudo service elasticsearch starty
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install requests
+        pip install pandas xlrd openpyxl numpy
+    - name: Run Tests
+      run: |
+        python manage.py test catalog/tests curation/tests rest_api/tests
