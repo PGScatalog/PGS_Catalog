@@ -34,6 +34,19 @@
                 <li><a href="#search_res">How to look at the search results?</a></li>
               </ul>
             </li>
+            <li class="content_group">
+              <a href="#pgs_sf"><b>PGS scoring files</b></a>
+              <ul>
+                <li><a href="#pgs_dnld">How to download the PGS scoring files?</a></li>
+                <li><a href="#pgs_calc">How to calculate polygenic scores using PGS scoring files?</a></li>
+              </ul>
+            </li>
+            <li class="content_group">
+              <a href="#troubleshooting_pgs"><b>Toubleshooting</b></a>
+              <ul>
+                <li><a href="#failed_dl_why">Why do the FTP downloads (scoring files, metadata) stall or fail?</a></li>
+              </ul>
+            </li>
           </ul>
         </nav>
       </div>
@@ -41,7 +54,7 @@
 
     <!-- General -->
     <section>
-      <h2 class="mt-5 mb-0 pt-4"  style="border-top: 1px solid #DDD" id="general_pgs">General</h2>
+      <h2 class="mt-5 mb-0 pt-4 grp_title" id="general_pgs">General</h2>
 
       <h3 class="mt-5" id="access_how">How to access PGS Catalog data?</h3>
       <p>
@@ -91,7 +104,7 @@
 
     <!-- Searching the PGS Catalog -->
     <section>
-      <h2 class="mt-5 mb-0 pt-4"  style="border-top: 1px solid #DDD" id="search_pgs">Searching the PGS Catalog</h2>
+      <h2 class="mt-5 mb-0 pt-4 grp_title" id="search_pgs">Searching the PGS Catalog</h2>
 
       <h3 class="mt-5" id="search_how">How to search the PGS Catalog?</h3>
       <p>
@@ -320,4 +333,71 @@
         </table>
       </div>
     </section>
+
+
+    <!-- PGS scoring files -->
+    <section>
+      <h2 class="mt-5 mb-0 pt-4 grp_title" id="pgs_sf">PGS scoring files</h2>
+
+      <p class="mt-2">For further information about the PGS Catalog scoring files (e.g. file format), please look at the documentation in the <a href="/downloads/#dl_scoring_files">Download</a> page.</p>
+
+      <h3 class="mt-5" id="pgs_dnld">How to download the PGS scoring files?</h3>
+      There are different ways to download the PGS scoring files:
+      <ul>
+        <li class="mt-2">Directly via the <a href="{{ pgs_ftp_http_root }}/scores/"><b>PGS Catalog FTP server</b></a>, e.g. <a href="{{ pgs_ftp_http_root }}/scores/PGS000001/ScoringFiles/">PGS000001</a>.</li>
+        <li class="mt-2">Using the python package <a href="{{ pgs_github }}pgscatalog_utils"><b>pgscatalog_utils</b></a>, which has a <span class="pgs_color_2">download scoring files</span> feature. See more information on <a href="https://pypi.org/project/pgscatalog-utils/"><i class="fa-brands fa-python pgs_color_1"></i> PyPi</a>.
+      </ul>
+
+      <div class="d-flex mt-4">
+        <div class="mb-2 pgs_note pgs_note_1">
+          <div>
+            <span>Note: </span>The web interface and the <b>Score</b> endpoints in the <a href="/rest/">PGS Catalog REST API</a> provide the full URLs of the scoring files.
+            <div class="mt-1"> e.g. with the REST API: <code>https://www.pgscatalog.org/rest/score/PGS000001</code></div>
+            <pre class="mb-0">
+{...
+  "<b>ftp_scoring_file</b>": "https://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/PGS000001.txt.gz",
+...}</pre>
+          </div>
+        </div>
+      </div>
+
+
+      <h3 class="mt-5" id="pgs_calc">How to calculate polygenic scores using PGS scoring files?</h3>
+      <p>We wrote <a href="{{ pgs_github }}pgsc_calc"><b>pgsc_calc</b></a>: a reproducible workflow to calculate both PGS Catalog and custom polygenic scores. The workflow automates PGS downloads from the Catalog, reading custom scoring files, variant matching between scoring files and target genotyping samplesets, and the parallel calculation of multiple PGS. See the full documentation <a href="https://pgsc-calc.readthedocs.io/en/latest/">here</a>.</p>
+
+    </section>
+
+
+    <!-- Toubleshooting -->
+    <section>
+      <h2 class="mt-5 mb-0 pt-4 grp_title" id="troubleshooting_pgs">Toubleshooting</h2>
+
+      <h3 class="mt-5" id="failed_dl_why">Why do the FTP downloads (scoring files, metadata) stall or fail?</h3>
+      <p>By default the download of the metadata and scoring files uses the protocol <span class="pgs_color_2">HTTPS</span>, e.g.:</p>
+      <div class="pgs_formatted_block">
+        <pre style="border 1px solid"><span class="pgs_color_2"><b>https</b></span>://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/PGS000001.txt.gz</pre>
+      </div>
+      <p>
+        <i class="fas fa-warning"></i> However our FTP server is having some intermittent issues with the <span class="pgs_color_2">HTTPS</span> protocol.<br/>
+      </p>
+      <p>
+        If the downloads don't work with <span class="pgs_color_2">HTTPS</span>, we recommend to replace it by one of the following protocols:<br/>
+      </p>
+        <ul>
+          <li>
+            <span class="pgs_color_2">HTTP</span>:
+            <div class="pgs_formatted_block">
+              <pre style="border 1px solid"><span class="pgs_color_2"><b>http</b></span>://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/PGS000001.txt.gz</pre>
+            </div>
+          </li>
+          <li>
+            <span class="pgs_color_2">FTP</span>:
+            <div class="pgs_formatted_block">
+              <pre style="border 1px solid"><span class="pgs_color_2"><b>ftp</b></span>://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000001/ScoringFiles/PGS000001.txt.gz</pre>
+            </div>
+          </li>
+        </ul>
+    </section>
+
+
 {% endblock %}
