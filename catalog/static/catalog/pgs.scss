@@ -36,6 +36,8 @@ $header_height_with_margin_mobile: $header_height_with_margin + 60px;
 $footer_height: 97px;
 $footer_height_mobile:150px;
 
+$gwas_icon: '/static/catalog/imgs/GWAS_Catalog_logo_24.png';
+
 $chart_font_family:"Verdana", "Arial", "sans-serif";
 
 /* CSS mixin */
@@ -1500,9 +1502,16 @@ a.link-with-btn {
   white-space: nowrap;
   line-height: 24px;
   &:before {
-    content: url('/static/catalog/imgs/GWAS_Catalog_logo_24.png');
+    content: url($gwas_icon);
     width: 29px;
   }
+}
+
+.gwas_icon {
+  background-image: url($gwas_icon);
+  background-repeat: no-repeat, no-repeat;
+  width:26px;
+  padding:4px 13px 2px;
 }
 
 

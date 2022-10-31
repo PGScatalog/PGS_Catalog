@@ -48,6 +48,10 @@ $(document).ready(function() {
       window.open('/search/?q='+q);
     });
 
+    // GWAS AJAX calls from GWAS REST API
+    find_gwas_publication();
+    find_gwas_trait();
+
     // Draw ancestry charts
     if ($('.anc_chart').length) {
 
@@ -864,6 +868,61 @@ function display_category_list(data_json) {
 
   // Display list of trait categories
   fadeIn($("#trait_cat"));
+}
+
+
+
+/*
+ * Functions to retrieve GWAS Catalog information via AJAX calls
+ */
+var gwas_url_root = 'https://www.ebi.ac.uk/gwas';
+var gwas_rest_url_root = gwas_url_root+'/rest/api';
+var gwas_btn_classes = 'class="btn btn-pgs-small pgs_no_icon_link" target="_blank"';
+
+// GWAS Catalog REST API - Publication
+function find_gwas_publication() {
+  var pmid = $('#pubmed_id').html();
+  if (pmid && pmid != '') {
+    var gwas_rest_url = gwas_rest_url_root+'/studies/search/findByPublicationIdPubmedId?pubmedId=';
+    $.ajax({
+        url: gwas_rest_url+pmid,
+        method: "GET",
+        contentType: "application/json",
+        dataType: 'json'
+    })
+    .done(function (data) {
+      if (data._embedded) {
+        studies = data._embedded.studies;
+        if (studies.length > 0) {
+          $('#gwas_pmid_url').html('<a '+gwas_btn_classes+' href="'+gwas_url_root+'/publications/'+pmid+'"><span class="gwas_icon"></span>View in NHGRI-EBI GWAS Catalog</a>');
+          $('#gwas_pmid_url').addClass('mb-2');
+        }
+      }
+    });
+  }
+}
+
+// GWAS Catalog REST API - Trait
+function find_gwas_trait() {
+  var trait_id = $('#trait_id').html();
+  var trait_label = $('#trait_label').html();
+  if (trait_label && trait_label != '') {
+    var gwas_rest_url = gwas_rest_url_root+'/efoTraits/search/findByEfoTrait?trait=';
+    $.ajax({
+        url: gwas_rest_url+trait_label,
+        method: "GET",
+        contentType: "application/json",
+        dataType: 'json'
+    })
+    .done(function (data) {
+      if (data._embedded) {
+        efotraits = data._embedded.efoTraits;
+        if (efotraits.length > 0) {
+          $('#gwas_efo_url').html('<a '+gwas_btn_classes+' href="'+gwas_url_root+'/efotraits/'+trait_id+'"><span class="gwas_icon"></span> View in NHGRI-EBI GWAS Catalog</a></div>');
+        }
+      }
+    });
+  }
 }
 
 
