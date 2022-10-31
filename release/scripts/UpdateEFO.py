@@ -1,5 +1,7 @@
 import requests
 from catalog.models import EFOTrait, TraitCategory, EFOTrait_Ontology, Score
+#from django.db import connection
+from django.db import connections
 
 
 class UpdateEFO:
@@ -343,7 +345,8 @@ class UpdateEFO:
                     response = self.get_parents(trait)
                 # Get Category info
                 categories_list = self.get_category_info(trait,response)
-            self.store_category_info(trait_id,categories_list)
+            if categories_list:
+                self.store_category_info(trait_id,categories_list)
 
 
     def get_category_info(self, trait, response):
@@ -463,11 +466,13 @@ class UpdateEFO:
     def launch_efo_updates(self):
         ''' Method to run the full EFOTrait/EFOTrait_Ontology/TraitCategory update'''
 
-        print("> Truncate EFOTrait_Ontology table")
+        print("> Empty EFOTrait_Ontology table")
         EFOTrait_Ontology.objects.all().delete()
 
         print("> Truncate TraitCategory table")
         TraitCategory.objects.all().delete()
+        with connections['default'].cursor() as cursor:
+            cursor.execute('ALTER SEQUENCE IF EXISTS catalog_traitcategory_id_seq RESTART WITH 1;')
 
         print("> Update EFOTrait data and copy to EFOTrait_Ontology")
         efotraits = EFOTrait.objects.prefetch_related('associated_scores').all()
