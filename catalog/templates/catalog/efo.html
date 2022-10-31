@@ -8,11 +8,11 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
         <li class="breadcrumb-item"><a href="/browse/traits/">Traits</a></li>
-        <li class="breadcrumb-item">{{ trait.id }}</li>
+        <li class="breadcrumb-item" id="trait_id">{{ trait.id }}</li>
       </ol>
     </nav>
 
-    <h2>Trait: <span class="pgs_title">{{ trait.label }}</span></h2>
+    <h2>Trait: <span id="trait_label" class="pgs_title">{{ trait.label }}</span></h2>
 
     <section>
       <table class="table table-bordered table_pgs_h mt-4">
@@ -126,6 +126,7 @@
           {% endif %}
         </tbody>
       </table>
+      <div id="gwas_efo_url"></div>
     </section>
 
     <section>
