@@ -40,7 +40,7 @@ def run():
 
     print("\n\n#### Start the database release ####")
 
-    # # Create release
+    # Create release
     call_create_release()
 
     # Generate EuropePMC linkage XML file
@@ -59,16 +59,18 @@ def check_publications_associations():
 
     publications = Publication.objects.all().order_by('num')
     pub_list = []
+    pub_exclusion_list = ['PGP000242']
 
     for publication in publications:
         pub_id = publication.id
-        is_associated = 0
-        if Score.objects.filter(publication=publication):
-            is_associated = 1
-        elif Performance.objects.filter(publication=publication):
-            is_associated = 1
-        if not is_associated:
-            pub_list.append(pub_id)
+        if pub_id not in pub_exclusion_list:
+            is_associated = 0
+            if Score.objects.filter(publication=publication):
+                is_associated = 1
+            elif Performance.objects.filter(publication=publication):
+                is_associated = 1
+            if not is_associated:
+                pub_list.append(pub_id)
 
     if len(pub_list) > 0:
         error_report("The following PGS publications are not associated to a Score or a Performance Metric:\n"+'\n'.join(pub_list))
@@ -150,7 +152,7 @@ def call_create_release():
 
     lastest_release = Release.objects.latest('date').date
 
-    release = CreateRelease()
+    release = CreateRelease(release_tomorrow=1)
     release.update_data_to_release()
     new_release = release.create_new_release()
 

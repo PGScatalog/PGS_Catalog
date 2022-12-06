@@ -126,6 +126,9 @@ class UpdateEFO:
                 new_desc = response['description']
         data['description'] = new_desc
 
+        # URL
+        data['iri'] = response['iri']
+
         return data
 
 
@@ -150,21 +153,20 @@ class UpdateEFO:
 
             trait_has_changed = 0
             if new_label != trait.label:
-                #print("\tnew label '"+new_label+"'")
                 trait_has_changed = 1
                 trait.label = new_label
             if efo_formatted_data['description'] != trait.description:
-                #print("\tnew desc '"+', '.join(new_desc)+"'")
                 trait_has_changed = 1
                 trait.description = efo_formatted_data['description']
             if efo_formatted_data['synonyms'] != trait.synonyms and efo_formatted_data['synonyms'] != '':
-                #print("\tnew syn: "+str(len(new_synonyms_string)))
                 trait_has_changed = 1
                 trait.synonyms = efo_formatted_data['synonyms']
             if efo_formatted_data['mapped_terms'] != trait.mapped_terms and efo_formatted_data['mapped_terms'] != '':
-                #print("\tnew map: "+str(len(new_mapped_terms)))
                 trait_has_changed = 1
                 trait.mapped_terms = efo_formatted_data['mapped_terms']
+            if efo_formatted_data['iri'] != trait.url:
+                trait_has_changed = 1
+                trait.url = efo_formatted_data['iri']
             if trait_has_changed == 1:
                 trait.save()
         else:

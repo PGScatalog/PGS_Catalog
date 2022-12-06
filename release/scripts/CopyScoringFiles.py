@@ -9,6 +9,7 @@ class CopyScoringFiles:
     ftp_scoring_files_dir = '/nfs/ftp/public/databases/spot/pgs/scores/'
     ftp_std_scoringfile_suffix = '.txt.gz'
     scores_list_file = 'pgs_scores_list.txt'
+    sql_table = 'catalog_scorefilemd5'
 
     log_msg = {
         'new': [],
@@ -147,6 +148,10 @@ class CopyScoringFiles:
     def copy_scoring_files_to_metadata(self):
         """ Copy the new/updated scoring files to the metadata directory (temporary FTP) """
         print("\n***** Step 2 - Copy the new/updated scoring files to the metadata directory (temporary FTP) *****")
+
+        md5_filepath = self.new_ftp_scores_dir+'/scores_md5.sql'
+        md5_sql_file = open(md5_filepath,'w')
+
         for score_id in sorted(os.listdir(self.new_ftp_scores_dir+'/scores/')):
             score_release_dir = self.new_ftp_scores_dir+'/scores/'+score_id+'/ScoringFiles/'
 
@@ -164,33 +169,54 @@ class CopyScoringFiles:
                 print("ERROR: new PGS Scoring file '"+new_score_file+"' is empty.")
                 continue
 
-            to_copy = 1
+            # Generate md5 checksum of the "new" scoring file
+            new_score_md5 = self.get_md5_checksum(new_score_file)
+
+            to_copy = True
+            is_updated = False
             # Check if dir exist in FTP
             if os.path.exists(ftp_score_dir):
                 # Check if score file exist in FTP
                 if os.path.exists(ftp_score_file):
+                    # Generate md5 checksum for the current file on FTP
                     ftp_score_md5 = self.get_md5_checksum(ftp_score_file)
-                    new_score_md5 = self.get_md5_checksum(new_score_file)
-                    print(score_id+": "+ftp_score_md5+" | "+new_score_md5)
                     # Check if score file is different
                     if new_score_md5 == ftp_score_md5:
-                        to_copy = 0
+                        to_copy = False
                         self.log_msg['skipped'].append(score_id)
                     else:
+                        #print(score_id+": "+ftp_score_md5+" | "+new_score_md5)
                         # Create archive and copy FTP file in it
-
                         scoring_archives = score_release_dir+'archived_versions/'
                         scoring_archives_file = score_id+'_'+self.previous_release+self.ftp_std_scoringfile_suffix
                         self.create_directory(score_release_dir)
                         self.create_directory(scoring_archives)
                         shutil.copy2(ftp_score_file, scoring_archives+scoring_archives_file)
                         self.log_msg['updated'].append(score_id)
+                        is_updated = True
 
-            if (to_copy == 1):
+            if to_copy == True:
                 self.create_directory(score_release_dir)
-                shutil.copy2(new_score_file, score_release_dir+score_filename)
+                score_release_file = score_release_dir+score_filename
+
+                # Generate md5 checksum file
+                md5_file = open(score_release_file+'.md5','w')
+                md5_file.write(f'{new_score_md5}  {score_filename}')
+                md5_file.close()
+
+                shutil.copy2(new_score_file, score_release_file)
                 if not score_id in self.log_msg['updated']:
                     self.log_msg['new'].append(score_id)
+
+                # md5 checksum SQL commands
+                id = re.sub(r'PGS0+(.+)', r'\1', score_id)
+                if is_updated:
+                    sql_cmd = f"UPDATE {self.sql_table} SET score_md5='{new_score_md5}' WHERE score_id={id};\n"
+                else:
+                    sql_cmd = f"INSERT INTO {self.sql_table} (score_id,score_md5) VALUES ({id},'{new_score_md5}');\n"
+                md5_sql_file.write(sql_cmd)
+
+        md5_sql_file.close()
 
 
         # Copied PGS Scoring files
@@ -216,7 +242,7 @@ class CopyScoringFiles:
             print('File \'' + filename + '\' not found!')
             return None
         except:
-            print("Error: the script couldn't generate a MD5 checksum for '" + self.filename + "'!")
+            print("Error: the script couldn't generate a MD5 checksum for '" + filename + "'!")
             return None
 
         return md5.hexdigest()
