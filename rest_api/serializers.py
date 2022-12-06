@@ -94,7 +94,7 @@ class EFOTraitOntologySerializer(serializers.ModelSerializer):
     class Meta:
         model = EFOTrait_Ontology
         meta_fields = ('trait_categories', 'trait_synonyms', 'trait_mapped_terms',
-                    'associated_pgs_ids', 'child_associated_pgs_ids')
+                       'associated_pgs_ids', 'child_associated_pgs_ids')
         fields = EFOTraitExtendedSerializer.Meta.fields + meta_fields
         read_only_fields = EFOTraitExtendedSerializer.Meta.read_only_fields + meta_fields
 

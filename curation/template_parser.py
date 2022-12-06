@@ -98,6 +98,10 @@ class CurationTemplate():
         c_doi = pinfo['doi']
         if type(c_doi) == str:
             c_doi = c_doi.strip()
+            if c_doi.startswith('https'):
+                c_doi = c_doi.replace('https://doi.org/','')
+            elif c_doi.startswith('http'):
+                c_doi = c_doi.replace('http://doi.org/','')
         c_PMID = pinfo[0]
         publication = None
         new_publication = True

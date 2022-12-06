@@ -8,6 +8,7 @@ class CopyHarmonizedScoringFilesPOS:
 
     ftp_std_scoringfile_suffix = '.txt.gz'
     scores_list_file = 'pgs_scores_list.txt'
+    sql_table = 'catalog_scorefilemd5'
     genebuilds = ['37','38']
     harmonized_files_to_copy = {}
     mode = 0o775
@@ -135,6 +136,9 @@ class CopyHarmonizedScoringFilesPOS:
         """ Copy the new/updated scoring files to the metadata directory (temporary FTP) """
         print("\n***** Step 2 - Copy the new/updated scoring files to the metadata directory (temporary FTP) *****")
 
+        md5_filepath = self.new_ftp_scores_dir+'/scores_md5.sql'
+        md5_sql_file = open(md5_filepath,'a')
+
         for score_id in sorted(self.harmonized_files_to_copy.keys()):
 
             score_release_dir = self.new_ftp_scores_dir+'/scores/'+score_id+'/ScoringFiles/'
@@ -142,6 +146,8 @@ class CopyHarmonizedScoringFilesPOS:
 
             harmonized_release_dir = f'{score_release_dir}/Harmonized'
             self.create_directory(harmonized_release_dir)
+
+            id = re.sub(r'PGS0+(.+)', r'\1', score_id)
 
             for entry in self.harmonized_files_to_copy[score_id]:
                 harmonized_gb = entry['genebuild']
@@ -151,8 +157,20 @@ class CopyHarmonizedScoringFilesPOS:
                 harmonized_file_prod = f'{self.harmonized_files_prod_dir}/{score_id}/{harmonized_gb}/{harmonized_filename}'
                 harmonized_file_release = f'{harmonized_release_dir}/{harmonized_filename}'
 
+                # Generate md5 checksum file
+                harmonized_file_md5 = self.get_md5_checksum(harmonized_file_prod)
+                md5_file = open(harmonized_file_release+'.md5','w')
+                md5_file.write(f'{harmonized_file_md5}  {harmonized_filename}')
+                md5_file.close()
+
                 shutil.copy2(harmonized_file_prod, harmonized_file_release)
                 self.log_msg[harmonized_status][harmonized_gb].append(score_id)
+
+                # md5 checksum SQL commands
+                sql_cmd = f"UPDATE {self.sql_table} SET hmpos_{harmonized_gb}_md5='{harmonized_file_md5}' WHERE score_id={id};\n"
+                md5_sql_file.write(sql_cmd)
+
+        md5_sql_file.close()
 
         # Copied PGS Scoring files
         self.print_log_msg('new', 'New PGS Scoring files')
@@ -181,7 +199,7 @@ class CopyHarmonizedScoringFilesPOS:
             print('File \'' + filename + '\' not found!')
             return None
         except:
-            print("Error: the script couldn't generate a MD5 checksum for '" + self.filename + "'!")
+            print("Error: the script couldn't generate a MD5 checksum for '" + filename + "'!")
             return None
 
         return md5.hexdigest()

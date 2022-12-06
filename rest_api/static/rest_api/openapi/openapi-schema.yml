@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.8.4'
+  version: '1.8.5'
   description: |
     Programmatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -73,6 +73,11 @@ info:
 
     <a class="toggle_btn pgs_btn_plus" id="changelog">REST API version changelog</a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.8.5</span> - December 2022:
+        * Add deprecation message about the parameter 'pgs_ids' of the endpoint `/rest/score/search` as it is redundant with the parameter 'filter_ids'  of the endpoint `/rest/score/all`.
+        * Fix the parameter 'include_parents' for the endpoint `/rest/trait/all`.
+        * New parameter 'include_child_associated_pgs_ids' for the endpoint `/rest/trait/all` to display the list of PGS IDs associated with the children traits.
 
       * <span class="badge badge-pill badge-pgs">1.8.4</span> - August 2022:
         * New field **ftp_harmonized_scoring_files** in the Score schemas (`/rest/score/` endpoints), listing the URLs to the different harmonized scoring files.
@@ -1928,7 +1933,7 @@ paths:
           name: pgs_ids
           schema:
             type: string
-          description: Comma-separated list of PGS IDs - *optional*
+          description: Comma-separated list of PGS IDs - <span style="color:red">**DEPRECATED!</span>** Please use the endpoint <code>/rest/score/all?filter_ids=<pgs_ids></code> instead - *optional*
           examples:
             pgs_ids_sel:
               summary: Select an example or type PGS ID(s) - click on 'Try it out' first
@@ -1978,10 +1983,10 @@ paths:
           * Trait categories
           * Synonyms and external mapped terms
           * Associated Polygenic Score(s)
-          * Associated Polygenic Score(s) with child trait(s) - **<span class="colour_2">[</span>** only when the parameter **include_parents** is set to **1** **<span class="colour_2">]</span>**
+          * Associated Polygenic Score(s) with child trait(s) - **<span class="colour_2">[</span>** only when the parameter **include_child_associated_pgs_ids** is set to **1** **<span class="colour_2">]</span>**
 
-        The default behaviour of this endpoint is to provide a list of traits which have PGS that predict them (matching the traits indexed in the metadata downloads).
-        Higher-level trait groupings imported from the Experimental Factor Ontology can be included in the list by setting the **include_parents** flag to **1** (default is 0).
+        This endpoint can be used to retrieve trait-PGS mappings for any trait in the database
+        (including parent traits from the ontology that aren’t included in the `/rest/trait/all` endpoint).
 
         Example of request:
         ```
@@ -1999,7 +2004,7 @@ paths:
         ```
         curl -X GET 'https://www.pgscatalog.org/rest/trait/all' -H 'Content-type:application/json' -d '{ "filter_ids" : ["EFO_0000305", "EFO_0001645"] }'
         ```
-        The 2 parameters can be used in JSON: `{ "filter_ids" : ["EFO_0000305","EFO_0001645"], "include_parents" : 1 }`
+        The 2 parameters can be used in JSON: `{ "filter_ids" : ["EFO_0000305","EFO_0001645"], "include_child_associated_pgs_ids" : 1 }`
       parameters:
         - in: query
           name: filter_ids
@@ -2017,6 +2022,19 @@ paths:
               summary: 'EFO_0000400, EFO_0004340, MONDO_0007576'
               value: 'EFO_0000400,EFO_0004340,MONDO_0007576'
         - in: query
+          name: include_child_associated_pgs_ids
+          schema:
+            type: integer
+          required: false
+          description: 'Flag to include or not the list of PGS IDs associated with children traits'
+          examples:
+            exclude_asso_child_sel:
+              summary: Exclude the list of PGS IDs associated with children traits
+              value: 0
+            include_asso_child_sel:
+              summary: Include the list of PGS IDs associated with children traits
+              value: 1
+        - in: query
           name: include_parents
           schema:
             type: integer
@@ -2024,10 +2042,10 @@ paths:
           description: 'Flag to include or not the parents of the traits associated with PGS'
           examples:
             exclude_parents_sel:
-              summary: Exclude the parents terms
+              summary: Exclude the parents traits
               value: 0
             include_parents_sel:
-              summary: Include the parents terms
+              summary: Include the parents traits
               value: 1
       responses:
         '200':
@@ -2144,7 +2162,7 @@ paths:
           schema:
             type: string
           required: true
-          description: 'Trait ID, trait name, trait description, trait category, trait synonym or external mapped terms/IDs'
+          description: 'Trait ID, trait name, trait category, trait synonym or external mapped terms/IDs'
           examples:
             trait_1:
               summary: Alzheimer - [trait name]

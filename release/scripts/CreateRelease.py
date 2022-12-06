@@ -1,6 +1,6 @@
 import re
 from catalog.models import *
-from datetime import date
+from datetime import date,timedelta
 from ftplib import FTP
 
 
@@ -12,9 +12,16 @@ class CreateRelease:
     new_scores = {}
     new_performances = {}
 
-    def __init__(self):
-        self.new_release_date = date.today()
+    def __init__(self, release_tomorrow=None):
+        self.release_tomorrow = release_tomorrow
         self.new_publications = Publication.objects.filter(date_released__isnull=True, curation_status="C")
+
+
+    def get_release_date(self):
+        release_date = date.today()
+        if self.release_tomorrow:
+            release_date = release_date + timedelta(days=1)
+        self.new_release_date = release_date
 
 
     def update_data_to_release(self):
@@ -22,6 +29,7 @@ class CreateRelease:
         Update data ready for the release (scores, performances and publications)
         by adding a date in the 'date_released' columns
         """
+        self.get_release_date()
         #### Add release date for each publications and dependent models ####
         for publication in self.new_publications:
             publication.date_released = self.new_release_date
@@ -103,7 +111,7 @@ def run():
 
     lastest_release = Release.objects.latest('date').date
 
-    release = CreateRelease()
+    release = CreateRelease(release_tomorrow=1)
     release.update_data_to_release()
     new_release = release.create_new_release()
 

@@ -22,6 +22,7 @@
       <ul>
         <li><a href="#dl_ftp_list">Available PGS Catalog downloads</a></li>
         <li><a href="#dl_ftp">PGS Catalog FTP structure</a></li>
+        <li><a href="#dl_ftp_metadata">PGS Catalog Metadata</a></li>
         <li>
           <a href="#dl_scoring_files">PGS Scoring Files</a>
           <ul>
@@ -31,14 +32,15 @@
                 <li><i class="fas fa-hashtag pgs_color_1"></i> <a href="#scoring_header">Header</a><span class="pl-2 pr-2">—</span><i class="fas fa-th pgs_color_1"></i> <a href="#scoring_columns">Columns</a><span class="pl-2 pr-2">—</span><i class="fas fa-copy pgs_color_1"></i> <a href="#scoring_changes">Format changes</a><span class="pl-2 pr-2">—</span><i class="far fa-copy pgs_color_1"></i> <a href="#scoring_previous">Previous formats</a></li>
               </ul>
             </li>
-          <!-- </ul> -->
-        <li>
-          <a href="#dl_ftp_scoring_hm_pos">Harmonized Files</a>
-          <ul>
-            <li><i class="fas fa-file-signature pgs_color_1"></i> <a href="#hm_pos_fn">File name</a><span class="pl-2 pr-2">—</span><i class="fas fa-hashtag pgs_color_1"></i> <a href="#hm_pos_header">Header</a><span class="pl-2 pr-2">—</span><i class="fas fa-th pgs_color_1"></i> <a href="#hm_pos_columns">Additional Columns</a></li>
+            <li>
+              <a href="#dl_ftp_scoring_hm_pos">Harmonized Files</a>
+              <ul>
+                <li><i class="fas fa-file-signature pgs_color_1"></i> <a href="#hm_pos_fn">File name</a><span class="pl-2 pr-2">—</span><i class="fas fa-hashtag pgs_color_1"></i> <a href="#hm_pos_header">Header</a><span class="pl-2 pr-2">—</span><i class="fas fa-th pgs_color_1"></i> <a href="#hm_pos_columns">Additional Columns</a></li>
+              </ul>
+            </li>
           </ul>
         </li>
-        <li><a href="#dl_ftp_metadata">PGS Catalog Metadata</a></li>
+
       </ul>
     </nav>
   </div>
@@ -127,6 +129,9 @@
   </div>
 </section>
 
+<section>
+  {% include "catalog/downloads/metadata_files.html" %}
+</section>
 
 <section>
   <h3 class="mr-3" id="dl_scoring_files">PGS Scoring Files</h3>
@@ -138,10 +143,6 @@
 
 <section class="mt-5">
   {% include "catalog/downloads/harmonized_files.html" %}
-</section>
-
-<section>
-  {% include "catalog/downloads/metadata_files.html" %}
 </section>
 
 {% endblock %}

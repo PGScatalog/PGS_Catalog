@@ -234,7 +234,7 @@ COMPRESS_PRECOMPILERS = (
 #    '127.0.0.1'
 #]
 REST_BLACKLIST_IPS = [
-    #'127.0.0.1'
+#     '127.0.0.1'
 ]
 
 REST_FRAMEWORK = {
@@ -267,11 +267,13 @@ REST_FRAMEWORK = {
 #-----------------#
 #  CORS Settings  #
 #-----------------#
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https:\/\/\w+\.ebi\.ac\.uk$"
-]
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     r"^https:\/\/\w+\.ebi\.ac\.uk$"
+# ]
 CORS_URLS_REGEX = r'^/rest/.*$'
 CORS_ALLOW_METHODS = ['GET']
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 
 #--------------------------#
