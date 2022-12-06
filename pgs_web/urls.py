@@ -13,7 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-import os
+from django.conf import settings
 from django.urls import include, path, re_path
 from search import views as search_views
 
@@ -23,6 +23,6 @@ urlpatterns = [
     re_path(r'^search/', search_views.search, name="PGS Catalog Search"),
     re_path(r'^autocomplete/', search_views.autocomplete, name="PGS Catalog Autocomplete")
 ]
-if not 'PGS_LIVE_SITE' in os.environ:
+if settings.PGS_ON_CURATION_SITE == 'True':
     from django.contrib import admin
     urlpatterns.append(path('admin/', admin.site.urls))
