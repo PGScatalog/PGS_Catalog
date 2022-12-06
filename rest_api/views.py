@@ -328,27 +328,43 @@ class RestListEFOTraits(generics.ListAPIView):
     """
 
     def get_queryset(self):
-        queryset = EFOTrait.objects.all().prefetch_related(*related_dict['associated_scores_prefetch'], *related_dict['traitcategory_prefetch']).order_by('label')
+        include_parents = self.get_include_parents_param()
+        include_children_pgs_ids = self.get_include_children_pgs_ids_param()
 
-        # include_parents parameter
-        if self.get_include_parents_param():
+        if include_parents or include_children_pgs_ids:
             queryset = EFOTrait_Ontology.objects.all().prefetch_related(*related_dict['ontology_associated_scores_prefetch'], *related_dict['traitcategory_ontology_prefetch']).order_by('label').distinct()
+        else:
+            queryset = EFOTrait.objects.all().prefetch_related(*related_dict['associated_scores_prefetch'], *related_dict['traitcategory_prefetch']).order_by('label')
 
         # Filter by list of Score IDs
         ids_list = get_ids_list(self)
         if ids_list:
-            queryset = queryset.filter(id__in=ids_list)
+            if include_parents:
+                queryset = queryset.filter(Q(id__in=ids_list) | Q(child_traits__id__in=ids_list))
+            else:
+                queryset = queryset.filter(id__in=ids_list)
+
         return queryset
+
 
     def get_serializer_class(self):
         ''' Overwrite default method: use different serializer depending on the URL parameter '''
-        if self.get_include_parents_param():
-            if self.get_include_children_param():
-                return EFOTraitOntologyChildSerializer
-            else:
-                return EFOTraitOntologySerializer
+        if self.get_include_children_pgs_ids_param():
+            return EFOTraitOntologySerializer
         else:
             return EFOTraitExtendedSerializer
+
+
+    def get_include_children_pgs_ids_param(self):
+        ''' Fetch the "include_child_associated_pgs_ids" parameter and return True if it is set to 1 '''
+        param_include_children_pgs_ids = self.request.query_params.get('include_child_associated_pgs_ids')
+        if (not param_include_children_pgs_ids or param_include_children_pgs_ids == None) and 'include_child_associated_pgs_ids' in self.request.data:
+            param_include_children_pgs_ids = self.request.data['include_child_associated_pgs_ids']
+
+        if param_include_children_pgs_ids == '1' or param_include_children_pgs_ids == 1:
+            return True
+        return False
+
 
     def get_include_parents_param(self):
         ''' Fetch the "include_parents" parameter and return True if it is set to 1 '''
@@ -357,16 +373,6 @@ class RestListEFOTraits(generics.ListAPIView):
             param_include_parents = self.request.data['include_parents']
 
         if param_include_parents == '1' or param_include_parents == 1:
-            return True
-        return False
-
-    def get_include_children_param(self):
-        ''' Fetch the "include_children" parameter and return True if it is set to 1 '''
-        param_include_children = self.request.query_params.get('include_children')
-        if (not param_include_children or param_include_children == None) and 'include_children' in self.request.data:
-            param_include_children = self.request.data['include_children']
-
-        if param_include_children == '1' or param_include_children == 1:
             return True
         return False
 

@@ -2,6 +2,15 @@
 
 PGS_REST_API = [
     {
+        'version': '1.8.5',
+        'date': '2022-12',
+        'changelog': [
+            "Add deprecation message about the parameter 'pgs_ids' of the endpoint `/rest/score/search` as it is redundant with the parameter 'filter_ids'  of the endpoint `/rest/score/all`.",
+            "Fix the parameter 'include_parents' for the endpoint `/rest/trait/all`.",
+            "New parameter 'include_child_associated_pgs_ids' for the endpoint `/rest/trait/all` to display the list of PGS IDs associated with the children traits."
+        ]
+    },
+    {
         'version': '1.8.4',
         'date': '2022-08',
         'changelog': [
