@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 	'catalog.apps.CatalogConfig',
     'rest_api.apps.RestApiConfig',
     'search.apps.SearchConfig',
+    'curation_tracker.apps.CurationTrackerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -61,14 +62,12 @@ INSTALLED_APPS = [
     'django_extensions',
     'compressor',
     'rest_framework',
-    'corsheaders',
     'django_elasticsearch_dsl'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -152,6 +151,14 @@ if os.getenv('GAE_APPLICATION', None):
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': os.environ['DATABASE_HOST'],
             'PORT': os.environ['DATABASE_PORT']
+        },
+        'curation_tracker': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['DATABASE_NAME_TRACKER'],
+            'USER': os.environ['DATABASE_USER_TRACKER'],
+            'PASSWORD': os.environ['DATABASE_PASSWORD_TRACKER'],
+            'HOST': os.environ['DATABASE_HOST_TRACKER'],
+            'PORT': os.environ['DATABASE_PORT_TRACKER']
         }
     }
 else:
@@ -167,6 +174,14 @@ else:
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': 'localhost',
             'PORT': os.environ['DATABASE_PORT_LOCAL']
+        },
+        'curation_tracker': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['DATABASE_NAME_TRACKER'],
+            'USER': os.environ['DATABASE_USER_TRACKER'],
+            'PASSWORD': os.environ['DATABASE_PASSWORD_TRACKER'],
+            'HOST': 'localhost',
+            'PORT': os.environ['DATABASE_PORT_LOCAL_TRACKER']
         }
     }
 # [END db_setup]
@@ -213,9 +228,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 STATICFILES_FINDERS = [
 	'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder'
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 ]
+if not os.getenv('GAE_APPLICATION', None):
+    STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
 
 
 COMPRESS_PRECOMPILERS = ''
@@ -234,7 +250,7 @@ COMPRESS_PRECOMPILERS = (
 #    '127.0.0.1'
 #]
 REST_BLACKLIST_IPS = [
-#     '127.0.0.1'
+    # '127.0.0.1'
 ]
 
 REST_FRAMEWORK = {
@@ -267,12 +283,10 @@ REST_FRAMEWORK = {
 #-----------------#
 #  CORS Settings  #
 #-----------------#
-# CORS_ALLOWED_ORIGIN_REGEXES = [
-#     r"^https:\/\/\w+\.ebi\.ac\.uk$"
-# ]
 CORS_URLS_REGEX = r'^/rest/.*$'
 CORS_ALLOW_METHODS = ['GET']
 CORS_ALLOW_ALL_ORIGINS = True
+
 
 
 

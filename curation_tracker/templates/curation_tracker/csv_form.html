@@ -1,0 +1,21 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+  <div id="content-main">
+    <div>
+      <h2 style="margin-bottom:1rem">CSV file upload</h2>
+      <div>
+        <form action="." method="POST" enctype="multipart/form-data">
+          {{ form.as_p }}
+          <div><span style="color:#F00"><b>*</b></span>: one paper ID per line</div>
+          <br />
+          {% csrf_token %}
+          <div class="submit-row">
+            <input type="submit" value="Upload CSV" class="default" style="float:left">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
