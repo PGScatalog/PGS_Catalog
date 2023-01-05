@@ -139,12 +139,16 @@ class PublicationSerializer(serializers.ModelSerializer):
 
 
 class PublicationExtendedSerializer(PublicationSerializer):
+    date_release = serializers.SerializerMethodField('get_date_released')
 
     class Meta(PublicationSerializer.Meta):
         model = Publication
-        meta_fields = ('authors', 'associated_pgs_ids')
+        meta_fields = ('date_release', 'authors', 'associated_pgs_ids')
         fields = PublicationSerializer.Meta.fields + meta_fields
         read_only_fields = PublicationSerializer.Meta.read_only_fields + meta_fields
+
+    def get_date_released(self, obj):
+        return obj.date_released
 
 
 class ScoreSerializer(serializers.ModelSerializer):
@@ -154,13 +158,14 @@ class ScoreSerializer(serializers.ModelSerializer):
     trait_efo = EFOTraitSerializer(many=True, read_only=True)
     matches_publication = serializers.SerializerMethodField('get_flag_asis')
     ancestry_distribution = serializers.SerializerMethodField('get_ancestries')
+    date_release = serializers.SerializerMethodField('get_date_released')
 
     class Meta:
         model = Score
         meta_fields = ('id', 'name', 'ftp_scoring_file', 'ftp_harmonized_scoring_files', 'publication', 'matches_publication',
                     'samples_variants', 'samples_training', 'trait_reported', 'trait_additional',
                     'trait_efo', 'method_name', 'method_params', 'variants_number',
-                    'variants_interactions', 'variants_genomebuild', 'weight_type', 'ancestry_distribution', 'license')
+                    'variants_interactions', 'variants_genomebuild', 'weight_type', 'ancestry_distribution', 'date_release', 'license')
         fields = meta_fields
         read_only_fields = meta_fields
 
@@ -169,6 +174,9 @@ class ScoreSerializer(serializers.ModelSerializer):
 
     def get_ancestries(self, obj):
         return obj.ancestries
+
+    def get_date_released(self, obj):
+        return obj.date_released
 
 
 class PerformanceSerializer(serializers.ModelSerializer):
