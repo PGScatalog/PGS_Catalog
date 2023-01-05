@@ -5,8 +5,8 @@ PGS_REST_API = [
         'version': '1.8.6',
         'date': '2023-01',
         'changelog': [
-            "New field 'date_release' in the Score schemas (`/rest/score/` endpoints), containing the date of the Score release in the PGS Catalog.",
-            "New field 'date_release' in the Publication schemas (`/rest/publication/` endpoints), containing the date of the Score release in the PGS Catalog."
+            "New field 'date_release' in the Score schemas (`/rest/score/` endpoints), containing the release date of the Score in the PGS Catalog.",
+            "New field 'date_release' in the Publication schemas (`/rest/publication/` endpoints), containing the release date of the Publication in the PGS Catalog."
         ]
     },
     {
