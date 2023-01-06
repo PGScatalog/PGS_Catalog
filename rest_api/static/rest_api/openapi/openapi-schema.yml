@@ -75,8 +75,8 @@ info:
     <div class="toggle_content" id="content_changelog" style="display:none">
 
       * <span class="badge badge-pill badge-pgs">1.8.6</span> - January 2023:
-          * New field **date_release** in the Score schemas (`/rest/score/` endpoints), containing the release date of the Score in the PGS Catalog.
-          * New field **date_release** in the Publication schemas (`/rest/publication/` endpoints), containing the release date of the Publication in the PGS Catalog.
+        * New field **date_release** in the Score schemas (`/rest/score/` endpoints), containing the release date of the Score in the PGS Catalog.
+        * New field **date_release** in the Publication schemas (`/rest/publication/` endpoints), containing the release date of the Publication in the PGS Catalog.
 
       * <span class="badge badge-pill badge-pgs">1.8.5</span> - December 2022:
         * Add deprecation message about the parameter 'pgs_ids' of the endpoint `/rest/score/search` as it is redundant with the parameter 'filter_ids'  of the endpoint `/rest/score/all`.
