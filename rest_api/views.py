@@ -10,7 +10,7 @@ from django.db.models import Prefetch, Q
 from catalog.models import *
 from .serializers import *
 
-generic_defer = ['curation_notes','date_released']
+generic_defer = ['curation_notes']
 related_dict = {
     'score_prefetch' : [
         Prefetch('trait_efo', queryset=EFOTrait.objects.defer('synonyms','mapped_terms').all()),
@@ -35,7 +35,7 @@ related_dict = {
                             ],
     'sampleset_samples_cohorts_prefetch': [Prefetch('sampleset__samples__cohorts', queryset=Cohort.objects.only('id','name_short','name_full').all())],
     'score_defer': [*generic_defer,'publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
-    'perf_defer': [*generic_defer,'score__ancestries','score__curation_notes','score__date_released','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
+    'perf_defer': [*generic_defer,'date_released','score__ancestries','score__curation_notes','score__date_released','publication__curation_status','publication__curation_notes','publication__date_released','publication__authors'],
     'publication_defer': [*generic_defer,'curation_status']
 }
 

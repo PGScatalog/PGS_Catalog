@@ -4,7 +4,7 @@ servers:
 info:
 
   title: PGS Catalog REST API
-  version: '1.8.5'
+  version: '1.8.6'
   description: |
     Programmatic access to the PGS Catalog metadata. More information about the metadata and its structure can be found [here](/docs/).
 
@@ -73,6 +73,10 @@ info:
 
     <a class="toggle_btn pgs_btn_plus" id="changelog">REST API version changelog</a>
     <div class="toggle_content" id="content_changelog" style="display:none">
+
+      * <span class="badge badge-pill badge-pgs">1.8.6</span> - January 2023:
+        * New field **date_release** in the Score schemas (`/rest/score/` endpoints), containing the release date of the Score in the PGS Catalog.
+        * New field **date_release** in the Publication schemas (`/rest/publication/` endpoints), containing the release date of the Publication in the PGS Catalog.
 
       * <span class="badge badge-pill badge-pgs">1.8.5</span> - December 2022:
         * Add deprecation message about the parameter 'pgs_ids' of the endpoint `/rest/score/search` as it is redundant with the parameter 'filter_ids'  of the endpoint `/rest/score/all`.
@@ -552,6 +556,11 @@ components:
         required:
           - pgp_id
         properties:
+          date_release:
+            type: string
+            description: "Release date in PGS Catalog (format YYYY-MM-DD)"
+            format: date
+            example: "2015-04-08"
           authors:
             type: string
             description: "Concatenated list of all the publication authors"
@@ -860,6 +869,11 @@ components:
                   items:
                     type: string
                     example: ["MAE_EUR","MAE_SAS"]
+        date_release:
+          type: string
+          description: "Release date in PGS Catalog (format YYYY-MM-DD)"
+          format: date
+          example: "2015-04-08"
         license:
           type: string
           description: "The PGS Catalog distributes its data according to EBI’s standard Terms of Use. Some PGS have specific terms, licenses, or restrictions (e.g. non-commercial use) that we highlight in this field, if known."
