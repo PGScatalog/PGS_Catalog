@@ -26,5 +26,6 @@ urlpatterns = [
 if settings.PGS_ON_CURATION_SITE == 'True':
     from django.contrib import admin
     from curation_tracker.admin import curation_tracker_site
+    urlpatterns.append(path('admin/', admin.site.urls))
     urlpatterns.append(path('curation_admin/', curation_tracker_site.urls))
     urlpatterns.append(path('', include('curation_tracker.urls')))

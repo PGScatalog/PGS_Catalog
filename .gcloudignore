@@ -21,6 +21,7 @@
 # Curation and release directories (not needed for the website)
 /curation/
 /release/
+/curation_tracker/scripts/
 
 # Migrations
 **/migrations/
@@ -35,6 +36,7 @@
 
 # Other
 /rest_api/fixtures/
+/static/CACHE/
 app.yaml_template
 LICENSE.md
 README.md

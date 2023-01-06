@@ -34,7 +34,7 @@
                 <a class="dropdown-item" href="/browse/traits/">Traits</a>
                 <a class="dropdown-item" href="/browse/studies/">Publications</a>
                 {% if is_pgs_curation_site %}
-                  <a class="dropdown-item" href="/browse/pending_studies/">Pending Publications</a>
+                  <a class="dropdown-item" href="/browse/pending_studies/"><i class="fa-solid fa-hourglass-half pgs_color_1"></i> Pending Publications</a>
                 {% endif %}
               </div>
             </li>
@@ -52,6 +52,10 @@
                 <a class="dropdown-item" href="/docs/ancestry/">Ancestry Data</a>
                 <a class="dropdown-item" href="/docs/">Data Description</a>
                 <a class="dropdown-item" href="/docs/faq">FAQ</a>
+                {% if is_pgs_curation_site %}
+                  <a class="dropdown-item" href="/stats/"><i class="fas fa-chart-pie pgs_color_1"></i> Stats</a>
+                  <a class="dropdown-item" href="/curation_admin/curation_tracker/"><i class="fa-solid fa-user-pen pgs_color_2"></i> Curation Tracker</a>
+                {% endif %}
               </div>
             </li>
           </ul>

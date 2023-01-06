@@ -4,9 +4,11 @@ import re
 from curation_tracker.models import *
 from catalog.models import Publication
 
-tracker_file = '/Users/lg10/Workspace/git/fork/PGS_GCP_development/curation_tracker/scripts/PGSCatalog_Curation_Tracker.tsv'
+tracker_file = '/Users/lg10/Workspace/git/fork/PGS_GCP_development/curation_tracker/scripts/tracker/PGSCatalog_Curation_Tracker.tsv'
 
 tracker_db = 'curation_tracker'
+
+determined_ineligible = 'Determined ineligible'
 
 def next_id_number(model):
     ''' Fetch the new primary key value. '''
@@ -30,7 +32,7 @@ def get_pgs_publication(PMID,doi):
     publication = None
     if PMID:
         try:
-           pgpublicationp_id = Publication.objects.get(PMID=PMID)
+           publication_id = Publication.objects.get(PMID=PMID)
         except Publication.DoesNotExist:
            publication = None
     if doi and not publication:
@@ -194,6 +196,7 @@ def add_publication_annotation(publication,first_level_curation,second_level_cur
             val = ''
         else:
             val = None
+
         col_value = row[col]
         if col_value not in [None,np.nan,'nan','']:
             val = col_value
@@ -202,18 +205,47 @@ def add_publication_annotation(publication,first_level_curation,second_level_cur
                 if comments != '':
                     comments = comments+'\n'
                 comments = comments + val
-            else:
-                setattr(model, field, val)
+        else:
+            # Setup the Curation Status
+            if field == 'curation_status':
+                level_1_done = False
+                level_2_done = False
+                'Awaiting curation'
+                if 'first_level_curation_status' in first_level_curation:
+                    first_level_curation_status = first_level_curation['first_level_curation_status']
+                    if first_level_curation_status in ['Curation done','Curation done (AS)',determined_ineligible]:
+                        level_1_done = True
+                        if first_level_curation_status == determined_ineligible:
+                            val = 'Abandoned/Ineligble'
+                if 'second_level_curation_status' in second_level_curation:
+                    second_level_curation_status = second_level_curation['second_level_curation_status']
+                    if second_level_curation_status in ['Curation done',determined_ineligible]:
+                        level_2_done = True
+                        if second_level_curation_status == determined_ineligible:
+                            val = 'Abandoned/Ineligble'
+                if val == None:
+                    if level_1_done == True:
+                        if level_2_done == False:
+                            val = 'Awaiting L2'
+                        else:
+                            val = 'Curated - Awaiting Import'
+                    else:
+                        val = 'Awaiting L1'
+
+        # Add value to model
+        if val != None and not field.startswith('comment'):
+            setattr(model, field, val)
+
     if comments != '':
         setattr(model, 'comment', comments)
 
     # Curation status
     curation_status = model.curation_status
     if curation_status:
-        if curation_status != 'Determined ineligible':
+        if curation_status != determined_ineligible:
             setattr(model, 'eligibility', True)
         else:
-            setattr(model, 'eligibility_description', 'Determined ineligible')
+            setattr(model, 'eligibility_description', determined_ineligible)
 
     # Release
     if 'pgp_id' in publication:

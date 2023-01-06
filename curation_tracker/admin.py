@@ -7,10 +7,13 @@ from django.http import HttpResponseRedirect
 import requests
 import csv
 import re
+from django import forms
 from django.forms import TextInput, Textarea
 from django.db import models
 # Register your models here.
 from .models import *
+from catalog.models import Publication
+
 
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
@@ -22,7 +25,6 @@ curation_admin_path = '/curation_admin/curation_tracker'
 curation_annotation_path = curation_admin_path+'/curationpublicationannotation'
 curation_publication_path = curation_admin_path+'/curationpublication'
 
-tracker_db = 'curation_tracker'
 
 
 def query_epmc(id):
@@ -52,8 +54,8 @@ def check_publication_exist(id):
 def next_id_number(model):
     ''' Fetch the new primary key value. '''
     assigned = 1
-    if len(model.objects.using(tracker_db).all()) != 0:
-        assigned = model.objects.using(tracker_db).latest().pk + 1
+    if len(model.objects.using(curation_tracker_db).all()) != 0:
+        assigned = model.objects.using(curation_tracker_db).latest().pk + 1
     return assigned
 
 
@@ -92,6 +94,24 @@ class CsvImportForm(forms.Form):
     csv_file = forms.FileField(label=format_html('CSV file <span style="color:#F00"><b>*</b></span>'))
 
 
+class CurationPublicationAnnotationFormValidation(forms.ModelForm):
+    def clean(self):
+        pmid = self.cleaned_data['PMID']
+        # Numeric fields
+        for field in ['PMID', 'year']:
+            field_val = self.cleaned_data[field]
+            if field_val:
+                if type(field_val) != int:
+                    raise forms.ValidationError({field: "Only numeric value allowed for this field"})
+        # PGP ID
+        pgp_id = self.cleaned_data['pgp_id']
+        if pgp_id:
+            try:
+               publication_id = Publication.objects.get(id=pgp_id)
+            except Publication.DoesNotExist:
+               raise forms.ValidationError({'pgp_id': f"{pgp_id} can't be found in the PGS Catalog database"})
+
+
 class CurationCuratorAdmin(MultiDBModelAdmin):
     list_display = ("name",)
     list_filter = ('name',)
@@ -99,6 +119,7 @@ class CurationCuratorAdmin(MultiDBModelAdmin):
 
 
 class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
+    form = CurationPublicationAnnotationFormValidation
     list_display = (
         "id","study_name","display_doi","display_PMID","display_pgp_id",
         "display_first_level_curator","display_first_level_curation_status",
@@ -130,6 +151,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
     change_list_template = "curation_tracker/publication_changelist.html"
 
+
     def get_readonly_fields(self, request, obj=None):
         if obj:
             fields = ["num","id"]
@@ -143,7 +165,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 fields.append('third_level_curator')
             return fields
         else:
-            return []
+            return ["id"]
+            # return []
 
 
     def display_doi(self, obj):
@@ -207,6 +230,36 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         return comments
 
 
+    def save_model(self, request, obj, form, change):
+        ''' Custom method to save the model into the curation tracker database. Overwrite the default method'''
+        # Model data updates before saving it in the database
+        if not obj.num:
+            # Primary key needs to be assigned for a new entry
+            obj.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
+        else:
+            # Deal with the change(s) on curation status for an existing entry
+            db_obj = CurationPublicationAnnotation.objects.using(curation_tracker_db).get(num=obj.num)
+            # Change in first level curation
+            if db_obj.first_level_curation_status != obj.first_level_curation_status:
+                if obj.first_level_curation_status.startswith('Curation'):
+                    if obj.second_level_curation_status == '-':
+                        obj.second_level_curation_status = 'Awaiting curation'
+                elif obj.first_level_curation_status == 'Determined ineligible':
+                    obj.curation_status = 'Abandoned/Ineligble'
+            # Change in second level curation
+            elif db_obj.second_level_curation_status != obj.second_level_curation_status:
+                if obj.second_level_curation_status.startswith('Curation'):
+                    if obj.second_level_curation_status == 'Awaiting L1':
+                        obj.curation_status = 'Awaiting L2'
+                elif obj.second_level_curation_status == 'Determined ineligible':
+                    obj.curation_status = 'Abandoned/Ineligble'
+            # Change in curation status
+            elif db_obj.curation_status != obj.curation_status:
+                if obj.curation_status == 'Embargoed':
+                    obj.embargoed = True
+        # obj.save(using=self.using)
+
+
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
@@ -234,16 +287,11 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                             pub_data['title'] = data['title']
                             pub_data['doi'] = data['doi']
                             pub_data['year'] = data['firstPublicationDate'].split('-')[0]
-                            print(f"> Title: {pub_data['title']}")
-                            print(f"> DOI: {pub_data['doi']}")
-                            print(f"> Year: {pub_data['year']}")
                             if data['pubType'] == 'preprint':
                                 pub_data['journal'] = data['bookOrReportDetails']['publisher']
                             else:
                                 pub_data['journal'] = data['journalTitle']
                                 pub_data['PMID'] = data['pmid']
-                                print(f"> PMID: {data['pmid']}")
-                            print(f"> Journal: {pub_data['journal']}")
 
                         # Create new model in DB
                         model = CurationPublicationAnnotation()
@@ -251,7 +299,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                         setattr(model,'study_name',x)
                         for field in pub_data.keys():
                             setattr(model, field, pub_data[field])
-                        model.save(using=tracker_db)
+                        model.save(using=curation_tracker_db)
 
                         if data:
                             msg = msg + f"<br/>&#10004; - '{x}' has been successfully imported in the database"

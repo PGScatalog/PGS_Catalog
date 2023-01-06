@@ -52,12 +52,13 @@ class CurationPublicationAnnotation(models.Model):
     first_level_curator = models.ForeignKey(CurationCurator, on_delete=models.PROTECT, related_name='curator_level1_name', verbose_name='First Level Curator Name', null=True, blank=True)
     first_level_curation_status = models.CharField(choices=CURATION_STATUS_LEVEL_1_CHOICES, default='Awaiting curation', max_length=50, verbose_name='First Level Curation Status', null=True, blank=True)
     first_level_date = models.DateField('First Level Curation Date', null=True, blank=True)
-    first_level_comment = models.TextField('First Level Curation Comment', default='')
+    first_level_comment = models.TextField('First Level Curation Comment', default='', null=True, blank=True)
     # Second level
     CURATION_STATUS_LEVEL_2_CHOICES = [
         ('-','-'),
         ('Awaiting curation','Awaiting curation'),
         ('Curation done','Curation done'),
+        ('Determined ineligible','Determined ineligible'),
         ('Outstanding curation query','Outstanding curation query'),
         ('Pending author response', 'Pending author response'),
         ('Undergoing curation','Undergoing curation')
@@ -65,10 +66,21 @@ class CurationPublicationAnnotation(models.Model):
     second_level_curator = models.ForeignKey(CurationCurator, on_delete=models.PROTECT, related_name='curator_level2_name', verbose_name='Second Level Curator Name', null=True, blank=True)
     second_level_curation_status = models.CharField(choices=CURATION_STATUS_LEVEL_2_CHOICES, default='-', max_length=50, verbose_name='Second Level Curation Status', null=True, blank=True)
     second_level_date = models.DateField('Second Level Curation Date', null=True, blank=True)
-    second_level_comment = models.TextField('Second Level Curation Comment', default='')
+    second_level_comment = models.TextField('Second Level Curation Comment', default='', null=True, blank=True)
     # Third level
     third_level_curator = models.ForeignKey(CurationCurator, on_delete=models.PROTECT, related_name='third_level_curator_name', verbose_name='Third Level Curator', null=True, blank=True)
-    curation_status = models.CharField(max_length=150, verbose_name='Curation Status', null=True, blank=True)
+    CURATION_STATUS_CHOICES = [
+        ('Abandoned/Ineligble','Abandoned/Ineligble'),
+        ('Pending Author Response','Pending Author Response'),
+        ('Awaiting L1','Awaiting L1'),
+        ('Awaiting L2','Awaiting L2'),
+        ('Curated - Awaiting Import','Curated - Awaiting Import'),
+        ('Imported - Awaiting Release','Imported - Awaiting Release'),
+        ('Released','Released'),
+        ('Embargoed','Embargoed'),
+        ('Retired','Retired')
+    ]
+    curation_status = models.CharField(choices=CURATION_STATUS_CHOICES, default='Awaiting L1', max_length=50, verbose_name='Curation Status', null=True, blank=True)
 
 
     ## Eligibility ##
@@ -109,7 +121,7 @@ class CurationPublicationAnnotation(models.Model):
     eligibility_external_valid = models.CharField(choices=EXTERNAL_VALIDATION, default='NA', max_length=50, verbose_name='External validation (dev and eval in different sample?)', null=True, blank=True)
     eligibility_trait_matching = models.CharField(choices=TRAIT_MATCHING, max_length=50, verbose_name='Trait matching', null=True, blank=True)
     eligibility_score_provided = models.CharField(choices=SCORE_PROVIDED_VAL, max_length=50, verbose_name='Score provided', null=True, blank=True)
-    eligibility_description = models.TextField('Eligibility Comment', default='')
+    eligibility_description = models.TextField('Eligibility Comment', default='', null=True, blank=True)
 
     ## Release ##
     author_submission = models.BooleanField('Author Submission', default=False)
@@ -119,7 +131,7 @@ class CurationPublicationAnnotation(models.Model):
     # Notes
     reported_trait = models.TextField('Reported Trait(s)',null=True, blank=True)
     gwas_and_pgs = models.CharField('GWAS + PGS', max_length=100, null=True, blank=True)
-    comment = models.TextField('Curation Comments', default='')
+    comment = models.TextField('Curation Comments', default='', null=True, blank=True)
 
     class Meta:
         get_latest_by = 'num'

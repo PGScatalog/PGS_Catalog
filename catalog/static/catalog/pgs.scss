@@ -591,6 +591,12 @@ h2 {
 /* boostrap-table overwrite */
 .bootstrap-table {
   margin-bottom: 2rem;
+  .true {
+    color:$pgs_colour_green !important;
+  }
+  .false {
+    color:$pgs_colour_red !important;
+  }
 }
 .bootstrap-table .fixed-table-container .table thead th .sortable {
   padding-right: 20px !important;

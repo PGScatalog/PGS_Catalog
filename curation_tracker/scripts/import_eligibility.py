@@ -34,10 +34,11 @@ def add_eligibility_annotation(data):
         if pub_annot:
             print(f"  >> Publication found")
             for field in eligibility_attributes.keys():
-                if field == 'eligibility_trait_matching':
-                    val = re.sub('\w\s\-\s','',data[pmid][field])
-                else:
+                if data[pmid][field]:
                     val = data[pmid][field]
+                    if field == 'eligibility_trait_matching':
+                        val = re.sub('\w\s\-\s','',val)
+
                 if val not in [None,np.nan,'nan','']:
                     print(f"  - {field}: {val}")
                     setattr(pub_annot, field, val)
@@ -52,6 +53,7 @@ def run():
     files = [f for f in os.listdir(triage_dir) if os.path.isfile(f'{triage_dir}{f}')]
     for filename in files:
         if filename.endswith(ext):
+            print(f"\n=========================\n>> {filename}\n=========================\n")
             df = pd.read_csv(f'{triage_dir}{filename}', sep='\t')
 
             for index, row in df.iterrows():
@@ -76,5 +78,4 @@ def run():
                     if col_value not in [None,np.nan,'nan','']:
                         val = col_value
                     data[pmid][field] = val
-                # print(f"{pmid}: {data[pmid]}")
             add_eligibility_annotation(data)
