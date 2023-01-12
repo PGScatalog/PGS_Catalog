@@ -4,7 +4,7 @@ import re
 from curation_tracker.models import *
 from catalog.models import Publication
 
-tracker_file = '/Users/lg10/Workspace/git/fork/PGS_GCP_development/curation_tracker/scripts/tracker/PGSCatalog_Curation_Tracker.tsv'
+tracker_file = '/Users/lg10/Workspace/datafiles/curation/tracker/PGSCatalog_Curation_Tracker.tsv'
 
 tracker_db = 'curation_tracker'
 
@@ -210,13 +210,19 @@ def add_publication_annotation(publication,first_level_curation,second_level_cur
             if field == 'curation_status':
                 level_1_done = False
                 level_2_done = False
-                'Awaiting curation'
+                # L1 curation
                 if 'first_level_curation_status' in first_level_curation:
                     first_level_curation_status = first_level_curation['first_level_curation_status']
-                    if first_level_curation_status in ['Curation done','Curation done (AS)',determined_ineligible]:
+                    if first_level_curation_status == 'Author-reported':
+                        first_level_curation_status = 'Author submission'
+                    elif first_level_curation_status in ['Curation done','Curation done (AS)',determined_ineligible]:
                         level_1_done = True
                         if first_level_curation_status == determined_ineligible:
                             val = 'Abandoned/Ineligble'
+                    if first_level_curation_status == 'Author submission' and 'second_level_curation_status' in second_level_curation:
+                        first_level_curation_status = 'Curation done (AS)'
+                        level_1_done = True
+                # L2 curation
                 if 'second_level_curation_status' in second_level_curation:
                     second_level_curation_status = second_level_curation['second_level_curation_status']
                     if second_level_curation_status in ['Curation done',determined_ineligible]:
