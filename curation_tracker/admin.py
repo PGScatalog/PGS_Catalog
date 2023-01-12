@@ -4,7 +4,6 @@ from django import forms
 from django.urls import path,reverse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-import requests
 import csv
 import re
 from django import forms
@@ -24,20 +23,6 @@ curation_tracker_db = 'curation_tracker'
 curation_admin_path = '/curation_admin/curation_tracker'
 curation_annotation_path = curation_admin_path+'/curationpublicationannotation'
 curation_publication_path = curation_admin_path+'/curationpublication'
-
-
-
-def query_epmc(id):
-    payload = {'format': 'json'}
-    if re.match('^\d+$', id):
-        query = f'ext_id:{id}'
-    else:
-        query = f'doi:{id}'
-    payload['query'] = query
-    result = requests.get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', params=payload)
-    result = result.json()
-    result = result['resultList']['result'][0]
-    return result
 
 
 def check_publication_exist(id):
@@ -90,12 +75,24 @@ class MultiDBModelAdmin(admin.ModelAdmin):
         return super().formfield_for_manytomany(db_field, request, using=self.using, **kwargs)
 
 
+#### Custom Form classes ####
+
 class CsvImportForm(forms.Form):
+    """ CSV Import form """
     csv_file = forms.FileField(label=format_html('CSV file <span style="color:#F00"><b>*</b></span>'))
 
 
-class CurationPublicationAnnotationFormValidation(forms.ModelForm):
+class CurationPublicationAnnotationForm(forms.ModelForm):
+    """ Custom Admin form """
+    class Meta:
+        model = CurationPublicationAnnotation
+        help_texts = {
+            'id': 'ID automatically assigned'
+        }
+        exclude = ()
+
     def clean(self):
+        doi = self.cleaned_data['doi']
         pmid = self.cleaned_data['PMID']
         # Numeric fields
         for field in ['PMID', 'year']:
@@ -111,6 +108,13 @@ class CurationPublicationAnnotationFormValidation(forms.ModelForm):
             except Publication.DoesNotExist:
                raise forms.ValidationError({'pgp_id': f"{pgp_id} can't be found in the PGS Catalog database"})
 
+        if not pmid and not doi:
+            error_msg = 'The doi or PubMed ID must be populated'
+            raise forms.ValidationError({'doi': error_msg, 'PMID': error_msg})
+
+
+
+#### Admin classes ####
 
 class CurationCuratorAdmin(MultiDBModelAdmin):
     list_display = ("name",)
@@ -119,7 +123,7 @@ class CurationCuratorAdmin(MultiDBModelAdmin):
 
 
 class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
-    form = CurationPublicationAnnotationFormValidation
+    form = CurationPublicationAnnotationForm
     list_display = (
         "id","study_name","display_doi","display_PMID","display_pgp_id",
         "display_first_level_curator","display_first_level_curation_status",
@@ -130,7 +134,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
     fieldsets = (
         ('Publication', {
-            'fields': ("id","study_name","pgp_id","doi","PMID","journal","title","year","release_date","author_submission","embargoed")
+            'fields': ("id","study_name","pgp_id","doi","PMID",("journal","year"),"title","release_date","author_submission","embargoed")
         }),
         ('Eligibility', {
             'fields': ("eligibility",("eligibility_dev_score","eligibility_eval_score"),("eligibility_external_valid","eligibility_trait_matching"),"eligibility_score_provided","eligibility_description")
@@ -144,7 +148,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         ('Curation - Third Level', {
             'fields': ("third_level_curator","curation_status")
         }),
-        ('Other annotation', {
+        ('Other annotations', {
             'fields': ('reported_trait','gwas_and_pgs','comment')
         })
     )
@@ -232,32 +236,49 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
     def save_model(self, request, obj, form, change):
         ''' Custom method to save the model into the curation tracker database. Overwrite the default method'''
+        update_via_epmc = False
         # Model data updates before saving it in the database
         if not obj.num:
             # Primary key needs to be assigned for a new entry
             obj.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
+            # Check if the Publication info can be populated via EuropePMC
+            if obj.PMID or obj.doi:
+                update_via_epmc = True
         else:
             # Deal with the change(s) on curation status for an existing entry
             db_obj = CurationPublicationAnnotation.objects.using(curation_tracker_db).get(num=obj.num)
+
             # Change in first level curation
-            if db_obj.first_level_curation_status != obj.first_level_curation_status:
+            if obj.first_level_curation_status and db_obj.first_level_curation_status != obj.first_level_curation_status:
                 if obj.first_level_curation_status.startswith('Curation'):
                     if obj.second_level_curation_status == '-':
                         obj.second_level_curation_status = 'Awaiting curation'
                 elif obj.first_level_curation_status == 'Determined ineligible':
                     obj.curation_status = 'Abandoned/Ineligble'
             # Change in second level curation
-            elif db_obj.second_level_curation_status != obj.second_level_curation_status:
+            elif obj.second_level_curation_status and db_obj.second_level_curation_status != obj.second_level_curation_status:
                 if obj.second_level_curation_status.startswith('Curation'):
                     if obj.second_level_curation_status == 'Awaiting L1':
                         obj.curation_status = 'Awaiting L2'
                 elif obj.second_level_curation_status == 'Determined ineligible':
                     obj.curation_status = 'Abandoned/Ineligble'
             # Change in curation status
-            elif db_obj.curation_status != obj.curation_status:
+            elif obj.curation_status and db_obj.curation_status != obj.curation_status:
                 if obj.curation_status == 'Embargoed':
                     obj.embargoed = True
-        # obj.save(using=self.using)
+
+            # Check if the Publication info need to be updated via EuropePMC
+            if (obj.PMID != db_obj.PMID or obj.doi != db_obj.doi) \
+                or (obj.PMID and (not obj.title or not obj.journal or not obj.doi)) \
+                or (obj.doi and (not obj.title or not obj.journal or not obj.PMID)):
+                update_via_epmc = True
+
+        # Update/Populate Publication info via EuropePMC (if available)
+        if update_via_epmc:
+            obj.get_epmc_data()
+
+        # Save new/updated model to the DB
+        obj.save(using=self.using)
 
 
     def get_urls(self):
@@ -281,27 +302,23 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                     if check_publication_exist(x):
                         msg = msg + f"<br/>&#10060; - '{x}' already exists in the database - no import"
                     else:
-                        pub_data = {}
-                        data = query_epmc(x)
-                        if data:
-                            pub_data['title'] = data['title']
-                            pub_data['doi'] = data['doi']
-                            pub_data['year'] = data['firstPublicationDate'].split('-')[0]
-                            if data['pubType'] == 'preprint':
-                                pub_data['journal'] = data['bookOrReportDetails']['publisher']
-                            else:
-                                pub_data['journal'] = data['journalTitle']
-                                pub_data['PMID'] = data['pmid']
-
-                        # Create new model in DB
+                        # Create new model
                         model = CurationPublicationAnnotation()
                         model.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
                         setattr(model,'study_name',x)
                         for field in pub_data.keys():
                             setattr(model, field, pub_data[field])
+                        # Update model with EuropePMC data
+                        if re.match('^\d+$', x):
+                            model.PMID = x
+                        else:
+                            model.doi = x
+                        has_epmc_data = model.get_epmc_data()
+
+                        # Save model in DB
                         model.save(using=curation_tracker_db)
 
-                        if data:
+                        if has_epmc_data:
                             msg = msg + f"<br/>&#10004; - '{x}' has been successfully imported in the database"
                         else:
                             msg = msg + f"<br/>&#10004; - '{x}' has been imported in the database but extra information couldn't be extracted from EuropePMC"

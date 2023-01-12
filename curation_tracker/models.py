@@ -1,3 +1,5 @@
+import re
+import requests
 from django.db import models
 from pgs_web import constants
 from catalog import common
@@ -145,3 +147,31 @@ class CurationPublicationAnnotation(models.Model):
     def set_annotation_ids(self, n):
         self.num = n
         self.id = 'PGL' + str(n).zfill(6)
+
+
+    def get_epmc_data(self):
+        payload = {'format': 'json'}
+        if self.PMID and re.match('^\d+$', str(self.PMID)):
+            query = f'ext_id:{self.PMID}'
+        else:
+            query = f'doi:{self.doi}'
+        payload['query'] = query
+        result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
+        result = result.json()
+        results_list = result['resultList']['result']
+        if results_list:
+            result = results_list[0]
+            self.title = result['title']
+            self.year = result['firstPublicationDate'].split('-')[0]
+            if 'doi' in result:
+                self.doi = result['doi']
+            if result['pubType'] == 'preprint':
+                self.journal = result['bookOrReportDetails']['publisher']
+            else:
+                if 'journalTitle' in result:
+                    self.journal = result['journalTitle']
+                if 'pmid' in result:
+                    self.PMID = result['pmid']
+            return True
+        else:
+            return False
