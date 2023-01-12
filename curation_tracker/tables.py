@@ -29,6 +29,17 @@ class Column_publication_ids(tables.Column):
         return format_html(html)
 
 
+class Column_l1_curation_ids(tables.Column):
+    def render(self, value, record):
+        curator = record.first_level_curator.name
+        status = record.first_level_curation_status
+        date = record.first_level_date
+        html = f'<div><u>Curator:</u> {curator}</div><div><u>Status:</u> {status}</div>'
+        if date:
+            html = html + f'<div><u>Date:</u> {date}</div>'
+        return format_html(html)
+
+
 class Browse_CurationPublicationAnnotationL1(tables.Table):
     id = Column_id_with_link(accessor='id', verbose_name='PGS Literature Triage ID (PGL)', orderable=True)
     publication_ids = Column_publication_ids(accessor='PMID', verbose_name=format_html('Publication IDs'), orderable=False)
@@ -60,6 +71,7 @@ class Browse_CurationPublicationAnnotationL1(tables.Table):
 class Browse_CurationPublicationAnnotationL2(tables.Table):
     id = Column_id_with_link(accessor='id', verbose_name='PGS Literature Triage ID (PGL)', orderable=True)
     publication_ids = Column_publication_ids(accessor='PMID', verbose_name=format_html('Publication IDs'), orderable=False)
+    l1_curation_status =  Column_l1_curation_ids(accessor='first_level_curation_status', verbose_name=format_html('First Level Curation'), orderable=False)
 
     class Meta:
         model = CurationPublicationAnnotation
@@ -73,9 +85,10 @@ class Browse_CurationPublicationAnnotationL2(tables.Table):
             'id',
             'study_name',
             'publication_ids',
-            'first_level_curator',
-            'first_level_curation_status',
-            'first_level_date',
+            'l1_curation_status',
+            # 'first_level_curator',
+            # 'first_level_curation_status',
+            # 'first_level_date',
             'first_level_comment',
             'second_level_curator',
             'second_level_curation_status',

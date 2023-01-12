@@ -11,11 +11,13 @@ from .tables import *
 
 
 curation_tracker = 'curation_tracker'
+l1_curation_done = ['Curation done','Curation done (AS)']
+not_awaiting_curation = [*l1_curation_done,'Determined ineligible']
 
 # Create your views here.
 
 def browse_l1_waiting(request):
-    l1_waiting = CurationPublicationAnnotation.objects.using(curation_tracker).filter(first_level_date__isnull=True,second_level_date__isnull=True).exclude(first_level_curation_status='Determined ineligible')
+    l1_waiting = CurationPublicationAnnotation.objects.using(curation_tracker).exclude(first_level_date__isnull=True,second_level_date__isnull=True).exclude(first_level_curation_status__in=not_awaiting_curation)
     table_l1 = Browse_CurationPublicationAnnotationL1(l1_waiting)
     context = {
         'table': table_l1,
@@ -24,7 +26,7 @@ def browse_l1_waiting(request):
     return render(request, 'curation_tracker/l1_curation.html', context)
 
 def browse_l2_waiting(request):
-    l2_waiting = CurationPublicationAnnotation.objects.using(curation_tracker).filter(first_level_date__isnull=False,second_level_date__isnull=True).exclude(second_level_curation_status='Determined ineligible')
+    l2_waiting = CurationPublicationAnnotation.objects.using(curation_tracker).filter(first_level_date__isnull=False,first_level_curation_status__in=l1_curation_done,second_level_date__isnull=True).exclude(second_level_curation_status=not_awaiting_curation)
     table_l2 = Browse_CurationPublicationAnnotationL2(l2_waiting)
     context = {
       'table': table_l2,
