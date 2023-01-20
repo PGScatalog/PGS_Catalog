@@ -38,4 +38,5 @@
 app.yaml_template
 LICENSE.md
 README.md
+requirements_local.txt
 **/.DS_Store
