@@ -1,21 +1,15 @@
 #### Django library
 Django==4.1.5
-#### Extension for command lines
-django-extensions==3.2.1
 #### Compress SCSS/SASS files in CSS
-django-compressor==4.1
-django-libsass==0.9
-django-sass-processor==1.2.2
+django-compressor==4.3
 #### Library to build the HTML tables
-django-tables2==2.4.1
+django-tables2==2.5.1
 #### Python PostgreSQL library
 psycopg2-binary==2.9.5
 #### Django REST API libraries
 djangorestframework==3.14.0
 django-cors-headers==3.13.0
 #### Python & Django Elasticsearch libraries
-elasticsearch==7.17.7
+elasticsearch==7.17.8
 elasticsearch-dsl==7.4.0
 django-elasticsearch-dsl==7.2.2
-#### Version checking library for Django
-django-nine==0.2.5

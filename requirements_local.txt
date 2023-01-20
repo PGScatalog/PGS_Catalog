@@ -1,0 +1,25 @@
+#### Extension for command lines
+django-extensions==3.2.1
+
+#### Compress SCSS/SASS files in CSS
+django-libsass==0.9
+django-sass-processor==1.2.1
+
+#### Version checking library for Django
+django-nine==0.2.7
+
+#### Other ###
+numerize==0.12
+
+#### Cloud file storage
+django-storages==1.12.3
+google-auth==2.9.0
+google-auth-oauthlib==0.5.2
+google-cloud-core==2.3.1
+google-cloud-storage==2.4.0
+
+#### Data import ####
+pandas==1.5.3
+
+#### For webpage testing ####
+django-debug-toolbar==3.8.1

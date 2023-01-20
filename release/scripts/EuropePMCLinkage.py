@@ -32,7 +32,7 @@ class EuropePMCLinkage:
         ppr = None
         payload = {'format': 'json'}
         payload['query'] = 'doi:' + doi
-        r = requests.get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', params=payload)
+        r = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
         r = r.json()
         if r['resultList']['result']:
             r = r['resultList']['result'][0]

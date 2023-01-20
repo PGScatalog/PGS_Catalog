@@ -26,7 +26,8 @@ USEFUL_URLS = {
     'TERMS_OF_USE'      : 'https://www.ebi.ac.uk/about/terms-of-use',
     'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1kVhi4GhXUVCl5THgbrmq2oiegjFFeuY3/edit?usp=sharing',
     'CurationGoogleDoc_URL' : 'https://drive.google.com/file/d/1iYoa0R3um7PtyfVO37itlGbK1emoZmD-/view',
-    'CATALOG_PUBLICATION_URL' : 'https://doi.org/'+PGS_CITATION['doi']
+    'CATALOG_PUBLICATION_URL' : 'https://doi.org/'+PGS_CITATION['doi'],
+    'EPMC_REST_SEARCH'  : 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'
 }
 
 SEARCH_EXAMPLES = ['breast cancer', 'glaucoma', 'BMI', 'EFO_0001645']
