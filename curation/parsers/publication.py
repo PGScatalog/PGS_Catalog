@@ -1,4 +1,5 @@
 import requests
+from pgs_web import constants
 from curation.parsers.generic import GenericData
 from catalog.models import Publication
 
@@ -74,7 +75,7 @@ class PublicationData(GenericData):
         '''
         payload = {'format': 'json'}
         payload['query'] = query
-        result = requests.get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', params=payload)
+        result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
         result = result.json()
         try:
             result = result['resultList']['result'][0]

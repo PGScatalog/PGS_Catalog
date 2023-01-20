@@ -21,7 +21,8 @@ class PerformanceData(GenericData):
         - spreadsheet_name: Name of the spreadsheet where the data information comes from.
         '''
         metric = self.str2metric(field, val, spreadsheet_name)
-        self.metrics.append(metric)
+        if metric:
+            self.metrics.append(metric)
 
 
     def str2metric(self, field, val, spreadsheet_name):
@@ -41,8 +42,8 @@ class PerformanceData(GenericData):
         val = current_metric.value
 
         # Parse out the confidence interval and estimate
-        if type(current_metric.value) == float:
-            current_metric.add_data('estimate', current_metric.value)
+        if type(val) == float or type(val) == int:
+            current_metric.add_data('estimate', val)
         else:
             # Check if SE is reported
             matches_parentheses = self.inparentheses.findall(val)
@@ -62,16 +63,18 @@ class PerformanceData(GenericData):
             # Extract interval
             else:
                 try:
-                    current_metric.add_data('estimate', float(val.split(' [')[0]))
+                    estimate = float(val.split(' [')[0])
+                    current_metric.add_data('estimate', estimate)
                     # Check extra character/data after the brackets
                     extra = val.strip().split(']')
                     if len(extra) > 1:
                         # Check if second part has content
                         if (extra[1] != ''):
                             self.report_error(spreadsheet_name, f'Extra information detected after the interval for: "{val}"')
-                except:
-                    self.report_error(spreadsheet_name, f'Can\'t extract the estimate value from ({val})')
+                except Exception as e:
+                    self.report_error(spreadsheet_name, f'Can\'t extract the estimate value from ({val}): {e}')
                     current_metric.add_data('estimate', val)
+                    return
 
                 matches_square = self.insquarebrackets.findall(val)
                 if len(matches_square) == 1:

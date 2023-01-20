@@ -168,7 +168,6 @@ class StudyImport():
                         # New sample
                         else:
                             sample_model = sample.create_sample_model()
-
                         if sample_type == 'GWAS/Variant associations':
                             score.samples_variants.add(sample_model)
                         elif sample_type == 'Score development':
@@ -285,6 +284,9 @@ class StudyImport():
                         continue
 
                 related_SampleSet = self.study_samplesets[i[1]]
+
+                if len(performance.metrics) == 0:
+                    self.failed_data_import.append(f"Performance Metric - {current_score.id}: ({current_score.name} - {related_SampleSet.name} - {performance.data['phenotyping_reported']}): missing/wrong-formatted Metric data")
 
                 #  Create the Performance and the associated Metric(s)
                 study_performance = performance.create_performance_model(publication=self.study_publication, score=current_score, sampleset=related_SampleSet)
