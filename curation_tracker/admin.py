@@ -20,16 +20,16 @@ admin.site.site_title = "PGS Catalog - Curation Tracker"
 admin.site.index_title = "Welcome to PGS Catalog - Curation Tracker"
 
 curation_tracker_db = 'curation_tracker'
-curation_admin_path = '/curation_admin/curation_tracker'
-curation_annotation_path = curation_admin_path+'/curationpublicationannotation'
-curation_publication_path = curation_admin_path+'/curationpublication'
 
+
+
+#### Shared methods ####
 
 def check_publication_exist(id):
-    if re.match('^\d+$', id):
-        queryset = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(PMID=id)
+    if re.match('^\d+$', str(id)):
+        queryset = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(PMID=id).count()
     else:
-        queryset = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(doi=id)
+        queryset = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(doi=id).count()
     if queryset:
         return True
     else:
@@ -44,7 +44,75 @@ def next_id_number(model):
     return assigned
 
 
+
+#### Custom Form classes ####
+
+class CsvImportForm(forms.Form):
+    """ CSV Import form """
+    csv_file = forms.FileField(label=format_html('CSV file <span style="color:#F00"><b>*</b></span>'))
+
+
+class CurationPublicationAnnotationForm(forms.ModelForm):
+    """ Custom Admin form """
+    class Meta:
+        model = CurationPublicationAnnotation
+        help_texts = {
+            'id': 'ID automatically assigned',
+            'eligibility': 'Eligibility automatically assigned (default: Yes)'
+        }
+        exclude = ()
+
+    def clean(self):
+        """ Used as a form validator (on some of the fields) """
+        study_name = self.cleaned_data['study_name']
+        doi = self.cleaned_data['doi']
+        pmid = self.cleaned_data['PMID']
+        author_sub = self.cleaned_data['author_submission']
+        validation_error = {}
+        # Numeric fields
+        for field in ['PMID', 'year']:
+            field_val = self.cleaned_data[field]
+            if field_val:
+                if type(field_val) != int:
+                    validation_error[field] = "Only numeric value allowed for this field"
+        # PGP ID
+        pgp_id = self.cleaned_data['pgp_id']
+        if pgp_id:
+            try:
+               publication_id = Publication.objects.get(id=pgp_id)
+            except Publication.DoesNotExist:
+               validation_error['pgp_id'] = f"{pgp_id} can't be found in the PGS Catalog database"
+
+        # Missing doi and/or PMID
+        if not pmid and not doi and not author_sub:
+            error_msg = 'The doi or PubMed ID must be populated unless it is an author submission'
+            validation_error['doi'] = error_msg
+            validation_error['PMID'] = error_msg
+
+        # New entry: check duplicated IDs
+        if not self.instance.id:
+            if pmid or doi or study_name:
+                if pmid:
+                    if check_publication_exist(pmid):
+                        validation_error['PMID'] = f"PubMed ID '{pmid}' already exists in the database."
+                if doi:
+                    if check_publication_exist(doi):
+                        validation_error['doi'] = f"doi '{doi}' already exists in the database."
+                if study_name:
+                    count_study_name = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name=study_name).count()
+                    if count_study_name:
+                        validation_error['study_name'] = f"Study name '{study_name}' already exists in the database."
+
+        # Raise error(s)
+        if validation_error:
+            raise forms.ValidationError(validation_error)
+
+
+
+#### Admin classes ####
+
 class MultiDBModelAdmin(admin.ModelAdmin):
+    ''' Generic class to add Curation Tracker admin classes '''
     # A handy constant for the name of the alternate database.
     using = curation_tracker_db
 
@@ -75,66 +143,27 @@ class MultiDBModelAdmin(admin.ModelAdmin):
         return super().formfield_for_manytomany(db_field, request, using=self.using, **kwargs)
 
 
-#### Custom Form classes ####
-
-class CsvImportForm(forms.Form):
-    """ CSV Import form """
-    csv_file = forms.FileField(label=format_html('CSV file <span style="color:#F00"><b>*</b></span>'))
-
-
-class CurationPublicationAnnotationForm(forms.ModelForm):
-    """ Custom Admin form """
-    class Meta:
-        model = CurationPublicationAnnotation
-        help_texts = {
-            'id': 'ID automatically assigned'
-        }
-        exclude = ()
-
-    def clean(self):
-        doi = self.cleaned_data['doi']
-        pmid = self.cleaned_data['PMID']
-        # Numeric fields
-        for field in ['PMID', 'year']:
-            field_val = self.cleaned_data[field]
-            if field_val:
-                if type(field_val) != int:
-                    raise forms.ValidationError({field: "Only numeric value allowed for this field"})
-        # PGP ID
-        pgp_id = self.cleaned_data['pgp_id']
-        if pgp_id:
-            try:
-               publication_id = Publication.objects.get(id=pgp_id)
-            except Publication.DoesNotExist:
-               raise forms.ValidationError({'pgp_id': f"{pgp_id} can't be found in the PGS Catalog database"})
-
-        if not pmid and not doi:
-            error_msg = 'The doi or PubMed ID must be populated'
-            raise forms.ValidationError({'doi': error_msg, 'PMID': error_msg})
-
-
-
-#### Admin classes ####
-
 class CurationCuratorAdmin(MultiDBModelAdmin):
+    ''' Curatior Admin class '''
     list_display = ("name",)
     list_filter = ('name',)
     ordering = ('name',)
 
 
 class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
+    ''' Publication Annotation Admin class (main class of the curation tracker) '''
     form = CurationPublicationAnnotationForm
     list_display = (
         "id","study_name","display_doi","display_PMID","display_pgp_id",
         "display_first_level_curator","display_first_level_curation_status",
         "display_second_level_curator","display_second_level_curation_status","display_level_curation_comment",
-        "display_third_level_curator","curation_status","reported_trait")
-    list_filter = ("curation_status",)
+        "display_third_level_curator","curation_status","priority","reported_trait")
+    list_filter = ("curation_status","priority")
     ordering = ('-id',)
 
     fieldsets = (
         ('Publication', {
-            'fields': ("id","study_name","pgp_id","doi","PMID",("journal","year"),"title","release_date","author_submission","embargoed")
+            'fields': ("id","study_name","pgp_id","doi","PMID",("journal","year"),"title","release_date","priority","author_submission","embargoed")
         }),
         ('Eligibility', {
             'fields': ("eligibility",("eligibility_dev_score","eligibility_eval_score"),("eligibility_external_valid","eligibility_trait_matching"),"eligibility_score_provided","eligibility_description")
@@ -158,7 +187,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            fields = ["num","id"]
+            fields = ["num","id","eligibility"]
             if obj.first_level_curation_status == 'Determined ineligible':
                 fields.append('second_level_curator')
                 fields.append('second_level_curation_status')
@@ -169,22 +198,21 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 fields.append('third_level_curator')
             return fields
         else:
-            return ["id"]
-            # return []
+            return ["id","eligibility"]
 
 
     def display_doi(self, obj):
         if obj.doi:
-            return format_html('<a href="https://doi.org/{}">{}</a>', obj.doi, obj.doi)
-        else:
-            return obj.doi
+            if obj.doi.startswith('10'):
+                return format_html('<a href="https://doi.org/{}">{}</a>', obj.doi, obj.doi)
+        return obj.doi
 
 
     def display_PMID(self, obj):
         if obj.PMID:
-            return format_html('<a href="https://europepmc.org/abstract/MED/{}">{}</a>', obj.PMID, obj.PMID)
-        else:
-            return obj.PMID
+            if re.match('^\d+$', str(obj.PMID)):
+                return format_html('<a href="https://europepmc.org/abstract/MED/{}">{}</a>', obj.PMID, obj.PMID)
+        return obj.PMID
 
 
     def display_pgp_id(self, obj):
@@ -203,7 +231,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     def display_first_level_curation_status(self, obj):
         if obj.first_level_curation_status:
             return obj.first_level_curation_status
-        return '-'
+        return None
 
     def display_second_level_curator(self, obj):
         if obj.second_level_curator:
@@ -214,7 +242,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     def display_second_level_curation_status(self, obj):
         if obj.second_level_curation_status:
             return obj.second_level_curation_status
-        return '-'
+        return None
 
 
     def display_third_level_curator(self, obj):
@@ -237,7 +265,15 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     def save_model(self, request, obj, form, change):
         ''' Custom method to save the model into the curation tracker database. Overwrite the default method'''
         update_via_epmc = False
-        # Model data updates before saving it in the database
+
+        # Eligibility - part 1
+        if (obj.eligibility_dev_score == 'y' and obj.eligibility_external_valid == 'n') or obj.eligibility_trait_matching == 'unmatched':
+            obj.eligibility = False
+        if obj.eligibility == False:
+            obj.first_level_curation_status = 'Determined ineligible'
+            obj.curation_status = 'Abandoned/Ineligible'
+
+        ## Model data updates before saving it in the database
         if not obj.num:
             # Primary key needs to be assigned for a new entry
             obj.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
@@ -254,14 +290,14 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                     if obj.second_level_curation_status == '-':
                         obj.second_level_curation_status = 'Awaiting curation'
                 elif obj.first_level_curation_status == 'Determined ineligible':
-                    obj.curation_status = 'Abandoned/Ineligble'
+                    obj.curation_status = 'Abandoned/Ineligible'
             # Change in second level curation
             elif obj.second_level_curation_status and db_obj.second_level_curation_status != obj.second_level_curation_status:
                 if obj.second_level_curation_status.startswith('Curation'):
                     if obj.second_level_curation_status == 'Awaiting L1':
                         obj.curation_status = 'Awaiting L2'
                 elif obj.second_level_curation_status == 'Determined ineligible':
-                    obj.curation_status = 'Abandoned/Ineligble'
+                    obj.curation_status = 'Abandoned/Ineligible'
             # Change in curation status
             elif obj.curation_status and db_obj.curation_status != obj.curation_status:
                 if obj.curation_status == 'Embargoed':
@@ -272,6 +308,10 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 or (obj.PMID and (not obj.title or not obj.journal or not obj.doi)) \
                 or (obj.doi and (not obj.title or not obj.journal or not obj.PMID)):
                 update_via_epmc = True
+
+        # Eligibility - part 2
+        if obj.curation_status == 'Abandoned/Ineligible':
+            obj.eligibility = False
 
         # Update/Populate Publication info via EuropePMC (if available)
         if update_via_epmc:
@@ -306,8 +346,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                         model = CurationPublicationAnnotation()
                         model.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
                         setattr(model,'study_name',x)
-                        for field in pub_data.keys():
-                            setattr(model, field, pub_data[field])
+                        # for field in pub_data.keys():
+                        #     setattr(model, field, pub_data[field])
                         # Update model with EuropePMC data
                         if re.match('^\d+$', x):
                             model.PMID = x
@@ -344,6 +384,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     display_third_level_curator.short_description = 'L3 Curator'
 
 
-curation_tracker_site = admin.AdminSite('curation_tracker')
-curation_tracker_site.register(CurationCurator, CurationCuratorAdmin)
-curation_tracker_site.register(CurationPublicationAnnotation, CurationPublicationAnnotationAdmin)
+
+admin.site.register(CurationCurator, CurationCuratorAdmin)
+admin.site.register(CurationPublicationAnnotation, CurationPublicationAnnotationAdmin)

@@ -165,25 +165,9 @@ def add_publication_annotation(publication,first_level_curation,second_level_cur
         if publication_field in publication.keys():
             setattr(model, publication_field, publication[publication_field])
 
-    # First Level Curation
-    for first_level_field in ['first_level_curator','first_level_curation_status','first_level_date','first_level_comment']:
-        if first_level_field in first_level_curation.keys():
-            setattr(model, first_level_field, first_level_curation[first_level_field])
-
-    # Second Level Curation
-    for second_level_field in ['second_level_curator','second_level_curation_status','second_level_date','second_level_comment']:
-        if second_level_field in second_level_curation.keys():
-            setattr(model, second_level_field, second_level_curation[second_level_field])
-
-
-    if row['Third level curator'] not in [None,np.nan,'nan','']:
-        third_level_curator = get_curator(row['Third level curator'])
-        setattr(model, 'third_level_curator', third_level_curator)
-
     # Notes
     comments = ''
     attributes = {
-        'curation_status': 'Curation_status',
         'reported_trait': 'Trait(s)',
         'gwas_and_pgs': 'GWAS + PGS',
         'comment_early': 'Early comment/Note',
@@ -205,38 +189,6 @@ def add_publication_annotation(publication,first_level_curation,second_level_cur
                 if comments != '':
                     comments = comments+'\n'
                 comments = comments + val
-        else:
-            # Setup the Curation Status
-            if field == 'curation_status':
-                level_1_done = False
-                level_2_done = False
-                # L1 curation
-                if 'first_level_curation_status' in first_level_curation:
-                    first_level_curation_status = first_level_curation['first_level_curation_status']
-                    if first_level_curation_status == 'Author-reported':
-                        first_level_curation_status = 'Author submission'
-                    elif first_level_curation_status in ['Curation done','Curation done (AS)',determined_ineligible]:
-                        level_1_done = True
-                        if first_level_curation_status == determined_ineligible:
-                            val = 'Abandoned/Ineligble'
-                    if first_level_curation_status == 'Author submission' and 'second_level_curation_status' in second_level_curation:
-                        first_level_curation_status = 'Curation done (AS)'
-                        level_1_done = True
-                # L2 curation
-                if 'second_level_curation_status' in second_level_curation:
-                    second_level_curation_status = second_level_curation['second_level_curation_status']
-                    if second_level_curation_status in ['Curation done',determined_ineligible]:
-                        level_2_done = True
-                        if second_level_curation_status == determined_ineligible:
-                            val = 'Abandoned/Ineligble'
-                if val == None:
-                    if level_1_done == True:
-                        if level_2_done == False:
-                            val = 'Awaiting L2'
-                        else:
-                            val = 'Curated - Awaiting Import'
-                    else:
-                        val = 'Awaiting L1'
 
         # Add value to model
         if val != None and not field.startswith('comment'):
@@ -244,6 +196,73 @@ def add_publication_annotation(publication,first_level_curation,second_level_cur
 
     if comments != '':
         setattr(model, 'comment', comments)
+
+
+    # Curation Status
+    curation_status = None
+    if 'Curation_status' in row.keys():
+        cs_value = row['Curation_status']
+        if cs_value not in [None,np.nan,'nan','',' ']:
+            curation_status = cs_value
+    level_1_done = False
+    level_2_done = False
+    # L1 curation
+    if 'first_level_curation_status' in first_level_curation:
+        first_level_curation_status = first_level_curation['first_level_curation_status']
+        if first_level_curation_status == 'Author Submission' and 'second_level_curation_status' in second_level_curation:
+            first_level_curation_status = 'Curation done (AS)'
+            first_level_curation['first_level_curation_status'] = first_level_curation_status
+        if first_level_curation_status in ['Curation done','Curation done (AS)',determined_ineligible]:
+            level_1_done = True
+            if first_level_curation_status == determined_ineligible:
+                curation_status = 'Abandoned/Ineligible'
+        elif first_level_curation_status == 'Pending author response':
+            curation_status = 'Pending author response'
+
+    # L2 curation
+    if 'second_level_curation_status' in second_level_curation:
+        second_level_curation_status = second_level_curation['second_level_curation_status']
+        if second_level_curation_status in ['Curation done',determined_ineligible]:
+            level_2_done = True
+            if second_level_curation_status == determined_ineligible:
+                curation_status = 'Abandoned/Ineligible'
+    # Missing L2 curation
+    else:
+        if level_1_done == True:
+            second_level_curation_status = None
+            if curation_status in ['Released','Curated - Awaiting Import','Imported - Awaiting Release','Retired','Embargoed']:
+                second_level_curation_status = 'Curation done'
+            elif curation_status not in ['Abandoned/Ineligible','Pending author response']:
+                second_level_curation_status = 'Awaiting curation'
+            if second_level_curation_status:
+                second_level_curation['second_level_curation_status'] = second_level_curation_status
+
+    # L3 curation
+    if curation_status == None:
+        if level_1_done == True:
+            if level_2_done == False:
+                curation_status = 'Awaiting L2'
+            else:
+                curation_status = 'Curated - Awaiting Import'
+        else:
+            curation_status = 'Awaiting L1'
+    if curation_status != None:
+        setattr(model, 'curation_status', curation_status)
+
+    # First Level Curation
+    for first_level_field in ['first_level_curator','first_level_curation_status','first_level_date','first_level_comment']:
+        if first_level_field in first_level_curation.keys():
+            setattr(model, first_level_field, first_level_curation[first_level_field])
+
+    # Second Level Curation
+    for second_level_field in ['second_level_curator','second_level_curation_status','second_level_date','second_level_comment']:
+        if second_level_field in second_level_curation.keys():
+            setattr(model, second_level_field, second_level_curation[second_level_field])
+
+    # Third Level Curation
+    if row['Third level curator'] not in [None,np.nan,'nan','']:
+        third_level_curator = get_curator(row['Third level curator'])
+        setattr(model, 'third_level_curator', third_level_curator)
 
     # Curation status
     curation_status = model.curation_status

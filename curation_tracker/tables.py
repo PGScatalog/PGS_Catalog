@@ -31,7 +31,9 @@ class Column_publication_ids(tables.Column):
 
 class Column_l1_curation_ids(tables.Column):
     def render(self, value, record):
-        curator = record.first_level_curator.name
+        curator = '-'
+        if record.first_level_curator:
+            curator = record.first_level_curator.name
         status = record.first_level_curation_status
         date = record.first_level_date
         html = f'<div><u>Curator:</u> {curator}</div><div><u>Status:</u> {status}</div>'

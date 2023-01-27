@@ -57,7 +57,6 @@ class CurationPublicationAnnotation(models.Model):
     first_level_comment = models.TextField('First Level Curation Comment', default='', null=True, blank=True)
     # Second level
     CURATION_STATUS_LEVEL_2_CHOICES = [
-        ('-','-'),
         ('Awaiting curation','Awaiting curation'),
         ('Curation done','Curation done'),
         ('Determined ineligible','Determined ineligible'),
@@ -66,14 +65,14 @@ class CurationPublicationAnnotation(models.Model):
         ('Undergoing curation','Undergoing curation')
     ]
     second_level_curator = models.ForeignKey(CurationCurator, on_delete=models.PROTECT, related_name='curator_level2_name', verbose_name='Second Level Curator Name', null=True, blank=True)
-    second_level_curation_status = models.CharField(choices=CURATION_STATUS_LEVEL_2_CHOICES, default='-', max_length=50, verbose_name='Second Level Curation Status', null=True, blank=True)
+    second_level_curation_status = models.CharField(choices=CURATION_STATUS_LEVEL_2_CHOICES, default=None, max_length=50, verbose_name='Second Level Curation Status', null=True, blank=True)
     second_level_date = models.DateField('Second Level Curation Date', null=True, blank=True)
     second_level_comment = models.TextField('Second Level Curation Comment', default='', null=True, blank=True)
     # Third level
     third_level_curator = models.ForeignKey(CurationCurator, on_delete=models.PROTECT, related_name='third_level_curator_name', verbose_name='Third Level Curator', null=True, blank=True)
     CURATION_STATUS_CHOICES = [
-        ('Abandoned/Ineligble','Abandoned/Ineligble'),
-        ('Pending Author Response','Pending Author Response'),
+        ('Abandoned/Ineligible','Abandoned/Ineligible'),
+        ('Pending author response','Pending author response'),
         ('Awaiting L1','Awaiting L1'),
         ('Awaiting L2','Awaiting L2'),
         ('Curated - Awaiting Import','Curated - Awaiting Import'),
@@ -117,7 +116,7 @@ class CurationPublicationAnnotation(models.Model):
         ('NA','NA'),
         ('unsure', 'Unsure')
     ]
-    eligibility = models.BooleanField('Paper eligibility', default=False)
+    eligibility = models.BooleanField('Paper eligibility', default=True)
     eligibility_dev_score = models.CharField(choices=DEV_NEW_SCORE_VAL, max_length=50, verbose_name='Develop a new score', null=True, blank=True)
     eligibility_eval_score = models.CharField(choices=EVAL_SCORE_VAL, max_length=50, verbose_name='Evaluate existing score', null=True, blank=True)
     eligibility_external_valid = models.CharField(choices=EXTERNAL_VALIDATION, default='NA', max_length=50, verbose_name='External validation (dev and eval in different sample?)', null=True, blank=True)
@@ -130,10 +129,15 @@ class CurationPublicationAnnotation(models.Model):
     embargoed = models.BooleanField('Embargoed Study', default=False)
     release_date = models.DateField('Release Date', null=True, blank=True)
 
-    # Notes
+    ## Other ##
+    CURATION_PRIORITY = [
+        ('normal','Normal'),
+        ('high','High')
+    ]
     reported_trait = models.TextField('Reported Trait(s)',null=True, blank=True)
     gwas_and_pgs = models.CharField('GWAS + PGS', max_length=100, null=True, blank=True)
     comment = models.TextField('Curation Comments', default='', null=True, blank=True)
+    priority = models.CharField(choices=CURATION_PRIORITY, max_length=50, verbose_name='Curation priority', default='normal')
 
     class Meta:
         get_latest_by = 'num'

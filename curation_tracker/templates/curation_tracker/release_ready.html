@@ -13,9 +13,37 @@
 
     <h2>Curation Release Ready</h2>
 
+    <!-- Summary -->
     <section>
-      <h3>List of studies ready for release</h3>
-      {% render_table table %}
+      <div class="content_container">
+        <div class="table-of-contents">
+          <nav role="navigation">
+            <h5>Content</h5>
+            <ul>
+              <li><a class="mr-2" href="#import_ready">Studies ready for <b>import</b></a> <span class="badge badge-pill badge-pgs">{{ studies_to_import_count }}</span></li>
+              <li class="mb-1"><a class="mr-2" href="#scores">Studies ready for <b>release</b></a> <span class="badge badge-pill badge-pgs">{{ studies_to_release_count }}</span></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3 id="import_ready">Studies ready for <b>import</b> (<span class="pgs_color_1">{{ studies_to_import_count }}</span>)</h3>
+      {% if table_to_import %}
+        {% render_table table_to_import %}
+      {% else %}
+        <div>No studies ready to import</div>
+      {% endif %}
+    </section>
+
+    <section>
+      <h3 id="release_ready">Studies ready for <b>release</b> (<span class="pgs_color_1">{{ studies_to_release_count }}</span>)</h3>
+      {% if table_to_release %}
+        {% render_table table_to_release %}
+      {% else %}
+        <div>No studies ready to release</div>
+      {% endif %}
     </section>
 
 {% endblock %}

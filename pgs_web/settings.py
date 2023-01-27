@@ -59,11 +59,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_tables2',
-    'django_extensions',
     'compressor',
     'rest_framework',
     'django_elasticsearch_dsl'
 ]
+if DEBUG:
+    INSTALLED_APPS.append('django_extensions')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -186,6 +187,11 @@ else:
     }
 # [END db_setup]
 
+
+if 'PGS_CURATION_SITE' in os.environ:
+    DATABASE_ROUTERS = ['routers.db_routers.AuthRouter',]
+
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -250,7 +256,7 @@ COMPRESS_PRECOMPILERS = (
 #    '127.0.0.1'
 #]
 REST_BLACKLIST_IPS = [
-    # '127.0.0.1'
+    #'127.0.0.1'
 ]
 
 REST_FRAMEWORK = {
@@ -266,7 +272,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_api.pagination.CustomPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 50,
     'EXCEPTION_HANDLER': 'rest_api.views.custom_exception_handler',
     'DEFAULT_THROTTLE_CLASSES': [
@@ -279,20 +285,6 @@ REST_FRAMEWORK = {
     }
 }
 
-
-#-----------------#
-#  CORS Settings  #
-#-----------------#
-CORS_URLS_REGEX = r'^/rest/.*$'
-CORS_ALLOW_METHODS = ['GET']
-CORS_ALLOW_ALL_ORIGINS = True
-
-
-
-
-#--------------------------#
-#  Elasticsearch Settings  #
-#--------------------------#
 # Elasticsearch configuration
 ELASTICSEARCH_DSL = {
     'default': {

@@ -36,10 +36,19 @@ def browse_l2_waiting(request):
 
 
 def browse_release_ready(request):
-   release_ready = CurationPublicationAnnotation.objects.using(curation_tracker).filter(first_level_date__isnull=False,second_level_date__isnull=False,release_date__isnull=True).exclude(first_level_curation_status='Determined ineligible',second_level_curation_status='Determined ineligible')
-   table_rr = Browse_CurationPublicationAnnotationReleaseReady(release_ready)
-   context = {
-     'table': table_rr,
-     'has_table': 1
-   }
-   return render(request, 'curation_tracker/release_ready.html', context)
+    context = {}
+    import_ready_count = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Curated - Awaiting Import').count()
+    context['studies_to_import_count'] = import_ready_count
+    if import_ready_count:
+        import_ready = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Curated - Awaiting Import')
+        context['table_to_import'] = Browse_CurationPublicationAnnotationReleaseReady(import_ready)
+
+    release_ready_count = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Imported - Awaiting Release').count()
+    context['studies_to_release_count'] = release_ready_count
+    if release_ready_count:
+        release_ready = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Imported - Awaiting Release')
+        context['table_to_release'] = Browse_CurationPublicationAnnotationReleaseReady(release_ready)
+
+    if context:
+        context['has_table'] = 1
+    return render(request, 'curation_tracker/release_ready.html', context)

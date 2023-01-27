@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from curation_tracker.models import *
 
-triage_dir = '/Users/lg10/Workspace/datafiles/curation/tracker/triage/'
+triage_dir = '/Users/lg10/Workspace/datafiles/curation/triage/'
 ext = '.tsv'
 
 tracker_db = 'curation_tracker'
