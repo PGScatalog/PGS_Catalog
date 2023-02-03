@@ -78,7 +78,8 @@ class CurationPublicationAnnotation(models.Model):
         ('Curated - Awaiting Import','Curated - Awaiting Import'),
         ('Imported - Awaiting Release','Imported - Awaiting Release'),
         ('Released','Released'),
-        ('Embargoed','Embargoed'),
+        ('Embargo Curated - Awaiting Import','Embargo Curated - Awaiting Import'),
+        ('Embargo Imported - Awaiting Release','Embargo Imported - Awaiting Release'),
         ('Retired','Retired')
     ]
     curation_status = models.CharField(choices=CURATION_STATUS_CHOICES, default='Awaiting L1', max_length=50, verbose_name='Curation Status', null=True, blank=True)
@@ -176,6 +177,8 @@ class CurationPublicationAnnotation(models.Model):
                     self.journal = result['journalTitle']
                 if 'pmid' in result:
                     self.PMID = result['pmid']
+            firstauthor = result['authorString'].split(' ')[0]
+            self.study_name = firstauthor+self.year
             return True
         else:
             return False
