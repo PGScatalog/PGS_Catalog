@@ -3,7 +3,7 @@
 {% block content %}
   <div id="content-main">
     <div>
-      <h2 style="margin-bottom:1rem">CSV file upload</h2>
+      <h2 style="margin-bottom:1rem">CSV/LitSuggest file upload</h2>
       <div>
         <form action="." method="POST" enctype="multipart/form-data">
           {{ form.as_p }}
@@ -11,7 +11,7 @@
           <br />
           {% csrf_token %}
           <div class="submit-row">
-            <input type="submit" value="Upload CSV" class="default" style="float:left">
+            <input type="submit" value="Upload CSV/LitSuggest" class="default" style="float:left">
           </div>
         </form>
       </div>

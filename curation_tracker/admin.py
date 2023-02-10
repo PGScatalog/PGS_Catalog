@@ -52,7 +52,7 @@ def check_study_name(study_name: str) -> str:
 
 
 def next_id_number(model: object) -> int:
-    ''' Fetch the new primary key value '''
+    ''' Generate the new primary key value '''
     assigned = 1
     if len(model.objects.using(curation_tracker_db).all()) != 0:
         assigned = model.objects.using(curation_tracker_db).latest().pk + 1
@@ -381,27 +381,28 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     def import_csv(self, request):
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
-            print(f">> File: {csv_file}")
             file_data = csv_file.read().decode('utf-8')
             cvs_data = file_data.split('\n')
             msg = ''
-            for x in cvs_data:
-                if x != '':
-                    print(f"\n# Data: {x}")
-                    if check_publication_exist(x):
-                        msg = msg + f"<br/>&#10060; - '{x}' already exists in the database - no import"
+            for line in cvs_data:
+                study_id = line.split('\t')[0]
+                if study_id != '':
+                    print(f"\n# Data: {study_id}")
+                    if check_publication_exist(study_id):
+                        msg = msg + f"<br/>&#10060; - '{study_id}' already exists in the database - no import"
                     else:
                         # Create new model
                         model = CurationPublicationAnnotation()
                         model.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
-                        setattr(model,'study_name',x)
+                        setattr(model,'study_name',study_id)
                         # for field in pub_data.keys():
                         #     setattr(model, field, pub_data[field])
+
                         # Update model with EuropePMC data
-                        if re.match('^\d+$', x):
-                            model.PMID = x
+                        if re.match('^\d+$', study_id):
+                            model.PMID = study_id
                         else:
-                            model.doi = x
+                            model.doi = study_id
                         has_epmc_data = model.get_epmc_data()
                         model.study_name = check_study_name(model.study_name)
 
@@ -409,9 +410,9 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                         model.save(using=curation_tracker_db)
 
                         if has_epmc_data:
-                            msg = msg + f"<br/>&#10004; - '{x}' has been successfully imported in the database"
+                            msg = msg + f"<br/>&#10004; - '{study_id}' has been successfully imported in the database"
                         else:
-                            msg = msg + f"<br/>&#10004; - '{x}' has been imported in the database but extra information couldn't be extracted from EuropePMC"
+                            msg = msg + f"<br/>&#10004; - '{study_id}' has been imported in the database but extra information couldn't be extracted from EuropePMC"
 
             self.message_user(request,  format_html(f"Your csv file has been imported{msg}"))
             return HttpResponseRedirect('..')
