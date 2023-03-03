@@ -5,8 +5,8 @@ from catalog.models import EFOTrait
 
 class TraitData(GenericData):
 
-    def __init__(self,trait_id):
-        GenericData.__init__(self)
+    def __init__(self,trait_id,spreadsheet_name):
+        GenericData.__init__(self,spreadsheet_name)
         self.trait_id = trait_id
 
 

@@ -5,8 +5,8 @@ from catalog.models import Cohort
 
 class CohortData(GenericData):
 
-    def __init__(self,name,name_long,name_others):
-        GenericData.__init__(self)
+    def __init__(self,name,name_long,name_others,spreadsheet_name):
+        GenericData.__init__(self,spreadsheet_name)
         self.name = name.strip()
         self.name_long = name_long.strip()
         self.name_others = name_others

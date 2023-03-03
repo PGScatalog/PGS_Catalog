@@ -6,8 +6,15 @@ from catalog.models import Score
 
 class ScoreData(GenericData):
 
-    def __init__(self,score_name):
-        GenericData.__init__(self)
+    method_name_replacement = {
+        'C+T': 'Clumping and Thresholding (C+T)',
+        'Ldpred': 'LDpred',
+        'P+T': 'Pruning and Thresholding (P+T)',
+        'PRScs': 'PRS-CS'
+    }
+
+    def __init__(self,score_name,spreadsheet_name):
+        GenericData.__init__(self,spreadsheet_name)
         self.name = score_name
         self.data = {'name': score_name}
 
@@ -29,10 +36,13 @@ class ScoreData(GenericData):
                         efo_traits = []
                         for trait_id in val:
                             trait_id = trait_id.replace(':','_').strip()
-                            trait = TraitData(trait_id)
+                            trait = TraitData(trait_id, self.spreadsheet_name)
                             efo = trait.efotrait_model()
                             efo_traits.append(efo)
                     else:
+                        if field == 'method_name':
+                            if val in self.method_name_replacement.keys():
+                                val = self.method_name_replacement[val]
                         setattr(self.model, field, val)
                 # Associate a Publication
                 self.model.publication = publication

@@ -19,8 +19,8 @@ class MetricData(GenericData):
         'R2': ('Proportion of the variance explained', 'R²'),
     }
 
-    def __init__(self,type,name,value):
-        GenericData.__init__(self)
+    def __init__(self,type,name,value,spreadsheet_name):
+        GenericData.__init__(self,spreadsheet_name)
         self.name = name.strip()
         self.type = type.strip()
         self.value = value

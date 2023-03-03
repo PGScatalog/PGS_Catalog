@@ -7,18 +7,33 @@ class GenericData():
     insquarebrackets = re.compile('\\[([^)]+)\\]')
     interval_format = r'^\-?\d+.?\d*\s\-\s\-?\d+.?\d*$'
     inparentheses = re.compile(r'\((.*)\)')
-    report_types = ('error', 'warning', 'import')
+    report = {'error': {}, 'warning': {}, 'import': {} }
+    report_types = report.keys()
+    # Non ascii symbols (unicode notation)
+    non_ascii_chars = {
+        '\u2009': ' ', # Thin Space
+        '\u2013': '-', # En dash
+        '\u2014': '-', # Em dash
+        '\u2022': '-', # Bullet
+        '\u2019': "'", # Right single quotation mark
+        '\u201A': '',  # Single low-9 quotation mark,
+        '\uFEFF': ''   # byte order mark (BOM)
+    }
 
-    def __init__(self):
+    def __init__(self,spreadsheet_name='NA'):
         self.model = None
+        self.spreadsheet_name = spreadsheet_name
         self.data = {}
-        self.report = dict.fromkeys(self.report_types, {})
-
 
     def add_data(self, field, value):
         ''' Insert new data into the 'data' dictionary. '''
         if type(value) == str:
             value = value.strip()
+            # Remove/replace some of the non-ascii characters
+            for char in self.non_ascii_chars.keys():
+                if char in value:
+                    self.parsing_report_warning(f'Found non ascii character "{char}" for "{field}": "{value}"')
+                    value = value.replace(char, self.non_ascii_chars[char])
         self.data[field] = value
 
 
@@ -30,42 +45,40 @@ class GenericData():
         return assigned
 
 
-    def add_report(self, type, spreadsheet_name, msg):
+    def add_parsing_report(self, rtype, msg):
         """
         Store the reported error/warning.
-        - type: type of report (e.g. error, warning)
-        - spreadsheet_name: name of the spreadsheet (e.g. Publication Information)
+        - rtype: type of report (e.g. error, warning)
         - msg: error message
         """
-        if type in self.report_types:
-            if not spreadsheet_name in self.report[type]:
-                self.report[type][spreadsheet_name] = set()
-            self.report[type][spreadsheet_name].add(msg)
+        if rtype in self.report_types:
+            spreadsheet_name = self.spreadsheet_name
+            if not spreadsheet_name in self.report[rtype]:
+                self.report[rtype][spreadsheet_name] = set()
+            self.report[rtype][spreadsheet_name].add(msg)
         else:
-            print('ERROR: Can\'t find the report category "{type}"!')
+            print(f'ERROR: Can\'t find the report category "{rtype}"!')
 
 
-    def report_error(self, spreadsheet_name, msg):
+    def parsing_report_error(self, msg):
         """
         Store the reported error.
-        - spreadsheet_name: name of the spreadsheet (e.g. Publication Information)
         - msg: error message
         """
-        self.add_report('error', spreadsheet_name, msg)
+        self.add_parsing_report('error', msg)
 
 
-    def report_warning(self, spreadsheet_name, msg):
+    def parsing_report_warning(self, msg):
         """
         Store the reported warning.
-        - spreadsheet_name: name of the spreadsheet (e.g. Publication Information)
         - msg: warning message
         """
-        self.add_report('warning', spreadsheet_name, msg)
+        self.add_parsing_report('warning', msg)
 
 
-    def report_error_import(self, msg):
+    def parsing_report_error_import(self, msg):
         """
         Store the reported import error.
         - msg: import error message
         """
-        self.add_report('import', 'error', msg)
+        self.add_parsing_report('import', 'error', msg)
