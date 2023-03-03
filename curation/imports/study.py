@@ -77,6 +77,16 @@ class StudyImport():
         self.study.extract_samples()
         self.study.extract_performances()
 
+        # Print parsing errors/warnings
+        if self.study.has_report_info():
+            print('\n>>>> Parsing information <<<<')
+            reports = self.study.display_reports()
+            print(reports)
+
+            if (self.study.report['error']):
+                self.failed_data_import.append(f'> Study parsing failed')
+                self.has_failed = True
+
 
     def import_curation_data(self):
         '''
@@ -157,10 +167,6 @@ class StudyImport():
                     print(f'SCORE: {score.id} - {x[0]}')
                     for sample in samples:
                         sample_model_exist = sample.sample_model_exist()
-                        if 'source_GWAS_catalog' in sample.data:
-                            source = sample.data['source_GWAS_catalog']
-                        else:
-                            source = 'Not GWAS'
                         # Existing sample
                         if sample_model_exist:
                             sample_model = sample_model_exist
@@ -168,6 +174,8 @@ class StudyImport():
                         # New sample
                         else:
                             sample_model = sample.create_sample_model()
+
+                        # Add sample
                         if sample_type == 'GWAS/Variant associations':
                             score.samples_variants.add(sample_model)
                         elif sample_type == 'Score development':

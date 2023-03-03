@@ -7,20 +7,19 @@ from catalog.models import Sample
 
 class SampleData(GenericData):
 
-    def __init__(self,sampleset_name=None):
-        GenericData.__init__(self)
+    def __init__(self,spreadsheet_name,sampleset_name=None):
+        GenericData.__init__(self,spreadsheet_name)
         self.sampleset_name = sampleset_name
 
-    def str2demographic(self, field, val, spreadsheet_name):
+    def str2demographic(self, field, val):
         '''
         Parse the sample_age and followup_time information to store it into the DemographicData object
         - field: data field (from the template schema)
         - val: data value
-        - spreadsheet_name: Name of the spreadsheet where the data information comes from.
         Return type: DemographicData object
         '''
         unit_regex = "([-+]?\d*\.\d+|\d+) ([a-zA-Z]+)"
-        current_demographic = DemographicData(field,val)
+        current_demographic = DemographicData(field,val,self.spreadsheet_name)
         if type(val) == float:
             current_demographic.add_data('estimate', val)
         else:
@@ -35,7 +34,7 @@ class SampleData(GenericData):
                     prefix_msg = f'Wrong format in the column \'{field}\''
                     if len(values) > 2:
                         prefix_msg = f'Too many values in the column \'{field}\''
-                    self.report_error(spreadsheet_name, f'{prefix_msg}. Format expected: \'name=value_or_interval unit\' (e.g. median=5.2 years).')
+                    self.parsing_report_error(f'{prefix_msg}. Format expected: \'name=value_or_interval unit\' (e.g. median=5.2 years).')
                     continue
 
                 # Check if it contains a range item
@@ -46,7 +45,7 @@ class SampleData(GenericData):
                         range_match = tuple(map(float, matches[0].split(' - ')))
                         current_demographic.add_data('range', NumericRange(lower=range_match[0], upper=range_match[1], bounds='[]'))
                     else:
-                        self.report_error(spreadsheet_name, f'Data Range for the value "{value}" is not in the expected format (e.g. \'1.00 [0.80 - 1.20]\')')
+                        self.parsing_report_error(f'Data Range for the value "{value}" is not in the expected format (e.g. \'1.00 [0.80 - 1.20]\')')
                     if name.lower() == 'iqr':
                         name = name.upper()
                     current_demographic.add_data('range_type', name)
@@ -89,7 +88,7 @@ class SampleData(GenericData):
                 s_cohorts = '|'.join(sorted([x.name for x in self.data['cohorts']]))
             elif field not in ['sample_age', 'followup_time']: # 'sample_age' and 'followup_time' not populated by GWAS Catalog
                 sample_data[field] = val
-        samples = Sample.objects.filter(**sample_data)
+        samples = Sample.objects.filter(**sample_data).order_by('id')
 
         if len(samples) != 0:
             for sample in samples:
@@ -119,8 +118,12 @@ class SampleData(GenericData):
                     elif field in ['sample_age', 'followup_time']:
                         current_demographic = val.create_demographic_model()
                         setattr(self.model, field, current_demographic)
-                    elif field == 'ancestry_broad' and (val == '' or val == 'NR'):
-                        setattr(self.model, field, 'Not reported')
+                    elif field in ['ancestry_broad','ancestry_country','ancestry_free']:
+                        # Add space after each comma (for consistency & comparison)
+                        val = re.sub(r'(?<=[,])(?=[^\s])', r' ', val)
+                        if field == 'ancestry_broad' and (val == '' or val == 'NR'):
+                            val = 'Not reported'
+                        setattr(self.model, field, val)
                     else:
                         setattr(self.model, field, val)
                 self.model.save()

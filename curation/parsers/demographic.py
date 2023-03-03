@@ -4,8 +4,8 @@ from catalog.models import Demographic
 
 class DemographicData(GenericData):
 
-    def __init__(self,type,value):
-        GenericData.__init__(self)
+    def __init__(self,type,value,spreadsheet_name):
+        GenericData.__init__(self,spreadsheet_name)
         self.type = type.strip()
         self.value = value
 

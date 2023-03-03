@@ -6,8 +6,8 @@ from catalog.models import Publication
 
 class PublicationData(GenericData):
 
-    def __init__(self,table_publication,doi=None,PMID=None,publication=None):
-        GenericData.__init__(self)
+    def __init__(self,table_publication,spreadsheet_name,doi=None,PMID=None,publication=None):
+        GenericData.__init__(self,spreadsheet_name)
         self.table_publication = table_publication
         self.doi = doi
         self.PMID = PMID

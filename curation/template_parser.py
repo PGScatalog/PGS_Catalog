@@ -84,11 +84,12 @@ class CurationTemplate():
                         elif field == 'name_others':
                             cohort_others_name = val
 
-            parsed_cohort = CohortData(cohort_name,cohort_long_name,cohort_others_name)
+            parsed_cohort = CohortData(cohort_name,cohort_long_name,cohort_others_name,spreadsheet_name)
             cohort_id = cohort_name.upper()
             if cohort_id in self.parsed_cohorts:
                 self.report_warning(spreadsheet_name, f'Ambiguity found in the Cohort spreadsheet: the cohort ID "{cohort_name}" has been found more than once!')
             self.parsed_cohorts[cohort_id] = parsed_cohort
+            self.update_report(parsed_cohort)
 
 
     def extract_publication(self,curation_status=None):
@@ -128,7 +129,7 @@ class CurationTemplate():
                 except Publication.DoesNotExist:
                     print(f'  > New publication (PMID:{c_PMID}) for the Catalog\n')
 
-            parsed_publication = PublicationData(self.table_publication,c_doi,c_PMID,publication)
+            parsed_publication = PublicationData(self.table_publication,spreadsheet_name,c_doi,c_PMID,publication)
 
             # Fetch the publication information from EuropePMC
             if not publication:
@@ -136,7 +137,7 @@ class CurationTemplate():
 
         # Create the object from the Spreadsheet only
         else:
-            parsed_publication = PublicationData(self.table_publication)
+            parsed_publication = PublicationData(self.table_publication,spreadsheet_name)
             current_schema = self.table_mapschema.loc[spreadsheet_name].set_index('Column')
             previous_field = None
             # Loop throught the columns
@@ -152,12 +153,13 @@ class CurationTemplate():
                     previous_field = field
             if 'date_publication' not in parsed_publication.data:
                 parsed_publication.add_data('date_publication',date.today())
+            parsed_publication
 
         if new_publication == True:
             parsed_publication.add_curation_notes()
             parsed_publication.add_curation_status(curation_status)
-
         self.parsed_publication = parsed_publication
+        self.update_report(self.parsed_publication)
 
 
     def extract_scores(self, license=None):
@@ -167,7 +169,7 @@ class CurationTemplate():
         current_schema = self.table_mapschema.loc[spreadsheet_name].set_index('Column')
         # Loop throught the rows (i.e. score)
         for score_name, score_info in self.table_scores.iterrows():
-            parsed_score = ScoreData(score_name)
+            parsed_score = ScoreData(score_name,spreadsheet_name)
             if license:
                 parsed_score.add_data('license', license)
             # Loop throught the columns
@@ -183,6 +185,7 @@ class CurationTemplate():
                             parsed_score.add_data(f, efo_list)
                         else:
                             parsed_score.add_data(f, val)
+            self.update_report(parsed_score)
             self.parsed_scores[score_name] = parsed_score
 
 
@@ -202,11 +205,12 @@ class CurationTemplate():
                     gwas_study = get_gwas_study(sample_data.data['source_GWAS_catalog'])
                     if gwas_study:
                         for gwas_ancestry in gwas_study:
-                            c_sample = SampleData()
+                            c_sample = SampleData(spreadsheet_name)
                             for col, entry in sample_data.data.items():
                                 c_sample.add_data(col, entry)
                             for field, val in gwas_ancestry.items():
                                 c_sample.add_data(field, val)
+                            self.update_report(c_sample)
                             samples_list.append(c_sample)
                     else:
                         self.report_error(spreadsheet_name, f'Can\'t fetch the GWAS information for the study {sample_data.data["source_GWAS_catalog"]}')
@@ -230,7 +234,7 @@ class CurationTemplate():
         spreadsheet_name = self.spreadsheet_names['Performance']
         current_schema = self.table_mapschema.loc[spreadsheet_name].set_index('Column')
         for p_key, performance_info in self.table_performances.iterrows():
-            parsed_performance = PerformanceData()
+            parsed_performance = PerformanceData(spreadsheet_name)
             for col, val in performance_info.items():
                 if pd.isnull(val) == False:
                     m, f = self.get_model_field_from_schema(col,current_schema)
@@ -238,22 +242,23 @@ class CurationTemplate():
                     if m is not None:
                         if f.startswith('metric'):
                             try:
-                                parsed_performance.add_metric(f, val, spreadsheet_name)
+                                parsed_performance.add_metric(f, val)
                             except:
                                 if ';' in str(val):
                                     for x in val.split(';'):
-                                        parsed_performance.add_metric(f, x, spreadsheet_name)
+                                        parsed_performance.add_metric(f, x)
                                 else:
                                     self.report_error(spreadsheet_name, f'Error parsing: {f} {val}')
                         else:
                             parsed_performance.add_data(f, val)
+
             self.update_report(parsed_performance)
             self.parsed_performances.append((p_key,parsed_performance))
 
 
     def get_sample_data(self, sample_info, current_schema, spreadsheet_name, sampleset_name=None):
         ''' Extract the sample data (gwas and dev/training). '''
-        sample_data = SampleData(sampleset_name)
+        sample_data = SampleData(spreadsheet_name,sampleset_name)
         for c, val in sample_info.to_dict().items():
             if c in current_schema.index:
                 if pd.isnull(val) == False:
@@ -270,7 +275,7 @@ class CurationTemplate():
                                     self.report_error(spreadsheet_name, f'Error: the sample cohort "{cohort}" cannot be found in the Cohort Refr. spreadsheet')
                             val = cohorts_list
                         elif f in ['sample_age', 'followup_time']:
-                            val = sample_data.str2demographic(f, val, spreadsheet_name)
+                            val = sample_data.str2demographic(f, val)
                             self.update_report(val)
                         elif f == 'source_PMID':
                             # PubMed ID
@@ -281,6 +286,7 @@ class CurationTemplate():
                                 f = 'source_DOI'
                                 val = str(val)
                         sample_data.add_data(f,val)
+        self.update_report(sample_data)
         return sample_data
 
 
@@ -341,7 +347,23 @@ class CurationTemplate():
                 for message in list(messages):
                     self.add_report(type, sp_name, message)
 
+    def display_reports(self):
+        """ Return the content of the reports """
+        report_msg = []
+        for type, reports in self.report.items():
+            if reports:
+                report_msg.append(f"\n## {type} ##")
+                for sp_name, messages in self.report[type].items():
+                    for message in list(messages):
+                        report_msg.append(f"  - {sp_name}: {message}")
+        return '\n'.join(report_msg)
 
+
+    def has_report_info(self):
+        for rtype in self.report.keys():
+            if self.report[rtype]:
+                return True
+        return False
 
 
 #=======================#

@@ -63,14 +63,18 @@ class CurationImport():
             study_import.print_title()
             print(f'==> Step 1/{self.steps_count}: Parsing study data')
             study_import.parse_curation_data()
-
-            ## Import ##
-            print('\n----------------------------------\n')
-            print(f'==> Step 2/{self.steps_count}: Importing study data')
-            study_import.import_curation_data()
             if study_import.has_failed:
                 self.failed_studies[study_import.study_name] = 'import error'
                 continue
+
+            ## Import ##
+            if not(self.failed_studies):
+                print('\n----------------------------------\n')
+                print(f'==> Step 2/{self.steps_count}: Importing study data')
+                study_import.import_curation_data()
+                if study_import.has_failed:
+                    self.failed_studies[study_import.study_name] = 'import error'
+                    continue
 
             ## Scoring files ##
             if self.skip_scoringfiles == False:

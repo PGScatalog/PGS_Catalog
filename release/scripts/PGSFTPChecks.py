@@ -55,11 +55,14 @@ class PGSFTPChecks:
                 label = key
             log_data_list = self.log_msg[key]
             report_content = ''
-            data_count = str(len(log_data_list))
-            if len(log_data_list) == 0:
+            data_log_count = len(log_data_list)
+            data_count = str(data_log_count)
+            if data_log_count == 0:
                 report_content = 'no data'
-            elif len(log_data_list) > 20:
+            elif data_log_count > 20 and data_log_count <= 100:
                 report_content = '\n'+','.join(log_data_list)+'\n'
+            elif data_log_count > 100:
+                report_content = '=> too many data to report'
             else:
                 report_content = '\n - '+'\n - '.join(log_data_list)+'\n'
             print("# "+label+" ("+data_count+" entries): "+report_content)
@@ -142,15 +145,15 @@ class PGSFTPChecks:
                 # Harmonized file
                 ftp_hmpos_scoring_file = ftp_hmpos_score_dir+pgs_id+'_hmPOS_GRCh'+genome_build+self.ftp_scoringfile_suffix
                 if not os.path.exists(ftp_hmpos_scoring_file):
-                    self.log_msg['missing_hmpos_scoring_file'].append(f'{pgs_id} (GRCh{genome_build}')
+                    self.log_msg['missing_hmpos_scoring_file'].append(f'{pgs_id} (GRCh{genome_build})')
                 elif os.path.getsize(ftp_hmpos_scoring_file) == 0:
-                    self.log_msg['missing_hmpos_scoring_file'].append(f'{pgs_id} (GRCh{genome_build}')
+                    self.log_msg['missing_hmpos_scoring_file'].append(f'{pgs_id} (GRCh{genome_build})')
                 # MD5 checksum Harmonized file
                 ftp_hmpos_scoring_file_md5 = ftp_hmpos_scoring_file+self.md5_checksum_suffix
                 if not os.path.exists(ftp_hmpos_scoring_file_md5):
-                    self.log_msg['missing_hmpos_scoring_file_md5'].append(f'{pgs_id} (GRCh{genome_build}')
+                    self.log_msg['missing_hmpos_scoring_file_md5'].append(f'{pgs_id} (GRCh{genome_build})')
                 elif os.path.getsize(ftp_hmpos_scoring_file_md5) == 0:
-                    self.log_msg['missing_hmpos_scoring_file_md5'].append(f'{pgs_id} (GRCh{genome_build}')
+                    self.log_msg['missing_hmpos_scoring_file_md5'].append(f'{pgs_id} (GRCh{genome_build})')
 
         # Missing PGS Scoring Files
         self.print_log_msg('missing_std_scoring_file', 'Missing PGS Formatted Scoring Files')
