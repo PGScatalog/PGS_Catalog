@@ -4,6 +4,7 @@ from pgs_web import constants
 
 
 class UpdateScoreAncestry:
+    """ Generate the ancestry distribution by Score and Study Stage. """
 
     ancestry_cat = constants.ANCESTRY_MAPPINGS
     ancestry_cat_keys = ancestry_cat.keys()
@@ -32,6 +33,7 @@ class UpdateScoreAncestry:
         self.verbose = verbose
         # self.scores = Score.objects.filter(num__gte=2731)
         # self.scores = Score.objects.filter(num=2736)
+        # self.scores = Score.objects.filter(num__in=[2731,2732,2733])
 
     def script_logs(self,msg):
         if self.verbose:
