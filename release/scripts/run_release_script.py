@@ -1,6 +1,7 @@
 import sys, os.path, shutil, glob
 from datetime import date
 from catalog.models import *
+from release.scripts.UpdateGwasStudies import UpdateGwasStudies
 from release.scripts.CreateRelease import CreateRelease
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
 
@@ -32,6 +33,9 @@ def run():
 
     # Check of there are duplicated cohort names in the database
     check_duplicated_cohorts()
+
+    # Update the GWAS studuies
+    update_gwas_studies()
 
 
     #--------------#
@@ -144,6 +148,16 @@ def check_duplicated_cohorts():
         error_report(error_msg)
     else:
         output_report("Cohort duplication - OK: No duplicated cohort found!")
+
+
+def update_gwas_studies():
+    """
+    Update the samples with GWAS studies which are missing information.
+    e.g. GWAS GCST IDs not yet publicly released by the GWAS Catalog when the PGS was made public
+    """
+    report_header("Update GWAS studies")
+    gwas_studies = UpdateGwasStudies()
+    gwas_studies.update_studies()
 
 
 def call_create_release():

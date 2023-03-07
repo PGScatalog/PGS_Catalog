@@ -3,7 +3,7 @@ Django==4.1.7
 #### Compress SCSS/SASS files in CSS
 django-compressor==4.3
 #### Library to build the HTML tables
-django-tables2==2.5.1
+django-tables2==2.5.2
 #### Python PostgreSQL library
 psycopg2-binary==2.9.5
 #### Django REST API libraries
