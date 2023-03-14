@@ -298,3 +298,25 @@ ELASTICSEARCH_INDEX_NAMES = {
     'search.documents.efo_trait': 'efo_trait',
     'search.documents.publication': 'publication'
 }
+
+
+#---------------------------------#
+#  Google Cloud Storage Settings  #
+#---------------------------------#
+
+if os.getenv('GAE_APPLICATION'):
+    from google.oauth2 import service_account
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+        os.path.join(BASE_DIR, os.environ['GS_SERVICE_ACCOUNT_SETTINGS'])
+    )
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = os.environ['GS_BUCKET_NAME']
+    MEDIA_URL = 'https://storage.googleapis.com/'+os.environ['GS_BUCKET_NAME']+'/'
+# else:
+#     MEDIA_URL = '/media/'
+#     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MIN_UPLOAD_SIZE=1000
+MAX_UPLOAD_SIZE=2000000
+MAX_UPLOAD_SIZE_LABEL="2Mb"
+DATA_UPLOAD_MAX_NUMBER_FILES=10

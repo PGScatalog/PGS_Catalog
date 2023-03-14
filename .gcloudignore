@@ -40,4 +40,5 @@
 app.yaml_template
 LICENSE.md
 README.md
+pgs-catalog-cred.json_template
 **/.DS_Store
