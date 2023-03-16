@@ -1,0 +1,180 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+<nav aria-label="You are here:">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+    <li class="breadcrumb-item">Releases</li>
+  </ol>
+</nav>
+
+  <h2 class="pgs_page_title">PGS Catalog releases</h2>
+  <div id="releases_section">
+
+    <div class="mt-5" style="padding:0px;margin-left:5px;margin-right:5px;background-color:#FAFAFA">
+      <h3 style="margin-top:0px;color:#FFF;background-color:#007C82;padding:4px 8px"><i class="far fa-calendar-check"></i> Current release</h3>
+      <div class="pl-2 pr-2 pb-1">
+        <table class="table table-bordered table-striped" style="width:auto">
+          <thead class="thead-light" style="text-align:center">
+            <tr>
+              <th style="border-right: 2px solid #c7cbcf">Release date</th>
+              <th style="border-right: 2px solid #c7cbcf">Score(s)</th>
+              <th style="border-right: 2px solid #c7cbcf">Publication(s)</th>
+              <th style="border-right: 2px solid #c7cbcf">Performance(s)</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody style="text-align:right">
+            <tr>
+                <td style="border-right: 2px solid #c7cbcf;font-weight:bold">
+                  {{ latest_release.date }}
+                </td>
+                <td>
+                  {% if latest_release.score_count > 0 %}
+                    <span class="badge badge-pill badge-pgs-2">{{ latest_release.score_count }}</span>
+                    <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_score_{{ latest_release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Score IDs"></a>
+                    <div class="toggle_list mt-2" id="list_release_score_{{ latest_release.date|date:'Y-m-d' }}"></div>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if latest_release.publication_count > 0 %}
+                    <span class="badge badge-pill badge-pgs-2">{{ latest_release.publication_count }}</span>
+                    <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_pub_{{ latest_release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Publication IDs"></a>
+                    <div class="toggle_list mt-2" id="list_release_pub_{{ latest_release.date|date:'Y-m-d' }}"></div>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if latest_release.performance_count > 0 %}
+                    <span class="badge badge-pill badge-pgs-2">{{ latest_release.performance_count }}</span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td style="text-align:left">{{ latest_release.notes }}</td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-5 mb-3 table_pgs_h" style="padding:0px;margin-left:5px;margin-right:5px;background-color:#FAFAFA">
+      <h3 style="margin-top:0px;color:#FFF;background-color:#007C82;padding:4px 8px"><i class="far fa-calendar-days"></i> Previous releases <a class="toggle_btn pgs_btn_plus pgs_no_icon_link ml-3" style="background-color:#FFF!important;padding-left:0px;padding-right:2px;border-radius:50%" id="previous_releases" data-toggle="tooltip" title="Click to display the list of previous releases"></a></h3>
+      <div id="list_previous_releases" class="toggle_list pl-2 pr-2 pb-1">
+        <table class="table table-bordered table-striped" style="width:auto">
+          <thead class="thead-light" style="text-align:center">
+            <tr>
+              <th style="border-right: 2px solid #c7cbcf">Release date</th>
+              <th style="border-right: 2px solid #c7cbcf">Score(s)</th>
+              <th style="border-right: 2px solid #c7cbcf">Publication(s)</th>
+              <th style="border-right: 2px solid #c7cbcf">Performance(s)</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody style="text-align:right">
+
+          {% for release in previous_releases_list %}
+
+              <tr>
+                <td style="border-right: 2px solid #c7cbcf;font-weight:bold">
+                  {{ release.date }}
+                  <!-- {% if forloop.counter0 == 0 %}
+                    <div class="badge badge-pill badge-pgs-2">Latest</div>
+                  {% endif %} -->
+                </td>
+                <td>
+                  {% if release.score_count > 0 %}
+                    <span class="badge badge-pill badge-pgs-2">{{ release.score_count }}</span>
+                    <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_score_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Score IDs"></a>
+                    <div class="toggle_list mt-2" id="list_release_score_{{ release.date|date:'Y-m-d' }}"></div>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if release.publication_count > 0 %}
+                    <span class="badge badge-pill badge-pgs-2">{{ release.publication_count }}</span>
+                    <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_pub_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Publication IDs"></a>
+                    <div class="toggle_list mt-2" id="list_release_pub_{{ release.date|date:'Y-m-d' }}"></div>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if release.performance_count > 0 %}
+                    <span class="badge badge-pill badge-pgs-2">{{ release.performance_count }}</span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td style="text-align:left">{{ release.notes }}</td>
+              </tr>
+          {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+
+      //document.addEventListener("DOMContentLoaded", function(event) {
+      $( document ).ready(function() {
+        var data_chart = {{ releases_data|safe }};
+        var pub_year_chart = {{ pub_per_year_data|safe }};
+        //console.log(data_chart);
+        draw_combined_js_barchart(data_chart, 'release_data_bar');
+        draw_combined_js_linechart(data_chart, 'release_data_line');
+        draw_js_barchart(data_chart, 'release_score', 'score');
+        draw_js_barchart(data_chart, 'release_publication', 'publication');
+        draw_js_barchart(data_chart, 'release_perf', 'performance');
+        draw_js_barchart_with_label(pub_year_chart.all, 'pub_per_year_all', 'Publications per year (All)', 'publication');
+        if (pub_year_chart.nr) {
+          draw_js_barchart_with_label(pub_year_chart.r, 'pub_per_year_r', 'Publications per year (Released)', 'publication');
+          draw_js_barchart_with_label(pub_year_chart.nr, 'pub_per_year_nr', 'Publications per year (Not released)', 'publication');
+        }
+      });
+    </script>
+
+    <h3 class="mt-5 pt-4" style="border-top:2px solid #007C82">Scores vs Publications per release</h3>
+    <div class="clearfix mb-2">
+      <div class="mb-4 mr-5" style="float:left;width:650px;height:400px">
+        <canvas id="release_data_bar" width="650" height="400"></canvas>
+      </div>
+      <div class="mb-4" style="float:left;width:650px;height:400px">
+        <canvas id="release_data_line" width="650" height="400"></canvas>
+      </div>
+    </div>
+
+    <h3>Scores, Publications and Performance Metrics per release</h3>
+    <div class="clearfix mb-2">
+      <div class="mb-4 mr-4" style="float:left;width:425px;height:300px">
+        <canvas id="release_score" width="425" height="300"></canvas>
+      </div>
+      <div class="mb-4 mr-4" style="float:left;width:425px;height:300px">
+        <canvas id="release_publication" width="425" height="300"></canvas>
+      </div>
+      <div class="mb-4" style="float:left;width:425px;height:300px">
+        <canvas id="release_perf" width="425" height="300"></canvas>
+      </div>
+    </div>
+
+    <h3>Distribution of publications per year</h3>
+    <div class="clearfix">
+      <div class="mr-4" style="float:left;width:425px;height:300px">
+        <canvas id="pub_per_year_all" width="425" height="300"></canvas>
+      </div>
+      {% if pub_per_year_data.nr %}
+        <div class="mr-4" style="float:left;width:425px;height:300px">
+          <canvas id="pub_per_year_r" width="425" height="300"></canvas>
+        </div>
+        <div style="float:left;width:425px;height:300px">
+          <canvas id="pub_per_year_nr" width="425" height="300"></canvas>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+{%endblock%}

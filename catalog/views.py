@@ -15,10 +15,12 @@ pgs_only = {
     'publication_performance': ['id','score_id','sampleset_id','publication_id','phenotyping_reported','covariates','performance_comments','score__id','score__name','score__publication_id','publication__id','publication__journal','publication__date_publication','publication__firstauthor']
 }
 pgs_defer = {
+    'generic_with_curation': generic_attributes,
     'generic': [*generic_attributes, 'curation_notes'],
     'perf'   : [*generic_attributes,'date_released','score__curation_notes','score__date_released'],
     'perf_extra': ['score__method_name','score__method_params','score__variants_interactions','score__ancestries','score__license'],
     'publication_sel': ['publication__title','publication__authors','publication__curation_notes','publication__curation_status','publication__date_released'],
+    'publication_no_curation': ['curation_status','curation_notes'],
     'sample': ['sample_age','followup_time','source_GWAS_catalog','source_DOI','source_PMID','ancestry_country']
 }
 pgs_prefetch = {
@@ -197,6 +199,10 @@ def get_efo_traits_data():
     return [traits_list, data]
 
 
+def format_model_numbers(models_count):
+    return f'{models_count:,}'
+
+
 def index(request):
     current_release = Release.objects.values('date','score_count','publication_count').order_by('-date').first()
 
@@ -206,9 +212,9 @@ def index(request):
 
     context = {
         'release' : current_release,
-        'num_pgs' : f'{scores_count:,}',
-        'num_traits' : f'{traits_count:,}',
-        'num_pubs' : f'{pubs_count:,}',
+        'num_pgs' : format_model_numbers(scores_count),
+        'num_traits' : format_model_numbers(traits_count),
+        'num_pubs' : format_model_numbers(pubs_count),
         'has_ebi_icons' : 1,
         'is_homepage': 1
     }
@@ -217,9 +223,9 @@ def index(request):
         if constants.ANNOUNCEMENT and constants.ANNOUNCEMENT != '':
             context['announcement'] = constants.ANNOUNCEMENT
 
-    if settings.PGS_ON_CURATION_SITE=='True':
+    if settings.PGS_ON_CURATION_SITE:
         released_traits = set()
-        for score in Score.objects.filter(date_released__isnull=False).prefetch_related('trait_efo'):
+        for score in Score.objects.only('num').filter(date_released__isnull=False).prefetch_related('trait_efo'):
             for efo in score.trait_efo.all():
                 released_traits.add(efo.id)
         released_traits_count = len(list(released_traits))
@@ -327,7 +333,11 @@ def pgs(request, pgs_id):
     template_html_file = 'pgs.html'
 
     try:
-        score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo','samples_variants','samples_training','samples_variants__cohorts','samples_training__cohorts').get(id__exact=pgs_id)
+        prefetch_related_score = ['trait_efo','samples_variants','samples_training','samples_variants__cohorts','samples_training__cohorts']
+        if settings.PGS_ON_CURATION_SITE == 'True':
+            score = Score.objects.defer(*pgs_defer['generic_with_curation']).select_related('publication').prefetch_related(*prefetch_related_score).get(id__exact=pgs_id)
+        else:
+            score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related(*prefetch_related_score).get(id__exact=pgs_id)
 
         pub = score.publication
         citation = format_html(' '.join([pub.firstauthor, '<i>et al. %s</i>'%pub.journal, '(%s)' % pub.date_publication.strftime('%Y')]))
@@ -402,7 +412,10 @@ def pgp(request, pub_id):
 
     template_html_file = 'pgp.html'
     try:
-        pub = Publication.objects.prefetch_related(pgs_prefetch['publication_score_2'], 'publication_performance').get(id__exact=pub_id)
+        if settings.PGS_ON_CURATION_SITE:
+            pub = Publication.objects.prefetch_related(pgs_prefetch['publication_score_2'], 'publication_performance').get(id__exact=pub_id)
+        else:
+            pub = Publication.objects.defer(*pgs_defer['publication_no_curation']).prefetch_related(pgs_prefetch['publication_score_2'], 'publication_performance').get(id__exact=pub_id)
 
         context = {
             'publication' : pub,
@@ -664,6 +677,116 @@ def ancestry_doc(request):
     except:
         context = {}
     return render(request, 'catalog/docs/ancestry.html', context)
+
+
+def releases(request):
+
+    release_data = []
+    pub_per_year_data = { 'all': [] }
+
+    total_score = 0
+    total_perf = 0
+    total_publi = 0
+    max_score = 0
+    max_publi = 0
+    max_perf = 0
+    max_width = 100
+
+    ## Publications distribution
+    # All publications
+    pub_per_year = {}
+    publications = Publication.objects.all()
+    for publication in publications:
+        year = publication.pub_year
+        if year in pub_per_year:
+            pub_per_year[year] += 1
+        else:
+            pub_per_year[year] = 1
+
+    for p_year in sorted(pub_per_year.keys()):
+        pub_per_year_item = { 'year': p_year, 'count': pub_per_year[p_year] }
+        pub_per_year_data['all'].append(pub_per_year_item)
+
+    # Sepatate the "Released" and "Not released" Publications
+    nr_publications = Publication.objects.filter(date_released__isnull=True)
+    if len(nr_publications) > 0:
+        nr_pub_per_year = {}
+        for nr_publication in nr_publications:
+            year = nr_publication.pub_year
+            if year in nr_pub_per_year:
+                nr_pub_per_year[year] += 1
+            else:
+                nr_pub_per_year[year] = 1
+        pub_per_year_data['nr'] = []
+        for p_year in sorted(nr_pub_per_year.keys()):
+            pub_per_year_item = { 'year': p_year, 'count': nr_pub_per_year[p_year] }
+            pub_per_year_data['nr'].append(pub_per_year_item)
+
+        r_publications = Publication.objects.exclude(date_released__isnull=True)
+        if len(r_publications) > 0:
+            r_pub_per_year = {}
+            for r_publication in r_publications:
+                year = r_publication.pub_year
+
+                if year in r_pub_per_year:
+                    r_pub_per_year[year] += 1
+                else:
+                    r_pub_per_year[year] = 1
+            pub_per_year_data['r'] = []
+            for p_year in sorted(r_pub_per_year.keys()):
+                pub_per_year_item = { 'year': p_year, 'count': r_pub_per_year[p_year] }
+                pub_per_year_data['r'].append(pub_per_year_item)
+
+    # Get max data
+    releases_list = Release.objects.order_by('date')
+    for release in releases_list:
+        score = release.score_count
+        perf  = release.performance_count
+        publi = release.publication_count
+        if score > max_score:
+            max_score = score
+        if publi > max_publi:
+            max_publi = publi
+        if perf > max_perf:
+            max_perf = perf
+
+    for release in releases_list:
+        score = release.score_count
+        perf  = release.performance_count
+        publi = release.publication_count
+        date  = release.date
+
+        release_item = {
+                        'date': date.strftime('%d/%m/%y'),
+                        'score_count': score,
+                        'performance_count': perf,
+                        'publication_count': publi,
+                        'total_score_count': total_score,
+                        'total_performance_count': total_perf,
+                        'total_publication_count': total_publi
+                       }
+        total_score += score
+        total_perf += perf
+        total_publi += publi
+
+        release_data.append(release_item)
+
+    ordered_releases_list = list(releases_list.order_by('-date'))
+
+    context = {
+        'latest_release': ordered_releases_list.pop(0),
+        'previous_releases_list': ordered_releases_list,
+        'releases_data': release_data,
+        'pub_per_year_data': pub_per_year_data,
+        'max_score': max_score,
+        'max_publi': max_publi,
+        'max_perf': max_perf,
+        'has_table': 1,
+        'has_chart_js': 1,
+        'use_release_charts': 1
+
+    }
+    return render(request, 'catalog/releases.html', context)
 
 
 def stats(request):
