@@ -68,6 +68,23 @@
       {% endif %}
     </section>
 
+    {% if is_pgs_curation_site %}
+      <section>
+        <div class="d-flex mt-4">
+          <div class="pgs_note pgs_note_3">
+            <div>
+              <span>Curation Notes &rarr; </span>
+              {% if publication.curation_notes != '' %}
+                {{ publication.curation_notes }}
+              {% else %}
+                <i>NR</i>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
     <section>
     {% if table_scores or table_evaluated %}
         <h3>Associated Polygenic Score(s)</h3>

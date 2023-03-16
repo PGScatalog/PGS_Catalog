@@ -82,6 +82,23 @@
       </div>
     </section>
 
+    {% if is_pgs_curation_site %}
+      <section>
+        <div class="d-flex mt-4">
+          <div class="pgs_note pgs_note_3">
+            <div>
+              <span>Curation Notes &rarr; </span>
+              {% if score.curation_notes != '' %}
+                <span class="more">{{ score.curation_notes }}</span>
+              {% else %}
+                <i>NR</i>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
     <section>
         <h3 class="mb-0">Score Details</h3>
         {% if score_disclaimer %}
@@ -109,7 +126,7 @@
                           <td>Parameters</td>
                           <td id="pgs_params">
                             {% if score.method_params %}
-                              {{ score.method_params }}
+                              <span class="more">{{ score.method_params }}</span>
                             {% else %}
                               NR
                             {% endif %}

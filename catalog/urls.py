@@ -77,3 +77,6 @@ urlpatterns = [
 if settings.PGS_ON_CURATION_SITE:
     # e.g.: /stats/
     urlpatterns.append(path('stats/', views.stats, name='Stats'))
+
+    # e.g.: /releases/
+    urlpatterns.append(path('releases/', views.releases, name='Releases'))
