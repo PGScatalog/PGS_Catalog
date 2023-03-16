@@ -45,6 +45,21 @@ if os.environ['DEBUG'] == 'True':
 ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
 
 
+# Flags
+if os.getenv('GAE_APPLICATION', None):
+    PGS_ON_GAE = 1
+else:
+    PGS_ON_GAE = 0
+
+PGS_ON_LIVE_SITE = False
+if 'PGS_LIVE_SITE' in os.environ:
+    PGS_ON_LIVE_SITE = True if os.environ['PGS_LIVE_SITE'] in ['True', True] else False
+
+PGS_ON_CURATION_SITE = False
+if 'PGS_CURATION_SITE' in os.environ:
+    PGS_ON_CURATION_SITE = True if os.environ['PGS_CURATION_SITE'] in ['True', True] else False
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -60,23 +75,32 @@ INSTALLED_APPS = [
     'django_tables2',
     'compressor',
     'rest_framework',
-    'corsheaders',
     'django_elasticsearch_dsl'
 ]
-if DEBUG:
-    INSTALLED_APPS.append('django_extensions')
+# Local app installation
+if PGS_ON_GAE == 0:
+    local_apps = [
+        'release.apps.ReleaseConfig',
+        'django_extensions'
+    ]
+    INSTALLED_APPS.extend(local_apps)
+# Live app installation
+if PGS_ON_LIVE_SITE:
+    INSTALLED_APPS.append('corsheaders')
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+# Live middleware
+if PGS_ON_LIVE_SITE:
+    MIDDLEWARE.insert(2, 'corsheaders.middleware.CorsMiddleware')
 
 ROOT_URLCONF = 'pgs_web.urls'
 
@@ -91,7 +115,7 @@ CONTEXT_PROCESSORS = [
     'catalog.context_processors.pgs_info'
 ]
 
-if os.getenv('GAE_APPLICATION', None) and DEBUG==False:
+if PGS_ON_GAE == 1 and DEBUG == False:
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -120,29 +144,13 @@ else:
     ]
 
 
-# Flags
-
-if os.getenv('GAE_APPLICATION', None):
-    PGS_ON_GAE = 1
-else:
-    PGS_ON_GAE = 0
-
-PGS_ON_LIVE_SITE = False
-if 'PGS_LIVE_SITE' in os.environ:
-    PGS_ON_LIVE_SITE = os.environ['PGS_LIVE_SITE']
-
-PGS_ON_CURATION_SITE = False
-if 'PGS_CURATION_SITE' in os.environ:
-    PGS_ON_CURATION_SITE = os.environ['PGS_CURATION_SITE']
-
-
 WSGI_APPLICATION = 'pgs_web.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 # [START db_setup]
-if os.getenv('GAE_APPLICATION', None):
+if PGS_ON_GAE == 1:
     # Running on production App Engine, so connect to Google Cloud SQL using
     # the unix socket at /cloudsql/<your-cloudsql-connection string>
     DATABASES = {
@@ -274,7 +282,6 @@ REST_FRAMEWORK = {
 CORS_URLS_REGEX = r'^/rest/.*$'
 CORS_ALLOW_METHODS = ['GET']
 CORS_ALLOW_ALL_ORIGINS = True
-
 
 
 #--------------------------#
