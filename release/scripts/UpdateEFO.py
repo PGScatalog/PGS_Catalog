@@ -18,6 +18,8 @@ class UpdateEFO:
     direct_pgs_ids_key = 'direct_pgs_ids'
     child_pgs_ids_key = 'child_pgs_ids'
 
+    ols_url_root = 'https://www.ebi.ac.uk/ols/api/ontologies/efo'
+
     categories_info = {
         'Biological process': { colour_key: '#BEBADA', parent_key: 'biological process', efo_key: ['GO_0008150'] },
         'Body measurement': { colour_key: '#66CCFF', parent_key: 'body weights and measures', efo_key: ['EFO_0004324'] },
@@ -136,7 +138,7 @@ class UpdateEFO:
         ''' Fetch EFO information from an EFO ID, using the OLS REST API '''
         trait_id = trait.id
         obo_id = trait_id.replace('_',':')
-        ols_url = f'https://www.ebi.ac.uk/ols/api/ontologies/efo/terms?obo_id={obo_id}'
+        ols_url = f'{self.ols_url_root}/terms?obo_id={obo_id}'
         response = requests.get(ols_url)
         response = response.json()['_embedded']['terms']
         if len(response) == 1:
@@ -216,8 +218,8 @@ class UpdateEFO:
 
 
     def get_parents(self,trait):
-        ols_url = 'https://www.ebi.ac.uk/ols/api/ontologies/efo/ancestors?id={}'
-        response = requests.get(ols_url.format(trait.id))
+        ols_url = f'{self.ols_url_root}/ancestors?id={trait.id}'
+        response = requests.get(ols_url)
         response_json = response.json()
         ols_embedded = '_embedded'
         ols_links = '_links'
