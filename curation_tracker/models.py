@@ -1,5 +1,6 @@
 import re
 import requests
+from datetime import date
 from django.db import models
 from pgs_web import constants
 from catalog import common
@@ -23,6 +24,7 @@ class CurationPublicationAnnotation(models.Model):
     ## Identifiers ##
     num = models.IntegerField('PGS Literature Triage (PGL)', primary_key=True)
     id = models.CharField('PGS Literature Triage ID (PGL)', max_length=30, db_index=True)
+    creation_date = models.DateField('Creation Date', null=True, blank=True)
 
     # Publications
     study_name = models.CharField('Study Name', max_length=50, db_index=True)
@@ -153,6 +155,15 @@ class CurationPublicationAnnotation(models.Model):
         self.num = n
         self.id = 'PGL' + str(n).zfill(6)
 
+    def set_creation_date(self,date_val=None):
+        if date_val:
+            try:
+                datetime.date.fromisoformat(date_val)
+                self.creation_date = date_val
+            except ValueError:
+                raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+        else:
+            self.creation_date = date.today()
 
     def get_epmc_data(self):
         payload = {'format': 'json'}

@@ -72,6 +72,7 @@ class CurationPublicationAnnotationForm(forms.ModelForm):
         model = CurationPublicationAnnotation
         help_texts = {
             'id': 'ID automatically assigned',
+            'creation_date': 'Creation date automatically assigned',
             'eligibility': 'Eligibility automatically assigned (default: Yes)'
         }
         exclude = ()
@@ -168,7 +169,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     ''' Publication Annotation Admin class (main class of the curation tracker) '''
     form = CurationPublicationAnnotationForm
     list_display = (
-        "id","study_name","display_doi","display_PMID","display_pgp_id",
+        "id","study_name","creation_date","display_doi","display_PMID","display_pgp_id",
         "display_first_level_curator","display_first_level_curation_status",
         "display_second_level_curator","display_second_level_curation_status","display_level_curation_comment",
         "display_third_level_curator","curation_status","priority","reported_trait")
@@ -178,7 +179,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
     fieldsets = (
         ('Publication', {
-            'fields': ("id","study_name","pgp_id","doi","PMID",("journal","year"),"title","release_date","priority","author_submission","embargoed")
+            'fields': ("id","study_name","creation_date","pgp_id","doi","PMID",("journal","year"),"title","release_date","priority","author_submission","embargoed")
         }),
         ('Eligibility', {
             'fields': ("eligibility",("eligibility_dev_score","eligibility_eval_score"),("eligibility_external_valid","eligibility_trait_matching"),"eligibility_score_provided","eligibility_description")
@@ -201,8 +202,9 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
 
     def get_readonly_fields(self, request, obj=None):
+        fields = ["id","creation_date","eligibility"]
         if obj:
-            fields = ["num","id","eligibility"]
+            fields.append("num")
             if obj.first_level_curation_status == 'Determined ineligible':
                 fields.append('second_level_curator')
                 fields.append('second_level_curation_status')
@@ -211,9 +213,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 fields.append('third_level_curator')
             elif obj.second_level_curation_status == 'Determined ineligible':
                 fields.append('third_level_curator')
-            return fields
-        else:
-            return ["id","eligibility"]
+        return fields
 
 
     def display_doi(self, obj):
@@ -298,6 +298,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         if not obj.num:
             # Primary key needs to be assigned for a new entry
             obj.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
+            obj.set_creation_date()
             # Check if the Publication info can be populated via EuropePMC
             if obj.PMID or obj.doi:
                 update_via_epmc = True
@@ -395,9 +396,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                         # Create new model
                         model = CurationPublicationAnnotation()
                         model.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
+                        model.set_creation_date()
                         setattr(model,'study_name',study_id)
-                        # for field in pub_data.keys():
-                        #     setattr(model, field, pub_data[field])
 
                         # Update model with EuropePMC data
                         if re.match('^\d+$', study_id):
