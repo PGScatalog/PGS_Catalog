@@ -172,7 +172,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         "display_first_level_curator","display_first_level_curation_status",
         "display_second_level_curator","display_second_level_curation_status","display_level_curation_comment",
         "display_third_level_curator","curation_status","priority","reported_trait")
-    list_filter = ("curation_status","priority")
+    list_filter = ("curation_status","first_level_curator","second_level_curator","priority")
+    search_fields = ["id","study_name","pgp_id","doi","PMID","first_level_curation_status","second_level_curation_status","curation_status","reported_trait"]
     ordering = ('-id',)
 
     fieldsets = (
