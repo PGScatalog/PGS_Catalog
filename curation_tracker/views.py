@@ -1,10 +1,11 @@
 import os
+import datetime
 from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.conf import settings
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count
 
 from pgs_web import constants
 from .tables import *
@@ -77,3 +78,77 @@ def validate_metadata_template(request):
             context['size_error'] = error_msg
     context['max_upload_size_label'] = settings.MAX_UPLOAD_SIZE_LABEL
     return render(request, 'curation_tracker/validate_metadata.html', context)
+
+
+def stats(request):
+    context = {}
+
+    ## L1 curation
+    context['l1_curation'] = []
+
+    # L1 - Author submission
+    l1_as_queryset = (CurationPublicationAnnotation.objects.using(curation_tracker)
+        .filter(first_level_curation_status__in=['Author submission','Curation done (AS)'])
+        .values('first_level_date__month','first_level_date__year') # Group By year and month
+        .annotate(c=Count('id'))                                    # Select the count of the grouping
+        .order_by('-first_level_date__year', '-first_level_date__month')
+    )
+    l1_as_data = {}
+    for l1_as in l1_as_queryset:
+        if l1_as['first_level_date__month']:
+            month_num = str(l1_as['first_level_date__month'])
+            datetime_object = datetime.datetime.strptime(month_num, "%m")
+            month_name = datetime_object.strftime("%B")
+            year = l1_as['first_level_date__year']
+            count = l1_as['c']
+            if year not in l1_as_data.keys():
+                l1_as_data[year] = {}
+            l1_as_data[year][month_name] = count
+
+    # L1 curation done
+    l1_queryset = (CurationPublicationAnnotation.objects.using(curation_tracker)
+        .filter(first_level_curation_status__in=['Curation done','Curation done (AS)','Author submission'])
+        .values('first_level_date__month','first_level_date__year') # Group By year and month
+        .annotate(c=Count('id'))                                    # Select the count of the grouping
+        .order_by('-first_level_date__year', '-first_level_date__month')
+    )
+    for l1 in l1_queryset:
+        if l1['first_level_date__month']:
+            month_num = str(l1['first_level_date__month'])
+            datetime_object = datetime.datetime.strptime(month_num, "%m")
+            month_name = datetime_object.strftime("%B")
+            year = l1['first_level_date__year']
+            l1_data = {
+                'month': month_name,
+                'year': l1['first_level_date__year'],
+                'count': l1['c']
+            }
+            l1_as_count = 0
+            if year in l1_as_data.keys():
+                if month_name in l1_as_data[year].keys():
+                    l1_as_count = l1_as_data[year][month_name]
+            l1_data['author_submission'] = l1_as_count
+            context['l1_curation'].append(l1_data)
+
+    ## L2 Curation ##
+    # L2 curation done
+    context['l2_curation'] = []
+    l2_queryset = (CurationPublicationAnnotation.objects.using(curation_tracker)
+        .filter(second_level_curation_status__in=['Curation done'])
+        .values('second_level_date__month','second_level_date__year') # Group By year and month
+        .annotate(c=Count('id'))                                      # Select the count of the grouping
+        .order_by('-second_level_date__year', '-second_level_date__month')
+    )
+    for l2 in l2_queryset:
+        if l2['second_level_date__month']:
+            month_num = str(l2['second_level_date__month'])
+            datetime_object = datetime.datetime.strptime(month_num, "%m")
+            month_name = datetime_object.strftime("%B")
+            l2_data = {
+                'month': month_name,
+                'year': l2['second_level_date__year'],
+                'count': l2['c']
+            }
+            context['l2_curation'].append(l2_data)
+
+    return render(request, 'curation_tracker/curation_stats.html', context)
