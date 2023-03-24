@@ -7,8 +7,6 @@ class GenericData():
     insquarebrackets = re.compile('\\[([^)]+)\\]')
     interval_format = r'^\-?\d+.?\d*\s\-\s\-?\d+.?\d*$'
     inparentheses = re.compile(r'\((.*)\)')
-    report = {'error': {}, 'warning': {}, 'import': {} }
-    report_types = report.keys()
     # Non ascii symbols (unicode notation)
     non_ascii_chars = {
         '\u2009': ' ', # Thin Space
@@ -24,6 +22,8 @@ class GenericData():
         self.model = None
         self.spreadsheet_name = spreadsheet_name
         self.data = {}
+        self.report = {'error': {}, 'warning': {}, 'import': {} }
+        self.report_types = self.report.keys()
 
     def add_data(self, field, value):
         ''' Insert new data into the 'data' dictionary. '''
