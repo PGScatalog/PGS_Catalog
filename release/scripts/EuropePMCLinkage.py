@@ -11,7 +11,7 @@ class EuropePMCLinkage:
     provider_id = '2090'
     pgs_url = constants.USEFUL_URLS['PGS_WEBSITE_URL']
     link_root = pgs_url+'publication/'
-    default_filename = 'PGSLinks.xml'
+    default_filename = '../PGSLinks.xml'
 
     xml_document = ET.Element('links')
 
@@ -75,23 +75,6 @@ class EuropePMCLinkage:
                     continue
 
             self.create_xml_link(id,url,record_source,record_id)
-            # # New Link node
-            # xml_link = ET.SubElement(self.xml_document, 'link')
-            # xml_link.set('providerId', self.provider_id)
-            #
-            # # New Resource node
-            # xml_resource = ET.SubElement(xml_link, 'resource')
-            # xml_resource_title = ET.SubElement(xml_resource, 'title')
-            # xml_resource_url = ET.SubElement(xml_resource, 'url')
-            # xml_resource_title.text = id
-            # xml_resource_url.text = self.link_root+id
-            #
-            # # New Record node
-            # xml_record = ET.SubElement(xml_link, 'record')
-            # xml_record_source = ET.SubElement(xml_record, 'source')
-            # xml_record_id = ET.SubElement(xml_record, 'id')
-            # xml_record_source.text = record_source
-            # xml_record_id.text = str(record_id)
 
             # Create a new XML file from the XML document
             tree = ET.ElementTree(self.xml_document)

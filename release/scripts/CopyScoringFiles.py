@@ -17,10 +17,11 @@ class CopyScoringFiles:
         'skipped': []
     }
 
-    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir):
+    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir,md5_sql_filepath):
         self.new_ftp_scores_dir = new_ftp_scores_dir
         self.new_scoringfiles_dir = staged_scores_dir
         self.scoring_files_dir = scoring_files_dir
+        self.md5_sql_filepath = md5_sql_filepath
 
         if not os.path.exists(new_ftp_scores_dir):
             print(f'Error: The path to the data directory can\'t be found ({new_ftp_scores_dir}).')
@@ -149,8 +150,7 @@ class CopyScoringFiles:
         """ Copy the new/updated scoring files to the metadata directory (temporary FTP) """
         print("\n***** Step 2 - Copy the new/updated scoring files to the metadata directory (temporary FTP) *****")
 
-        md5_filepath = self.new_ftp_scores_dir+'/scores_md5.sql'
-        md5_sql_file = open(md5_filepath,'w')
+        md5_sql_file = open(self.md5_sql_filepath,'w')
 
         for score_id in sorted(os.listdir(self.new_ftp_scores_dir+'/scores/')):
             score_release_dir = self.new_ftp_scores_dir+'/scores/'+score_id+'/ScoringFiles/'
