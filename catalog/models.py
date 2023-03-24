@@ -734,6 +734,7 @@ class Score(models.Model):
 
 
 class EvaluatedScore(models.Model):
+    """ Model mainly used in the Search results """
     publication = models.ForeignKey(Publication, on_delete=models.PROTECT, verbose_name='PGS Publication ID (PGP)', related_name='publication_evaluatedscore')
     scores_evaluated = models.ManyToManyField(Score, verbose_name='Evaluated Scores', related_name='score_evaluatedscore')
 
