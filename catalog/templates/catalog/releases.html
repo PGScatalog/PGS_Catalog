@@ -10,22 +10,22 @@
   <h2 class="pgs_page_title">PGS Catalog releases</h2>
   <div id="releases_section">
 
-    <div class="mt-5" style="padding:0px;margin-left:5px;margin-right:5px;background-color:#FAFAFA">
-      <h3 style="margin-top:0px;color:#FFF;background-color:#007C82;padding:4px 8px"><i class="far fa-calendar-check"></i> Current release</h3>
-      <div class="pl-2 pr-2 pb-1">
-        <table class="table table-bordered table-striped" style="width:auto">
-          <thead class="thead-light" style="text-align:center">
+    <div class="mt-5">
+      <h3 style="font-weight:200"><i class="far fa-calendar-check pgs_color_1 pr-3"></i>Current release</h3>
+      <div class="table-responsive" style="padding:1rem;background-color:#FAFAFA">
+        <table class="table table-bordered table-striped table_pgs_auto">
+          <thead class="thead_pgs">
             <tr>
-              <th style="border-right: 2px solid #c7cbcf">Release date</th>
-              <th style="border-right: 2px solid #c7cbcf">Score(s)</th>
-              <th style="border-right: 2px solid #c7cbcf">Publication(s)</th>
-              <th style="border-right: 2px solid #c7cbcf">Performance(s)</th>
+              <th>Release date</th>
+              <th>Score(s)</th>
+              <th>Publication(s)</th>
+              <th>Performance(s)</th>
               <th>Notes</th>
             </tr>
           </thead>
           <tbody style="text-align:right">
             <tr>
-                <td style="border-right: 2px solid #c7cbcf;font-weight:bold">
+                <td style="border-right: 1px solid #c7cbcf;font-weight:bold">
                   {{ latest_release.date }}
                 </td>
                 <td>
@@ -60,16 +60,16 @@
       </div>
     </div>
 
-    <div class="mt-5 mb-3 table_pgs_h" style="padding:0px;margin-left:5px;margin-right:5px;background-color:#FAFAFA">
-      <h3 style="margin-top:0px;color:#FFF;background-color:#007C82;padding:4px 8px"><i class="far fa-calendar-days"></i> Previous releases <a class="toggle_btn pgs_btn_plus pgs_no_icon_link ml-3" style="background-color:#FFF!important;padding-left:0px;padding-right:2px;border-radius:50%" id="previous_releases" data-toggle="tooltip" title="Click to display the list of previous releases"></a></h3>
-      <div id="list_previous_releases" class="toggle_list pl-2 pr-2 pb-1">
-        <table class="table table-bordered table-striped" style="width:auto">
-          <thead class="thead-light" style="text-align:center">
+    <div class="mt-5 mb-3 table_pgs_h" >
+      <h3 class="pt-4" style="font-weight:200;border-top:2px dashed #CCC"><i class="far fa-calendar-days pgs_color_1 pr-3"></i>Previous releases <small><a class="toggle_btn pgs_btn_plus pgs_no_icon_link ml-3" id="previous_releases" data-toggle="tooltip" title="Click to display the list of previous releases"></a></small></h3>
+      <div id="list_previous_releases" class="toggle_list table-responsive pl-2 pr-2 pb-1" style="padding:1rem;background-color:#FAFAFA">
+          <table class="table table-bordered table-striped table_pgs_auto">
+            <thead class="thead_pgs">
             <tr>
-              <th style="border-right: 2px solid #c7cbcf">Release date</th>
-              <th style="border-right: 2px solid #c7cbcf">Score(s)</th>
-              <th style="border-right: 2px solid #c7cbcf">Publication(s)</th>
-              <th style="border-right: 2px solid #c7cbcf">Performance(s)</th>
+              <th>Release date</th>
+              <th>Score(s)</th>
+              <th>Publication(s)</th>
+              <th>Performance(s)</th>
               <th>Notes</th>
             </tr>
           </thead>
@@ -78,7 +78,7 @@
           {% for release in previous_releases_list %}
 
               <tr>
-                <td style="border-right: 2px solid #c7cbcf;font-weight:bold">
+                <td style="border-right: 1px solid #c7cbcf;font-weight:bold">
                   {{ release.date }}
                   <!-- {% if forloop.counter0 == 0 %}
                     <div class="badge badge-pill badge-pgs-2">Latest</div>
@@ -138,7 +138,7 @@
       });
     </script>
 
-    <h3 class="mt-5 pt-4" style="border-top:2px solid #007C82">Scores vs Publications per release</h3>
+    <h3 class="mt-5 pt-4 mb-4" style="font-weight:200;border-top:2px dashed #CCC"><i class="fa-solid fa-chart-line pgs_color_1 pr-3"></i>Scores vs Publications per release</h3>
     <div class="clearfix mb-2">
       <div class="mb-4 mr-5" style="float:left;width:650px;height:400px">
         <canvas id="release_data_bar" width="650" height="400"></canvas>
@@ -148,7 +148,7 @@
       </div>
     </div>
 
-    <h3>Scores, Publications and Performance Metrics per release</h3>
+    <h3 style="font-weight:200"><i class="fa-solid fa-chart-column pgs_color_1 pr-3"></i>Scores, Publications and Performance Metrics per release</h3>
     <div class="clearfix mb-2">
       <div class="mb-4 mr-4" style="float:left;width:425px;height:300px">
         <canvas id="release_score" width="425" height="300"></canvas>
@@ -161,7 +161,7 @@
       </div>
     </div>
 
-    <h3>Distribution of publications per year</h3>
+    <h3 style="font-weight:200"><i class="fa-solid fa-chart-column pgs_color_2 pr-3"></i>Distribution of publications per year</h3>
     <div class="clearfix">
       <div class="mr-4" style="float:left;width:425px;height:300px">
         <canvas id="pub_per_year_all" width="425" height="300"></canvas>

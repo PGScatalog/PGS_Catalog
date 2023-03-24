@@ -1,11 +1,11 @@
 import sys, os.path, shutil, glob
+from django.db.models import Count
 from catalog.models import *
 from release.scripts.RemoveDataForRelease import NonReleasedDataToRemove
 from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
 from release.scripts.UpdateScoreEvaluated import UpdateScoreEvaluated
 from release.scripts.UpdateReleasedCohorts import UpdateReleasedCohorts
 from release.scripts.UpdateEFO import UpdateEFO
-
 
 def run():
     """
@@ -32,6 +32,9 @@ def run():
 
     # Update the trait information and ontology
     update_efo()
+
+    # Display the list of new EFO traits in the catalog
+    display_new_efo()
 
 
 #-----------#
@@ -71,6 +74,24 @@ def update_efo():
     report_header("Update the EFO entries and add/update the Trait categories (from GWAS Catalog)")
     update_efo = UpdateEFO()
     update_efo.launch_efo_updates()
+
+
+def display_new_efo():
+    """ Display the list of new Traits added with the new release """
+    new_release = Release.objects.latest('date').date
+    trait_ids_list = Score.objects.values_list('trait_efo__id', flat=True).filter(date_released=new_release).distinct()
+    scores_by_trait_list = (Score.objects.filter(trait_efo__id__in=trait_ids_list)
+        .values('trait_efo__id','trait_efo__label')
+        .annotate(count_scores=Count('id'))
+    )
+    new_traits = []
+    for scores_by_trait in scores_by_trait_list:
+        count_scores = scores_by_trait['count_scores']
+        if count_scores == 1:
+            new_traits.append(f"- {scores_by_trait['trait_efo__label']} ({scores_by_trait['trait_efo__id']})")
+    print(f"# {len(new_traits)} New Traits:")
+    for new_trait in new_traits:
+        print(new_trait)
 
 
 def report_header(msg):

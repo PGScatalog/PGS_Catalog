@@ -18,11 +18,12 @@ class CopyHarmonizedScoringFilesPOS:
         for gb in genebuilds:
             log_msg[type][gb] = []
 
-    def __init__(self, new_ftp_scores_dir, staged_harmonized_files_dir, harmonized_files_dir):
+    def __init__(self, new_ftp_scores_dir, staged_harmonized_files_dir, harmonized_files_dir,md5_sql_filepath):
         self.new_ftp_scores_dir = new_ftp_scores_dir
         self.harmonized_files_staged_dir = staged_harmonized_files_dir
         self.harmonized_files_prod_dir = harmonized_files_dir
         self.scores_list_file_path = new_ftp_scores_dir+'/'+self.scores_list_file
+        self.md5_sql_filepath = md5_sql_filepath
 
         if not os.path.exists(new_ftp_scores_dir):
             print(f'Error: The path to the data directory can\'t be found ({new_ftp_scores_dir}).')
@@ -136,8 +137,7 @@ class CopyHarmonizedScoringFilesPOS:
         """ Copy the new/updated scoring files to the metadata directory (temporary FTP) """
         print("\n***** Step 2 - Copy the new/updated scoring files to the metadata directory (temporary FTP) *****")
 
-        md5_filepath = self.new_ftp_scores_dir+'/scores_md5.sql'
-        md5_sql_file = open(md5_filepath,'a')
+        md5_sql_file = open(self.md5_sql_filepath,'a')
 
         for score_id in sorted(self.harmonized_files_to_copy.keys()):
 

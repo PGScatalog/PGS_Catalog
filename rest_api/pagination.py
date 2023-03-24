@@ -8,8 +8,6 @@ class CustomPagination(LimitOffsetPagination):
 
     min_limit = 1
     max_limit = 250
-    # min_offset = 0
-    # max_offset = 10000
 
     def get_paginated_response(self, data):
         ''' Customise the head of the pagination response '''
@@ -36,13 +34,5 @@ class CustomPagination(LimitOffsetPagination):
             if error_msg:
                 error_dict['limit'] = error_msg
                 raise ValidationError(error_dict)
-
-        #offset = request.query_params.get('offset')
-        # if offset:
-        #     offset = int(offset)
-        #     if offset > self.max_offset:
-        #         raise serializers.ValidationError({"offset" : ["URL parameter \'offset\' should be less than or equal to {0}".format(self.max_offset)]})
-        #     elif offset < self.min_offset:
-        #         raise serializers.ValidationError({"offset" : ["URL parameter \'offset\' should be greater than or equal to {0}".format(self.min_offset)]})
 
         return super(self.__class__, self).paginate_queryset(queryset, request, view)

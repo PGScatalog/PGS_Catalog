@@ -1,5 +1,5 @@
 User-Agent: *
-{% if is_pgs_live_site == 'True' %}
+{% if is_pgs_live_site %}
 Disallow: /admin/
 Allow: /rest/$
 Disallow: /rest/
