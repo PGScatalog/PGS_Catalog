@@ -188,8 +188,9 @@ class Browse_PublicationTable(tables.Table):
 
     def render_journal(self, value):
         is_preprint = ''
-        if 'bioRxiv' in value or 'medRxiv' in value:
-            is_preprint = format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
+        for pp_journal in ['bioRxiv','medRxiv','Research Square']:
+            if pp_journal in value:
+                is_preprint = format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
         return format_html('<i>{}</i>{}', value, is_preprint)
 
     def render_doi(self, value):

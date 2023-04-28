@@ -115,17 +115,24 @@ class SampleData(GenericData):
                         for cohort_data in val:
                             cohort = cohort_data.create_cohort_model()
                             cohorts.append(cohort)
+                        continue
                     elif field in ['sample_age', 'followup_time']:
                         current_demographic = val.create_demographic_model()
                         setattr(self.model, field, current_demographic)
+                        continue
                     elif field in ['ancestry_broad','ancestry_country','ancestry_free']:
                         # Add space after each comma (for consistency & comparison)
                         val = re.sub(r'(?<=[,])(?=[^\s])', r' ', val)
                         if field == 'ancestry_broad' and (val == '' or val == 'NR'):
                             val = 'Not reported'
-                        setattr(self.model, field, val)
-                    else:
-                        setattr(self.model, field, val)
+                    elif field == 'sample_percent_male':
+                        # Remove % character
+                        val_str = str(val)
+                        if re.search('\%',val_str):
+                            val_str = re.sub(r'\%', r'', val_str)
+                            val_str = re.sub(r' ', r'', val_str)
+                            val = float(val_str)
+                    setattr(self.model, field, val)
                 self.model.save()
 
                 # Add ancestry broad data if none exists
