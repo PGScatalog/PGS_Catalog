@@ -20,13 +20,16 @@ handlers:
   script: auto
 
 # Only for the deployment of the live website, to keep 1 instance always on.
-# For other websites, you can comment the 'inbound_services' and 'automatic_scaling' blocks
+# For other websites you can:
+# - comment the 'inbound_services' block,
+# - comment the 'min_idle_instances' and 'max_idle_instances' lines
+# - set 'max_instances: 2'
 inbound_services:
 - warmup
 automatic_scaling:
   min_instances: 1
   max_instances: 4
-  min_idle_instances: 1
+  min_idle_instances: 0
   max_idle_instances: 1
 
 env_variables:
