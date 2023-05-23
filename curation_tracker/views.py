@@ -114,14 +114,21 @@ def stats(request):
     )
     for l1 in l1_queryset:
         if l1['first_level_date__month']:
-            month_num = str(l1['first_level_date__month'])
-            datetime_object = datetime.datetime.strptime(month_num, "%m")
+            month_num = l1['first_level_date__month']
+            datetime_object = datetime.datetime.strptime(str(month_num), "%m")
             month_name = datetime_object.strftime("%B")
             year = l1['first_level_date__year']
+            studies = (CurationPublicationAnnotation.objects.using(curation_tracker)
+                .filter(first_level_date__month=month_num, first_level_date__year=year)
+                .values('num','id','study_name')
+                .order_by('id')
+            )
+            studies_list_html = studies2html(f'l1_{year}_{month_num}',studies)
             l1_data = {
                 'month': month_name,
                 'year': l1['first_level_date__year'],
-                'count': l1['c']
+                'count': l1['c'],
+                'studies': studies_list_html
             }
             l1_as_count = 0
             if year in l1_as_data.keys():
@@ -141,14 +148,31 @@ def stats(request):
     )
     for l2 in l2_queryset:
         if l2['second_level_date__month']:
-            month_num = str(l2['second_level_date__month'])
-            datetime_object = datetime.datetime.strptime(month_num, "%m")
+            month_num = l2['second_level_date__month']
+            datetime_object = datetime.datetime.strptime(str(month_num), "%m")
             month_name = datetime_object.strftime("%B")
+            year = l2['second_level_date__year']
+            studies = (CurationPublicationAnnotation.objects.using(curation_tracker)
+                .filter(second_level_date__month=month_num, second_level_date__year=year)
+                .values('num','id','study_name')
+                .order_by('id')
+            )
+            studies_list_html = studies2html(f'l2_{year}_{month_num}',studies)
             l2_data = {
                 'month': month_name,
                 'year': l2['second_level_date__year'],
-                'count': l2['c']
+                'count': l2['c'],
+                'studies': studies_list_html
             }
             context['l2_curation'].append(l2_data)
 
     return render(request, 'curation_tracker/curation_stats.html', context)
+
+
+def studies2html(row_id,studies):
+    html = f'<a class="toggle_btn pgs_btn_plus pgs_no_icon_link ml-1" id="{row_id}" data-toggle="tooltip" title="Click to display the list of Studies"></a>'
+    html = html + f'<div class="toggle_list mt-2" id="list_{row_id}">\n<ul>'
+    for study in studies:
+        html = html + f'<li><a href="/admin/curation_tracker/curationpublicationannotation/{study["num"]}/change/">{study["id"]}</a> ({study["study_name"]})</li>'
+    html = html + '</ul>\n</div>'
+    return html

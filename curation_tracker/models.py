@@ -190,6 +190,8 @@ class CurationPublicationAnnotation(models.Model):
                     self.PMID = result['pmid']
             firstauthor = result['authorString'].split(' ')[0]
             self.study_name = firstauthor+self.year
+            if self.author_submission:
+                self.study_name = self.study_name+'_AuthorSub'
             return True
         else:
             return False

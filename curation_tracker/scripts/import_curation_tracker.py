@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 from curation_tracker.models import *
+from curation_tracker.admin import check_study_name
 from catalog.models import Publication
 
 tracker_file = '/Users/lg10/Workspace/datafiles/curation/tracker/PGSCatalog_Curation_Tracker.tsv'
@@ -43,6 +44,27 @@ def get_pgs_publication(PMID,doi):
     return publication
 
 
+def get_study_name_from_epmc(pmid,doi,is_author_submission):
+    study_name = None
+    payload = {'format': 'json'}
+    if pmid and re.match('^\d+$', str(pmid)):
+        query = f'ext_id:{pmid}'
+    else:
+        query = f'doi:{doi}'
+    payload['query'] = query
+    result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
+    result = result.json()
+    results_list = result['resultList']['result']
+    if results_list:
+        result = results_list[0]
+        year = result['firstPublicationDate'].split('-')[0]
+        firstauthor = result['authorString'].split(' ')[0]
+        study_name = firstauthor+year
+        if is_author_submission:
+            study_name = study_name+'_AuthorSub'
+    return study_name
+
+
 def get_date_released(pgp_id):
     date_released = Publication.objects.values_list('date_released', flat=True).get(id=pgp_id)
     return date_released
@@ -78,15 +100,22 @@ def add_publication(id,row):
                 doi = val
         if val != None:
             data[field] = val
+    if 'AuthorSub' in id:
+        data['author_submission'] = True
+    else:
+        data['author_submission'] = False
     publication = get_pgs_publication(pmid,doi)
     if publication:
         data['pgp_id'] = publication.id
         data['journal'] = publication.journal
         data['title'] = publication.title
-    if 'AuthorSub' in id:
-        data['author_submission'] = True
-    else:
-        data['author_submission'] = False
+    elif str(id).startswith('10.') or re.search('^\d+$',str(id)):
+        new_study_name = get_study_name_from_epmc(pmid,doi,data['author_submission'])
+        if new_study_name:
+            new_study_name = check_study_name(new_study_name)
+            print(f"\t>>> NEW STUDY NAME: {new_study_name} (old: {id})")
+            data['study_name'] = new_study_name
+
     return data
 
 
@@ -283,13 +312,15 @@ def add_publication_annotation(publication,first_level_curation,second_level_cur
 
 
 
+
+
 ################################################################################
 
 def run():
 
     df = pd.read_csv(tracker_file, sep='\t')
 
-    ids_list = []
+    ids_list = set()
 
     for index, row in df.iterrows():
         study_name = None
@@ -309,7 +340,7 @@ def run():
                 new_study_name = f'{study_name}_{extra}'
             study_name = new_study_name
             print(f"\t=> new study name: {new_study_name}")
-        ids_list.append(study_name)
+        ids_list.add(study_name)
 
         publication = add_publication(study_name,row)
         first_level_curation = add_first_level_curation(row)

@@ -6,13 +6,12 @@
 {% block content %}
     <nav aria-label="You are here:">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
         <li class="breadcrumb-item">Metadata Template Validation</li>
       </ol>
     </nav>
 
     {% if uploaded_file %}
-      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
       <script defer src="{% static 'curation_tracker/pgs_metadata_validation.js' %}"></script>
     {% endif %}
 
