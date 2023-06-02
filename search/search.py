@@ -156,8 +156,12 @@ class EFOTraitSearch(PGSSearch):
             'label',
             'description',
             'traitcategory.label',
-            'scores_direct_associations',
-            'scores_child_associations'
+            # Score data - direct association
+            'scores_direct_associations.id',
+            'scores_direct_associations.trait_reported',
+            # Score data - child association
+            'scores_child_associations.id',
+            'scores_child_associations.trait_reported'
         ]
         self.document = EFOTraitDocument
 
@@ -194,8 +198,6 @@ class PublicationSearch(PGSSearch):
             'journal',
             'PMID',
             'doi',
-            'publication_score',
-            'publication_performance',
             'scores_count',
             'scores_evaluated_count'
         ]

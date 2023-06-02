@@ -2,7 +2,7 @@ from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from search.analyzers import id_analyzer, html_strip_analyzer, name_delimiter_analyzer
 
-from catalog.models import Publication, Score
+from catalog.models import Publication
 
 # Name of the Elasticsearch index
 INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
@@ -23,81 +23,31 @@ name_delimiter = name_delimiter_analyzer()
 class PublicationDocument(Document):
     """Publication elasticsearch document"""
 
-    id = fields.TextField(
-        analyzer=id_analyzer,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    title = fields.TextField(
-        analyzer=name_delimiter,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    journal = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    pub_year = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    PMID = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    firstauthor = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    authors = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    doi = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
+    id = fields.TextField(analyzer=id_analyzer)
+    title = fields.TextField(analyzer=name_delimiter)
+    journal = fields.TextField(analyzer=html_strip)
+    pub_year = fields.IntegerField()
+    PMID = fields.TextField(analyzer=id_analyzer)
+    firstauthor = fields.TextField(analyzer=html_strip)
+    authors = fields.TextField(analyzer=html_strip)
+    doi = fields.TextField(analyzer=id_analyzer)
     scores_count = fields.IntegerField()
     scores_evaluated_count = fields.IntegerField()
     publication_score = fields.ObjectField(
         properties={
             'id': fields.TextField(analyzer=id_analyzer),
             'name': fields.TextField(
-                analyzer=html_strip,
+                analyzer=name_delimiter,
                 fields={
                     'raw': fields.KeywordField()
                 }
             ),
-            'trait_reported': fields.TextField(
-                analyzer=html_strip,
-                fields={
-                    'raw': fields.TextField()
-                }
-            ),
+            'trait_reported': fields.TextField(analyzer=html_strip),
             'trait_efo': fields.ObjectField(
                 properties={
                     'id': fields.TextField(analyzer=id_analyzer),
                     'id_colon': fields.TextField(analyzer=id_analyzer),
-                    'label': fields.TextField(
-                        analyzer=html_strip,
-                        fields={
-                            'raw': fields.TextField()
-                        }
-                    )
+                    'label': fields.TextField(analyzer=html_strip)
                 }
             )
         }
@@ -110,25 +60,15 @@ class PublicationDocument(Document):
                     'name': fields.TextField(
                         analyzer=name_delimiter,
                         fields={
-                            'raw': fields.TextField()
+                            'raw': fields.KeywordField()
                         }
                     ),
-                    'trait_reported': fields.TextField(
-                        analyzer=html_strip,
-                        fields={
-                            'raw': fields.TextField()
-                        }
-                    ),
+                    'trait_reported': fields.TextField(analyzer=html_strip),
                     'trait_efo': fields.ObjectField(
                         properties={
                             'id': fields.TextField(analyzer=id_analyzer),
                             'id_colon': fields.TextField(analyzer=id_analyzer),
-                            'label': fields.TextField(
-                                analyzer=html_strip,
-                                fields={
-                                    'raw': fields.TextField()
-                                }
-                            )
+                            'label': fields.TextField(analyzer=html_strip)
                         }
                     )
                 }
