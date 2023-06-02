@@ -170,7 +170,7 @@ class StudyImport():
                         # Existing sample
                         if sample_model_exist:
                             sample_model = sample_model_exist
-                            self.import_warnings.append(f'Sample "{x[0][0]}" ({x[0][1]}) already exist in the Database')
+                            self.import_warnings.append(f'Sample "{x[0][0]}" ({x[0][1]}) already exists in the Database')
                         # New sample
                         else:
                             sample_model = sample.create_sample_model()

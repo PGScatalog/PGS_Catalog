@@ -1,7 +1,7 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
-from search.analyzers import name_delimiter_analyzer
-from catalog.models import Publication, Score
+from search.analyzers import id_analyzer, name_delimiter_analyzer
+from catalog.models import Score
 
 # Name of the Elasticsearch index
 INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
@@ -13,14 +13,15 @@ INDEX.settings(
 )
 
 # PGS index analyzer
+id_analyzer = id_analyzer()
 name_delimiter = name_delimiter_analyzer()
 
 
 @INDEX.doc_type
 class ScoreDocument(Document):
-    """Publication elasticsearch document"""
+    """Score elasticsearch document"""
 
-    id = fields.TextField()
+    id = fields.TextField(analyzer=id_analyzer)
     name = fields.TextField(
         analyzer=name_delimiter,
         fields={
@@ -43,7 +44,7 @@ class ScoreDocument(Document):
             'label': fields.TextField()
         }
     )
-    variants_number = fields.TextField()
+    variants_number = fields.IntegerField()
 
     class Django(object):
         """Inner nested class Django."""

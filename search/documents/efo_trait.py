@@ -24,74 +24,37 @@ ngram_analyzer = ngram_analyzer()
 class EFOTraitDocument(Document):
     """EFOTrait elasticsearch document"""
 
-    id = fields.TextField(
-        analyzer=id_analyzer,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    id_colon = fields.TextField(
-        analyzer=id_analyzer,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
+    id = fields.TextField(analyzer=id_analyzer)
+    id_colon = fields.TextField(analyzer=id_analyzer)
     label = fields.TextField(
         analyzer=name_delimiter,
         fields={
-            'raw': fields.TextField(),
             'suggest': fields.CompletionField()
         }
     )
-    label_ngram = fields.TextField(
-        analyzer=ngram_analyzer,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    description = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    synonyms = fields.TextField(
-        analyzer=name_delimiter,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
+    label_ngram = fields.TextField(analyzer=ngram_analyzer)
+    description = fields.TextField(analyzer=html_strip)
+    synonyms = fields.TextField(analyzer=name_delimiter)
     synonyms_list = fields.TextField(
         analyzer=ngram_analyzer,
         fields={
-            'raw': fields.TextField(),
             'suggest': fields.CompletionField()
         }
     )
-    mapped_terms = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
-    url = fields.TextField(
-        analyzer=html_strip,
-        fields={
-            'raw': fields.TextField()
-        }
-    )
+    mapped_terms = fields.TextField(analyzer=name_delimiter)
+    url = fields.TextField(analyzer=html_strip)
     traitcategory = fields.ObjectField(
         properties={
             'label': fields.TextField(
                 analyzer=name_delimiter,
                 fields={
-                    'raw': fields.TextField()
+                    'raw': fields.KeywordField()
                 }
             ),
             'parent': fields.TextField(
                 analyzer=name_delimiter,
                 fields={
-                    'raw': fields.TextField()
+                    'raw': fields.KeywordField()
                 }
             )
         }
@@ -105,12 +68,7 @@ class EFOTraitDocument(Document):
                     'raw': fields.KeywordField()
                 }
             ),
-            'trait_reported': fields.TextField(
-                analyzer=html_strip,
-                fields={
-                    'raw': fields.TextField()
-                }
-            )
+            'trait_reported': fields.TextField(analyzer=html_strip)
         }
     )
     scores_child_associations = fields.ObjectField(
@@ -119,27 +77,17 @@ class EFOTraitDocument(Document):
             'name': fields.TextField(
                 analyzer=html_strip,
                 fields={
-                    'raw': fields.TextField()
+                    'raw': fields.KeywordField()
                 }
             ),
-            'trait_reported': fields.TextField(
-                analyzer=html_strip,
-                fields={
-                    'raw': fields.TextField()
-                }
-            )
+            'trait_reported': fields.TextField(analyzer=html_strip)
         }
     )
     parent_traits = fields.ObjectField(
         properties={
             'id': fields.TextField(analyzer=id_analyzer),
             'id_colon': fields.TextField(analyzer=id_analyzer),
-            'label': fields.TextField(
-                analyzer=html_strip,
-                fields={
-                    'raw': fields.TextField()
-                }
-            )
+            'label': fields.TextField(analyzer=html_strip)
         }
     )
 
