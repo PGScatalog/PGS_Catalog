@@ -9,6 +9,7 @@ django-sass-processor==1.2.1
 django-nine==0.2.7
 
 #### Other ###
+PyYAML==6.0
 numerize==0.12
 
 #### Cloud file storage

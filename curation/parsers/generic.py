@@ -14,7 +14,7 @@ class GenericData():
         '\u2014': '-', # Em dash
         '\u2022': '-', # Bullet
         '\u2019': "'", # Right single quotation mark
-        '\u201A': '',  # Single low-9 quotation mark,
+        '\u201A': '',  # Single low-9 quotation mark
         '\uFEFF': ''   # byte order mark (BOM)
     }
 
@@ -30,10 +30,7 @@ class GenericData():
         if type(value) == str:
             value = value.strip()
             # Remove/replace some of the non-ascii characters
-            for char in self.non_ascii_chars.keys():
-                if char in value:
-                    self.parsing_report_warning(f'Found non ascii character "{char}" for "{field}": "{value}"')
-                    value = value.replace(char, self.non_ascii_chars[char])
+            value = self.replace_non_ascii_chars(value)
         self.data[field] = value
 
 
@@ -43,6 +40,15 @@ class GenericData():
         if len(model.objects.all()) != 0:
             assigned = model.objects.latest().pk + 1
         return assigned
+
+
+    def replace_non_ascii_chars(self,value):
+        """ Remove/replace some of the non-ascii characters """
+        for char in self.non_ascii_chars.keys():
+            if char in value:
+                self.parsing_report_warning(f'Found non ascii character "{char}" for "{field}": "{value}"')
+                value = value.replace(char, self.non_ascii_chars[char])
+        return value
 
 
     def add_parsing_report(self, rtype, msg):

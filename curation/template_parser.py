@@ -242,13 +242,13 @@ class CurationTemplate():
                     if m is not None:
                         if f.startswith('metric'):
                             try:
-                                parsed_performance.add_metric(f, val)
-                            except:
                                 if ';' in str(val):
                                     for x in val.split(';'):
                                         parsed_performance.add_metric(f, x)
                                 else:
-                                    self.report_error(spreadsheet_name, f'Error parsing: {f} {val}')
+                                    parsed_performance.add_metric(f, val)
+                            except:
+                                self.report_error(spreadsheet_name, f'Error parsing: {f} {val}')
                         else:
                             parsed_performance.add_data(f, val)
 
@@ -360,6 +360,7 @@ class CurationTemplate():
 
 
     def has_report_info(self):
+        """ Flag indicating if reports exist  """
         for rtype in self.report.keys():
             if self.report[rtype]:
                 return True
