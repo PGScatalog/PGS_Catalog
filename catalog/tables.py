@@ -66,6 +66,8 @@ class Column_metriclist(tables.Column):
                 label = name[0]
             if label != name[0]:
                 helptip_str = f' title="{name[0]}" class="pgs_helptip"'
+            label = label.replace('<','&lt;')
+            label = label.replace('>','&gt;')
             label = smaller_in_bracket(label)
             label = smaller_in_parenthesis(label)
             name_html = f'<span{helptip_str}>{label}</span>'

@@ -36,9 +36,14 @@ class MetricData(GenericData):
             self.add_data('name','Beta')
             self.add_data('name_short','β')
         else:
-            self.name, self.value = self.value.split('=')
-            self.name = self.name.strip()
-            self.add_data('name', self.name)
+            initial_value = self.value
+            try:
+                self.name, self.value = self.value.rsplit('=',1)
+                self.name = self.name.strip()
+                self.add_data('name', self.name)
+            except:
+                self.parsing_report_error(f"Issue with the parsing of the metric '{initial_value}'.")
+
 
         if not 'name_short' in self.data and len(self.name) <= 10:
             self.add_data('name_short', self.name)
