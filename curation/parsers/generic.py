@@ -30,7 +30,7 @@ class GenericData():
         if type(value) == str:
             value = value.strip()
             # Remove/replace some of the non-ascii characters
-            value = self.replace_non_ascii_chars(value)
+            value = self.replace_non_ascii_chars(field,value)
         self.data[field] = value
 
 
@@ -42,7 +42,7 @@ class GenericData():
         return assigned
 
 
-    def replace_non_ascii_chars(self,value):
+    def replace_non_ascii_chars(self,field,value):
         """ Remove/replace some of the non-ascii characters """
         for char in self.non_ascii_chars.keys():
             if char in value:
