@@ -49,7 +49,7 @@ class PerformanceData(GenericData):
         ## Other values with interval, parenthesis, units ...
         val = val.strip()
         # Remove/replace some of the non-ascii characters
-        val = self.replace_non_ascii_chars(val)
+        val = self.replace_non_ascii_chars(field,val)
 
         # Estimate with percentage as unit
         if re.match('^\d+\.?\d*\s*\%$',val):
