@@ -7,7 +7,7 @@
   </ol>
 </nav>
 
-  <h2>PGS Catalog statistics</h2>
+  <h2><span class="fa-solid fa-chart-pie pgs_color_1 pr-2"></span>PGS Catalog statistics</h2>
 
   <div class="d-flex justify-content-between mt-5">
     <div class="mr-5">
@@ -129,7 +129,7 @@
 
   <div class="mt-5">
     <hr/>
-    <h5><span class="toggle_btn pgs_btn_plus" id="method_dist" data-toggle="tooltip" title="Click to display the Method distribution table"><b>Score Method</b> distribution </span></h5>
+    <h5><span class="toggle_btn pgs_btn_plus" id="method_dist" data-toggle="tooltip" title="Click to display the Method distribution table"><b>Score Method</b> distribution (<span class="pgs_color_1">{{ method_data|length }}</span>) </span></h5>
     <div class="toggle_list mt-2" id="list_method_dist">
       <table class="table table-bordered table_pgs_h">
         <thead class="thead-dark">
@@ -145,6 +145,32 @@
             <td style="max-width:600px;white-space:normal;text-align:left">{{ method.name }}</td>
             <td>{{ method.value }}%</td>
             <td>{{ method.count }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <div class="mt-5">
+    <hr/>
+    <h5><span class="toggle_btn pgs_btn_plus" id="reported_trait_dist" data-toggle="tooltip" title="Click to display the Reported trait distribution table"><b>Reported Trait</b> distribution (<span class="pgs_color_1">{{ reported_trait_data|length }}</span>) </span></h5>
+    <div class="toggle_list mt-2" id="list_reported_trait_dist">
+      <table class="table table-bordered table_pgs_h">
+        <thead class="thead-dark">
+          <tr>
+            <th>Reported Trait</th>
+            <th>%age</th>
+            <th>Count</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for reported_trait in reported_trait_data %}
+          <tr>
+            <td style="max-width:600px;white-space:normal;text-align:left">{{ reported_trait.name }}</td>
+            <td>{{ reported_trait.value }}%</td>
+            <td>{{ reported_trait.count }}</td>
           </tr>
         {% endfor %}
         </tbody>

@@ -707,7 +707,7 @@ def releases(request):
         pub_per_year_item = { 'year': p_year, 'count': pub_per_year[p_year] }
         pub_per_year_data['all'].append(pub_per_year_item)
 
-    # Sepatate the "Released" and "Not released" Publications
+    # Separate the "Released" and "Not released" Publications
     nr_publications = Publication.objects.filter(date_released__isnull=True)
     if len(nr_publications) > 0:
         nr_pub_per_year = {}
@@ -813,6 +813,9 @@ def stats(request):
     # Methods
     method_data = get_data_distribution('method_name',scores_count,colours)
 
+    # Reported traits
+    reported_trait_data = get_data_distribution('trait_reported',scores_count,colours)
+
     context = {
         'variants_number_per_score': '{:,}'.format(variants_number_per_score),
         'scores_per_pub': round(scores_count/publications_count,1),
@@ -821,6 +824,7 @@ def stats(request):
         'genomebuild_data': genomebuild_data,
         'weight_type_data': weight_type_data,
         'method_data': method_data,
+        'reported_trait_data': reported_trait_data,
         'has_chart': 1
     }
     return render(request, 'catalog/docs/stats.html', context)
