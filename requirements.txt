@@ -1,5 +1,5 @@
 #### Django library
-Django==4.1.9
+Django==4.1.10
 #### Compress SCSS/SASS files in CSS
 django-compressor==4.3
 #### Library to build the HTML tables
