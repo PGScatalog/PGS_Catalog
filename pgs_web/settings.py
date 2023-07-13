@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 	'catalog.apps.CatalogConfig',
     'rest_api.apps.RestApiConfig',
     'search.apps.SearchConfig',
+    'benchmark.apps.BenchmarkConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -20,6 +20,7 @@ from search import views as search_views
 urlpatterns = [
 	path('', include('catalog.urls')),
     path('', include('rest_api.urls')),
+    path('', include('benchmark.urls')),
     re_path(r'^search/', search_views.search, name="PGS Catalog Search"),
     re_path(r'^autocomplete/', search_views.autocomplete, name="PGS Catalog Autocomplete")
 ]

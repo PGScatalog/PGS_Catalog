@@ -1,0 +1,281 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}PGS Catalog - Benchmarking for {{ trait.label }} (Polygenic Trait){% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item"><a href="/labs/"><span class="fas fa-flask pr-1 pgs_color_1" style="line-height:21px"></span>Labs</a></li>
+        <li class="breadcrumb-item"><span class="pgs_benchmark_logo pr-1 pgs_color_1" style="line-height:21px"></span>Benchmarking</li>
+      </ol>
+    </nav>
+
+    <h2>
+      <span class="pgs_benchmark_logo pr-2"></span>Trait: <span class="pgs_title">{{ trait.label }}</span>
+      <span class="ml-4" style="border:2px solid #BE4A81;padding:4px;border-radius:5px;font-size:16px;line-height:37px;vertical-align:middle;color:#BE4A81">
+        <span class="fas fa-cogs pr-1 pgs_color_2"></span>Prototype
+      </span>
+    </h2>
+
+    <section>
+      <table class="table table-bordered table_pgs_h mt-4">
+        <tbody>
+          <tr>
+            <td class="table_title table_title_c" colspan="2">
+              {% if 'EFO' in trait.id %}
+                Experimental Factor Ontology (EFO) Information
+              {% else %}
+                Trait Information
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>Identifier</td>
+            <td><b>{{ trait.id }}</b></td>
+          </tr>
+          {% if trait.description %}
+            <tr>
+              <td>Description</td>
+              <td>
+                <span class="more">{{ trait.description }}</span>
+              </td>
+            </tr>
+          {% endif %}
+          {% if trait.display_phenotype_structured|length > 0 %}
+            <tr>
+              <td>Classification</td>
+              <td>
+                {% if trait.display_phenotype_structured|length > 1 %}
+                  <a class="toggle_btn pgs_btn_plus" data-toggle="tooltip" data-placement="right"  data-delay="500" id="trait_codes" title="Click to show/hide the list of classifications (e.g. ICD)"><b>{{ trait.display_phenotype_structured|length }}</b> classifications</a>
+                  <div class="toggle_list" id="list_trait_codes">
+                    <ul>
+                    {% for phenotype_structured in trait.display_phenotype_structured %}
+                      <li>{{ phenotype_structured|safe }}</li>
+                    {% endfor %}
+                    </ul>
+                  </div>
+                {% else %}
+                  {{ trait.display_phenotype_structured.0|safe }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h3>Cohort(s)</h3>
+      <div class="pgs_benchmark_cohorts clearfix">
+      {% for cohort, cohort_data in cohorts.items %}
+        <div>
+          <div class="pgs_benchmark_cohort_title mt-2 mb-2">{{ cohort_data.name }} ({{ cohort }})</div>
+          <table class="table table-bordered table-hover" data-toggle="table">
+            <thead class="thead-light">
+              <tr><th>Ancestry</th><th>Sample Numbers max</th></tr>
+            </thead>
+            <tbody>
+                {% for ancestry_data in cohort_data.ancestries %}
+                  <tr>
+                    <td>{{ ancestry_data.name }}</td>
+                    <td>{{ ancestry_data.display|safe }}</td>
+                  </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+
+
+        </div>
+      {% endfor %}
+      </div>
+    </section>
+
+    <section>
+      <h3>Benchmark</h3>
+      <div class="pgs_benchmark_form" style="display:flex;margin-bottom:1rem">
+        <div style="display:flex">
+          <!-- Cohort form -->
+          <div id="benchmark_cohort" class="filter_container mr-3">
+            <div class="filter_header mb-1">Cohort</div>
+            <div id="benchmark_cohort_list"></div>
+          </div>
+          <!-- Ancestry form -->
+          <div id="benchmark_ancestry" class="filter_container mr-3">
+            <div class="filter_header mb-1">Ancestry</div>
+            <div id="benchmark_ancestry_list"></div>
+          </div>
+        </div>
+        <div style="display:flex">
+          <!-- Performance metric form -->
+          <div id="benchmark_metric" class="filter_container mr-3">
+            <div class="filter_header mb-2">Performance metric</div>
+            <div>
+              <select id="benchmark_metric_select"></select>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex">
+          <!-- Sex form -->
+          <div id="benchmark_sex_type" class="filter_container mr-3">
+            <div class="filter_header mb-1">Sex</div>
+            <div id="benchmark_sex_list"></div>
+          </div>
+          <!-- Data ordering -->
+          <div id="benchmark_ordering" class="filter_container mr-3">
+            <div class="filter_header mb-1">Order by</div>
+            <div id="benchmark_order_by_list">
+              <div>
+                <input type="radio" name="benchmark_order_by" class="benchmark_order_by_rb" value="ancestry" id="bm_order_by_0" checked>
+                <label class="mb-0" for="bm_order_by_0">Ancestry</label>
+              </div>
+              <div>
+                <input type="radio" name="benchmark_order_by" class="benchmark_order_by_rb" value="cohort" id="bm_order_by_1">
+                <label class="mb-0" for="bm_order_by_1">Cohort</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex">
+          <!-- Data sorting -->
+          <div id="benchmark_sorting" class="filter_container">
+            <div class="filter_header mb-2">Sort by</div>
+            <div>
+              <select id="benchmark_sorting_select"></select>
+            </div>
+            <!-- <div class="mt-2" id="benchmark_sorting_filter_top_list">
+              <input type="checkbox" class="benchmark_sorting_filter_top" value="10" id="top_10">
+              <label class="mb-0" for="top_10"> Only show top 10</label>
+            </div> -->
+            <div class="custom-control custom-switch mt-2" id="benchmark_sorting_filter_top_list">
+              <input type="checkbox" class="custom-control-input benchmark_sorting_filter_top" value="10" id="top_10">
+              <label class="custom-control-label mb-0" for="top_10"> Only show top 10</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div id="pgs_chart_super_container">
+          <div id="pgs_chart_container">
+            <svg id="pgs_chart"></svg>
+          </div>
+        </div>
+        <div style="clear:both"></div>
+      </div>
+      <div>
+        <div class="pgs_benchmark_downloads mt-2">
+          <div class="pgs_benchmark_downloads_title">Export</div>
+          <div style="display:flex">
+            <div class="btn btn-pgs-small pgs_no_icon_link mr-2" data-toggle="tooltip" data-placement="bottom" title="Export current chart in PDF" id="exportPDF"><span class="far fa-file-pdf mr-2"></span>PDF</div>
+            <div class="btn btn-pgs-small pgs_no_icon_link mr-2" data-toggle="tooltip" data-placement="bottom" title="Export current chart in SVG" id="exportSVG"><span class="far fa-file-image mr-2"></span>SVG</div>
+            <div class="btn btn-pgs-small pgs_no_icon_link mr-2" data-toggle="tooltip" data-placement="bottom" title="Export current chart in PNG" id="exportPNG"><span class="far fa-file-image mr-2"></span>PNG</div>
+          </div>
+          <div style="display:flex">
+            <a class="btn btn-pgs-small pgs_no_icon_link mr-2" data-toggle="tooltip" data-placement="bottom" title="Export all the data in JSON" id="exportJSON"><span class="far fa-file-alt mr-2"></span>JSON</a>
+            <a class="btn btn-pgs-small pgs_no_icon_link" data-toggle="tooltip" data-placement="bottom" title="Export all the data in CSV" id="exportCSV"><span class="far fa-file-alt mr-2"></span>CSV</a>
+          </div>
+        </div>
+        <div style="clear:both"></div>
+      </div>
+
+      <script type="text/javascript">
+
+        const pgs_data = {{ pgs_data|safe }};
+        //var width = document.documentElement.clientWidth,
+        //    height = document.documentElement.clientHeight;
+        //var max_width = 1200;
+      //  var width = max_width,
+
+        //height = 500;
+
+        $( document ).ready(function() {
+
+          // Cohorts
+          fill_cohort_form(pgs_data);
+          var cohorts = set_cohortsList();
+
+          // Ancestry
+          fill_ancestry_form(pgs_data,cohorts);
+
+          // Performance metric
+          fill_metric_form(pgs_data,cohorts);
+
+          // Sex
+          fill_sex_form(pgs_data,cohorts);
+
+          // Sorting by
+          fill_sorting_form(pgs_data,cohorts);
+
+          // Select Top 10 form
+          $("#benchmark_sorting_filter_top_list").hide();
+          $(".benchmark_sorting_filter_top").prop('checked', false);
+
+          var benchmark = new PGSBenchmark(pgs_data);
+
+          $("#benchmark_cohort_list").on("change", ".benchmark_cohort_cb", function() {
+            // Prevent having only unchecked checkboxes
+            if ($(".benchmark_cohort_cb:checked").not(":disabled").length == 0 && !$(this).prop('checked')) {
+              $(this).prop("checked", true);
+            }
+            else {
+              benchmark.update_cohort();
+            }
+          });
+
+          $("#benchmark_ancestry_list").on("change", ".benchmark_ancestry_cb",function() {
+            // Prevent having only unchecked checkboxes
+            if ($(".benchmark_ancestry_cb:checked").parent(':visible').length == 0 && !$(this).prop('checked')) {
+              $(this).prop("checked", true);
+            }
+            else {
+              benchmark.update_ancestry();
+            }
+          });
+
+          $("#benchmark_metric_select").change(function() {
+            benchmark.update_metric();
+          });
+
+          $("#benchmark_sex_list").change(function() {
+            benchmark.update_sex();
+          });
+
+          $('input[name="benchmark_order_by"]:radio').change(function() {
+            benchmark.update_ordering();
+          });
+
+          $("#benchmark_sorting_select").change(function() {
+            benchmark.update_sorting();
+          });
+
+          $(".benchmark_sorting_filter_top").change(function() {
+            benchmark.update_sorting();
+            //benchmark.update_displayed_scores();
+          });
+
+          var resizeTimer;
+          window.addEventListener('resize', function(event){
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+              benchmark.redraw_chart();
+            }, 10);
+          });
+        });
+      </script>
+    </section>
+
+    <section>
+      {% if table_scores %}
+        <h3>Polygenic Score(s)</h3>
+        {% if ancestry_legend %}
+          <div class="pgs_form_container">
+            {{ ancestry_legend|safe }}
+          </div>
+        {% endif %}
+        {% render_table table_scores %}
+      {% endif %}
+    </section>
+
+{% endblock %}
