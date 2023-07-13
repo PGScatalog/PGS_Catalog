@@ -1,47 +1,49 @@
+{# Modification of the default numbers.html template to make it work with Bootstrap 4 #}
 <ul class="pagination">
-  {% if previous_url %}
-    <li>
-      <a href="{{ previous_url }}" aria-label="Previous">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
-  {% else %}
-    <li class="disabled">
-      <a href="#" aria-label="Previous">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
-  {% endif %}
-
-  {% for page_link in page_links %}
-    {% if page_link.is_break %}
-      <li class="disabled">
-        <a href="#"><span aria-hidden="true">&hellip;</span></a>
+    {% if previous_url %}
+      <li class="page-item">
+        <a class="page-link internal-link" href="{{ previous_url }}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
       </li>
     {% else %}
-      {% if page_link.is_active %}
-        <li class="active">
-          <a href="{{ page_link.url }}">{{ page_link.number }}</a>
+      <li class="disabled page-item">
+        <a class="page-link internal-link" href="#" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% endif %}
+  
+    {% for page_link in page_links %}
+      {% if page_link.is_break %}
+        <li class="disabled page-item">
+          <a class="page-link internal-link" href="#"><span aria-hidden="true">&hellip;</span></a>
         </li>
       {% else %}
-        <li>
-          <a href="{{ page_link.url }}">{{ page_link.number }}</a>
-        </li>
+        {% if page_link.is_active %}
+          <li class="active page-item">
+            <a class="page-link internal-link" href="{{ page_link.url }}">{{ page_link.number }}</a>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link internal-link" href="{{ page_link.url }}">{{ page_link.number }}</a>
+          </li>
+        {% endif %}
       {% endif %}
+    {% endfor %}
+  
+    {% if next_url %}
+      <li class="page-item">
+        <a class="page-link internal-link" href="{{ next_url }}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="disabled page-item">
+        <a class="page-link internal-link href="#" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
     {% endif %}
-  {% endfor %}
-
-  {% if next_url %}
-    <li>
-      <a href="{{ next_url }}" aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  {% else %}
-    <li class="disabled">
-      <a href="#" aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  {% endif %}
-</ul>
+  </ul>
+  
