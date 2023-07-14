@@ -1,7 +1,7 @@
 {% load static %}
   <div>
     <nav class="navbar fixed-top navbar-expand-lg">
-      <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -26,36 +26,49 @@
       <!-- Horizontal menu -->
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="nav navbar-nav">
+          {% if is_pgs_curation_site %}
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"><span class="fas fa-user-pen pgs_color_2 pr-1"></span>Curation</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="/browse/pending_studies/"><i class="fa-solid fa-hourglass-half pgs_color_2 pr-3"></i>Pending Publications</a>
+              <a class="dropdown-item" href="/validate_metadata/"><i class="fa-solid fa-file-circle-check pgs_color_2 pr-2"></i>Metadata Template Validation</a>
+            </div>
+          </li>
+          {% else %}
           <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
-            <li class="nav-item dropdown">
-              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Browse</a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="/browse/scores/">Polygenic Scores</a>
-                <a class="dropdown-item" href="/browse/traits/">Traits</a>
-                <a class="dropdown-item" href="/browse/studies/">Publications</a>
-                {% if is_pgs_curation_site %}
-                  <a class="dropdown-item" href="/browse/pending_studies/"><i class="fa-solid fa-hourglass-half pgs_color_1"></i> Pending Publications</a>
-                {% endif %}
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Downloads</a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item"  href="/downloads/">Data Downloads</a>
-                <a class="dropdown-item"  href="/rest/">REST API</a>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation</a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="/about/">About</a>
-                <a class="dropdown-item" href="/docs/ancestry/">Ancestry Data</a>
-                <a class="dropdown-item" href="/docs/">Data Description</a>
-                <a class="dropdown-item" href="/docs/faq">FAQ</a>
-              </div>
-            </li>
-          </ul>
-        </div>
+          {% endif %}
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Browse</a>
+            <div class="dropdown-menu">
+            {% if is_pgs_curation_site %}
+              <a class="dropdown-item" href="/browse/scores/">Polygenic Scores</a>
+            {% endif %}
+              <a class="dropdown-item" href="/browse/traits/">Traits</a>
+              <a class="dropdown-item" href="/browse/studies/">Publications</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Downloads</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item"  href="/downloads/">Data Downloads</a>
+              <a class="dropdown-item"  href="/rest/">REST API</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Documentation</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="/about/">About</a>
+              <a class="dropdown-item" href="/docs/ancestry/">Ancestry Data</a>
+              <a class="dropdown-item" href="/docs/">Data Description</a>
+              <a class="dropdown-item" href="/docs/faq">FAQ</a>
+              {% if is_pgs_curation_site %}
+                <a class="dropdown-item" href="/stats/"><i class="fa-solid fa-chart-pie pgs_color_1"></i> Stats</a>
+                <a class="dropdown-item" href="/releases/"><i class="fa-regular fa-calendar-days pgs_color_1"></i> Releases details</a>
+              {% endif %}
+            </div>
+          </li>
+        </ul>
+      </div>
       <!--/.navbar-collapse - end -->
 
       <!-- Search box -->

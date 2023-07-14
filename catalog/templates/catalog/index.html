@@ -22,7 +22,7 @@
 
     <!-- Title -->
     <div class="pgs_centered mb-4">
-      <h2><b>The Polygenic Score (PGS) Catalog</b></h2>
+      <h2 class="page_title"><b>The Polygenic Score (PGS) Catalog</b></h2>
       <h5 class="mt-0">An open database of polygenic scores and the relevant metadata required for accurate application and evaluation.</h5>
     </div>
 
@@ -43,6 +43,7 @@
       </div>
     </div>
 
+
     <!-- PGS announcement -->
     {% if announcement %}
       <div class="pgs_centered mb-4">
@@ -50,121 +51,205 @@
       </div>
     {% endif %}
 
-    <!-- PGS Browse -->
-    <div class="row no-gutters pgs_section mt-5 mb-2">
+    <div class="row no-gutters pgs_section mt-5 mb-3">
       <div class="col">
-        <div class="pgs_section_title">Explore the Data</div>
-      </div>
-    </div>
-    <div class="row no-gutters pgs_centered">
-      <div class="col">
-        <p class="mb-2">In the current PGS Catalog you can <b>browse</b> the scores and metadata through the following categories:</p>
-      </div>
-    </div>
-    <div class="row no-gutters pgs_browse">
-      <div class="col-xs-6 col-md-4">
-        <a id="browse_score_btn" class="pgs_no_icon_link clearfix" href="/browse/scores/">
-          <div>Polygenic Scores</div>
-          <div><i class="fas fa-dna pgs_color_white"></i> {{ num_pgs }}{% if num_pgs_not_released %}*{% endif %}</div>
-          {% if num_pgs_not_released %}
-            <div class="pgs_color_white">
-              <i class="fas fa-asterisk pgs_color_white" ></i> <b>{{ num_pgs_not_released }}</b> not yet released
-            </div>
-          {% endif %}
-        </a>
-      </div>
-      <div class="col-xs-6 col-md-4">
-        <a id="browse_trait_btn" class="pgs_no_icon_link" href="/browse/traits/">
-          <div>Traits</div>
-          <div class="icon icon-species" data-icon="H"> {{ num_traits }}{% if num_traits_not_released %}*{% endif %}</div>
-          {% if num_traits_not_released %}
-            <div class="pgs_color_white">
-              <i class="fas fa-asterisk pgs_color_white"></i> <b>{{ num_traits_not_released }}</b> not yet released
-            </div>
-          {% endif %}
-        </a>
-      </div>
-      <div class="col-xs-6 col-md-4">
-        <a id="browse_publication_btn" class="pgs_no_icon_link" href="/browse/studies/">
-          <div>Publications</div>
-          <div class="icon icon-common" data-icon="&#xf2ec;"> {{ num_pubs }}{% if num_pubs_not_released %}*{% endif %}</div>
-          {% if num_pubs_not_released %}
-            <div class="pgs_color_white">
-              <i class="fas fa-asterisk pgs_color_white"></i> <b>{{ num_pubs_not_released }}</b> not yet released
-            </div>
-          {% endif %}
-        </a>
+        <div class="pgs_section_title">Catalog Data Contents</div>
       </div>
     </div>
 
-    <!-- "Submit PGS" button -->
-    <div class="row no-gutters pgs_section mb-5">
+
+    <div class="row no-gutters pgs_browse">
+      <div class="col-xs-6 col-md-4">
+        <div class="pgs_browse_item" id="pgs_browse_facet_1">
+          <div class="pgs_data_numbers">
+            <div>
+              <span><span class="pgs_facet_icon pgs_facet_1_icon"></span><span class="pgs_data_type">Scores</span></span>
+              <span>{{ num_pgs }}</span>
+            </div>
+            {% if num_pgs_not_released %}
+              <div class="num_not_released">
+                <i class="fas fa-angle-double-right pgs_color_facet_1"></i> Includes <span>{{ num_pgs_not_released }}</span> not yet released
+              </div>
+            {% endif %}
+          </div>
+          <a class="browse_link pgs_no_icon_link" href="/browse/scores/"><i class="fa-solid fa-table-list pr-2"></i>Browse Scores</a>
+        </div>
+      </div>
+      <div class="col-xs-6 col-md-4">
+        <div class="pgs_browse_item" id="pgs_browse_facet_2">
+          <div class="pgs_data_numbers">
+            <div>
+              <span><span class="pgs_facet_icon pgs_facet_2_icon icon icon-species"></span><span class="pgs_data_type">Traits</span></span>
+              <span>{{ num_traits }}</span>
+            </div>
+            {% if num_traits_not_released %}
+              <div class="num_not_released">
+                <i class="fas fa-angle-double-right pgs_color_facet_2"></i> Includes <span>{{ num_traits_not_released }}</span> not yet released
+              </div>
+            {% endif %}
+          </div>
+          <a class="browse_link pgs_no_icon_link" href="/browse/traits/"><i class="fa-solid fa-table-list pr-2"></i>Browse Traits</a>
+        </div>
+      </div>
+      <div class="col-xs-6 col-md-4">
+        <div class="pgs_browse_item" id="pgs_browse_facet_3">
+          <div class="pgs_data_numbers">
+            <div>
+              <span><span class="pgs_facet_icon pgs_facet_3_icon icon icon-common"></span><span class="pgs_data_type">Publications</span></span>
+              <span>{{ num_pubs }}</span>
+            </div>
+            {% if num_pubs_not_released %}
+              <div class="num_not_released">
+                <i class="fas fa-angle-double-right pgs_color_facet_3"></i> Includes <span>{{ num_pubs_not_released }}</span> not yet released
+              </div>
+            {% endif %}
+          </div>
+          <a class="browse_link pgs_no_icon_link" href="/browse/studies"><i class="fa-solid fa-table-list pr-2"></i>Browse Publications</a>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row no-gutters pgs_section mt-5 mb-3">
       <div class="col">
-        <a class="btn btn-pgs-2 pgs_no_icon_link" href="/submit/">
+        <div class="pgs_section_title">Data Access</div>
+      </div>
+    </div>
+
+
+    <div class="row no-gutters pgs_browse">
+      <div class="col-xs-6 col-md-4">
+        <div class="pgs_browse_item">
+          <div class="pgs_data_access">
+            <div>Downloads</div>
+            <p>
+              Metadata & Scoring Files (variant, effect allele/weight)
+            </p>
+          </div>
+          <a class="browse_link btn btn-pgs pgs_no_icon_link" href="/downloads/"><i class="fas fa-download" style="color:#FFF"></i> Downloads (FTP)</a>
+        </div>
+      </div>
+      <div class="col-xs-6 col-md-4">
+        <div class="pgs_browse_item">
+          <div class="pgs_data_access">
+            <div>REST API</div>
+            <p>
+              Programmatic access to the PGS Catalog Metadata
+            </p>
+          </div>
+          <a class="browse_link btn btn-pgs pgs_no_icon_link" href="/rest/"><i class="fas fa-code" style="color:#FFF"></i> REST API</a>
+        </div>
+      </div>
+
+      <div class="col-xs-6 col-md-4">
+        <div class="pgs_browse_item">
+          <div class="pgs_data_access">
+            <div>Data Submission</div>
+            <p>
+              Submit Scores & Metadata to the PGS Catalog
+            </p>
+          </div>
+          <a class="browse_link btn btn-pgs pgs_no_icon_link" href="/submit/"><i class="fas fa-file-import pr-2"></i>Submit a PGS</a>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row pgs_desc pt-3" style="display:none">
+
+      <!-- Download -->
+      <div class="col-xs-10 col-md-4">
+        <div>Downloads</div>
+        <p>
+          Bulk <b>downloads</b> of PGS Catalog Metadata and Scoring Files (variants, effect alleles/weights) via FTP.
+        </p>
+        <div class="mb-2">
+          <a class="btn btn-pgs pgs_no_icon_link" style="width:165px" href="/downloads/">
+            <span class="fas fa-download" style="color:#FFF"></span> Data Downloads
+          </a>
+        </div>
+      </div>
+
+
+      <!-- REST API -->
+      <div class="col-xs-10 col-md-4">
+        <div>REST API</div>
+        <p>
+          Programmatic access to the PGS Catalog Metadata.
+        </p>
+        <div>
+          <a class="btn btn-pgs pgs_no_icon_link" style="width:165px" href="/rest/">
+            <span class="fas fa-code" style="color:#FFF"></span> REST API
+          </a>
+        </div>
+      </div>
+
+      <!-- Submit scores -->
+      <div class="col-xs-10 col-md-4">
+        <div style="margin-bottom: 0.5rem">Data Submission</div>
+        <p style="text-align:center">Submit Scores + Metadata to the PGS Catalog.</p>
+        <a class="btn btn-pgs pgs_no_icon_link" style="width:165px" href="/submit/">
           <span class="fas fa-file-import pr-2"></span>Submit a PGS
         </a>
       </div>
     </div>
 
+
+
     <div class="row pgs_desc">
-      <div class="col-xs-10 col-md-6">
+      <!-- What is a PGS -->
+      <div class="col-xs-10 col-md-4">
         <div>What is a <span>PGS</span>?</div>
-        <p>
+        <p style="text-align:justify">
             <b>A polygenic score (PGS)</b> aggregates the effects of many genetic variants into a single number which predicts genetic predisposition for a phenotype.
             <b>PGS</b> are typically composed of hundreds-to-millions of genetic variants (usually <span title="SNPs" data-content="Single Nucleotide Polymorphisms" class="pgs_helpover">SNPs</span>) which are combined using a weighted sum of allele dosages multiplied by their corresponding effect sizes, as estimated from a relevant genome-wide association study (<span title="GWAS" data-content="Genome-wide association studies" class="pgs_helpover">GWAS</span>).
         </p>
-        <p class="mb-0">
+        <p class="mb-0" style="text-align:justify">
             <b>PGS</b> nomenclature is heterogeneous: they can also be referred to as <b>genetic scores</b> or <b>genomic scores</b>, and as <b>polygenic risk scores (PRS)</b> or <b>genomic risk scores (GRS)</b> if they predict a discrete phenotype, such as a disease.
         </p>
       </div>
-      <div class="col-xs-10 col-md-6">
+      <!-- About -->
+      <div class="col-xs-10 col-md-4">
         <div>About the <span>PGS Catalog</span></div>
-        <p>
+        <p style="text-align:justify">
           The <span title="PGS Catalog" data-content="Polygenic Score (PGS) Catalog" class="pgs_helpover"><b>PGS Catalog</b></span> is an open database of published <b>polygenic scores (PGS)</b>.
             Each <b>PGS</b> in the <b>Catalog</b> is consistently annotated with relevant metadata; including scoring files (variants, effect alleles/weights), annotations of how the PGS was developed and applied, and evaluations of their predictive performance.
         </p>
-        <p class="mb-0">
+        <p class="mb-0" style="text-align:justify">
           More about the PGS Catalog project, descriptions of the data, and publication eligibility criteria can be found in our <a href="/about"><b>documentation</b></a> and recent <a href="{{catalog_publication_url}}"><b>paper</b></a>.
         </p>
       </div>
+
+
+      <!-- Documentation -->
+      <div class="col-xs-10 col-md-4">
+        <div><span>PGS Catalog</span> Documentation</div>
+        <p style="text-align:justify">
+          This website provides diverse documentation about the PGS Catalog, such as the description of the <a href="/docs/ancestry/"><i class="fa-solid fa-book pgs_color_1"></i> Ancestry Data</a> and the detailed description of the <a href="/docs/"><i class="fa-solid fa-book pgs_color_1"></i> Metadata</a>.
+        </p>
+        <p style="text-align:justify">
+          A frequently asked questions page is also available:
+        </p>
+        <div>
+          <a class="btn btn-pgs pgs_no_icon_link" style="width:165px" href="/docs/faq/">
+            <span class="fas fa-circle-question pgs_color_white pr-2"></span>FAQ
+          </a>
+        </div>
+      </div>
     </div>
 
 
-    <div class="row pgs_desc">
-      <div class="col-xs-10 col-md-6">
-        <div>Downloads</div>
-        <p>
-          Bulk <b>downloads</b> of PGS metadata and scoring files (variants, effect alleles/weights) needed to calculate PGS on your own data are available from the website and FTP.
-        </p>
-        <p class="mb-2">
-          <a class="link-with-btn" href="/downloads/">
-            <i class="fas fa-download"></i><span>View available PGS Catalog <b>downloads</b>.</span>
-          </a>
-        </p>
-        <p class="mb-2">
-          <a class="link-with-btn" href="/rest/">
-            <i class="fas fa-code"></i><span>Programmatic access to the Catalog data through our <b>REST API</b>.</span>
-          </a>
-        </p>
-        <p class="mb-0">
-          <a class="link-with-btn" href="https://pypi.org/project/pgscatalog-utils/">
-            <i class="fa-brands fa-python"></i><span>Command line download via the <b>pgscatalog_utils</b> Python package.</span>
-          </a>
-        </p>
-      </div>
-      <div class="col-xs-10 col-md-6">
-        <div>Feedback & Contact</div>
-        <p>
-          To <b>submit a PGS to the catalog</b>, <b>provide feedback</b>, or <b>ask questions</b>: contact the PGS Catalog team at <a href="mailto:{{ pgs_contact }}">{{ pgs_contact }}</a>!
-        </p>
-        <p class="mb-0">
+    <div class="row no-gutters pgs_bottom_section_1">
+      <div class="col">
+        <h5 class="mb-3">Feedback & Contact</h5>
+        <div>
+          To <b>submit a PGS to the catalog</b>, <b>provide feedback</b>, or <b>ask questions</b>: contact the PGS Catalog team at <a href="mailto:{{ pgs_contact }}"><i class="fas fa-envelope pgs_color_1"></i> {{ pgs_contact }}</a>!<br/>
           <b>Recommend missing PGS publications and scores</b> for inclusion in the Catalog using this <a href="/report_study"><i class="fas fa-clipboard-list pgs_color_1"></i> <b>form</b></a>.
-        </p>
+        </div>
       </div>
     </div>
 
-
-    <div class="row no-gutters pgs_section">
+    <div class="row no-gutters pgs_bottom_section_2">
       <div class="col">
         <h5 class="mb-3">Development of the <b>PGS Catalog</b> is supported by:</h5>
       </div>

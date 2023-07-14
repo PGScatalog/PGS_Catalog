@@ -14,13 +14,8 @@
     </nav>
 
     <section>
-      <h2>PGS
-        {% if publication.is_preprint %}
-          Preprint:
-        {% else %}
-          Publication:
-        {% endif %}
-        <span class="pgs_title">{{ publication.id }}</span></h2>
+      <h2 class="pgs_facet_icon pgs_facet_3_icon icon icon-common">{% if publication.is_preprint %}Preprint{% else %}Publication{% endif %} <small class="fa-solid fa-angle-right pgs_color_facet_3"></small> <span class="pgs_title">{{ publication.id }}</span></h2>
+
       <table class="table table-bordered table_pgs_h mt-4">
         <tbody>
           <tr>

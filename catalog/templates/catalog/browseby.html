@@ -25,14 +25,17 @@
     </nav>
     <div class="table-container">
         <section>
-        <h2>{{ view_name }}</h2>
-        {% if scores_list %}
-            <ul>
-                {% for score in scores_list %}
-                    <li><a href="/pgs/{{ score.PGS_id }}/">{{ score }}</a></li>
-                {% endfor %}
-            </ul>
-        {% elif table %}
+        {% if view_name == "Polygenic Scores (PGS)" %}
+          <h2 class="pgs_facet_icon pgs_facet_1_icon">{{ view_name }}</h2>
+        {% elif view_name == "Traits" %}
+          <h2 class="pgs_facet_icon pgs_facet_2_icon icon icon-species">{{ view_name }}</h2>
+        {% elif view_name == "Publications" %}
+          <h2 class="pgs_facet_icon pgs_facet_3_icon icon icon-common">{{ view_name }}</h2>
+        {% elif view_name == "Pending Publications" %}
+          <h2><span class="fa-solid fa-hourglass-half pgs_color_1" style="padding:5px 4px"></span> {{ view_name }}</h2>
+        {% endif %}
+
+        {% if table %}
           {% if data_chart %}
             <script type="text/javascript">
               document.addEventListener("DOMContentLoaded", function(event) {

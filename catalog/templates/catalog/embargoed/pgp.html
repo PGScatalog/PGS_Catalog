@@ -12,7 +12,7 @@
       </ol>
     </nav>
 
-    <h2>PGS Publication: <span class="pgs_title">{{ publication.id }}</span></h2>
+    <h2 class="pgs_page_title">PGS Publication <small class="fa-solid fa-angle-right pgs_color_facet_3"></small> <span class="pgs_title">{{ publication.id }}</span></h2>
 
   {% if publication.title %}
     <table class="table table-bordered table_pgs_h mt-4">
@@ -35,6 +35,8 @@
 
   {% if scores_count %}
     <h4>Associated Polygenic Score{% if scores_count > 1 %}s<span class="badge badge-pill badge-pgs-small ml-2">{{ scores_count }}</span>{% endif %}<span class="pl-3 pr-3">-</span>Embargoed</h4>
+
     {% render_table scores_table %}
+
   {% endif %}
 {% endblock %}

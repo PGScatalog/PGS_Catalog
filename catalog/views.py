@@ -8,6 +8,8 @@ from django.db.models import Prefetch
 
 from pgs_web import constants
 from .tables import *
+from search.documents.score_ext import ScoreExtDocument
+from search.search import ScoreExtSearch
 
 
 generic_attributes =['publication__title','publication__PMID','publication__doi','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released']
@@ -223,6 +225,7 @@ def index(request):
         if constants.ANNOUNCEMENT and constants.ANNOUNCEMENT != '':
             context['announcement'] = constants.ANNOUNCEMENT
 
+    # Count non-released Entries
     if settings.PGS_ON_CURATION_SITE:
         released_traits = set()
         for score in Score.objects.only('num').filter(date_released__isnull=False).prefetch_related('trait_efo'):
@@ -248,6 +251,7 @@ def browseby(request, view_selection):
             'view_name': 'Traits',
             'table': table,
             'data_chart': efo_traits_data[1],
+            'has_ebi_icons': 1,
             'has_chart': 1
         }
     elif view_selection == 'studies':
@@ -257,6 +261,7 @@ def browseby(request, view_selection):
         table = Browse_PublicationTable(publications, order_by="num")
         context = {
             'view_name': 'Publications',
+            'has_ebi_icons': 1,
             'table': table
         }
     elif view_selection == 'pending_studies':
@@ -268,10 +273,6 @@ def browseby(request, view_selection):
             'view_name': 'Pending Publications',
             'table': table
         }
-    elif view_selection == 'sample_set':
-        context['view_name'] = 'Sample Sets'
-        table = Browse_SampleSetTable(Sample.objects.defer(*pgs_defer['sample']).filter(sampleset__isnull=False).prefetch_related('sampleset', pgs_prefetch['cohorts']).order_by('sampleset__num'))
-        context['table'] = table
     elif view_selection == 'scores' :
         score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
         table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').all().order_by('num').prefetch_related(pgs_prefetch['trait']))
@@ -422,6 +423,7 @@ def pgp(request, pub_id):
             'performance_disclaimer': performance_disclaimer(),
             'has_table': 1,
             'has_chart': 1,
+            'has_ebi_icons': 1,
             'ancestry_form': ancestry_form()
         }
 
@@ -560,6 +562,7 @@ def efo(request, efo_id):
         'include_children': False if exclude_children else True,
         'has_table': 1,
         'has_chart': 1,
+        'has_ebi_icons': 1,
         'ancestry_form': ancestry_form()
     }
 
