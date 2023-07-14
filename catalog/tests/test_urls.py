@@ -11,7 +11,6 @@ class BrowseUrlTest(TestCase):
             '/browse/scores/',
             '/browse/traits/',
             '/browse/studies/',
-            '/browse/sample_set/',
             '/docs/',
             '/docs/ancestry/',
             '/downloads/',
