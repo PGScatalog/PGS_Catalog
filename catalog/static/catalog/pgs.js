@@ -565,8 +565,8 @@ function alter_external_links(prefix) {
   else {
     prefix += ' '
   }
-  $(prefix+'a[href^="http"]').attr('target','_blank');
-  $(prefix+'a[href^="http"]').not('[class*="pgs_no_icon_link"]').addClass("external-link");
+  $(prefix+'a[href^="http"]').not('.internal-link').attr('target','_blank');
+  $(prefix+'a[href^="http"]').not('.internal-link').not('[class*="pgs_no_icon_link"]').addClass("external-link");
 }
 
 
