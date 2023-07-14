@@ -2,10 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
-    types:  [opened, edited, reopened]
+    types: [opened, edited, reopened, synchronize]
 
 env:
   DEBUG: False
