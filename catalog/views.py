@@ -8,8 +8,6 @@ from django.db.models import Prefetch
 
 from pgs_web import constants
 from .tables import *
-from search.documents.score_ext import ScoreExtDocument
-from search.search import ScoreExtSearch
 
 
 generic_attributes =['publication__title','publication__PMID','publication__doi','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released']
