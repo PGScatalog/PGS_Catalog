@@ -1,0 +1,50 @@
+{% extends "rest_framework/base.html" %}
+{% load static %}
+{% load rest_framework %}
+{% if is_pgs_app_on_gae == 0 %}
+  {% load compress %}
+{% endif %}
+
+{% block style %}
+    {% include "catalog/libs/css.html" %}
+
+    {% comment %} Used for the JSON code block {% endcomment %}
+    <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
+
+    {% if is_pgs_app_on_gae %}
+      <link rel="stylesheet" href="{% static 'rest_api/pgs_rest_web.min.css' %}" type="text/css" media="all" />
+    {% else %}
+        {% compress css %}
+            <link type="text/x-scss" href="{% static 'rest_api/pgs_rest_web.scss' %}" rel="stylesheet" media="screen"/>
+        {% endcompress %}
+    {% endif %}
+
+{% endblock %}
+
+{% block navbar %}
+{% include "catalog/includes/header.html" %}
+{% endblock %}
+
+{% block script %}
+{% include "catalog/libs/js.html" %}
+{% comment %} The following is the script part of the default template without jquery and bootstrap as they are already imported by the PGS catalog. 
+ This block might need to be updated if the Django REST framework version is upgraded (current version 3.14.0){% endcomment %}
+  <script>
+    window.drf = {
+      csrfHeaderName: "{{ csrf_header_name|default:'X-CSRFToken' }}",
+      csrfToken: "{% if request %}{{ csrf_token }}{% endif %}"
+    };
+  </script>
+  {% comment %} <script src="{% static "rest_framework/js/jquery-3.5.1.min.js" %}"></script> {% endcomment %}
+  <script src="{% static "rest_framework/js/ajax-form.js" %}"></script>
+  <script src="{% static "rest_framework/js/csrf.js" %}"></script>
+  {% comment %} <script src="{% static "rest_framework/js/bootstrap.min.js" %}"></script> {% endcomment %}
+  <script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
+  <script src="{% static "rest_framework/js/default.js" %}"></script>
+  <script>
+    $(document).ready(function() {
+      $('form').ajaxForm();
+    });
+  </script>
+{% include "catalog/includes/footer.html" %}
+{% endblock %}
