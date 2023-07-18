@@ -1,0 +1,61 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}All {{ view_name }}{% endblock %}
+
+{% block desc %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebPage",
+      "name": "Browse {{ view_name }}",
+      "description": "List all the {{ view_name }} of the catalog.",
+      "keywords": ["{{ view_name }}","catalog","catalogue","data"]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Browse</li>
+        <li class="breadcrumb-item">{{ view_name }}</li>
+      </ol>
+    </nav>
+
+    <section>
+      <h2 class="pgs_facet_icon pgs_facet_1_icon">{{ view_name }}</h2>
+
+      <div class="search_box_browse_container mb-4">
+        <div class="search_box_browse_title">Browse Scores by Trait/Publication:</div>
+        <div class="search_box_browse">
+          <form class="input-group search_form" id="search_form_browse" action="/browse/scores" method="get">
+            <input class="form-control" id="bq" name="bq" type="text" {% if query %}value="{{query}}"{% else %}placeholder="Search the PGS Catalog"{% endif %} spellcheck="false" >
+            <div class="input-group-append">
+              <button type="button" class="btn btn-pgs pgs_no_icon_link" id="search_btn_browse" value="Submit">
+                <span>Browse</span>
+              </button>
+            </div>
+          </form>
+          <div class="search_examples mt-1">
+            <span class="pr-2">Examples:</span>{{ pgs_browse_examples|safe }}
+          </div>
+        </div>
+      </div>
+      <div">
+        {% if table %}
+          <hr/>
+            <h3>Polygenic Scores (PGS)</h3>
+            {% if ancestry_form %}
+              {{ ancestry_form|safe }}
+            {% endif %}
+
+            {% render_table table %}
+        {% elif results_count == 0 %}
+            <hr/>
+          <h5>No Polygenic Scores are associated with "<span class="pgs_color_1">{{ query }}</span>".</h5>
+        {% endif %}
+      </div>
+    </section>
+{% endblock %}

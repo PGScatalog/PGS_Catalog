@@ -43,6 +43,26 @@ def pgs_search_examples(request):
         'pgs_search_examples': html
     }
 
+
+def pgs_browse_examples(request):
+    eg_count = 0
+    html = ''
+    # Build the list of search examples
+    for example in constants.BROWSE_EXAMPLES:
+        link = f'<a href="/browse/scores?bq={example}">{example}</a>'
+        eg_count += 1
+        if eg_count > 1:
+            if eg_count == 4:
+                html += '<span class="extra_example">'
+            html += ', '
+        html += link
+    if eg_count > 3:
+        html += '</span>'
+    return {
+        'pgs_browse_examples': html
+    }
+
+
 def pgs_info(request):
     return {
         'pgs_citation': constants.PGS_CITATION,

@@ -3,6 +3,7 @@ from elasticsearch_dsl import Search
 from search.documents.efo_trait import EFOTraitDocument
 from search.documents.publication import PublicationDocument
 from search.documents.score import ScoreDocument
+from search.documents.score_ext import ScoreExtDocument
 from elasticsearch import Elasticsearch
 
 
@@ -54,6 +55,16 @@ class PGSSearch:
         # Returns: list of ES responses
         '''
         response = self.best_fields_query()
+        self.count = len(response)
+        return response
+
+
+    def search_all(self):
+        '''
+        Search all the results
+        # Returns: list of ES responses
+        '''
+        response = self.best_fields_query(result_size=10000)
         self.count = len(response)
         return response
 
@@ -211,7 +222,7 @@ class ScoreSearch(PGSSearch):
         super().__init__(query)
         self.query_fields = [
             "id^3",
-            "name",
+            "name"
         ]
         self.display_fields = [
             'id',
@@ -222,3 +233,30 @@ class ScoreSearch(PGSSearch):
             'publication'
         ]
         self.document = ScoreDocument
+
+
+class ScoreExtSearch(PGSSearch):
+
+    def __init__(self, query):
+        super().__init__(query)
+        self.query_fields = [
+            "id^3",
+            "name",
+            # Trait
+            "trait_reported",
+            "trait_efo.id",
+            "trait_efo.id_colon",
+            "trait_efo.label",
+            "trait_efo.synonyms",
+            "trait_efo.mapped_terms",
+            # Publication
+            "publication.id",
+            "publication.title",
+            "publication.firstauthor",
+            "publication.PMID",
+            "publication.doi"
+        ]
+        self.display_fields = [
+            'id'
+        ]
+        self.document = ScoreExtDocument

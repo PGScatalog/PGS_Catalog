@@ -104,6 +104,7 @@ CONTEXT_PROCESSORS = [
     'catalog.context_processors.pgs_urls',
     'catalog.context_processors.pgs_settings',
     'catalog.context_processors.pgs_search_examples',
+    'catalog.context_processors.pgs_browse_examples',
     'catalog.context_processors.pgs_info'
 ]
 
@@ -292,6 +293,7 @@ ELASTICSEARCH_DSL = {
 # Name of the Elasticsearch index
 ELASTICSEARCH_INDEX_NAMES = {
     'search.documents.score': 'score',
+    'search.documents.score_ext': 'score_ext',
     'search.documents.efo_trait': 'efo_trait',
     'search.documents.publication': 'publication'
 }

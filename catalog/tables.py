@@ -453,42 +453,6 @@ class Browse_ScoreTableExample(Browse_ScoreTable):
         template_name = 'catalog/pgs_catalog_django_table.html'
 
 
-class Browse_SampleSetTable(tables.Table):
-    '''Table to browse SampleSets (PSS; used in PGS evaluations) in the PGS Catalog'''
-    sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
-    sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
-    sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br /><span>(PSS)</span>'), orderable=False)
-    phenotyping_free = Column_shorten_text_content(accessor='phenotyping_free', verbose_name='Phenotype Definitions and Methods')
-    cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
-
-    class Meta:
-        model = Sample
-        attrs = {
-            "id": "sampleset_table",
-            "data-show-columns" : "true",
-            "data-page-size" : page_size,
-            "data-export-options" : '{"fileName": "pgs_samplesets_data"}'
-        }
-        fields = [
-            'sampleset',
-            'phenotyping_free',
-            'sample_merged',
-            'sample_ancestry','ancestry_additional',
-            'cohorts', 'cohorts_additional',
-        ]
-
-        template_name = 'catalog/pgs_catalog_django_table.html'
-
-    def render_sampleset(self, value):
-        sampleset = f'<a href="/sampleset/{value.id}">{value.id}</a>'
-        if is_pgs_on_curation_site == 'True' and value.name:
-            sampleset += f' <div class="small">({value.name})</div>'
-        return format_html(sampleset)
-
-    def render_cohorts_additional(self, value):
-        return format_html('<span class="more">{}</span>', value)
-
-
 class SampleTable_variants(tables.Table):
     '''Table on PGS page - displays information about the GWAS samples used'''
     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)

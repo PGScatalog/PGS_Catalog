@@ -6,7 +6,9 @@ from search.documents.score import ScoreDocument
 from search.search import EFOTraitSearch, PublicationSearch, ScoreSearch
 from django.http import JsonResponse
 
+
 all_results_scores = {}
+
 
 def search(request):
     global all_results_scores
@@ -82,6 +84,12 @@ def autocomplete(request):
     q = request.GET.get('q')
 
     return autocomplete_base(request,q)
+
+def autocomplete_browse(request):
+    """ Return suggestions for the autocomplete form. """
+    bq = request.GET.get('bq')
+
+    return autocomplete_base(request,bq)
 
 
 def format_score_results(request, data):
