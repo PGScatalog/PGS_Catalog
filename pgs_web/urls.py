@@ -21,7 +21,6 @@ urlpatterns = [
 	path('', include('catalog.urls')),
     path('', include('rest_api.urls')),
     re_path(r'^search/', search_views.search, name="PGS Catalog Search"),
-    re_path(r'^browse_scores/', search_views.browse_search, name="PGS Catalog - Browse Scores"),
     re_path(r'^autocomplete/', search_views.autocomplete, name="PGS Catalog Autocomplete"),
     re_path(r'^autocomplete_browse/', search_views.autocomplete_browse, name="PGS Catalog Autocomplete - Browse Score")
 ]
