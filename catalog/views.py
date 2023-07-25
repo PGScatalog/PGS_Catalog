@@ -265,7 +265,6 @@ def browse_scores(request):
             context['ancestry_form'] = ancestry_form()
             context['has_table'] = 1
             context['has_chart'] = 1
-        reset_queries()
     return render(request, 'catalog/browse/scores.html', context)
 
 
@@ -280,7 +279,6 @@ def browse_traits(request):
         'has_chart': 1,
         'has_table': 1
     }
-    reset_queries()
 
     return render(request, 'catalog/browse/traits.html', context)
 
@@ -296,7 +294,6 @@ def browse_publications(request):
         'table': table,
         'has_table': 1
     }
-    reset_queries()
 
     return render(request, 'catalog/browse/publications.html', context)
 
@@ -311,7 +308,6 @@ def browse_pending_publications(request):
         'table': table,
         'has_table': 1
     }
-    reset_queries()
 
     return render(request, 'catalog/browse/pending_publications.html', context)
 
