@@ -169,10 +169,10 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     ''' Publication Annotation Admin class (main class of the curation tracker) '''
     form = CurationPublicationAnnotationForm
     list_display = (
-        "id","display_study_name","creation_date","display_pgp_id",
+        "id","display_study_name","display_PMID","journal","creation_date","display_pgp_id",
         "curation_status","display_first_level_curation_status","display_first_level_curator",
         "display_second_level_curation_status","display_second_level_curator",
-        "display_third_level_curator","priority")
+        "priority")
     list_filter = ("curation_status","first_level_curator","second_level_curator","priority")
     search_fields = ["id","study_name","pgp_id","doi","PMID","first_level_curation_status","second_level_curation_status","curation_status","reported_trait"]
     ordering = ('-id',)
@@ -233,6 +233,11 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         else:
             return None
 
+    def display_PMID(self, obj):
+        if obj.PMID:
+            return format_html('<a href="https://pubmed.ncbi.nlm.nih.gov/{}" target="_blank">{}</a>', obj.PMID, obj.PMID)
+        else:
+            return None
 
     def display_first_level_curator(self, obj):
         if obj.first_level_curator:
@@ -413,6 +418,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
     display_pgp_id.short_description = 'PGP ID'
     display_study_name.short_description = 'Study Name'
+    display_PMID.short_description = 'Pubmed ID'
     display_first_level_curator.short_description = 'L1 Curator'
     display_first_level_curation_status.short_description = 'L1 Curation Status'
     display_second_level_curator.short_description = 'L2 Curator'
