@@ -4,6 +4,8 @@ from datetime import date
 from django.db import models
 from pgs_web import constants
 from catalog import common
+from datetime import datetime  
+from django.conf import settings
 # Create your models here.
 
 
@@ -141,6 +143,12 @@ class CurationPublicationAnnotation(models.Model):
     gwas_and_pgs = models.CharField('GWAS + PGS', max_length=100, null=True, blank=True)
     comment = models.TextField('Curation Comments', default='', null=True, blank=True)
     priority = models.CharField(choices=CURATION_PRIORITY, max_length=50, verbose_name='Curation priority', default='normal')
+
+    ## Timestamps ##
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='created_by', verbose_name='Created By', null=True, blank=True)
+    created_on = models.DateTimeField('Created On', null=True, default=datetime.now)
+    last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='last_modified_by', verbose_name='Last Modified By', null=True, blank=True)
+    last_modified_on = models.DateTimeField('Last Modified On', null=True, default=datetime.now)
 
     class Meta:
         get_latest_by = 'num'

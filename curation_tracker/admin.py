@@ -290,6 +290,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             # Primary key needs to be assigned for a new entry
             obj.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
             obj.set_creation_date()
+            obj.created_by = request.user
+            obj.created_on = datetime.now()
             # Check if the Publication info can be populated via EuropePMC
             if obj.PMID or obj.doi:
                 update_via_epmc = True
@@ -358,6 +360,10 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         if update_via_epmc:
             obj.get_epmc_data()
             obj.study_name = check_study_name(obj.study_name)
+
+         # Timestamp
+        obj.last_modified_by = request.user
+        obj.last_modified_on = datetime.now()
 
         # Save new/updated model to the DB
         obj.save(using=self.using)
