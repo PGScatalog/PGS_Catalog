@@ -9,6 +9,7 @@ import re
 from django import forms
 from django.forms import TextInput, Textarea
 from django.db import models
+from django.utils import timezone
 # Register your models here.
 from .models import *
 from catalog.models import Publication
@@ -291,7 +292,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             obj.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
             obj.set_creation_date()
             obj.created_by = request.user
-            obj.created_on = datetime.now()
+            obj.created_on = timezone.now()
             # Check if the Publication info can be populated via EuropePMC
             if obj.PMID or obj.doi:
                 update_via_epmc = True
@@ -363,7 +364,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
          # Timestamp
         obj.last_modified_by = request.user
-        obj.last_modified_on = datetime.now()
+        obj.last_modified_on = timezone.now()
 
         # Save new/updated model to the DB
         obj.save(using=self.using)
