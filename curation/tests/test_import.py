@@ -24,6 +24,8 @@ default_curation_status = 'IP'
 
 skip_scorefiles = True
 
+skip_curationtracker = True
+
 # Test values
 data_counts = {
     'publication': len(study_names_list),
@@ -38,7 +40,7 @@ class ImportTest(TestCase):
 
     def run_import(self):
         # Main script
-        curation_import = CurationImport(curation_directories, study_names_list, default_curation_status, scoringfiles_format_version, skip_scorefiles)
+        curation_import = CurationImport(curation_directories, study_names_list, default_curation_status, scoringfiles_format_version, skip_scorefiles, skip_curationtracker)
         curation_import.run_curation_import()
 
 
