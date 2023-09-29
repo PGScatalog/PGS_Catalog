@@ -15,3 +15,5 @@ default_curation_status = 'IP'
 scoringfiles_format_version = '2.0'
 
 skip_scoringfiles = False
+
+skip_curationtracker = False
