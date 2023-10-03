@@ -5,7 +5,7 @@ from curation_tracker.models import *
 from curation_tracker.admin import check_study_name
 from catalog.models import Publication
 
-tracker_file = '/Users/lg10/Workspace/datafiles/curation/tracker/PGSCatalog_Curation_Tracker.tsv'
+tracker_file = '/home/florent/Workspace/PGS_Curation_Tracker/PGSCatalog_Curation_Tracker_2.tsv'
 
 tracker_db = 'curation_tracker'
 
@@ -33,7 +33,7 @@ def get_pgs_publication(PMID,doi):
     publication = None
     if PMID:
         try:
-           publication_id = Publication.objects.get(PMID=PMID)
+           publication = Publication.objects.get(PMID=PMID) #FIXME publication_id -> publication
         except Publication.DoesNotExist:
            publication = None
     if doi and not publication:
@@ -44,8 +44,9 @@ def get_pgs_publication(PMID,doi):
     return publication
 
 
-def get_study_name_from_epmc(pmid,doi,is_author_submission):
+def get_info_from_epmc(pmid,doi,is_author_submission):
     study_name = None
+    journal_name = None
     payload = {'format': 'json'}
     if pmid and re.match('^\d+$', str(pmid)):
         query = f'ext_id:{pmid}'
@@ -58,11 +59,23 @@ def get_study_name_from_epmc(pmid,doi,is_author_submission):
     if results_list:
         result = results_list[0]
         year = result['firstPublicationDate'].split('-')[0]
-        firstauthor = result['authorString'].split(' ')[0]
+        firstauthor = None
+        if 'authorString' in result:
+            firstauthor = result['authorString'].split(' ')[0]
+        else:
+            firstauthor = 'NoName'
         study_name = firstauthor+year
+
+        if 'journalTitle' in result:
+            journal_name = result['journalTitle']
+
         if is_author_submission:
             study_name = study_name+'_AuthorSub'
-    return study_name
+        
+    return {
+        'study_name': study_name,
+        'journal_name': journal_name
+    }
 
 
 def get_date_released(pgp_id):
@@ -110,7 +123,9 @@ def add_publication(id,row):
         data['journal'] = publication.journal
         data['title'] = publication.title
     elif str(id).startswith('10.') or re.search('^\d+$',str(id)):
-        new_study_name = get_study_name_from_epmc(pmid,doi,data['author_submission'])
+        info = get_info_from_epmc(pmid,doi,data['author_submission'])
+        new_study_name = info.get('study_name')
+        data['journal'] = info.get('journal_name')
         if new_study_name:
             new_study_name = check_study_name(new_study_name)
             print(f"\t>>> NEW STUDY NAME: {new_study_name} (old: {id})")
