@@ -156,19 +156,19 @@ PGS_GROUPS = {
     },
     'hdruk': {
         'name': 'Health Data Research UK, Cambridge',
-        'url': 'https://www.hdruk.ac.uk/about-us/our-locations/health-data-research-uk-hdr-uk-cambridge/'
+        'url': USEFUL_URLS['HDR_UK_CAM_URL']
     },
     'nhgri-ebi': {
         'name': 'NHGRI-EBI GWAS Catalog Team',
-        'url': 'https://www.ebi.ac.uk/gwas'
+        'url': USEFUL_URLS['EBI_URL'] + '/gwas'
     },
     'spot': {
         'name': 'EMBL-EBI Samples Phenotypes and Ontologies Team',
-        'url': 'https://www.ebi.ac.uk/about/spot-team'
+        'url': USEFUL_URLS['EBI_URL'] + '/about/spot-team'
     },
     'ebi': {
         'name': 'European Bioinformatics Institute',
-        'url': 'https://www.ebi.ac.uk'
+        'url': USEFUL_URLS['EBI_URL']
     }
 }
 
