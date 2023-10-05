@@ -104,7 +104,8 @@ CONTEXT_PROCESSORS = [
     'catalog.context_processors.pgs_urls',
     'catalog.context_processors.pgs_settings',
     'catalog.context_processors.pgs_search_examples',
-    'catalog.context_processors.pgs_info'
+    'catalog.context_processors.pgs_info',
+    'catalog.context_processors.pgs_contributors'
 ]
 
 if PGS_ON_GAE == 1 and DEBUG == False:
