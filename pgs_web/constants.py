@@ -12,6 +12,7 @@ PGS_CITATION = {
 ENSEMBL_VERSION = 105
 
 USEFUL_URLS = {
+    'NHGRI_URL'         : 'https://www.genome.gov/',
     'BAKER_URL'         : 'https://baker.edu.au',
     'EBI_URL'           : 'https://www.ebi.ac.uk',
     'HDR_UK_CAM_URL'    : 'https://www.hdruk.ac.uk/about-us/our-locations/health-data-research-uk-hdr-uk-cambridge/',
@@ -129,3 +130,57 @@ ANCESTRY_GROUP_LABELS = {
     'OTH': 'Additional Diverse Ancestries',
     'NR' : 'Ancestry Not Reported'
 }
+
+PGS_CONTRIBUTORS = [
+    {'name': 'Sam Lambert','group': ['curators']},
+    {'name': 'Laurent Gil','group': ['hdruk']},
+    {'name': 'Benjamin Wingfield','group': ['ebi']},
+    {'name': 'Florent Yvon','group': ['inouye']},
+    {'name': 'Aoife McMahon', 'group': ['curators','nhgri-ebi']},
+    {'name': 'Santhi Ramachandran','group': ['nhgri-ebi']},
+    {'name': 'Elizabeth Lewis','group': ['nhgri-ebi']},
+    {'name': 'Laura Harris','group': ['nhgri-ebi']},
+    {'name': 'Helen Parkinson', 'group': ['spot']},
+    {'name': 'Richard Houghton','group': ['hdruk']},
+    {'name': 'Prof. John Danesh','group': ['hdruk']},
+    {'name': 'Michael Inouye', 'group': ['inouye']}
+]
+    
+PGS_GROUPS = {
+    'inouye': {
+        'name': 'Inouye Lab',
+        'url': 'https://www.inouyelab.org/'
+    },
+    'curators': {
+        'name': 'PGS Catalog Data Curators'
+    },
+    'hdruk': {
+        'name': 'Health Data Research UK, Cambridge',
+        'url': USEFUL_URLS['HDR_UK_CAM_URL']
+    },
+    'nhgri-ebi': {
+        'name': 'NHGRI-EBI GWAS Catalog Team',
+        'url': USEFUL_URLS['EBI_URL'] + '/gwas'
+    },
+    'spot': {
+        'name': 'EMBL-EBI Samples Phenotypes and Ontologies Team',
+        'url': USEFUL_URLS['EBI_URL'] + '/about/spot-team'
+    },
+    'ebi': {
+        'name': 'European Bioinformatics Institute',
+        'url': USEFUL_URLS['EBI_URL']
+    }
+}
+
+PGS_PREVIOUS_CONTRIBUTORS = [
+    {'name': 'Emily Tinsley','group': ['ebi']},
+    {'name': 'Shirin Saverimuttu','group': ['ebi']},
+    {'name': 'Jackie MacArthur','group': ['ebi']},
+    {'name': 'Simon Jupp','group': ['ebi']},
+    {'name': 'James Hayhurst','group': ['ebi']},
+    {'name': 'Trish Whetzel','group': ['ebi']},
+    {'name': 'Michael Chapman','group': ['hdruk']},
+    {'name': 'Jonathan Marten', 'group': ['inouye']},
+    {'name': 'Petar Scepanovic', 'group': ['inouye']},
+    {'name': 'Gad Abraham', 'group': ['inouye']}
+]
