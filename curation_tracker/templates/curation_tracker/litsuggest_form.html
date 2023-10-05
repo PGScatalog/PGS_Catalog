@@ -1,0 +1,21 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+  <div id="content-main">
+    <div>
+      <h2 style="margin-bottom:1rem">LitSuggest file upload</h2>
+      <div>
+        <form action="." method="POST" enctype="multipart/form-data">
+          {{ form.as_p }}
+          <br />
+          {% csrf_token %}
+          <div class="submit-row">
+            <input type="submit" value="Preview" class="default" style="float:left; margin-right: 5px">
+            <input class="button" type="button" onclick="history.back()" value="Cancel" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

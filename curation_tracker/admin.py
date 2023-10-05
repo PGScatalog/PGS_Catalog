@@ -14,7 +14,7 @@ from django.utils import timezone
 from .models import *
 from catalog.models import Publication
 
-
+from curation_tracker.scripts.import_litsuggest import import_litsuggest_to_annotation, annotation_to_dict, dict_to_annotation_import
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
 admin.site.site_title = "PGS Catalog - Curation Tracker"
@@ -66,6 +66,16 @@ class CsvImportForm(forms.Form):
     """ CSV Import form """
     csv_file = forms.FileField(label=format_html('CSV file <span style="color:#F00"><b>*</b></span>'))
 
+class LitsuggestImportForm(forms.Form):
+    """ Litsuggest Import form """
+    litsuggest_file = forms.FileField(label=format_html('Litsuggest TSV file'))
+
+class LitsuggestPreviewForm(forms.Form):
+    comment = forms.CharField(label='Comment', 
+                              help_text=format_html('<div class="help">eg: Litsuggest Automatic Weekly Digest (Sep 24 2023 To Sep 30 2023)</div>'),
+                              required=True, 
+                              widget=forms.Textarea(attrs={'rows':3}), 
+                              initial='Litsuggest Automatic Weekly Digest')
 
 class CurationPublicationAnnotationForm(forms.ModelForm):
     """ Custom Admin form """
@@ -374,6 +384,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         urls = super().get_urls()
         my_urls = [
             path('import-csv/', self.import_csv),
+            path('import-litsuggest/', self.import_litsuggest),
+            path('import-litsuggest/confirm', self.confirm_litsuggest)
         ]
         return my_urls + urls
 
@@ -422,6 +434,43 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             request, "curation_tracker/csv_form.html", payload
         )
 
+    def import_litsuggest(self,request):
+        if request.method == "POST":
+            litsuggest_file = request.FILES["litsuggest_file"]
+            print(litsuggest_file)
+            models = import_litsuggest_to_annotation(litsuggest_file)
+
+            preview_data = list(map(annotation_to_dict,models))
+            request.session['preview_data'] = preview_data
+            
+            return render(
+                request, "curation_tracker/litsuggest_preview_form.html", {
+                    'annotations': preview_data,
+                    'form': LitsuggestPreviewForm()
+                }
+            )
+
+        form = LitsuggestImportForm()
+        payload = {"form": form}
+        return render(
+            request, "curation_tracker/litsuggest_form.html", payload
+        )
+    
+    def confirm_litsuggest(self,request):
+        if request.method == "POST":
+            form = LitsuggestPreviewForm(request.POST)
+            comment = None
+            if form.is_valid():
+                comment = form.cleaned_data['comment']
+            preview_data = request.session['preview_data']
+            del request.session['preview_data']
+            annotations = list(map(dict_to_annotation_import, preview_data))
+            for annotation in annotations:
+                if annotation.is_valid() and annotation.is_importable():
+                    annotation.annotation.comment = comment
+                    annotation.save(using=curation_tracker_db)
+            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
+            
 
     display_pgp_id.short_description = 'PGP ID'
     display_study_name.short_description = 'Study Name'
