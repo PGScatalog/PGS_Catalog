@@ -14,7 +14,7 @@ from django.utils import timezone
 from .models import *
 from catalog.models import Publication
 
-from curation_tracker.scripts.import_litsuggest import import_litsuggest_to_annotation, annotation_to_dict, dict_to_annotation_import
+from curation_tracker.litsuggest import litsuggest_import_to_annotation, annotation_to_dict, dict_to_annotation_import
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
 admin.site.site_title = "PGS Catalog - Curation Tracker"
@@ -438,7 +438,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         if request.method == "POST":
             litsuggest_file = request.FILES["litsuggest_file"]
             print(litsuggest_file)
-            models = import_litsuggest_to_annotation(litsuggest_file)
+            models = litsuggest_import_to_annotation(litsuggest_file)
 
             preview_data = list(map(annotation_to_dict,models))
             request.session['preview_data'] = preview_data
