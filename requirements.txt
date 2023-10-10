@@ -1,5 +1,5 @@
 #### Django library
-Django==4.1.10
+Django==4.1.11
 #### Compress SCSS/SASS files in CSS
 django-compressor==4.3
 #### Library to build the HTML tables
@@ -10,6 +10,6 @@ psycopg2-binary==2.9.6
 djangorestframework==3.14.0
 django-cors-headers==3.13.0
 #### Python & Django Elasticsearch libraries
-elasticsearch==7.17.8
-elasticsearch-dsl==7.4.0
-django-elasticsearch-dsl==7.2.2
+elasticsearch==7.17.9
+elasticsearch-dsl==7.4.1
+django-elasticsearch-dsl==7.3
