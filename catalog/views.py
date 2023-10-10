@@ -537,7 +537,7 @@ def efo(request, efo_id):
             exclude_children = True
 
     try:
-        ontology_trait = EFOTrait_Ontology.objects.prefetch_related('scores_direct_associations','scores_child_associations','child_traits').get(id__exact=efo_id)
+        ontology_trait = EFOTrait_Ontology.objects.prefetch_related('scores_direct_associations','scores_child_associations','child_traits','traitcategory').get(id__exact=efo_id)
     except EFOTrait_Ontology.DoesNotExist:
         raise Http404("Trait: \"{}\" does not exist".format(efo_id))
 
@@ -547,7 +547,9 @@ def efo(request, efo_id):
     if exclude_children:
         related_scores = related_direct_scores
     else:
-        related_scores = list(related_direct_scores) + list(related_child_scores)
+        merged_related_scores = list(related_direct_scores) + list(related_child_scores)
+        # Remove potential duplicates (e.g. one of the trait is also a child of the second trait)
+        related_scores = list(set(merged_related_scores))
         related_scores.sort(key=lambda x: x.id)
 
     context = {
