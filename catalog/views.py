@@ -268,10 +268,10 @@ def browseby(request, view_selection):
             'view_name': 'Pending Publications',
             'table': table
         }
-    elif view_selection == 'sample_set':
-        context['view_name'] = 'Sample Sets'
-        table = Browse_SampleSetTable(Sample.objects.defer(*pgs_defer['sample']).filter(sampleset__isnull=False).prefetch_related('sampleset', pgs_prefetch['cohorts']).order_by('sampleset__num'))
-        context['table'] = table
+    # elif view_selection == 'sample_set':
+    #     context['view_name'] = 'Sample Sets'
+    #     table = Browse_SampleSetTable(Sample.objects.defer(*pgs_defer['sample']).filter(sampleset__isnull=False).prefetch_related('sampleset', pgs_prefetch['cohorts']).order_by('sampleset__num'))
+    #     context['table'] = table
     elif view_selection == 'scores' :
         score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
         table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').all().order_by('num').prefetch_related(pgs_prefetch['trait']))
