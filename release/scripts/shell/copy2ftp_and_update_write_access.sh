@@ -19,15 +19,15 @@ else
       # Update write access on FTP
       echo "# Update write access on FTP"
       cd ${ftp_dir}
-      find pgs_scores_list.txt -type f -exec chmod 664 {} +
+      find pgs_scores_list.txt -type f -exec chmod -f 664 {} +
       echo "  > pgs_scores_list.txt file - done"
-      find scores/ -type d -exec chmod 775 {} +
+      find scores/ -type d -exec chmod -f 775 {} +
       echo "  > scores directories - done"
-      find scores/ -type f -exec chmod 664 {} +
+      find scores/ -type f -exec chmod -f 664 {} +
       echo "  > scores files - done"
-      find metadata/ -type d -exec chmod 775 {} +
+      find metadata/ -type d -exec chmod -f 775 {} +
       echo "  > metadata directories - done"
-      find metadata/ -type f -exec chmod 664 {} +
+      find metadata/ -type f -exec chmod -f 664 {} +
       echo "  > metadata files - done"
     else
       echo "Directory '${local_data_dir}' can't be found"
