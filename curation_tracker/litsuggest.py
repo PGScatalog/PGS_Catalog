@@ -79,6 +79,25 @@ def get_publication_info_from_epmc(pmid) -> dict:
         raise ImportException("This pubmed ID returned no result")
     return info
 
+def get_publication_info_from_epmc_doi(doi) -> dict:
+    payload = {'format': 'json'}
+    query = f'doi:{doi}'
+    payload['query'] = query
+    result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
+    result = result.json()
+    results_list = result['resultList']['result']
+    info = {'doi': doi}
+    if results_list:
+        result = results_list[0]
+        info['PMID'] = result.get('pmid')
+        info['year'] = result.get('pubYear')
+        info['authors'] = result.get('authorString')
+        info['journal'] = result.get('journalTitle')
+        info['title'] = result.get('title')
+    else:
+        raise ImportException("This pubmed ID returned no result")
+    return info
+
 def get_next_unique_study_name(study_name):
     unique_name = study_name
     for existing_study_name in CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name__startswith=study_name):
