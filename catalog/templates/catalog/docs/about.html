@@ -199,16 +199,12 @@
 
     <section>
       <h3 id="acknowledgements">Acknowledgements</h3>
-      <p>We wish to acknowledge the help of the following people & teams for their support of the PGS Catalog:
-        <ul>
-          <li><b>PGS Catalog Data Curators</b> — Emily Tinsley, Shirin Saverimuttu, Aoife McMahon, Sam Lambert</li>
-          <li class="mt-1"><a href="{{ hdr_uk_cam_url }}"><b>Health Data Research UK, Cambridge</b></a> — Laurent Gil, Michael Chapman, Richard Houghton, Prof. John Danesh</li>
-          <li class="mt-1"><a href="{{ ebi_url }}/gwas"><b>NHGRI-EBI GWAS Catalog Team</b></a> — Annalisa Buniello, Elizabeth Lewis, Aoife McMahon, Santhi Ramachandran, Jackie MacArthur, Laura Harris</li>
-          <li class="mt-1"><a href="{{ ebi_url }}/about/spot-team"><b>EMBL-EBI Samples Phenotypes and Ontologies Team</b></a> — Helen Parkinson, Simon Jupp, James Hayhurst, Trish Whetzel</li>
-          <li class="mt-1"><a href="https://www.inouyelab.org"><b>Inouye Lab Members</b></a> — Florent Yvon, Jonathan Marten, Petar Scepanovic, Scott Ritchie, Gad Abraham</li>
-        </ul>
-      </p>
-      <p class="mt-4">The development of the <b>PGS Catalog</b> is supported by:</p>
+
+      <p>We wish to acknowledge the help of the following people & teams for their support of the PGS Catalog:</p>
+
+      {{ pgs_contributors|safe }}
+
+      <p class="mt-4">The PGS Catalog is delivered by collaboration between the EMBL-EBI and University of Cambridge and funded by NHGRI (1U24HG012542-01), Health Data Research UK and the Baker Heart & Diabetes Institute.</p>
       <div class="row justify-content-center mb-4">
         <div class="col">
           <a class="pgs_no_icon_link" href="{{ uoc_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/UofCambridge.png' %}" alt="University of Cambridge"></a>
@@ -221,6 +217,9 @@
         </div>
         <div class="col">
           <a class="pgs_no_icon_link" href="{{ baker_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/Baker_Logo.png' %}" alt="Baker Heart and Diabetes Institute"></a>
+        </div>
+        <div class="col">
+          <a class="pgs_no_icon_link" href="{{ nhgri_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/NHGRI_Logo.png' %}" alt="National Human Genome Research Institute"></a>
         </div>
       </div>
     </section>
