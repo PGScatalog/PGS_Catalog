@@ -180,7 +180,7 @@ class EFOTrait_Base(models.Model):
 
     def parse_api(self):
         import requests
-        response = requests.get('https://www.ebi.ac.uk/ols/api/ontologies/efo/terms?obo_id=%s'%self.id.replace('_', ':'))
+        response = requests.get(constants.USEFUL_URLS['OLS_ROOT_URL']+'/api/ontologies/efo/terms?obo_id=%s'%self.id.replace('_', ':'))
         response = response.json()['_embedded']['terms']
         if len(response) == 1:
             response = response[0]
@@ -216,7 +216,7 @@ class EFOTrait_Base(models.Model):
     @property
     def display_ext_url(self):
         if not self.id.startswith('EFO'):
-            url = 'https://www.ebi.ac.uk/ols/ontologies/efo/terms?iri='+self.url
+            url = constants.USEFUL_URLS['OLS_ROOT_URL']+'/ontologies/efo/terms?iri='+self.url
         else:
             url = self.url
         return '<a href="%s">%s</a>'%(url, self.id)

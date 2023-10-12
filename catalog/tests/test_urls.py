@@ -11,12 +11,14 @@ class BrowseUrlTest(TestCase):
             '/browse/scores/',
             '/browse/traits/',
             '/browse/studies/',
+            # '/browse/sample_set/',
             '/docs/',
             '/docs/ancestry/',
             '/downloads/',
             '/latest_release/',
             '/rest/',
-            '/robots.txt'
+            '/robots.txt',
+            '/search/'
         ]
         self.url_response(urls, 200)
 

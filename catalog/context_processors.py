@@ -10,6 +10,7 @@ def pgs_settings(request):
 
 def pgs_urls(request):
     return {
+        'nhgri_url'        : constants.USEFUL_URLS['NHGRI_URL'],
         'baker_url'        : constants.USEFUL_URLS['BAKER_URL'],
         'ebi_url'          : constants.USEFUL_URLS['EBI_URL'],
         'hdr_uk_cam_url'   : constants.USEFUL_URLS['HDR_UK_CAM_URL'],
@@ -48,4 +49,45 @@ def pgs_info(request):
         'pgs_citation': constants.PGS_CITATION,
         'pgs_table_helper': constants.TABLE_HELPER,
         'ensembl_version': constants.ENSEMBL_VERSION
+    }
+
+def pgs_contributors(request):
+    groups = constants.PGS_GROUPS
+    groups_to_print = list()
+    html='<p><b>PGS Catalog Team:</b> '
+
+    def get_group_index(group_private_index):
+        group = groups.get(group_private_index, None)
+        group_name = group['name']
+        if not group in groups_to_print:
+            groups_to_print.append(group)
+        group_index = groups_to_print.index(group) + 1
+        return(f'<a title="{group_name}" style="border-bottom: 0px;">{group_index}</a>')
+    
+    def html_author(author):
+        name = author['name']
+        group_sup = ','.join(map(get_group_index,author['group']))
+        
+        return f'<span>{ name }<sup>{ group_sup }</sup></span>'
+
+    html += ', '.join(map(html_author,constants.PGS_CONTRIBUTORS))
+    html += '</p>\n'
+    html += '<p><b>Previous Contributors:</b>\n'
+    html += ', '.join(map(html_author,constants.PGS_PREVIOUS_CONTRIBUTORS))
+
+    html += '</p><p><ul>'
+
+    for index, group in enumerate(groups_to_print):
+        group_name = group.get('name')
+        group_url = group.get('url', None)
+        html += f'<li><span>{index+1}:</span> <b>'
+        if group_url:
+            html += f'<a title="{group_name}" href="{group_url}" class="external-link">{group_name}</a>'
+        else:
+            html += group_name
+        html += '</b></li>\n'
+    html += '</ul></p>'
+
+    return {
+        'pgs_contributors': html
     }

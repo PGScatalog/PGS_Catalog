@@ -213,7 +213,7 @@ class CurationTemplate():
                             self.update_report(c_sample)
                             samples_list.append(c_sample)
                     else:
-                        self.report_error(spreadsheet_name, f'Can\'t fetch the GWAS information for the study {sample_data.data["source_GWAS_catalog"]}')
+                        self.report_warning(spreadsheet_name, f'Can\'t fetch the GWAS information for the study {sample_data.data["source_GWAS_catalog"]}')
                 else:
                     self.report_error(spreadsheet_name, f'Missing GWAS Study ID (GCST ID) to fetch the sample information')
             if len(samples_list) == 0:

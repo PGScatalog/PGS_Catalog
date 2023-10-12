@@ -126,6 +126,7 @@ class CopyScoringFiles:
 
             # Copy the file, if it was found new or modified
             if copy_msg != '':
+                # Copy file
                 try:
                     shutil.copy2(scoring_file_ftp_priv, scoring_file_prod)
                     print(copy_msg)
@@ -138,12 +139,14 @@ class CopyScoringFiles:
                 except IOError as e:
                     print(f'>>>>> ERROR! File \'{scoring_file}\' couldn\'t be copied to "{self.scoring_files_dir}"!')
                     print(e)
+                # Change chmod to allow group write access
+                if os.path.isfile(scoring_file_prod):
+                    try:
+                        os.chmod(scoring_file_prod, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH)
+                    except:
+                        print(f">>>>> ERROR! Can't change the read/write access of the file '{scoring_file}'!")
         total_count = count_new_pgs + count_updated_pgs
         print(f'Number of PGS files successfully copied: {total_count} (New: {count_new_pgs} | Updated: {count_updated_pgs} | Skipped: {count_skipped_pgs})')
-
-        # Change chmod to allow group write access
-        for fname in glob.glob(f'{self.scoring_files_dir}/*'):
-            os.chmod(fname, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH)
 
 
     def copy_scoring_files_to_metadata(self):

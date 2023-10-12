@@ -1,7 +1,7 @@
 import requests
 from catalog.models import EFOTrait, TraitCategory, EFOTrait_Ontology, Score
-#from django.db import connection
 from django.db import connections
+from pgs_web import constants
 
 
 class UpdateEFO:
@@ -18,7 +18,7 @@ class UpdateEFO:
     direct_pgs_ids_key = 'direct_pgs_ids'
     child_pgs_ids_key = 'child_pgs_ids'
 
-    ols_url_root = 'https://www.ebi.ac.uk/ols/api/ontologies/efo'
+    ols_url_root = constants.USEFUL_URLS['OLS_ROOT_URL']+'/api/ontologies/efo'
 
     categories_info = {
         'Biological process': { colour_key: '#BEBADA', parent_key: 'biological process', efo_key: ['GO_0008150'] },
@@ -104,8 +104,8 @@ class UpdateEFO:
 
         # Mapped terms
         new_mapped_terms_string = ''
-        if 'database_cross_reference' in response['annotation']:
-            new_mapped_terms = response['annotation']['database_cross_reference']
+        if 'has_dbxref' in response['annotation']:
+            new_mapped_terms = response['annotation']['has_dbxref']
             if (new_mapped_terms):
                 new_mapped_terms_string = self.items_separator.join(sorted(new_mapped_terms))
         data['mapped_terms'] = new_mapped_terms_string

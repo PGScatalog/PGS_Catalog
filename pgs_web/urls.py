@@ -23,6 +23,6 @@ urlpatterns = [
     re_path(r'^search/', search_views.search, name="PGS Catalog Search"),
     re_path(r'^autocomplete/', search_views.autocomplete, name="PGS Catalog Autocomplete")
 ]
-if settings.PGS_ON_CURATION_SITE == 'True':
+if settings.PGS_ON_CURATION_SITE == True:
     from django.contrib import admin
     urlpatterns.append(path('admin/', admin.site.urls))
