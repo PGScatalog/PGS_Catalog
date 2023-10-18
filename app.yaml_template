@@ -45,6 +45,13 @@ env_variables:
     DATABASE_PORT: '<db_port>'
     DATABASE_PORT_LOCAL: '<db_port_local>'
     DATABASE_HOST: '<db_host>' # e.g.: localhost, IP address, /cloudsql/...
+    # PGS Benchmark database
+    DATABASE_NAME_2: '<benchmark_db_name>'
+    DATABASE_USER_2: '<db_user>'
+    DATABASE_PASSWORD_2: '<db_password>'
+    DATABASE_PORT_2: '<db_port>'
+    DATABASE_PORT_LOCAL_2: '<db_port_local>'
+    DATABASE_HOST_2: '<db_host>' # e.g.: localhost, IP address, /cloudsql/...
     # Search
     ELASTICSEARCH_URL_ROOT: '<url_to_elasticsearch_service>'
 

@@ -27,3 +27,15 @@
     <link type="text/x-scss" href="{% static 'catalog/pgs.scss' %}" rel="stylesheet" media="screen"/>
   {% endcompress %}
 {% endif %}
+
+
+{% if is_benchmark and has_chart %}
+  <!-- Benchmark -->
+  {% if is_pgs_app_on_gae %}
+    <link rel="stylesheet" href="{% static 'benchmark/benchmark.min.css' %}" type="text/css" media="all" />
+  {% else %}
+    {% compress css %}
+        <link type="text/x-scss" href="{% static 'benchmark/benchmark.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+  {% endif %}
+{% endif %}

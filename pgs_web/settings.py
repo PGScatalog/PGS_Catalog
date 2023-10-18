@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 	'catalog.apps.CatalogConfig',
     'rest_api.apps.RestApiConfig',
     'search.apps.SearchConfig',
+    'benchmark.apps.BenchmarkConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -156,6 +157,14 @@ if PGS_ON_GAE == 1:
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': os.environ['DATABASE_HOST'],
             'PORT': os.environ['DATABASE_PORT']
+        },
+        'benchmark': {
+            'ENGINE': DB_ENGINE,
+            'NAME': os.environ['DATABASE_NAME_2'],
+            'USER': os.environ['DATABASE_USER_2'],
+            'PASSWORD': os.environ['DATABASE_PASSWORD_2'],
+            'HOST': os.environ['DATABASE_HOST_2'],
+            'PORT': os.environ['DATABASE_PORT_2']
         }
     }
 else:
@@ -171,6 +180,14 @@ else:
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'HOST': 'localhost',
             'PORT': os.environ['DATABASE_PORT_LOCAL']
+        },
+        'benchmark': {
+            'ENGINE': DB_ENGINE,
+            'NAME': os.environ['DATABASE_NAME_2'],
+            'USER': os.environ['DATABASE_USER_2'],
+            'PASSWORD': os.environ['DATABASE_PASSWORD_2'],
+            'HOST': 'localhost',
+            'PORT': os.environ['DATABASE_PORT_LOCAL_2']
         }
     }
 # [END db_setup]
