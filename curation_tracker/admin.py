@@ -38,10 +38,13 @@ def check_publication_exist(id: str) -> bool:
         return False
 
 
-def check_study_name(study_name: str) -> str:
+def check_study_name(study_name: str, num: int) -> str:
     ''' Check that the study_name is unique. Otherwise it will add incremental number as suffix '''
-    queryset = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name=study_name).count()
-    if queryset:
+    queryset = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name=study_name)
+    if num:
+        queryset = queryset.exclude(num=num)
+    count = queryset.count()
+    if count:
         sn_list = CurationPublicationAnnotation.objects.using(curation_tracker_db).values_list('study_name',flat=True)
         num = 2
         new_study_name = f'{study_name}_{num}'
@@ -376,7 +379,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         # Update/Populate Publication info via EuropePMC (if available)
         if update_via_epmc:
             obj.get_epmc_data()
-            obj.study_name = check_study_name(obj.study_name)
+            obj.study_name = check_study_name(obj.study_name, obj.num)
 
          # Timestamp
         obj.last_modified_by = request.user
@@ -443,7 +446,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     def import_litsuggest(self,request):
         if request.method == "POST":
             litsuggest_file = request.FILES["litsuggest_file"]
-            print(litsuggest_file)
             models = litsuggest_import_to_annotation(litsuggest_file)
 
             preview_data = list(map(annotation_to_dict,models))
