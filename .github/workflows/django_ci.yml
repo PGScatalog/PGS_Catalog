@@ -17,6 +17,12 @@ env:
   DATABASE_HOST: 'localhost'
   DATABASE_PORT: 5432
   DATABASE_PORT_LOCAL: 5432
+  DATABASE_NAME_2: 'db_test_benchmark'
+  DATABASE_USER_2: 'postgres'
+  DATABASE_PASSWORD_2: 'postgres'
+  DATABASE_HOST_2: 'localhost'
+  DATABASE_PORT_2: 5432
+  DATABASE_PORT_LOCAL_2: 5432
   REST_URL_ROOT: 'http://127.0.0.1/rest/'
   ELASTICSEARCH_URL_ROOT: 'http://localhost:9200'
   SECRET_KEY: 1234
