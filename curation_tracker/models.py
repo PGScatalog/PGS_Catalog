@@ -174,7 +174,7 @@ class CurationPublicationAnnotation(models.Model):
         else:
             self.creation_date = date.today()
 
-    def get_epmc_data(self):
+    def get_epmc_data(self, keep_study_name = False):
         payload = {'format': 'json'}
         if self.PMID and re.match('^\d+$', str(self.PMID)):
             query = f'ext_id:{self.PMID}'
@@ -197,10 +197,11 @@ class CurationPublicationAnnotation(models.Model):
                     self.journal = result['journalTitle']
                 if 'pmid' in result:
                     self.PMID = result['pmid']
-            firstauthor = result['authorString'].split(' ')[0]
-            self.study_name = firstauthor+self.year
-            if self.author_submission:
-                self.study_name = self.study_name+'_AuthorSub'
+            if not keep_study_name or not self.study_name:
+                firstauthor = result['authorString'].split(' ')[0]
+                self.study_name = firstauthor+self.year
+                if self.author_submission:
+                    self.study_name = self.study_name+'_AuthorSub'
             return True
         else:
             return False

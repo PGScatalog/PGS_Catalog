@@ -379,7 +379,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
         # Update/Populate Publication info via EuropePMC (if available)
         if update_via_epmc:
-            obj.get_epmc_data()
+            obj.get_epmc_data(keep_study_name=True)
             obj.study_name = check_study_name(obj.study_name, num = obj.num)
 
          # Timestamp
