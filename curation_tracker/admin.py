@@ -38,7 +38,7 @@ def check_publication_exist(id: str) -> bool:
         return False
 
 
-def check_study_name(study_name: str, num: int) -> str:
+def check_study_name(study_name: str, num: int = 0) -> str:
     ''' Check that the study_name is unique. Otherwise it will add incremental number as suffix '''
     queryset = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name=study_name)
     if num:
@@ -380,7 +380,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         # Update/Populate Publication info via EuropePMC (if available)
         if update_via_epmc:
             obj.get_epmc_data()
-            obj.study_name = check_study_name(obj.study_name, obj.num)
+            obj.study_name = check_study_name(obj.study_name, num = obj.num)
 
          # Timestamp
         obj.last_modified_by = request.user
