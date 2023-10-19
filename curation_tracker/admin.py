@@ -93,19 +93,20 @@ class CurationPublicationAnnotationForm(forms.ModelForm):
 
     def clean(self):
         """ Used as a form validator (on some of the fields) """
-        study_name = self.cleaned_data['study_name']
-        doi = self.cleaned_data['doi']
-        pmid = self.cleaned_data['PMID']
-        author_sub = self.cleaned_data['author_submission']
+        cleaned_data = super().clean()
+        study_name = cleaned_data.get('study_name')
+        doi = cleaned_data.get('doi')
+        pmid = cleaned_data.get('PMID')
+        author_sub = cleaned_data.get('author_submission')
         validation_error = {}
         # Numeric fields
         for field in ['PMID', 'year']:
-            field_val = self.cleaned_data[field]
+            field_val = cleaned_data.get(field)
             if field_val:
                 if type(field_val) != int:
                     validation_error[field] = "Only numeric value allowed for this field"
         # PGP ID
-        pgp_id = self.cleaned_data['pgp_id']
+        pgp_id = cleaned_data.get('pgp_id')
         if pgp_id:
             try:
                publication_id = Publication.objects.get(id=pgp_id)
