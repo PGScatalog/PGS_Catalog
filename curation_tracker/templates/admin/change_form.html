@@ -4,7 +4,9 @@
 {% block extrahead %}{{ block.super }}
 <script src="{% url 'admin:jsi18n' %}"></script>
 {{ media }}
+{% if opts.model_name == 'curationpublicationannotation' %}
 <script src="{% static 'curation_tracker/pgs_edit_curation_annotation_addon.js' %}"></script>
+{% endif %}
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.3.0/css/all.css" crossorigin="anonymous"/>
 <link rel="stylesheet" href="{% static 'curation_tracker/pgs_admin.css' %}">
 {% endblock %}
