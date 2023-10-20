@@ -87,9 +87,9 @@ function autofillForm(){
 $(document).ready(function(){
     // Adding a 'go to publication' button after the DOI and PMID form fields
     var doi_pmid_div = $('div.form-row.field-doi.field-PMID');
-    doi_pmid_div.append('<div><a href="" class="extra-field-button external-link" onclick="goToPublication(); return false;">Go to publication</a></div>');
+    doi_pmid_div.append('<div><a title="Go to the publication page using DOI or the Pubmed page if only the PMID is provided" href="" class="extra-field-button external-link" onclick="goToPublication(); return false;">Go to publication</a></div>');
     // Adding a 'Autofill' button
-    doi_pmid_div.append('<div style="display: flex;"><div><a href="" class="extra-field-button" onclick="autofillForm(); return false;">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div>');
+    doi_pmid_div.append('<div style="display: flex;"><div><a title="Fetch the publication data from EPMC and fill in the form automatically (DOI or PMID required)" href="" class="extra-field-button" onclick="autofillForm(); return false;">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div>');
     // Adding toggle AuthorSub suffix function
     $('#id_author_submission').click(toggleAuthorSub);
 })
