@@ -22,6 +22,19 @@ function goToPublication(){
     }
 }
 
+function toggleAuthorSub(){
+    var isAuthorSub = $('#id_author_submission').is(":checked");
+    var study_name = $('#id_study_name').val();
+    if(study_name){
+        if(isAuthorSub){
+            var author_year = study_name.split('_')[0];
+            $('#id_study_name').val(author_year+'_AuthorSub');
+        } else {
+            $('#id_study_name').val(study_name.replace(/_AuthorSub/g,''));
+        }
+    }
+}
+
 function autofillForm(){
     setError('');
     var doi = $('#id_doi').val();
@@ -58,6 +71,7 @@ function autofillForm(){
                 if(!$('#id_study_name').val() && publicationData.hasOwnProperty('authorString') && publicationData.hasOwnProperty('pubYear')){
                     var study_name = publicationData.authorString.split(' ')[0] + publicationData.pubYear;
                     $('#id_study_name').val(study_name);
+                    toggleAuthorSub();
                 }
             } else {
                 setError('No result found in Europe PMC');
@@ -76,4 +90,6 @@ $(document).ready(function(){
     doi_pmid_div.append('<div><a href="" class="extra-field-button external-link" onclick="goToPublication(); return false;">Go to publication</a></div>');
     // Adding a 'Autofill' button
     doi_pmid_div.append('<div style="display: flex;"><div><a href="" class="extra-field-button" onclick="autofillForm(); return false;">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div>');
+    // Adding toggle AuthorSub suffix function
+    $('#id_author_submission').click(toggleAuthorSub);
 })
