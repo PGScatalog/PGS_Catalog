@@ -16,7 +16,7 @@
   <p>
     PGS Scoring Files in the Catalog are currently provided in a consistent format with standardized column names and data types, along with information about the genome build given by authors.
     The variant-level information in PGS is often heterogeneously described and may lack chromosome/position information, contain a mix of positions and/or rsIDs, or be mapped to a genome build different from your sample genotypes.
-    To make PGS easier to apply we have created a new set of files that contain harmonized variant information (chromosome name and base pair position) and variant identifiers (updated rsID), in commonly used genome builds (GRCh37/hg19 and GRCh38/hg38) to make variant matching and PGS calculation easier.
+    To make PGS easier to apply we have created a new set of files that contain <b>additional columns</b> with harmonized variant information (chromosome name and base pair position) and variant identifiers (updated rsID), in commonly used genome builds (GRCh37/hg19 and GRCh38/hg38) to make variant matching and PGS calculation easier.
   </p>
   <span>
     The generation of these harmonized files is done by using the <a href="https://github.com/PGScatalog/pgs-harmonizer">pgs-harmonizer</a> tool. It is based on the <a href="https://github.com/EBISPOT/gwas-sumstats-harmoniser">Open Targets and GWAS Catalog Summary Statistics harmonizer pipelines</a>. To harmonize the variant positions the pgs-harmonizer performs the following tasks:
@@ -113,7 +113,7 @@
 
   <h5 id="hm_pos_columns" class="mt-5"><i class="fas fa-th pgs_color_1 mr-2"></i>Harmonized Files <span class="pgs_color_1">—</span> Additional Columns</h5>
 
-  <p>The following columns are appended to the formatted scoring file in each HmPOS file:</p>
+  <p>The formatted scoring file (in the original genome build) has the following additional columns describing the variants in the <b>specified genome build</b> for each HmPOS file:</p>
 
   <div class="table-responsive">
     <table class="table table-striped table_pgs_auto">
@@ -130,5 +130,28 @@
         <tr><td>hm_match_pos</td><td>FLAG: matching chromosome position</td><td><i>Used for QC</i>. Only provided if the scoring file is being harmonized to the same genome build, and where the chromosome name is provided in the column <b>chr_position</b>.</td></tr>
       </tbody>
     </table>
+  </div>
+  <i class="fas fa-angle-double-right pgs_color_1"></i> <a class="toggle_btn pgs_btn_plus" data-toggle="tooltip" data-placement="right" data-delay="500" id="pgs_hm_content_example" title="Click to show/hide an example of Scoring Files header">Example of PGS Harmonized File (<span class="pgs_color_facet_2">GRCh37</span> file harmonized on <span class="pgs_color_facet_3">GRCh38</span>)</a>
+  <div class="toggle_list mt-2" id="list_pgs_hm_content_example">
+    <div class="pgs_formatted_block">
+      <pre class="example">
+<span>###PGS CATALOG SCORING FILE - see https://www.pgscatalog.org/downloads/#dl_ftp_scoring for additional information</span>
+<b>#format_version</b>=2.0
+<span>##POLYGENIC SCORE (PGS) INFORMATION</span>
+<b>#pgs_id</b>=PGS000116
+<span>...</span>
+<b>#genome_build</b>=<span class="pgs_color_2">GRCh37</span>
+<span>...</span>
+<span>##HARMONIZATION DETAILS</span>
+<b>#HmPOS_build</b>=<span class="pgs_color_facet_3">GRCh38</span>
+<span>...</span>
+<span class="pgs_color_facet_2">rsID</span>         <span class="pgs_color_facet_2">chr_name</span>  <span class="pgs_color_facet_2">chr_position</span>  <span class="scoring_col pr-0">effect_allele</span>  <span class="scoring_col pr-0">other_allele</span>  <span class="scoring_col pr-0">effect_weight</span>  <span class="scoring_col pr-0">hm_source</span>  <span class="pgs_color_facet_3">hm_rsID</span>      <span class="pgs_color_facet_3">hm_chr</span>  <span class="pgs_color_facet_3">hm_pos</span>
+rs1921       1          949608       A              G             -0.003965      ENSEMBL    rs1921       1       1014228
+rs2710887    1          986443       T              C             -0.000846      ENSEMBL    rs2710887    1       1051063
+rs11260596   1         1002434       T              C              0.000789      ENSEMBL    rs11260596   1       1067054
+rs113355263  1         1069535       A              G             -0.001627      ENSEMBL    rs113355263  1       1134155
+rs11260539   1         1109903       T              C              0.000170      ENSEMBL    rs11260539   1       1174523
+...</pre>
+    </div>
   </div>
 </div>
