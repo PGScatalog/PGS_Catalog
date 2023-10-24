@@ -68,6 +68,9 @@ function autofillForm(){
                 if(publicationData.hasOwnProperty('pubYear')){
                     $('#id_year').val(publicationData.pubYear);
                 }
+                if(publicationData.hasOwnProperty('firstPublicationDate')){
+                    $('#id_publication_date').val(publicationData.firstPublicationDate);
+                }
                 if(!$('#id_study_name').val() && publicationData.hasOwnProperty('authorString') && publicationData.hasOwnProperty('pubYear')){
                     var study_name = publicationData.authorString.split(' ')[0] + publicationData.pubYear;
                     $('#id_study_name').val(study_name);
