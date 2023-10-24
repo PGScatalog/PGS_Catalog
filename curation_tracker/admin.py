@@ -184,7 +184,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     ''' Publication Annotation Admin class (main class of the curation tracker) '''
     form = CurationPublicationAnnotationForm
     list_display = (
-        "id","display_study_name","display_PMID","journal","display_year","creation_date","display_pgp_id",
+        "id","display_study_name","display_PMID","journal","publication_date","creation_date","display_pgp_id",
         "curation_status","display_first_level_curation_status","display_first_level_curator",
         "display_second_level_curation_status","display_second_level_curator",
         "priority")
