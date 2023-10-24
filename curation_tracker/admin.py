@@ -195,7 +195,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
     fieldsets = (
         ('Publication', {
-            'fields': ("id","study_name","creation_date","pgp_id",("doi","PMID"),("journal","year"),"title","release_date","priority","author_submission","embargoed")
+            'fields': ("id","study_name","creation_date","pgp_id",("doi","PMID"),("journal","year"),"title","publication_date","release_date","priority","author_submission","embargoed")
         }),
         ('Eligibility', {
             'fields': ("eligibility",("eligibility_dev_score","eligibility_eval_score"),("eligibility_external_valid","eligibility_trait_matching"),"eligibility_score_provided","eligibility_description")
@@ -218,7 +218,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
 
     def get_readonly_fields(self, request, obj=None):
-        fields = ["id","creation_date","eligibility"]
+        fields = ["id","creation_date","eligibility","release_date"]
         if obj:
             fields.append("num")
             if obj.first_level_curation_status == 'Determined ineligible':

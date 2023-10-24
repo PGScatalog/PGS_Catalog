@@ -39,6 +39,7 @@ class CurationPublicationAnnotation(models.Model):
     journal = models.CharField('Journal Name', max_length=100, null=True, blank=True)
     title = models.TextField('Title', null=True, blank=True)
     year = models.IntegerField('Year of Submission', null=True, blank=True)
+    publication_date = models.DateField('Publication Date', null=True, blank=True) # Added for more precise date sorting. Used a submission year for author submissions
 
     ## Curation info ##
     # First level
