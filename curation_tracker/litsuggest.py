@@ -75,6 +75,7 @@ def get_publication_info_from_epmc(pmid) -> dict:
         info['authors'] = result.get('authorString')
         info['journal'] = result.get('journalTitle')
         info['title'] = result.get('title')
+        info['publication_date'] = result.get('firstPublicationDate')
     else:
         raise ImportException("This pubmed ID returned no result")
     return info
@@ -94,8 +95,9 @@ def get_publication_info_from_epmc_doi(doi) -> dict:
         info['authors'] = result.get('authorString')
         info['journal'] = result.get('journalTitle')
         info['title'] = result.get('title')
+        info['publication_date'] = result.get('firstPublicationDate')
     else:
-        raise ImportException("This pubmed ID returned no result")
+        raise ImportException("This DOI returned no result")
     return info
 
 def get_next_unique_study_name(study_name):
