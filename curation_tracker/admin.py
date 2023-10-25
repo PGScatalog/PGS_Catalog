@@ -15,6 +15,8 @@ from .models import *
 from catalog.models import Publication
 
 from curation_tracker.litsuggest import litsuggest_import_to_annotation, annotation_to_dict, dict_to_annotation_import
+from django.contrib.admin import DateFieldListFilter
+import datetime
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
 admin.site.site_title = "PGS Catalog - Curation Tracker"
@@ -179,6 +181,30 @@ class CurationCuratorAdmin(MultiDBModelAdmin):
     list_filter = ('name',)
     ordering = ('name',)
 
+class PublicationDateFilter(DateFieldListFilter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        today = datetime.date.today()
+        twoweeksago = today - datetime.timedelta(days=14)
+
+        self.links = list(self.links)
+        self.links.insert(3, ('Past 2 weeks', {
+            self.lookup_kwarg_since: str(twoweeksago),
+            self.lookup_kwarg_until: str(today),
+        }))
+
+        # Past years
+        for date in CurationPublicationAnnotation.objects.exclude(publication_date__year=today.year).dates('publication_date', 'year', order='ASC'):
+            year = date.year
+            year_start = datetime.date(year,1,1)
+            year_end = datetime.date(year,12,31)
+            self.links.insert(6, (year, {
+                self.lookup_kwarg_since: str(year_start),
+                self.lookup_kwarg_until: str(year_end),
+            }))
+
+
 
 class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     ''' Publication Annotation Admin class (main class of the curation tracker) '''
@@ -188,7 +214,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         "curation_status","display_first_level_curation_status","display_first_level_curator",
         "display_second_level_curation_status","display_second_level_curator",
         "priority")
-    list_filter = ("curation_status","first_level_curator","second_level_curator","priority","year")
+    list_filter = ("curation_status","first_level_curator","second_level_curator","priority",("publication_date",PublicationDateFilter),)
     search_fields = ["id","study_name","pgp_id","doi","PMID","first_level_curation_status","second_level_curation_status","curation_status","reported_trait"]
     ordering = ('-id',)
     list_per_page = 25 # No of records per page
