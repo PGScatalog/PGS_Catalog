@@ -35,10 +35,33 @@ function toggleAuthorSub(){
     }
 }
 
-function autofillForm(){
-    setError('');
-    var doi = $('#id_doi').val();
-    var pmid = $('#id_PMID').val();
+function _fillFormWithInfo(publicationData){
+    if(publicationData.hasOwnProperty('doi')){
+        $('#id_doi').val(publicationData.doi);
+    }
+    if(publicationData.hasOwnProperty('pmid')){
+        $('#id_PMID').val(publicationData.pmid);
+    }
+    if(publicationData.hasOwnProperty('title')){
+        $('#id_title').val(publicationData.title);
+    }
+    if(publicationData.hasOwnProperty('journalTitle')){
+        $('#id_journal').val(publicationData.journalTitle);
+    }
+    if(publicationData.hasOwnProperty('pubYear')){
+        $('#id_year').val(publicationData.pubYear);
+    }
+    if(publicationData.hasOwnProperty('firstPublicationDate')){
+        $('#id_publication_date').val(publicationData.firstPublicationDate);
+    }
+    if(!$('#id_study_name').val() && publicationData.hasOwnProperty('authorString') && publicationData.hasOwnProperty('pubYear')){
+        var study_name = publicationData.authorString.split(' ')[0] + publicationData.pubYear;
+        $('#id_study_name').val(study_name);
+        toggleAuthorSub();
+    }
+}
+
+function _getPublicationInfo({doi=null, pmid=null}){
     var baseUrl = 'https://www.ebi.ac.uk/europepmc/webservices/rest/search?format=json&query='
     var url;
     if(doi){
@@ -51,33 +74,16 @@ function autofillForm(){
     }
     $.get(url,function(data, status){
         if(status == 'success'){
-            var publicationData = data.resultList.result[0];
-            if(publicationData){
-                if(!doi && publicationData.hasOwnProperty('doi')){
-                    $('#id_doi').val(publicationData.doi);
-                }
-                if(!pmid && publicationData.hasOwnProperty('pmid')){
-                    $('#id_PMID').val(publicationData.pmid);
-                }
-                if(publicationData.hasOwnProperty('title')){
-                    $('#id_title').val(publicationData.title);
-                }
-                if(publicationData.hasOwnProperty('journalTitle')){
-                    $('#id_journal').val(publicationData.journalTitle);
-                }
-                if(publicationData.hasOwnProperty('pubYear')){
-                    $('#id_year').val(publicationData.pubYear);
-                }
-                if(publicationData.hasOwnProperty('firstPublicationDate')){
-                    $('#id_publication_date').val(publicationData.firstPublicationDate);
-                }
-                if(!$('#id_study_name').val() && publicationData.hasOwnProperty('authorString') && publicationData.hasOwnProperty('pubYear')){
-                    var study_name = publicationData.authorString.split(' ')[0] + publicationData.pubYear;
-                    $('#id_study_name').val(study_name);
-                    toggleAuthorSub();
-                }
+            if(data.hitCount > 0){
+                var publicationData = data.resultList.result[0];
+                _fillFormWithInfo(publicationData);
             } else {
-                setError('No result found in Europe PMC');
+                if(doi && pmid){
+                    // Try again just with PMID (some publications return results only with PMID)
+                    _getPublicationInfo({doi: null, pmid:pmid});
+                } else {
+                    setError('No result found in Europe PMC');
+                }
             }
         } else {
             setError('EMPC Server error');
@@ -85,6 +91,13 @@ function autofillForm(){
     }).fail(function(error){
         setError('EMPC Server error: '+error.statusText);
     })
+}
+
+function autofillForm(){
+    setError('');
+    var doi = $('#id_doi').val();
+    var pmid = $('#id_PMID').val();
+    _getPublicationInfo({doi: doi, pmid: pmid});
 }
 
 $(document).ready(function(){
