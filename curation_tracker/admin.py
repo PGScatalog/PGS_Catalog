@@ -210,7 +210,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     ''' Publication Annotation Admin class (main class of the curation tracker) '''
     form = CurationPublicationAnnotationForm
     list_display = (
-        "id","display_study_name","display_PMID","journal","publication_date","creation_date","display_pgp_id",
+        "id","display_study_name","display_PMID","journal","publication_date","display_created_on","display_pgp_id",
         "curation_status","display_first_level_curation_status","display_first_level_curator",
         "display_second_level_curation_status","display_second_level_curator",
         "priority")
@@ -221,7 +221,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
     fieldsets = (
         ('Publication', {
-            'fields': ("id","study_name","creation_date","pgp_id",("doi","PMID"),("journal","year"),"title","publication_date","release_date","priority","author_submission","embargoed")
+            'fields': ("id","study_name","created_on","pgp_id",("doi","PMID"),("journal","year"),"title","publication_date","release_date","priority","author_submission","embargoed")
         }),
         ('Eligibility', {
             'fields': ("eligibility",("eligibility_dev_score","eligibility_eval_score"),("eligibility_external_valid","eligibility_trait_matching"),"eligibility_score_provided","eligibility_description")
@@ -244,7 +244,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
 
     def get_readonly_fields(self, request, obj=None):
-        fields = ["id","creation_date","eligibility","release_date"]
+        fields = ["id","creation_date","eligibility","release_date","created_on"]
         if obj:
             fields.append("num")
             if obj.first_level_curation_status == 'Determined ineligible':
@@ -313,6 +313,13 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         if obj.third_level_curator:
             return obj.third_level_curator.name
         return None
+
+
+    def display_created_on(self, obj):
+        if obj.created_on:
+            return obj.created_on.strftime('%b. %d, %Y')
+        else:
+            return None
 
 
     def save_model(self, request, obj, form, change):
@@ -517,6 +524,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     display_second_level_curator.short_description = 'L2 Curator'
     display_second_level_curation_status.short_description = 'L2 Curation Status'
     display_third_level_curator.short_description = 'L3 Curator'
+    display_created_on.short_description = 'Creation Date'
+    display_created_on.admin_order_field = 'created_on'
 
 
 
