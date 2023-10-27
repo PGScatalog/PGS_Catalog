@@ -86,6 +86,7 @@ class CurationPublicationAnnotation(models.Model):
         ('Released','Released'),
         ('Embargo Curated - Awaiting Import','Embargo Curated - Awaiting Import'),
         ('Embargo Imported - Awaiting Release','Embargo Imported - Awaiting Release'),
+        ('Embargo Lifted - Awaiting Release','Embargo Lifted - Awaiting Release'),
         ('Retired','Retired')
     ]
     curation_status = models.CharField(choices=CURATION_STATUS_CHOICES, default='Awaiting L1', max_length=50, verbose_name='Curation Status', null=True, blank=True)
