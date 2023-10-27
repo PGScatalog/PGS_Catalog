@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import DecimalRangeField
@@ -63,7 +63,7 @@ class Publication(models.Model):
         # Dependant on the context, sometimes the date_publication is returned as a string
         pub_date = self.date_publication
         if type(pub_date) == str:
-            pub_date = datetime.datetime.strptime(pub_date, '%Y-%m-%d')
+            pub_date = dt.datetime.strptime(pub_date, '%Y-%m-%d')
         return pub_date.strftime('%Y')
 
     @property

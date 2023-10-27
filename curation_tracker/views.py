@@ -1,5 +1,5 @@
 import os
-import datetime
+import datetime as dt
 from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import TemplateView
@@ -97,7 +97,7 @@ def stats(request):
     for l1_as in l1_as_queryset:
         if l1_as['first_level_date__month']:
             month_num = str(l1_as['first_level_date__month'])
-            datetime_object = datetime.datetime.strptime(month_num, "%m")
+            datetime_object = dt.datetime.strptime(month_num, "%m")
             month_name = datetime_object.strftime("%B")
             year = l1_as['first_level_date__year']
             count = l1_as['c']
@@ -115,7 +115,7 @@ def stats(request):
     for l1 in l1_queryset:
         if l1['first_level_date__month']:
             month_num = l1['first_level_date__month']
-            datetime_object = datetime.datetime.strptime(str(month_num), "%m")
+            datetime_object = dt.datetime.strptime(str(month_num), "%m")
             month_name = datetime_object.strftime("%B")
             year = l1['first_level_date__year']
             studies = (CurationPublicationAnnotation.objects.using(curation_tracker)
@@ -149,7 +149,7 @@ def stats(request):
     for l2 in l2_queryset:
         if l2['second_level_date__month']:
             month_num = l2['second_level_date__month']
-            datetime_object = datetime.datetime.strptime(str(month_num), "%m")
+            datetime_object = dt.datetime.strptime(str(month_num), "%m")
             month_name = datetime_object.strftime("%B")
             year = l2['second_level_date__year']
             studies = (CurationPublicationAnnotation.objects.using(curation_tracker)

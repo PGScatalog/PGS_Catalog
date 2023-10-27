@@ -16,7 +16,7 @@ from catalog.models import Publication
 
 from curation_tracker.litsuggest import litsuggest_import_to_annotation, annotation_to_dict, dict_to_annotation_import
 from django.contrib.admin import DateFieldListFilter
-import datetime
+import datetime as dt
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
 admin.site.site_title = "PGS Catalog - Curation Tracker"
@@ -185,8 +185,8 @@ class PublicationDateFilter(DateFieldListFilter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        today = datetime.date.today()
-        twoweeksago = today - datetime.timedelta(days=14)
+        today = dt.date.today()
+        twoweeksago = today - dt.timedelta(days=14)
 
         self.links = list(self.links)
         self.links.insert(3, ('Past 2 weeks', {
@@ -197,8 +197,8 @@ class PublicationDateFilter(DateFieldListFilter):
         # Past years
         for date in CurationPublicationAnnotation.objects.exclude(publication_date__year=today.year).dates('publication_date', 'year', order='ASC'):
             year = date.year
-            year_start = datetime.date(year,1,1)
-            year_end = datetime.date(year,12,31)
+            year_start = dt.date(year,1,1)
+            year_end = dt.date(year,12,31)
             self.links.insert(6, (year, {
                 self.lookup_kwarg_since: str(year_start),
                 self.lookup_kwarg_until: str(year_end),
