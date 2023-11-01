@@ -117,7 +117,7 @@ def get_next_unique_study_name(study_name):
 
 def create_new_annotation(publication_info) -> CurationPublicationAnnotation:
     model = CurationPublicationAnnotation()
-    for attr in ['PMID','journal','doi','title','year']:
+    for attr in ['PMID','journal','doi','title','year','publication_date']:
         value = publication_info.get(attr, None) 
         setattr(model, attr, value)
 
@@ -137,7 +137,8 @@ def annotation_to_dict(annotation_import: CurationPublicationAnnotationImport) -
     model_dict = dict()
     model = annotation_import.annotation
     for attr in ['PMID','study_name','doi','journal','title','year','eligibility','comment',
-                 'eligibility_dev_score','eligibility_eval_score','eligibility_description','first_level_curation_status','curation_status']:
+                 'eligibility_dev_score','eligibility_eval_score','eligibility_description','first_level_curation_status','curation_status',
+                 'publication_date']:
         model_dict[attr] = getattr(model,attr)
     d['model'] = model_dict
     return d
