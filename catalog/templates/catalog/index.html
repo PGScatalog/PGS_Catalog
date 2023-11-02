@@ -44,7 +44,7 @@
     </div>
 
     <!-- PGS announcement -->
-    {% if announcement %}
+    {% if announcement and is_pgs_live_site %}
       <div class="pgs_centered mb-4">
         <div class="pgs_banner">{{ announcement|safe }}</div>
       </div>
