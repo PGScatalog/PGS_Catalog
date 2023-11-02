@@ -56,7 +56,7 @@ TABLE_HELPER = {
     'pgs_eval_ext': 'A list of PGS that were developed in other publications and re-evaluated in the current study'
 }
 
-ANNOUNCEMENT = ''
+ANNOUNCEMENT = '<div class="mb-1"><h5><i class="fa-solid fa-gears bigger"></i> Available tool: <b>pgsc_calc</b></h5></div>A reproducible workflow to calculate both PGS Catalog and custom polygenic scores.<a class="ml-2 btn btn-pgs-small pgs_no_icon_link" href="https://pgsc-calc.readthedocs.io/en/latest/"><i class="fas fas fa-angle-right"></i> See more information</a></div>'
 
 TABLE_ROWS_THRESHOLD = 1000
 
@@ -145,7 +145,7 @@ PGS_CONTRIBUTORS = [
     {'name': 'Prof. John Danesh','group': ['hdruk']},
     {'name': 'Michael Inouye', 'group': ['inouye']}
 ]
-    
+
 PGS_GROUPS = {
     'inouye': {
         'name': 'Inouye Lab',
