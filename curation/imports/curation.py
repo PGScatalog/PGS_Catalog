@@ -32,12 +32,11 @@ class CurationImport():
         self.curation_status_by_default = curation_status_by_default
 
         self.step = 1
-        self.steps_count = 2
+        self.steps_total = 2
         if self.skip_scoringfiles == False:
-            self.steps_count =+ 1
+            self.steps_total = self.steps_total + 1
         if self.skip_curationtracker == False:
-            self.steps_count =+ 1
-
+            self.steps_total = self.steps_total + 1
 
 
     def global_report(self):
@@ -69,13 +68,13 @@ class CurationImport():
             ## Parsing ##
             study_import = StudyImport(study_data, self.studies_path, self.curation2schema, self.curation_status_by_default)
             study_import.print_title()
-            print(f'==> Step {self.step}/{self.steps_count}: Parsing study data')
+            print(f'==> Step {self.step}/{self.steps_total}: Parsing study data')
             study_import.parse_curation_data()
 
             ## Import ##
             self.step += 1
             print('\n----------------------------------\n')
-            print(f'==> Step {self.step}/{self.steps_count}: Importing study data')
+            print(f'==> Step {self.step}/{self.steps_total}: Importing study data')
             study_import.import_curation_data()
             if study_import.has_failed:
                 self.failed_studies[study_import.study_name] = 'import error'
@@ -85,7 +84,7 @@ class CurationImport():
             if self.skip_scoringfiles == False:
                 self.step += 1
                 print('\n----------------------------------\n')
-                print(f'==> Step {self.step}/{self.steps_count}: Add header to the Scoring file(s)')
+                print(f'==> Step {self.step}/{self.steps_total}: Add header to the Scoring file(s)')
                 if study_import.study_scores:
                     for score_id, score in study_import.study_scores.items():
                         scoring_file_update = ScoringFileUpdate(score, study_import.study_path, self.new_scoring_path, self.curation2schema_scoring, self.scoringfiles_format_version)
@@ -102,11 +101,11 @@ class CurationImport():
             if self.skip_curationtracker == False:
                 self.step += 1
                 print('\n----------------------------------\n')
-                print(f'==> Step {self.step}/{self.steps_count}: Update the study status in the Curation Tracker')
+                print(f'==> Step {self.step}/{self.steps_total}: Update the study status in the Curation Tracker')
                 curation_pub = None
-                if publication.doi:
+                if study_import.study_publication.doi:
                     try:
-                        curation_pub = CurationPublicationAnnotation.objects.using(curation_tracker).get(doi=self.study_publication.doi)
+                        curation_pub = CurationPublicationAnnotation.objects.using(curation_tracker).get(doi=study_import.study_publication.doi)
                         print("  > Study found using the publication DOI")
                     except CurationPublicationAnnotation.DoesNotExist:
                         print("  ! Study NOT found using the publication DOI")

@@ -203,7 +203,7 @@ def update_curation_tracker():
                 print('  - Adding PGP ID to the Curation Tracker')
                 curation_pub.pgp_id = pgp_id
                 print('  - Updating curation_status on the Curation Tracker')
-                if curration_status == 'E':
+                if publication.curation_status == 'E':
                     curation_pub.curation_status = 'Embargo Imported - Awaiting Release'
                 else:
                     curation_pub.curation_status = 'Released'
@@ -213,6 +213,7 @@ def update_curation_tracker():
 
     # Old released entries which are still missing the PubMed ID
     # Use the PGS Catalog data to update the study information in the Curation Tracker
+    print('  - Check for old released entries which are still missing the PubMed ID')
     curation_pubs = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Released',PMID__isnull=True)
     for curation_pub in curation_pubs:
         if curation_pub.doi:
@@ -225,7 +226,7 @@ def update_curation_tracker():
                     curation_pub.year = publication.pub_year
                     curation_pub.save()
             except Publication.DoesNotExist:
-                print(f"Can't find released study with the DOI '{curation_pub.doi}' in the PGS Catalog")
+                print(f"    > Can't find released study with the DOI '{curation_pub.doi}' ({curation_pub.id}) in the PGS Catalog")
 
 
 def generate_europePMC_linkage_xml_file():
