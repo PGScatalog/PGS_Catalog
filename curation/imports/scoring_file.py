@@ -9,6 +9,9 @@ class ScoringFileUpdate():
 
     value_separator = '|'
     weight_type_label = 'weight_type'
+    txt_ext = '.txt'
+    tsv_ext = '.tsv'
+    xls_ext = '.xlsx'
 
     def __init__(self, score, study_path, new_scoring_dir, score_file_schema, score_file_format_version):
         self.score = score
@@ -61,8 +64,21 @@ class ScoringFileUpdate():
         try:
             score_name = self.score.name
             score_id = self.score.id
-            raw_scorefile = f'{self.score_file_path}/{score_name}.txt'
-            df_scoring = pd.read_table(raw_scorefile, dtype='str', engine = 'python')
+            raw_scorefile_path = f'{self.score_file_path}/{score_name}'
+
+            raw_scorefile_txt = f'{raw_scorefile_path}{self.txt_ext}'
+            raw_scorefile_tsv = f'{raw_scorefile_path}{self.tsv_ext}'
+            raw_scorefile_xls = f'{raw_scorefile_path}{self.xls_ext}'
+            if os.path.exists(raw_scorefile_txt):
+                df_scoring = pd.read_table(raw_scorefile_txt, dtype='str', engine = 'python')
+            elif os.path.exists(raw_scorefile_tsv):
+                df_scoring = pd.read_table(raw_scorefile_tsv, dtype='str', engine = 'python')
+            elif os.path.exists(raw_scorefile_xls):
+                df_scoring = pd.read_excel(raw_scorefile_xls, dtype='str', engine = 'python')
+            else:
+                failed_update = True
+                print(f"ERROR can't find the scorefile {raw_scorefile_path} (trying with the extensions '{self.txt_ext}' and '{self.xls_ext}')\n")
+                return failed_update
 
             # Remove empty columns
             df_scoring.replace("", float("NaN"), inplace=True)
