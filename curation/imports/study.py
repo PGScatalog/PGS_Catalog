@@ -122,25 +122,7 @@ class StudyImport():
                     col_condition = obj[1] + '__in'
                     obj[2].objects.filter(**{ col_condition: ids}).delete()
                     print(f'  > DELETED {obj[0]} (column "{obj[1]}") : {ids}')
-        # # Update study in Curation Tracker
-        # else:
-        #     if self.study_publication.doi:
-        #         pgp_id = self.study_publication.id
-        #         curation_status = self.study_publication.curation_status
-        #         curation_found = False
-        #         # Update PGP ID + curation status in Curation Tracker
-        #         try:
-        #             curation_pub = CurationPublicationAnnotation.objects.filter(doi=self.study_publication.doi)
-        #             print('  - Adding PGP ID to the Curation Tracker')
-        #             curation_pub.pgp_id = pgp_id
-        #             print('  - Updating curation_status on the Curation Tracker')
-        #             if curration_status == 'E':
-        #                 curation_pub.curation_status = 'Embargo Imported - Awaiting Release'
-        #             else:
-        #                 curation_pub.curation_status = 'Imported - Awaiting Release'
-        #             curation_pub.save()
-        #         except CurationPublicationAnnotation.DoesNotExist:
-        #             print(f"Can't find study in Curation Tracker to add the new PGP ID '{pgp_id}'")
+
 
     def import_publication_model(self):
         ''' Import the Publication data if the Publication is not yet in the database. '''
