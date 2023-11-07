@@ -144,7 +144,6 @@ class PerformanceData(GenericData):
 
         except IntegrityError as e:
             self.model = None
-            self.parsing_report_error_import(e)
-            print('Error with the creation of the Performance(s) and/or the Metric(s)')
+            self.import_report_error(f'Error with the creation of the Performance(s) and/or the Metric(s): {e}')
 
         return self.model

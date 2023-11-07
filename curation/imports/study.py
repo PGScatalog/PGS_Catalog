@@ -95,10 +95,14 @@ class StudyImport():
         '''
         self.import_publication_model()
         self.import_score_models()
-        self.import_gwas_dev_samples()
-        self.remove_existing_performance_metrics()
-        self.import_samplesets()
-        self.import_performance_metrics()
+        if len(self.failed_data_import) == 0:
+            self.import_gwas_dev_samples()
+        if len(self.failed_data_import) == 0:
+            self.remove_existing_performance_metrics()
+        if len(self.failed_data_import) == 0:
+            self.import_samplesets()
+        if len(self.failed_data_import) == 0:
+            self.import_performance_metrics()
 
         # Print import warnings
         if len(self.import_warnings):
@@ -108,7 +112,9 @@ class StudyImport():
         # Remove entries if the import failed
         if len(self.failed_data_import):
             self.has_failed = True
-            print('\n**** ERROR: Import failed! ****')
+            print('\n*******************************')
+            print('**** ERROR: Import failed! ****')
+            print('*******************************')
             print('  - '+'\n  - '.join(self.failed_data_import))
             for obj in self.data_obj:
                 ids = self.data_ids[obj[0]]
@@ -116,7 +122,25 @@ class StudyImport():
                     col_condition = obj[1] + '__in'
                     obj[2].objects.filter(**{ col_condition: ids}).delete()
                     print(f'  > DELETED {obj[0]} (column "{obj[1]}") : {ids}')
-
+        # # Update study in Curation Tracker
+        # else:
+        #     if self.study_publication.doi:
+        #         pgp_id = self.study_publication.id
+        #         curation_status = self.study_publication.curation_status
+        #         curation_found = False
+        #         # Update PGP ID + curation status in Curation Tracker
+        #         try:
+        #             curation_pub = CurationPublicationAnnotation.objects.filter(doi=self.study_publication.doi)
+        #             print('  - Adding PGP ID to the Curation Tracker')
+        #             curation_pub.pgp_id = pgp_id
+        #             print('  - Updating curation_status on the Curation Tracker')
+        #             if curration_status == 'E':
+        #                 curation_pub.curation_status = 'Embargo Imported - Awaiting Release'
+        #             else:
+        #                 curation_pub.curation_status = 'Imported - Awaiting Release'
+        #             curation_pub.save()
+        #         except CurationPublicationAnnotation.DoesNotExist:
+        #             print(f"Can't find study in Curation Tracker to add the new PGP ID '{pgp_id}'")
 
     def import_publication_model(self):
         ''' Import the Publication data if the Publication is not yet in the database. '''
@@ -136,17 +160,28 @@ class StudyImport():
     def import_score_models(self):
         ''' Import the Score data if the Score is not yet in the database. '''
         print('> Import Scores')
-        for score_id, score_data in self.study.parsed_scores.items():
-            # Check if Score model already exists
-            try:
-                score = Score.objects.get(name=score_data.data['name'],publication__id=self.study_publication.id)
-                self.import_warnings.append(f'Existing Score: {score.id} ({score_id})')
-                self.existing_scores.append(score.id)
-            # Create Score model
-            except Score.DoesNotExist:
-                score = score_data.create_score_model(self.study_publication)
-                self.import_warnings.append(f'New Score: {score.id} ({score_id})')
-            self.study_scores[score_id] = score
+        try:
+            for score_id, score_data in self.study.parsed_scores.items():
+                # Check if Score model already exists
+                print(f">>> ID: {score_id} | NAME: {score_data.data['name']} | PUB ID: {self.study_publication.id}")
+                score_type = 'New'
+                try:
+                    score = Score.objects.get(name=score_data.data['name'],publication__id=self.study_publication.id)
+                    if score:
+                        score_type = 'Existing'
+                    self.existing_scores.append(score.id)
+                # Create Score model
+                except Score.DoesNotExist:
+                    score = score_data.create_score_model(self.study_publication)
+
+                if score:
+                    self.import_warnings.append(f'{score_type} Score: {score.id} ({score_id})')
+                    self.study_scores[score_id] = score
+                else:
+                    self.failed_data_import.append(f"Score: {score_id} couldn't be imported: \n{score_data.display_import_report_errors()}")
+                    return
+        except Exception as e:
+            self.failed_data_import.append(f'Score(s): {e}')
 
 
     def import_gwas_dev_samples(self):
@@ -289,7 +324,7 @@ class StudyImport():
                         current_score = Score.objects.get(id__iexact=i[0])
                     except Score.DoesNotExist:
                         self.failed_data_import.append(f'Performance Metric: can\'t find the Score {i[0]} in the database')
-                        continue
+                        break
 
                 related_SampleSet = self.study_samplesets[i[1]]
 
@@ -303,10 +338,8 @@ class StudyImport():
                     self.data_ids['performance'].append(study_performance.num)
                 else:
                     self.import_warnings.append(f'Performance Metric not created because of an issue while creating it.')
-                    if 'error' in performance.report['import']:
-                        msg = ', '.join(performance.report['import']['error'])
-                        self.failed_data_import.append(f'Performance Metric: {msg}')
-                    continue
+                    self.failed_data_import.append(', '.join(performance.display_import_report_errors()))
+                    break
                 # Add the performance metrics to the list
                 metric_models.extend(performance.metric_models)
 
