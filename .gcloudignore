@@ -17,10 +17,12 @@
 # Static directories (GAE uses the ones in /static instead)
 /catalog/static/
 /rest_api/static/
+/curation_tracker/static/
 
 # Curation and release directories (not needed for the website)
 /curation/
 /release/
+/curation_tracker/scripts/
 
 # Migrations
 **/migrations/
@@ -35,7 +37,9 @@
 
 # Other
 /rest_api/fixtures/
+/static/CACHE/
 app.yaml_template
+pgs-catalog-cred.json_template
 LICENSE.md
 README.md
 requirements_local.txt

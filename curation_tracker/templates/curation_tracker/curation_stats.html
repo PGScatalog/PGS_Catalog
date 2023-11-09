@@ -1,0 +1,70 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}PGS Catalog - Curation Tracker Stats{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Curation Release Ready</li>
+      </ol>
+    </nav>
+
+    <h2>Curation Tracker Stats</h2>
+
+    <div class="clearfix mt-5">
+      <div class="float-left mr-5">
+        <table class="table table-bordered table_pgs_h">
+          <thead class="thead-dark">
+            <tr>
+              <th class="table_title table_title_c font_16" colspan="4">L1 Curation</th>
+            </tr>
+            <tr>
+              <th>Year</th>
+              <th>Month</th>
+              <th>Curation done</th>
+              <th>Author Submission</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          {% for curation in l1_curation %}
+            <tr>
+              <td>{{ curation.year }}</td>
+              <td>{{ curation.month }}</td>
+              <td>{{ curation.count }} {{ curation.studies|safe }}</td>
+              <td>{{ curation.author_submission }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="float-left mr-5">
+        <table class="table table-bordered table_pgs_h">
+          <thead class="thead-dark">
+            <tr>
+              <th class="table_title table_title_c font_16" colspan="4">L2 Curation</th>
+            </tr>
+            <tr>
+              <th>Year</th>
+              <th>Month</th>
+              <th>Curation done</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          {% for curation in l2_curation %}
+            <tr>
+              <td>{{ curation.year }}</td>
+              <td>{{ curation.month }}</td>
+              <td>{{ curation.count }} {{ curation.studies|safe }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+{% endblock %}
