@@ -4,7 +4,6 @@ from datetime import date
 from django.db import models
 from pgs_web import constants
 from catalog import common
-from datetime import datetime  
 from django.utils import timezone
 from django.conf import settings
 # Create your models here.
@@ -169,7 +168,7 @@ class CurationPublicationAnnotation(models.Model):
     def set_creation_date(self,date_val=None):
         if date_val:
             try:
-                datetime.date.fromisoformat(date_val)
+                date.fromisoformat(date_val)
                 self.creation_date = date_val
             except ValueError:
                 raise ValueError("Incorrect data format, should be YYYY-MM-DD")

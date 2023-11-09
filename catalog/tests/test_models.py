@@ -1,5 +1,5 @@
 from django.test import TestCase
-from datetime import datetime
+import datetime as dt
 from psycopg2.extras import NumericRange
 from pgs_web import constants
 from catalog.models import *
@@ -33,7 +33,7 @@ firstauthor = "Inouye M"
 
 
 def format_date(date_list):
-    return datetime.date(int(date_list[0]),int(date_list[1]),int(date_list[2]))
+    return dt.date(int(date_list[0]),int(date_list[1]),int(date_list[2]))
 
 
 class CohortTest(TestCase):
