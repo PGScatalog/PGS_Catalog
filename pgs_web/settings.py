@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'rest_api.apps.RestApiConfig',
     'search.apps.SearchConfig',
     'benchmark.apps.BenchmarkConfig',
+    'curation_tracker.apps.CurationTrackerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,6 +82,8 @@ if PGS_ON_GAE == 0:
 if PGS_ON_LIVE_SITE:
     INSTALLED_APPS.append('corsheaders')
 
+# if DEBUG:
+#     INSTALLED_APPS.append('django_extensions')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -165,6 +168,14 @@ if PGS_ON_GAE == 1:
             'PASSWORD': os.environ['DATABASE_PASSWORD_2'],
             'HOST': os.environ['DATABASE_HOST_2'],
             'PORT': os.environ['DATABASE_PORT_2']
+        },
+        'curation_tracker': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['DATABASE_NAME_TRACKER'],
+            'USER': os.environ['DATABASE_USER_TRACKER'],
+            'PASSWORD': os.environ['DATABASE_PASSWORD_TRACKER'],
+            'HOST': os.environ['DATABASE_HOST_TRACKER'],
+            'PORT': os.environ['DATABASE_PORT_TRACKER']
         }
     }
 else:
@@ -188,10 +199,25 @@ else:
             'PASSWORD': os.environ['DATABASE_PASSWORD_2'],
             'HOST': 'localhost',
             'PORT': os.environ['DATABASE_PORT_LOCAL_2']
+        },
+        'curation_tracker': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['DATABASE_NAME_TRACKER'],
+            'USER': os.environ['DATABASE_USER_TRACKER'],
+            'PASSWORD': os.environ['DATABASE_PASSWORD_TRACKER'],
+            'HOST': 'localhost',
+            'PORT': os.environ['DATABASE_PORT_LOCAL_TRACKER']
         }
     }
 # [END db_setup]
 
+
+if 'PGS_CURATION_SITE' in os.environ:
+    DATABASE_ROUTERS = ['routers.db_routers.AuthRouter',]
+
+
+# Password validation
+# https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 #---------------------#
 # Password validation #
@@ -236,9 +262,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 STATICFILES_FINDERS = [
 	'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder'
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 ]
+if not os.getenv('GAE_APPLICATION', None):
+    STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
 
 
 COMPRESS_PRECOMPILERS = ''
@@ -256,7 +283,7 @@ COMPRESS_PRECOMPILERS = (
 #    '127.0.0.1'
 #]
 REST_BLACKLIST_IPS = [
-#     '127.0.0.1'
+    #'127.0.0.1'
 ]
 
 REST_FRAMEWORK = {
@@ -272,7 +299,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_api.pagination.CustomPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 50,
     'EXCEPTION_HANDLER': 'rest_api.views.custom_exception_handler',
     'DEFAULT_THROTTLE_CLASSES': [
@@ -313,3 +340,25 @@ ELASTICSEARCH_INDEX_NAMES = {
     'search.documents.efo_trait': 'efo_trait',
     'search.documents.publication': 'publication'
 }
+
+
+#---------------------------------#
+#  Google Cloud Storage Settings  #
+#---------------------------------#
+
+if os.getenv('GAE_APPLICATION'):
+    from google.oauth2 import service_account
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+        os.path.join(BASE_DIR, os.environ['GS_SERVICE_ACCOUNT_SETTINGS'])
+    )
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = os.environ['GS_BUCKET_NAME']
+    MEDIA_URL = 'https://storage.googleapis.com/'+os.environ['GS_BUCKET_NAME']+'/'
+# else:
+#     MEDIA_URL = '/media/'
+#     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MIN_UPLOAD_SIZE=1000
+MAX_UPLOAD_SIZE=2000000
+MAX_UPLOAD_SIZE_LABEL="2Mb"
+DATA_UPLOAD_MAX_NUMBER_FILES=10

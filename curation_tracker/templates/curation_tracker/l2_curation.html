@@ -1,0 +1,21 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}PGS Catalog - Curation L2{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="../../">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Curation L2</li>
+      </ol>
+    </nav>
+
+    <h2>Curation L2</h2>
+
+    <section>
+      <h3>List of studies waiting for the L2 curation</h3>
+      {% render_table table %}
+    </section>
+
+{% endblock %}

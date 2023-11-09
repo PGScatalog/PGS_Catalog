@@ -1,0 +1,14 @@
+/* Icons related CSS */
+.external-link:after {
+    font-family: "Font Awesome 6 Free";
+    content: "\f35d";
+    display: inline-block;
+    font-size: 0.6rem;
+    vertical-align: top !important;
+    padding-left:4px;
+    font-weight:900;
+  }
+
+.extra-field-button {
+    vertical-align: sub;
+}
