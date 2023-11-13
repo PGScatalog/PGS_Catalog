@@ -61,11 +61,10 @@ class ScoringFileUpdate():
     def update_scoring_file(self):
         ''' Method to fetch the file, read it, add the header and compress it. '''
         failed_update = False
+        score_id = self.score.id
+        score_name = self.score.name
+        raw_scorefile_path = f'{self.score_file_path}/{score_name}'
         try:
-            score_name = self.score.name
-            score_id = self.score.id
-            raw_scorefile_path = f'{self.score_file_path}/{score_name}'
-
             raw_scorefile_txt = f'{raw_scorefile_path}{self.txt_ext}'
             raw_scorefile_tsv = f'{raw_scorefile_path}{self.tsv_ext}'
             raw_scorefile_xls = f'{raw_scorefile_path}{self.xls_ext}'
@@ -151,8 +150,8 @@ class ScoringFileUpdate():
                     if v == False:
                         badmaps.append(df_scoring.columns[i])
                 failed_update = True
-                print(f'ERROR in {raw_scorefile} ! bad columns: {badmaps}')
+                print(f'ERROR in {raw_scorefile_path} ! bad columns: {badmaps}')
         except Exception as e:
             failed_update = True
-            print(f'ERROR reading scorefile: {raw_scorefile}\n-> {e}')
+            print(f'ERROR reading scorefile: {raw_scorefile_path}\n-> {e}')
         return failed_update
