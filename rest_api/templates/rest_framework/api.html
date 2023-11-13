@@ -12,11 +12,11 @@
     <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
 
     {% if is_pgs_app_on_gae %}
-      <link rel="stylesheet" href="{% static 'rest_api/pgs_rest_web.min.css' %}" type="text/css" media="all" />
+      <link rel="stylesheet" href="{% static 'rest_api/pgs_rest.min.css' %}" type="text/css" media="all" />
     {% else %}
-        {% compress css %}
-            <link type="text/x-scss" href="{% static 'rest_api/pgs_rest_web.scss' %}" rel="stylesheet" media="screen"/>
-        {% endcompress %}
+      {% compress css %}
+        <link type="text/x-scss" href="{% static 'rest_api/pgs_rest.scss' %}" rel="stylesheet" media="screen">
+      {% endcompress %}
     {% endif %}
 
 {% endblock %}
