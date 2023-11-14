@@ -231,9 +231,10 @@ small {
     }
   }
 }
-.btn-group, .execute-wrapper {
-  padding: 20px 20vw !important;
-}
+// Commented so the "GET" button of the browsable rest api is located properly on the right side
+// .btn-group, .execute-wrapper {
+//   padding: 20px 20vw !important;
+// }
 .btn.execute {
   background-color: $pgs_colour_1 !important;
   color:#FFF !important;
@@ -549,4 +550,8 @@ ul.breadcrumb {
   line-height: 1.42857143;
   color: #333;
   white-space: nowrap;
+}
+
+.prettyprint .str {
+  color: $pgs_dark2 !important;
 }
