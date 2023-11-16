@@ -157,7 +157,8 @@ class StudyImport():
                 scores = []
                 sample_type = x[0][1]
                 # Extract scores
-                for s in x[0][0].split(','):
+                # Filtering empty strings out (happens if trailing separator)
+                for s in filter(bool,x[0][0].split(',')):
                     if s.strip() in self.study_scores:
                         scores.append(self.study_scores[s.strip()])
                     else:
