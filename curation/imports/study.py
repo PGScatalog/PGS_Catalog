@@ -292,7 +292,11 @@ class StudyImport():
                         self.failed_data_import.append(f'Performance Metric: can\'t find the Score {i[0]} in the database')
                         continue
 
-                related_SampleSet = self.study_samplesets[i[1]]
+                # Fetching sample set from sample descriptions
+                sample_set_id = i[1]
+                related_SampleSet = self.study_samplesets.get(sample_set_id)
+                if not related_SampleSet:
+                    raise Exception(f'Sample Set ID {sample_set_id} cannot be found in Sample Descriptions')
 
                 if len(performance.metrics) == 0:
                     self.failed_data_import.append(f"Performance Metric - {current_score.id}: ({current_score.name} - {related_SampleSet.name} - {performance.data['phenotyping_reported']}): missing/wrong-formatted Metric data")
