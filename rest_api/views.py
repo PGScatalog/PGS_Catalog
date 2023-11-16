@@ -581,10 +581,10 @@ class RestListCohorts(generics.ListAPIView):
         if names_list:
             names_list = r'^('+'|'.join(names_list)+')$'
             if fetch_all_cohorts:
-                queryset = queryset.filter(name_short__iregex=names_list, released=True)
-            else:
                 queryset = queryset.filter(name_short__iregex=names_list)
-        elif fetch_all_cohorts:
+            else:
+                queryset = queryset.filter(name_short__iregex=names_list, released=True)
+        elif fetch_all_cohorts == False:
             queryset = queryset.filter(released=True)
 
         return queryset
