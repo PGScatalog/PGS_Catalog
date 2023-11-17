@@ -85,6 +85,7 @@ class CurationImport():
                         is_failed = scoring_file_update.update_scoring_file()
                         if is_failed == True:
                             self.failed_studies[study_import.study_name] = 'scoring file error'
+                            print(f"  /!\ Updated Scoring File couldn't be generated!")
                 else:
                     print("  > No scores for this study, therefore no scoring files")
 
