@@ -170,23 +170,26 @@ class CurationTemplate():
         # Loop throught the rows (i.e. score)
         for score_name, score_info in self.table_scores.iterrows():
             parsed_score = ScoreData(score_name,spreadsheet_name)
-            if license:
-                parsed_score.add_data('license', license)
-            # Loop throught the columns
-            for col, val in score_info.items():
-                if pd.isnull(val) is False:
-                    # Map to schema
-                    m, f = self.get_model_field_from_schema(col,current_schema)
+            if parsed_score:
+                if license:
+                    parsed_score.add_data('license', license)
+                # Loop throught the columns
+                for col, val in score_info.items():
+                    if pd.isnull(val) is False:
+                        # Map to schema
+                        m, f = self.get_model_field_from_schema(col,current_schema)
 
-                    # Add to ScoreData if it's from the Score model
-                    if m == model:
-                        if f == 'trait_efo':
-                            efo_list = val.split(',')
-                            parsed_score.add_data(f, efo_list)
-                        else:
-                            parsed_score.add_data(f, val)
-            self.update_report(parsed_score)
-            self.parsed_scores[score_name] = parsed_score
+                        # Add to ScoreData if it's from the Score model
+                        if m == model:
+                            if f in ['trait_efo','trait_efo_name']:
+                                efo_list = val.split(',')
+                                parsed_score.add_data(f, efo_list)
+                            else:
+                                parsed_score.add_data(f, val)
+                self.update_report(parsed_score)
+                self.parsed_scores[score_name] = parsed_score
+            else:
+                self.report_error(spreadsheet_name, f"Can't parse the Score '{score_name}'!")
 
 
     def extract_samples(self):

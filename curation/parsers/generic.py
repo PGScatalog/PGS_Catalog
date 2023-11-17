@@ -55,7 +55,7 @@ class GenericData():
     def add_parsing_report(self, rtype, msg):
         """
         Store the reported error/warning.
-        - rtype: type of report (e.g. error, warning)
+        - rtype: type of report (e.g. error, warning, import)
         - msg: error message
         """
         if rtype in self.report_types:
@@ -83,9 +83,22 @@ class GenericData():
         self.add_parsing_report('warning', msg)
 
 
-    def parsing_report_error_import(self, msg):
+    def import_report_error(self, msg):
         """
         Store the reported import error.
         - msg: import error message
         """
-        self.add_parsing_report('import', 'error', msg)
+        self.add_parsing_report('import', msg)
+
+
+    def display_import_report_errors(self, display_spreadsheet_info:bool=True):
+        """ Return the content of the import error reports """
+        report_msg = []
+        type = 'import'
+        for sp_name, messages in self.report[type].items():
+            prefix = ''
+            if display_spreadsheet_info:
+                prefix = f'    > {sp_name}: '
+            for message in list(messages):
+                report_msg.append(f"{prefix}{message}")
+        return '\n'.join(report_msg)
