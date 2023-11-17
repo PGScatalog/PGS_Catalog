@@ -73,7 +73,7 @@ class ScoringFileUpdate():
             elif os.path.exists(raw_scorefile_tsv):
                 df_scoring = pd.read_table(raw_scorefile_tsv, dtype='str', engine = 'python')
             elif os.path.exists(raw_scorefile_xls):
-                df_scoring = pd.read_excel(raw_scorefile_xls, dtype='str', engine = 'python')
+                df_scoring = pd.read_excel(raw_scorefile_xls, dtype='str')
             else:
                 failed_update = True
                 print(f"ERROR can't find the scorefile {raw_scorefile_path} (trying with the extensions '{self.txt_ext}' and '{self.xls_ext}')\n")
