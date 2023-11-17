@@ -30,10 +30,10 @@
   </nav>
 
   {% if not query %}
-    <h2>Search</h2>
+    <h2 class="pgs_page_title">Search</h2>
     <h5><i class="fas fa-info-circle pgs_color_1 mr-2"></i>Please enter a search term in the <i>"Search..."</i> form above, on the page header.</h5>
   {% else %}
-    <h2 class="search_result_header pb-2">Search results for "<span class="pgs_color_1">{{ query }}</span>"</h2>
+    <h2 class="pgs_page_title search_result_header pb-2">Search results for "<span class="pgs_color_1">{{ query }}</span>"</h2>
     {% if facets_count %}
       <div class="search_facet_container mt-4">
 

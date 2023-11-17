@@ -25,7 +25,7 @@
     </nav>
 
     <div class="clearfix">
-      <h2 class="pgs_title_left">About the PGS Catalog</h2>
+      <h2 class="pgs_title_left pgs_page_title">About the PGS Catalog</h2>
       <div class="pgs_buttons_right clearfix mb-2">
         <div class="mr-2">
           <a class="btn btn-pgs pgs_no_icon_link" title="Email" href="mailto:{{ pgs_contact }}" target="_blank">
@@ -85,20 +85,8 @@
             See the <a href="/docs/">PGS Catalog Data Description</a> page for a complete description of the metadata captured for PGS, Samples, Performance Metrics, Traits, and Publications.
         </p>
 
-    <h4 id="citation">Citation</h4>
-    <p>The PGS Catalog development is led by <a href="{{ ebi_url }}/about/people/samuel-lambert">Samuel Lambert</a>
-        under the supervision of <a href="https://www.inouyelab.org/home/people">Michael Inouye</a> (<a href="https://sysgenresearch.org/">University of Cambridge & Baker Institute</a>)
-        in collaboration with <a href="{{ hdr_uk_cam_url }}">Health Data Research - UK</a> (Laurent Gil)
-        and the <a href="{{ ebi_url }}/gwas/">EBI Samples, Phenotypes and Ontologies team / NHGRI-EBI GWAS Catalog</a> (Helen Parkinson, Aoife McMahon, Laura Harris).</p>
-    <p>The Catalog is under active development, and we continue to add new features and curate new data. If you use the Catalog in your research we ask that you cite our recent paper:
-    <div class="clearfix mb-3">
-      <div class="highlight_content">
-        <p>{{ pgs_citation.authors }}</p>
-        <p><u>{{ pgs_citation.title }}</u></p>
-        <p><span class="with_sep_right"><i>{{ pgs_citation.journal }}</i></span>doi: <a href="https://doi.org/{{ pgs_citation.doi }}">{{ pgs_citation.doi }}</a> ({{ pgs_citation.year }}).</p>
-      </div>
-    </div>
-    <p>Individual PGS obtained from the database should also be cited appropriately, and used in accordance with any licensing restrictions set by the authors (see our <a href="{{ terms_of_use }}">Terms of Use</a> for more information).</p>
+      <h4 id="citation">Citation</h4>
+      {% include "catalog/docs/citation.html" %}
     </section>
 
 
@@ -199,9 +187,9 @@
 
     <section>
       <h3 id="acknowledgements">Acknowledgements</h3>
-      
+
       <p>We wish to acknowledge the help of the following people & teams for their support of the PGS Catalog:</p>
-      
+
       {{ pgs_contributors|safe }}
 
       <p class="mt-4">The PGS Catalog is delivered by collaboration between the EMBL-EBI and University of Cambridge and funded by NHGRI (1U24HG012542-01), Health Data Research UK and the Baker Heart & Diabetes Institute.</p>

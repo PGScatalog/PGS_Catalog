@@ -1,10 +1,8 @@
 from django.shortcuts import render
 from elasticsearch_dsl import Q
-from search.documents.efo_trait import EFOTraitDocument
-from search.documents.publication import PublicationDocument
-from search.documents.score import ScoreDocument
 from search.search import EFOTraitSearch, PublicationSearch, ScoreSearch
 from django.http import JsonResponse
+
 
 all_results_scores = {}
 
@@ -83,6 +81,12 @@ def autocomplete(request):
 
     return autocomplete_base(request,q)
 
+def autocomplete_browse(request):
+    """ Return suggestions for the autocomplete form. """
+    bq = request.GET.get('bq')
+
+    return autocomplete_base(request,bq)
+
 
 def format_score_results(request, data):
     """ Convert the Score results into HTML. """
@@ -148,9 +152,6 @@ def format_efo_traits_results(request, data):
 def format_publications_results(request, data):
     """ Convert the Publication results into HTML. """
 
-    results = []
-    doi_url = 'https://doi.org/'
-    pubmed_url = 'https://www.ncbi.nlm.nih.gov/pubmed/'
     for idx, d in enumerate(data):
         id_suffix =  d.id.replace('PGP','')
 
@@ -173,12 +174,13 @@ def format_publications_results(request, data):
             all_results_scores[result_score] = [hmtl_results]
 
 
-
 def get_efo_trait_url(id,label):
     return f'<a href="/trait/{id}">{label}</a>'
 
+
 def get_publication_url(id,label):
     return f'<a href="/publication/{id}">{label}</a>'
+
 
 def get_score_url(id):
     return f'<a href="/score/{id}">{id}</a>'

@@ -31,19 +31,6 @@ $chart_font_family:"Verdana", "Arial", "sans-serif";
   }
 }
 
-// .filter_container {
-//   border:1px solid $pgs_darkC;
-//   border-radius:4px;
-//   padding:4px 10px;
-// }
-// .filter_header {
-//   font-weight: 200;
-//   border-bottom:1px solid $pgs_darkC;
-//   color: $pgs_dark0;
-//   padding-bottom:4px;
-//   text-align:center;
-// }
-
 .tooltip {
   font-size: 12px;
 }
@@ -100,7 +87,7 @@ $pgs_benchmark_colours: (
   .pgs_benchmark_anc_#{$label} {
     &:before {
       color: $colour;
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       content: "\f068";
       font-weight:900;
     }
@@ -110,22 +97,19 @@ $pgs_benchmark_colours: (
     &:before {
       padding-right:5px;
       color: $colour;
-      // font-family: "Font Awesome 5 Free";
-      // content: "\f0c8";
-      // font-weight:900;
     }
   }
 }
 
 .pgs_benchmark_shape_circle:before {
   font-size: 10px;
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f111";
   font-weight:900;
 }
 .pgs_benchmark_shape_circle_o:before {
   font-size: 10px;
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f111";
 }
 
@@ -186,37 +170,37 @@ $pgs_benchmark_colours: (
 
 .pgs_benchmark_shape_square:before {
   font-size: 10px;
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f0c8";
   font-weight:900;
 }
 .pgs_benchmark_shape_square_o:before {
   font-size: 10px;
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f0c8";
 }
 
 .pgs_benchmark_shape_star:before {
   font-size: 10px;
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f005";
   font-weight:900;
 }
 .pgs_benchmark_shape_star_o:before {
   font-size: 10px;
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f005";
 }
 
 .pgs_benchmark_shape_cross:before {
   font-size: 10px;
-  font-family: "Font Awesome 5 Free";
-  content: "\f067";
+  font-family: "Font Awesome 6 Free";
+  content: "\2b";
   font-weight:900;
 }
 .pgs_benchmark_shape_cross_o:before {
   font-size: 10px;
-  font-family: "Font Awesome 5 Free";
+  font-family: "Font Awesome 6 Free";
   content: "\f0fe";
   font-weight:900;
 }
