@@ -45,3 +45,6 @@ requirements_local.txt
 LICENSE.md
 README.md
 **/.DS_Store
+
+## Only for Live Webiste ##
+#/curation_tracker

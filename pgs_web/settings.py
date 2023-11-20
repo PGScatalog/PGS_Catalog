@@ -226,7 +226,7 @@ else:
 
 
 # Router
-if PGS_ON_CURATION_SITE == True:
+if PGS_ON_CURATION_SITE:
     DATABASE_ROUTERS = ['routers.db_routers.AuthRouter',]
 
 
@@ -358,7 +358,7 @@ ELASTICSEARCH_INDEX_NAMES = {
 #  Google Cloud Storage Settings  #
 #---------------------------------#
 
-if PGS_ON_GAE == 1:
+if PGS_ON_GAE == 1 and PGS_ON_CURATION_SITE:
     from google.oauth2 import service_account
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
         os.path.join(BASE_DIR, os.environ['GS_SERVICE_ACCOUNT_SETTINGS'])
