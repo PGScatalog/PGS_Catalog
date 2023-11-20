@@ -1,13 +1,17 @@
 {% extends 'admin/base.html' %}
 {% load static %}
 
+{% block extrahead %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'curation_tracker/pgs_admin.css' %}">
+{% endblock %}
+
 {% block content %}
   <div id="content-main">
     <div>
       <h2 style="margin-bottom:1rem">LitSuggest file upload</h2>
+      <form action="./confirm_formset" method="POST" enctype="multipart/form-data">
       <div>
-        <form action="./confirm" method="POST" enctype="multipart/form-data">
-          {{ form.as_p }}
+          {{ comment_form.as_p }}
           <br />
           {% csrf_token %}
           <div class="submit-row">
@@ -15,13 +19,14 @@
             <input class="button" type="button" onclick="history.back()" value="Cancel" />
           </div>
           <div class="help">(Studies with errors and tagged as 'Not PGS' won't be imported)</div>
-        </form>
       </div>
       <div>
         <h2>Import Preview:</h2>
-        <table>
+        <table class="litsuggest-import-table">
           <tr>
             <th>PMID</th>
+            <th>Triage Decision</th>
+            <th>Triage Note</th>
             <th>Study Name</th>
             <th>Title</th>
             <th>Journal</th>
@@ -32,35 +37,48 @@
             <th>Curation Status</th>
             <th>1st Level Curation Status</th>
           </tr>
-          {% for annot in annotations %}
-          {% with model=annot.model %}
+          {{ formset.management_form }}
+          {% for preview_form in formset %}
           <tr>
-            <td>{{model.PMID}}</td>
-            {% if annot.error %}
-            <td colspan="100%"><p class="errornote">{{annot.error}}</p></td>
-            {% elif annot.skip_reason %}
-            <td colspan="100%"><b><i>{{annot.skip_reason}}</i></b></td>
-            {% else %}
-            <td>{{model.study_name}}</td>
-            <td>{{model.title}}</td>
-            <td>{{model.journal}}</td>
-            <td>
-            {% if model.eligibility %}
-              <img src="{% static '/admin/img/icon-yes.svg' %}" alt="Yes">
-            {% else %}
-              <img src="{% static '/admin/img/icon-no.svg' %}" alt="No">
-            {% endif %}
-            </td>
-            <td>{{model.eligibility_dev_score}}</td>
-            <td>{{model.eligibility_eval_score}}</td>
-            <td>{{model.eligibility_description}}</td>
-            <td>{{model.curation_status}}</td>
-            <td>{{model.first_level_curation_status}}</td>
-            {% endif %}
+            <td>{{preview_form.triage_info.PMID}}{{preview_form.PMID}}{{preview_form.doi}}</td>
+            <td>{{preview_form.triage_info.triage_decision}}</td>
+            <td>{{preview_form.triage_info.triage_note}}</td>
+            <td>{{preview_form.study_name}}{{preview_form.study_name.errors}}</td>
+            <td>{{preview_form.title}}</td>
+            <td>{{preview_form.journal}}</td>
+            <td>{{preview_form.eligibility}}</td>
+            <td>{{preview_form.eligibility_dev_score}}</td>
+            <td>{{preview_form.eligibility_eval_score}}</td>
+            <td>{{preview_form.eligibility_description}}</td>
+            <td>{{preview_form.curation_status}}</td>
+            <td>{{preview_form.first_level_curation_status}}</td>
           </tr>
-          {% endwith %}
           {% endfor %}
+        </table>
       </div>
+      <div class="submit-row">
+        <input type="submit" value="Confirm" class="default" style="float:left; font-weight: bold; margin-right: 5px">
+        <input class="button" type="button" onclick="history.back()" value="Cancel" />
+      </div>
+      <div class="help">(Studies with errors and tagged as 'Not PGS' won't be imported)</div>
+      {% if skipped_publications %}
+      <div>
+        <h2>Ignored Publications:</h2>
+        <table>
+          <tr>
+            <th>PMID</th>
+            <th>Comment</th>
+          </tr>
+          {% for skipped_publi in skipped_publications %}
+          <tr>
+            <td>{{skipped_publi.model.PMID}}</td>
+            <td>{{skipped_publi.skip_reason|default:""}}{{skipped_publi.error|default:""}}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+    </form>
     </div>
   </div>
 

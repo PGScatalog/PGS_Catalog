@@ -12,3 +12,7 @@
 .extra-field-button {
     vertical-align: sub;
 }
+
+.litsuggest-import-table * {
+  font-size: 0.7rem;
+}

@@ -1,21 +1,20 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django import forms
-from django.urls import path,reverse
+from django.urls import path
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-import csv
-import re
-from django import forms
-from django.forms import TextInput, Textarea
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.contrib.admin import DateFieldListFilter
 # Register your models here.
 from .models import *
 from catalog.models import Publication
+from curation_tracker.litsuggest import litsuggest_import_to_annotation, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
 
-from curation_tracker.litsuggest import litsuggest_import_to_annotation, annotation_to_dict, dict_to_annotation_import
-from django.contrib.admin import DateFieldListFilter
+from typing import List
+import re
 import datetime as dt
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
@@ -75,12 +74,52 @@ class LitsuggestImportForm(forms.Form):
     """ Litsuggest Import form """
     litsuggest_file = forms.FileField(label=format_html('Litsuggest TSV file'))
 
-class LitsuggestPreviewForm(forms.Form):
+class LitsuggestCommentForm(forms.Form):
+    '''Unique form for applying a comment to all litsuggest studies of a single import'''
     comment = forms.CharField(label='Comment', 
                               help_text=format_html('<div class="help">eg: Litsuggest Automatic Weekly Digest (Sep 24 2023 To Sep 30 2023)</div>'),
                               required=True, 
                               widget=forms.Textarea(attrs={'rows':3}), 
                               initial='Litsuggest Automatic Weekly Digest')
+    
+class StudyNameField(forms.CharField):
+    def validate(self, value):
+        super().validate(value)
+        count_study_name = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name=value).count()
+        if(count_study_name):
+            raise ValidationError('Name already exists in the database')
+
+class LitsuggestPreviewForm(forms.ModelForm):
+    '''Form for bulk editing and saving newly imported litsuggest studies'''
+    class Meta:
+        model = CurationPublicationAnnotation
+        fields = ['PMID','study_name','title','journal','eligibility','eligibility_dev_score',
+            'eligibility_eval_score','eligibility_description','curation_status','first_level_curation_status']
+
+    def __init__(self, *args, triage_info, **kwargs):
+        super(LitsuggestPreviewForm, self).__init__(*args, **kwargs)
+        self.triage_info = triage_info
+
+    PMID = forms.CharField(required=True, widget=forms.HiddenInput()) # PMID is shown as plain text but needed in the form for further validation/data import
+    doi = forms.CharField(required=False, widget=forms.HiddenInput())
+    study_name = StudyNameField(required=True, widget=forms.TextInput(attrs={"required": True, "size": 12}))
+    title = forms.CharField(widget=forms.Textarea(attrs={'rows':4}))
+    eligibility_description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows':4,'cols':16}))
+    triage_info:dict
+    error:str
+    skip_reason:str
+
+class LitsuggestPreviewFormSet(forms.BaseFormSet):
+    '''Formset for litsuggest imports bulk editing (requires LitsuggestPreviewForm)'''
+    def get_form_kwargs(self, index):
+        ''' Redefined so each form of the set can have different triage infos '''
+        kwargs = super().get_form_kwargs(index)
+        ti = None
+        if 'triage_info' in kwargs:
+            ti = kwargs['triage_info'][index]
+        return {'triage_info': ti}
+    
+CurationPublicationAnnotationFormSet = forms.formset_factory(LitsuggestPreviewForm, formset=LitsuggestPreviewFormSet, extra=0)
 
 class CurationPublicationAnnotationForm(forms.ModelForm):
     """ Custom Admin form """
@@ -149,7 +188,7 @@ class MultiDBModelAdmin(admin.ModelAdmin):
     using = curation_tracker_db
 
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows':3, 'cols':90})}
+        models.TextField: {'widget': forms.Textarea(attrs={'rows':3, 'cols':90})}
     }
 
     def save_model(self, request, obj, form, change):
@@ -428,7 +467,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         my_urls = [
             path('import-csv/', self.import_csv),
             path('import-litsuggest/', self.import_litsuggest),
-            path('import-litsuggest/confirm', self.confirm_litsuggest)
+            #path('import-litsuggest/confirm', self.confirm_litsuggest),
+            path('import-litsuggest/confirm_formset', self.confirm_litsuggest_formset)
         ]
         return my_urls + urls
 
@@ -480,40 +520,79 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     def import_litsuggest(self,request):
         if request.method == "POST":
             litsuggest_file = request.FILES["litsuggest_file"]
-            models = litsuggest_import_to_annotation(litsuggest_file)
+            import_models = litsuggest_import_to_annotation(litsuggest_file)
 
-            preview_data = list(map(annotation_to_dict,models))
-            request.session['preview_data'] = preview_data
+            skipped_publications: List[dict] = [] # as dict so it can be serialized in session
+            staged_publications_data: List[dict] = [] # format for FormSet 'initial' parameter
+            triage_info: List[dict] = []
+
+            for import_model in import_models:
+                if import_model.error:
+                    skipped_publications.append(annotation_import_to_dict(import_model))
+                elif import_model.skip_reason:
+                    skipped_publications.append(annotation_import_to_dict(import_model))
+                else:
+                    annotation = import_model.annotation
+                    staged_publications_data.append(annotation_to_dict(annotation))
+                    triage_info.append(import_model.triage_info)
+
+            formset = CurationPublicationAnnotationFormSet(initial=staged_publications_data, form_kwargs={'triage_info':triage_info})
+            # Keeping info in the session for reusing in the form if not valid
+            request.session['skipped_publications'] = skipped_publications
+            request.session['triage_info'] = triage_info                   
             
             return render(
                 request, "curation_tracker/litsuggest_preview_form.html", {
-                    'annotations': preview_data,
-                    'form': LitsuggestPreviewForm()
+                    'skipped_publications': skipped_publications,
+                    'comment_form': LitsuggestCommentForm,
+                    'formset': formset
                 }
             )
-
-        form = LitsuggestImportForm()
-        payload = {"form": form}
-        return render(
-            request, "curation_tracker/litsuggest_form.html", payload
-        )
-    
-    def confirm_litsuggest(self,request):
+        
+        else:
+            form = LitsuggestImportForm()
+            payload = {"form": form}
+            return render(
+                request, "curation_tracker/litsuggest_form.html", payload
+            )
+        
+    def confirm_litsuggest_formset(self,request):
         if request.method == "POST":
-            form = LitsuggestPreviewForm(request.POST)
+            has_errors = False
+            comment_form = LitsuggestCommentForm(request.POST)
             comment = None
-            if form.is_valid():
-                comment = form.cleaned_data['comment']
-            preview_data = request.session['preview_data']
-            del request.session['preview_data']
-            annotations = list(map(dict_to_annotation_import, preview_data))
-            for annotation in annotations:
-                if annotation.is_valid() and annotation.is_importable():
-                    annotation.annotation.comment = comment
-                    annotation.save(using=curation_tracker_db)
-            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
-            
+            if comment_form.is_valid():
+                comment = comment_form.cleaned_data['comment']
+            else:
+                has_errors = True
 
+            triage_info = request.session.get('triage_info', []) # fetching triage infos for the formset in case it needs to be provided to the context again in case of error
+            formset = CurationPublicationAnnotationFormSet(request.POST, form_kwargs={'triage_info':triage_info})
+            annotation_imports: List[CurationPublicationAnnotationImport] = []
+            if formset.is_valid() and not has_errors:
+                for f in formset:
+                    data = f.cleaned_data
+                    data['comment'] = comment
+                    annotation_import = dict_to_annotation_import({'model':data})
+                    annotation_imports.append(annotation_import)
+                [annotation_import.save() for annotation_import in annotation_imports]
+            else:
+                has_errors = True
+
+            if has_errors:
+                return render(
+                    request, "curation_tracker/litsuggest_preview_form.html", {
+                        'skipped_publications': request.session.get('skipped_publications', []),
+                        'comment_form': comment_form,
+                        'formset': formset
+                    }
+            )
+
+            del request.session['skipped_publications']
+            del request.session['triage_info']
+
+        return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
+            
     display_pgp_id.short_description = 'PGP ID'
     display_study_name.short_description = 'Study Name'
     display_PMID.short_description = 'Pubmed ID'

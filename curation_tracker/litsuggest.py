@@ -13,12 +13,20 @@ class CurationPublicationAnnotationImport():
     error: str
     skip_reason: str
     annotation: CurationPublicationAnnotation
+    triage_info: dict
 
     def __init__(self, model: CurationPublicationAnnotation = CurationPublicationAnnotation()):
         self.annotation = model# if model else CurationPublicationAnnotation()
         self.error = None
         self.skip_reason = None
-    
+        self.triage_info = {}
+
+    def to_dict(self) -> dict:
+        values = annotation_to_dict(self.annotation)
+        values['error'] = self.error
+        values['skip_reason'] = self.skip_reason
+        return values
+
     def is_valid(self) -> bool:
         """Should be used before saving"""
         return self.error == None
@@ -130,18 +138,20 @@ def create_new_annotation(publication_info) -> CurationPublicationAnnotation:
         
     return model
 
-def annotation_to_dict(annotation_import: CurationPublicationAnnotationImport) -> dict:
+def annotation_import_to_dict(annotation_import: CurationPublicationAnnotationImport) -> dict:
     d = dict()
     for attr in ['error','skip_reason']:
         d[attr] = getattr(annotation_import,attr)
+    d['model'] = annotation_to_dict(annotation_import.annotation)
+    return d
+
+def annotation_to_dict(model: CurationPublicationAnnotation) -> dict:
     model_dict = dict()
-    model = annotation_import.annotation
     for attr in ['PMID','study_name','doi','journal','title','year','eligibility','comment',
                  'eligibility_dev_score','eligibility_eval_score','eligibility_description','first_level_curation_status','curation_status',
                  'publication_date']:
         model_dict[attr] = getattr(model,attr)
-    d['model'] = model_dict
-    return d
+    return model_dict
 
 def dict_to_annotation_import(d: dict) -> CurationPublicationAnnotationImport:
     model = CurationPublicationAnnotation()
@@ -172,7 +182,6 @@ def check_study_name(study_name: str) -> str:
     return study_name
 
 def litsuggest_import_to_annotation(litsuggest_file: str) -> List[CurationPublicationAnnotationImport]:
-    #df = pd.read_csv(litsuggest_file, sep="\t").dropna(how='all')
     df = pd.read_csv(litsuggest_file, sep="\t").fillna('') 
     models = []
     for i, row in df.iterrows():
@@ -193,6 +202,11 @@ def litsuggest_import_to_annotation(litsuggest_file: str) -> List[CurationPublic
             annotationModel.eligibility_description = triage_note
 
             annotation_import = CurationPublicationAnnotationImport(annotationModel)
+            annotation_import.triage_info = {
+                'triage_decision': triage_decision,
+                'triage_note': triage_note,
+                'PMID': pmid
+            }
 
             match triage_decision:
                 case 'New PGS':
