@@ -518,7 +518,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         )
 
     def import_litsuggest(self,request):
-        print('import lit')
         if request.method == "POST":
             litsuggest_file = request.FILES["litsuggest_file"]
             import_models = litsuggest_fileupload_to_annotation_imports(litsuggest_file)
