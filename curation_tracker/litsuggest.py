@@ -1,9 +1,11 @@
-import pandas as pd
+import csv
 import requests
 from pgs_web import constants
 from catalog.models import Publication
 from curation_tracker.models import CurationPublicationAnnotation
 from typing import List
+from io import TextIOWrapper
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 pgs_db = 'default'
 curation_tracker_db = 'curation_tracker'
@@ -181,12 +183,12 @@ def check_study_name(study_name: str) -> str:
         study_name = new_study_name
     return study_name
 
-def litsuggest_import_to_annotation(litsuggest_file: str) -> List[CurationPublicationAnnotationImport]:
-    df = pd.read_csv(litsuggest_file, sep="\t").fillna('') 
+def _litsuggest_IO_to_annotation_imports(litsuggest_file) -> List[CurationPublicationAnnotationImport]:
     models = []
-    for i, row in df.iterrows():
+    reader = csv.DictReader(litsuggest_file, delimiter='\t')
+    for row in reader:
         if not row['pmid']:
-            continue
+            break # litsuggest files might contain a lot of empty rows after the relevant ones
         pmid = str(int(row['pmid']))
         try:
             triage_decision = row['triage.decision']
@@ -243,3 +245,11 @@ def litsuggest_import_to_annotation(litsuggest_file: str) -> List[CurationPublic
             models.append(annotation_import)
 
     return models
+
+def litsuggest_filename_to_annotation_imports(litsuggest_file_name: str) -> List[CurationPublicationAnnotationImport]:
+    with open(litsuggest_file_name, 'r') as litsuggest_file:
+        return _litsuggest_IO_to_annotation_imports(litsuggest_file)
+    
+def litsuggest_fileupload_to_annotation_imports(litsuggest_file_upload: InMemoryUploadedFile) -> List[CurationPublicationAnnotationImport]:
+    file_wrapper = TextIOWrapper(litsuggest_file_upload.file)
+    return _litsuggest_IO_to_annotation_imports(file_wrapper)

@@ -1,5 +1,5 @@
 import os
-from curation_tracker.litsuggest import litsuggest_import_to_annotation, curation_tracker_db
+from curation_tracker.litsuggest import litsuggest_filename_to_annotation_imports, curation_tracker_db
 
 litsuggest_dir = '/home/florent/PGS_Catalog/Curation/Litsuggest/'
 
@@ -11,7 +11,7 @@ def run():
         if filename.startswith('litsuggest'):
             filepath = f'{litsuggest_dir}{filename}'
             print(f'Reading {filepath}...')
-            annotations = litsuggest_import_to_annotation(filepath)
+            annotations = litsuggest_filename_to_annotation_imports(filepath)
             for annotation in annotations:
                 if not annotation.is_valid():
                     print(f'Study {annotation.annotation.PMID} is not valid: {annotation.error}')

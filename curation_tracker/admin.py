@@ -11,7 +11,7 @@ from django.contrib.admin import DateFieldListFilter
 # Register your models here.
 from .models import *
 from catalog.models import Publication
-from curation_tracker.litsuggest import litsuggest_import_to_annotation, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
+from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
 
 from typing import List
 import re
@@ -518,9 +518,10 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         )
 
     def import_litsuggest(self,request):
+        print('import lit')
         if request.method == "POST":
             litsuggest_file = request.FILES["litsuggest_file"]
-            import_models = litsuggest_import_to_annotation(litsuggest_file)
+            import_models = litsuggest_fileupload_to_annotation_imports(litsuggest_file)
 
             skipped_publications: List[dict] = [] # as dict so it can be serialized in session
             staged_publications_data: List[dict] = [] # format for FormSet 'initial' parameter
