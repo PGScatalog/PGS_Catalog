@@ -10,7 +10,22 @@
   <h2><span class="fa-solid fa-chart-pie pgs_color_1 pr-2"></span>PGS Catalog statistics</h2>
 
   <div class="d-flex justify-content-between mt-5">
-    <div class="mr-5">
+    <div class="content_container mr-5">
+      <div class="table-of-contents">
+        <nav role="navigation">
+          <h6>Table of Contents</h6>
+          <ul>
+            <li><a href="#genome_build_dist"><b>Genome build</b> distribution</a></li>
+            <li><a href="#weight_type_dist"><b>Weight Type</b> distribution</a></li>
+            <li><a href="#method_dist"><b>Score Method</b> distribution</a></li>
+            <li><a href="#reported_trait_dist"><b>Reported Trait</b> distribution</a></li>
+            <li><a href="#license_dist"><b>License</b> distribution</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div>
       <table class="table table-bordered table_pgs_h">
         <tbody>
           <tr>
@@ -38,9 +53,10 @@
   </div>
 
 
+
   <div class="d-flex justify-content-between mt-5">
-    <!-- Genomebuild distribution -->
-    <div class="mr-5">
+    <!-- Genome build distribution -->
+    <div class="mr-5" id="genome_build_dist">
       <h5 class="pgs_bg_color_1 mb-0" style="padding:6px 8px;text-align:center"><b>Genome build</b> distribution</h5>
       <div class="clearfix" style="border:1px solid #CCC;padding:12px">
         <div class="float-left mr-2">
@@ -55,7 +71,7 @@
             </thead>
             <tbody>
 
-            {% for genomebuild in genomebuild_data %}
+            {% for genomebuild in score_stats_data.variants_genomebuild %}
               <tr>
                 <td style="background-color:{{ genomebuild.colour }}"></td>
                 <td>{{ genomebuild.name }}</td>
@@ -69,20 +85,20 @@
         <div class="float-left">
           <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function(event) {
-              var data_chart = {{ genomebuild_data|safe }};
-              var pgs_genomebuild_piechart = new PGSPieChartSmall('genomebuild_dist',data_chart,10,'Genomebuild');
+              var data_chart = {{ score_stats_data.variants_genomebuild|safe }};
+              var pgs_genomebuild_piechart = new PGSPieChartSmall('genomebuild_dist_chart',data_chart,10,'Genomebuild');
               pgs_genomebuild_piechart.draw_piechart();
             });
           </script>
           <div style="margin:6px 8px">
-            <svg id="genomebuild_dist" style="width:200px;height:200px"></svg>
+            <svg id="genomebuild_dist_chart" style="width:200px;height:200px"></svg>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Weight Type distribution -->
-    <div class="mr-5">
+    <div id="weight_type_dist">
       <h5 class="pgs_bg_color_1 mb-0" style="padding:6px 8px;text-align:center"><b>Weight type</b> distribution</h5>
       <div class="clearfix" style="border:1px solid #CCC;padding:12px">
         <div class="float-left mr-2">
@@ -97,7 +113,7 @@
             </thead>
             <tbody>
 
-            {% for weight_type in weight_type_data %}
+            {% for weight_type in score_stats_data.weight_type %}
               <tr>
                 <td style="background-color:{{ weight_type.colour }}"></td>
                 <td style="max-width:250px">{{ weight_type.name|safe }}</td>
@@ -113,13 +129,13 @@
           <!-- Weight_type distribution -->
           <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function(event) {
-              var data_chart = {{ weight_type_data|safe }};
-              var pgs_weight_type_piechart = new PGSPieChartSmall('weight_type_dist',data_chart,10,'weight_type');
+              var data_chart = {{ score_stats_data.weight_type|safe }};
+              var pgs_weight_type_piechart = new PGSPieChartSmall('weight_type_dist_chart',data_chart,10,'weight_type');
               pgs_weight_type_piechart.draw_piechart();
             });
           </script>
           <div style="margin:6px 8px">
-            <svg id="weight_type_dist" style="width:200px;height:200px"></svg>
+            <svg id="weight_type_dist_chart" style="width:200px;height:200px"></svg>
           </div>
         </div>
       </div>
@@ -127,10 +143,11 @@
   </div>
 
 
+  <!-- Method distribution -->
   <div class="mt-5">
     <hr/>
-    <h5><span class="toggle_btn pgs_btn_plus" id="method_dist" data-toggle="tooltip" title="Click to display the Method distribution table"><b>Score Method</b> distribution (<span class="pgs_color_1">{{ method_data|length }}</span>) </span></h5>
-    <div class="toggle_list mt-2" id="list_method_dist">
+    <h5><span class="toggle_btn pgs_btn_plus" id="method_dist" data-toggle="tooltip" title="Click to display the Method distribution table"><b>Score Method</b> distribution (<span class="pgs_color_1">{{ score_stats_data.method_name|length }}</span>) </span></h5>
+    <div class="toggle_list mt-3" id="list_method_dist">
       <table class="table table-bordered table_pgs_h">
         <thead class="thead-dark">
           <tr>
@@ -140,7 +157,7 @@
           </tr>
         </thead>
         <tbody>
-        {% for method in method_data %}
+        {% for method in score_stats_data.method_name %}
           <tr>
             <td style="max-width:600px;white-space:normal;text-align:left">{{ method.name }}</td>
             <td>{{ method.value }}%</td>
@@ -152,11 +169,11 @@
     </div>
   </div>
 
-
+  <!-- Reported Trait distribution -->
   <div class="mt-5">
     <hr/>
-    <h5><span class="toggle_btn pgs_btn_plus" id="reported_trait_dist" data-toggle="tooltip" title="Click to display the Reported trait distribution table"><b>Reported Trait</b> distribution (<span class="pgs_color_1">{{ reported_trait_data|length }}</span>) </span></h5>
-    <div class="toggle_list mt-2" id="list_reported_trait_dist">
+    <h5><span class="toggle_btn pgs_btn_plus" id="reported_trait_dist" data-toggle="tooltip" title="Click to display the Reported trait distribution table"><b>Reported Trait</b> distribution (<span class="pgs_color_1">{{ score_stats_data.trait_reported|length }}</span>) </span></h5>
+    <div class="toggle_list mt-3" id="list_reported_trait_dist">
       <table class="table table-bordered table_pgs_h">
         <thead class="thead-dark">
           <tr>
@@ -166,7 +183,7 @@
           </tr>
         </thead>
         <tbody>
-        {% for reported_trait in reported_trait_data %}
+        {% for reported_trait in score_stats_data.trait_reported %}
           <tr>
             <td style="max-width:600px;white-space:normal;text-align:left">{{ reported_trait.name }}</td>
             <td>{{ reported_trait.value }}%</td>
@@ -176,5 +193,29 @@
         </tbody>
       </table>
     </div>
+  </div>
+
+  <!-- License distribution -->
+  <div class="mt-5" id="license_dist">
+    <hr/>
+    <h5><b>License</b> distribution (<span class="pgs_color_1">{{ score_stats_data.license|length }}</span>) </span></h5>
+    <table class="table table-bordered table_pgs_h mt-3">
+      <thead class="thead-dark">
+        <tr>
+          <th>License</th>
+          <th>%age</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for license in score_stats_data.license %}
+        <tr>
+          <td style="max-width:800px;white-space:normal;text-align:left">{{ license.name }}</td>
+          <td>{{ license.value }}%</td>
+          <td>{{ license.count }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
   </div>
 {%endblock%}

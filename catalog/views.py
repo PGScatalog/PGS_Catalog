@@ -807,27 +807,28 @@ def stats(request):
 
     colours = TraitCategory.objects.values_list('colour', flat=True).all().order_by('colour')
 
-    # Genome builds
-    genomebuild_data = get_data_distribution('variants_genomebuild',scores_count,colours)
+    score_stats_types = [
+        'variants_genomebuild',
+        'method_name',
+        'trait_reported',
+        'license'
+    ]
+    score_stats_types_extra = [
+        'weight_type'
+    ]
 
-    # Weight types
-    weight_type_data = get_data_distribution('weight_type',scores_count,colours,1)
-
-    # Methods
-    method_data = get_data_distribution('method_name',scores_count,colours)
-
-    # Reported traits
-    reported_trait_data = get_data_distribution('trait_reported',scores_count,colours)
+    score_stats_data = {}
+    for score_stats_type in score_stats_types:
+         score_stats_data[score_stats_type] = get_data_distribution(score_stats_type,scores_count,colours)
+    for score_stats_type in score_stats_types_extra:
+        score_stats_data[score_stats_type] = get_data_distribution(score_stats_type,scores_count,colours,1)
 
     context = {
         'variants_number_per_score': '{:,}'.format(variants_number_per_score),
         'scores_per_pub': round(scores_count/publications_count,1),
         'pub_eval_per_score': round(len(eval_scores_pubs)/scores_count,1),
         'evals_per_score': round(performances_count/scores_count,1),
-        'genomebuild_data': genomebuild_data,
-        'weight_type_data': weight_type_data,
-        'method_data': method_data,
-        'reported_trait_data': reported_trait_data,
+        'score_stats_data': score_stats_data,
         'has_chart': 1
     }
     return render(request, 'catalog/docs/stats.html', context)
