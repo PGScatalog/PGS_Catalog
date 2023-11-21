@@ -3,7 +3,6 @@ import requests
 from datetime import date
 from django.db import models
 from pgs_web import constants
-from catalog import common
 from django.utils import timezone
 from django.conf import settings
 # Create your models here.
