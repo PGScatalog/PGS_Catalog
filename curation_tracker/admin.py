@@ -379,6 +379,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
 
         ## Model data updates before saving it in the database
+        db_obj = None
         if not obj.num:
             # Primary key needs to be assigned for a new entry
             obj.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
@@ -392,51 +393,52 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             # Deal with the change(s) on curation status for an existing entry
             db_obj = CurationPublicationAnnotation.objects.using(curation_tracker_db).get(num=obj.num)
 
-            if db_obj.curation_status not in ('Released', 'Retired'):
 
-                # Eligibility - revert ineligibility
-                if obj.eligibility == True and db_obj.eligibility == False:
-                    if obj.curation_status == 'Abandoned/Ineligible':
-                        if obj.first_level_curation_status != 'Determined ineligible' and obj.second_level_curation_status != 'Determined ineligible':
-                            obj.curation_status = 'Awaiting L1' # Back to default value
+        if not db_obj or db_obj.curation_status not in ('Released', 'Retired'):
 
-                # First level curation
-                if obj.first_level_curation_status and db_obj.first_level_curation_status != obj.first_level_curation_status:
-                    if obj.first_level_curation_status.startswith('Curation'):
-                        if obj.second_level_curation_status == '-' or not obj.second_level_curation_status:
-                            obj.second_level_curation_status = 'Awaiting curation'
+            # Eligibility - revert ineligibility
+            if db_obj and db_obj.eligibility == False and obj.eligibility == True:
+                if obj.curation_status == 'Abandoned/Ineligible':
+                    if obj.first_level_curation_status != 'Determined ineligible' and obj.second_level_curation_status != 'Determined ineligible':
+                        obj.curation_status = 'Awaiting L1' # Back to default value
 
-                    elif obj.first_level_curation_status.startswith('Pending'):
-                        obj.curation_status = 'Pending author response'
-                    elif obj.first_level_curation_status == 'Determined ineligible':
-                        obj.curation_status = 'Abandoned/Ineligible'
+            # First level curation
+            if obj.first_level_curation_status and (not db_obj or db_obj.first_level_curation_status != obj.first_level_curation_status):
+                if obj.first_level_curation_status.startswith('Curation'):
+                    if obj.second_level_curation_status == '-' or not obj.second_level_curation_status:
+                        obj.second_level_curation_status = 'Awaiting curation'
 
-                # Second level curation
-                elif obj.second_level_curation_status and db_obj.second_level_curation_status != obj.second_level_curation_status:
-                    if obj.second_level_curation_status.startswith('Curation'):
-                        obj.curation_status = 'Curated - Awaiting Import'
-                    elif obj.second_level_curation_status == 'Pending author response':
-                        obj.curation_status = 'Pending author response'
-                    elif obj.second_level_curation_status == 'Determined ineligible':
-                        obj.curation_status = 'Abandoned/Ineligible'
+                elif obj.first_level_curation_status.startswith('Pending'):
+                    obj.curation_status = 'Pending author response'
+                elif obj.first_level_curation_status == 'Determined ineligible':
+                    obj.curation_status = 'Abandoned/Ineligible'
+
+            # Second level curation
+            elif obj.second_level_curation_status and (not db_obj or db_obj.second_level_curation_status != obj.second_level_curation_status):
+                if obj.second_level_curation_status.startswith('Curation'):
+                    obj.curation_status = 'Curated - Awaiting Import'
+                elif obj.second_level_curation_status == 'Pending author response':
+                    obj.curation_status = 'Pending author response'
+                elif obj.second_level_curation_status == 'Determined ineligible':
+                    obj.curation_status = 'Abandoned/Ineligible'
                 elif obj.second_level_curation_status == 'Awaiting curation':
                     obj.curation_status = 'Awaiting L2'
                 else:
                     obj.curation_status = 'Awaiting L1'
 
-                # Desembargo the study
-                if obj.embargoed == False and db_obj.embargoed == True:
-                    if obj.curation_status == 'Embargo Imported - Awaiting Release':
-                        if obj.doi or obj.PMID:
-                            obj.curation_status = 'Imported - Awaiting Release'
-                    elif obj.curation_status == 'Embargo Curated - Awaiting Import':
-                        obj.curation_status = 'Curated - Awaiting Import'
+            # Desembargo the study
+            if obj.embargoed == False and (not db_obj or db_obj.embargoed == True):
+                if obj.curation_status == 'Embargo Imported - Awaiting Release':
+                    if obj.doi or obj.PMID:
+                        obj.curation_status = 'Imported - Awaiting Release'
+                elif obj.curation_status == 'Embargo Curated - Awaiting Import':
+                    obj.curation_status = 'Curated - Awaiting Import'
 
-                # Check if the Publication info need to be updated via EuropePMC
-                if (obj.PMID != db_obj.PMID or obj.doi != db_obj.doi) \
-                    or (obj.PMID and (not obj.title or not obj.journal or not obj.doi)) \
-                    or (obj.doi and (not obj.title or not obj.journal or not obj.PMID)):
-                    update_via_epmc = True
+            # Check if the Publication info need to be updated via EuropePMC
+            if db_obj and (obj.PMID != db_obj.PMID or obj.doi != db_obj.doi) \
+                or (obj.PMID and (not obj.title or not obj.journal or not obj.doi)) \
+                or (obj.doi and (not obj.title or not obj.journal or not obj.PMID)):
+                update_via_epmc = True
 
             # Embargoed status
             if obj.embargoed == True:
