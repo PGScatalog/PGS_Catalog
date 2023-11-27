@@ -4,7 +4,7 @@ from django import forms
 from django.urls import path
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.contrib.admin import DateFieldListFilter
@@ -481,34 +481,35 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             file_data = csv_file.read().decode('utf-8')
             cvs_data = file_data.split('\n')
             msg = ''
-            for line in cvs_data:
-                study_id = line.split('\t')[0]
-                if study_id != '':
-                    print(f"\n# Data: {study_id}")
-                    if check_publication_exist(study_id):
-                        msg = msg + f"<br/>&#10060; - '{study_id}' already exists in the database - no import"
-                    else:
-                        # Create new model
-                        model = CurationPublicationAnnotation()
-                        model.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
-                        model.set_creation_date()
-                        setattr(model,'study_name',study_id)
-
-                        # Update model with EuropePMC data
-                        if re.match('^\d+$', study_id):
-                            model.PMID = study_id
+            with transaction.atomic():
+                for line in cvs_data:
+                    study_id = line.split('\t')[0]
+                    if study_id != '':
+                        print(f"\n# Data: {study_id}")
+                        if check_publication_exist(study_id):
+                            msg = msg + f"<br/>&#10060; - '{study_id}' already exists in the database - no import"
                         else:
-                            model.doi = study_id
-                        has_epmc_data = model.get_epmc_data()
-                        model.study_name = check_study_name(model.study_name)
+                            # Create new model
+                            model = CurationPublicationAnnotation()
+                            model.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
+                            model.set_creation_date()
+                            setattr(model,'study_name',study_id)
 
-                        # Save model in DB
-                        model.save(using=curation_tracker_db)
+                            # Update model with EuropePMC data
+                            if re.match('^\d+$', study_id):
+                                model.PMID = study_id
+                            else:
+                                model.doi = study_id
+                            has_epmc_data = model.get_epmc_data()
+                            model.study_name = check_study_name(model.study_name)
 
-                        if has_epmc_data:
-                            msg = msg + f"<br/>&#10004; - '{study_id}' has been successfully imported in the database"
-                        else:
-                            msg = msg + f"<br/>&#10004; - '{study_id}' has been imported in the database but extra information couldn't be extracted from EuropePMC"
+                            # Save model in DB
+                            model.save(using=curation_tracker_db)
+
+                            if has_epmc_data:
+                                msg = msg + f"<br/>&#10004; - '{study_id}' has been successfully imported in the database"
+                            else:
+                                msg = msg + f"<br/>&#10004; - '{study_id}' has been imported in the database but extra information couldn't be extracted from EuropePMC"
 
             self.message_user(request,  format_html(f"Your csv file has been imported{msg}"))
             return HttpResponseRedirect('..')
@@ -577,7 +578,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                     data['comment'] = comment
                     annotation_import = dict_to_annotation_import({'model':data})
                     annotation_imports.append(annotation_import)
-                [annotation_import.save() for annotation_import in annotation_imports]
+                with transaction.atomic():
+                    [annotation_import.save() for annotation_import in annotation_imports]
             else:
                 has_errors = True
 
