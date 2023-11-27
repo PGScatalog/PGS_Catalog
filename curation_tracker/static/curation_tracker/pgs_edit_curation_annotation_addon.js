@@ -100,9 +100,27 @@ function autofillForm(){
     _getPublicationInfo({doi: doi, pmid: pmid});
 }
 
+function contactAuthor(){
+    $.get('../contact-author/', function(data,status){
+        if(status == 'success'){
+            var email_subject = encodeURIComponent(data.email_subject);
+            var email_body = encodeURIComponent(data.email_body);
+            window.open('mailto:'+'?subject='+email_subject+'&body='+email_body);
+        } else {
+            alert('Error');
+            console.error(data);
+        }
+    }).fail(function(error){
+        alert('Error: '+error.statusText);
+    })
+}
+
 $(document).ready(function(){
     // Adding 'go to publication' and 'Autofill' buttons after the DOI and PMID form fields 
     $('div.form-row.field-doi.field-PMID > div.flex-container').append('<div><div><a title="Go to the publication page using DOI or the Pubmed page if only the PMID is provided" href="" class="extra-field-button external-link" onclick="goToPublication(); return false;">Go to publication</a></div><div style="display: flex;"><div><a title="Fetch the publication data from EPMC and fill in the form automatically (DOI or PMID required)" href="" class="extra-field-button" onclick="autofillForm(); return false;">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div></div>');
+
+    // Adding "Contact Author" email template button next to the "History" button
+    $('div#content-main > ul.object-tools').prepend('<li><a href="" class="historylink" onclick="contactAuthor(); return false;">Contact Author</a></li>')
 
     // Adding toggle AuthorSub suffix function
     $('#id_author_submission').click(toggleAuthorSub);
