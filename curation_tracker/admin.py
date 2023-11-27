@@ -12,6 +12,14 @@ from django.contrib.admin import DateFieldListFilter
 from .models import *
 from catalog.models import Publication
 from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
+from django.contrib.auth.decorators import login_required
+from functools import update_wrapper
+from django.http import HttpResponse, JsonResponse
+from django.core.serializers import serialize
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer
 
 from typing import List
 import re
@@ -464,15 +472,87 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         obj.save(using=self.using)
 
 
-    def get_urls(self):
+    def get_urls(self):        
         urls = super().get_urls()
         my_urls = [
-            path('import-csv/', self.import_csv),
-            path('import-litsuggest/', self.import_litsuggest),
+            path('import-csv/', login_required(self.import_csv, login_url='/admin/login/')),
+            path('import-litsuggest/', login_required(self.import_litsuggest, login_url='/admin/login/')),
             #path('import-litsuggest/confirm', self.confirm_litsuggest),
-            path('import-litsuggest/confirm_formset', self.confirm_litsuggest_formset)
+            path('import-litsuggest/confirm_formset', login_required(self.confirm_litsuggest_formset, login_url='/admin/login/')),
+            path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/'))
         ]
         return my_urls + urls
+    
+    
+    def contact_author(self, request, object_id):
+
+        def get_EMPC_Full_data(pmid): #TODO: refactor
+            payload = {
+                'format': 'json',
+                'resultType': 'core', # for getting full journal name
+                'query': f'ext_id:{str(pmid)}'
+                }
+            result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
+            result = result.json()
+            if 'result' in result['resultList']:
+                result = result['resultList']['result'][0]
+                return result
+            else:
+                raise Exception(f'No entry for {str(pmid)}')
+        
+        try:
+
+            model = CurationPublicationAnnotation.objects.using(curation_tracker_db).get(num=object_id)
+            empc_data = get_EMPC_Full_data(model.PMID)
+
+            user = request.user
+            user_name = ' '.join([user.first_name,user.last_name])
+            first_author_name = empc_data['authorList']['author'][0]['lastName']
+            full_journal_name = empc_data['journalInfo']['journal']['title']
+
+            #TODO: Move template to external source
+            email_body_template = """Dear Dr $$AUTHOR.NAME$$,
+
+I’m emailing on behalf of the Cambridge University/EBI Polygenic Score (PGS) Catalog (<a href="https://www.pgscatalog.org/">www.PGSCatalog.org</a>) to request data from your recent $$JOURNAL.NAME$$ paper $$PUBLICATION.TITLE$$, (PMID:$$PUBLICATION.PMID$$).
+
+The PGS Catalog, partnered with the NHGRI-EBI GWAS Catalog is an open database that annotates and distributes published polygenic scores to enable their application and evaluation on new datasets. Specifically the PGS Catalog provides the <a href="https://www.pgscatalog.org/downloads/#dl_ftp">variant-level information</a> for each PGS, along with information about score development methods, the samples used, and reported performance metrics (<a href="https://www.pgscatalog.org/score/PGS000001/">example</a>).
+
+Your paper has been selected by the PGS Catalog team as a study of particular interest to the PGS community! We enquire as to whether you would share the variant-level information used to calculate the PGS (variant IDs/locations, effect alleles and weights)? If so, your PGS will be curated and made available for users to apply to their own samples, and distributed through the PGS Catalog according to EMBL-EBI’s standard <a href="https://www.ebi.ac.uk/about/terms-of-use/">terms of use</a> or other open licenses that may better suit your data.
+
+You can find more information on the Catalog in our recent resource description (<a href="https://www.nature.com/articles/s41588-021-00783-5.epdf">Nature Genetics</a>) and Polygenic Risk Score Reporting Standards (PRS-RS; <a href="https://www.nature.com/articles/s41586-021-03243-6.epdf">Nature</a>) papers. Please let me know if you have any questions about sharing your PGS data, or any other aspect of the Catalog.
+
+I look forward to hearing from you,
+
+$$USER.NAME$$
+
+(on behalf of the PGS Catalog leadership - Prof. Michael Inouye, Dr. Samuel Lambert, Dr. Laura Harris)
+
+—
+$$USER.NAME$$
+Polygenic Score (PGS) Catalog | EMBL-EBI
+—
+"""
+            email_body:str = email_body_template.replace('$$JOURNAL.NAME$$',full_journal_name)
+            email_body = email_body.replace('$$PUBLICATION.PMID$$',str(model.PMID))
+            email_body = email_body.replace('$$PUBLICATION.TITLE$$',model.title)
+            email_body = email_body.replace('$$USER.NAME$$',user_name)
+            email_body = email_body.replace('$$AUTHOR.NAME$$', first_author_name)
+
+            email_subject_template = "Request for PGS data from $$PUBLICATION.TITLE$$ ($$PUBLICATION.YEAR$$)"
+            email_subject:str = email_subject_template.replace('$$PUBLICATION.TITLE$$', model.title)
+            email_subject = email_subject.replace('$$PUBLICATION.YEAR$$',str(model.year))
+
+            data = {
+                'email_subject': email_subject,
+                'email_body': email_body
+            }
+            return JsonResponse(data)
+        
+        except Exception as e:
+            data = {
+                'error': str(e)
+            }
+            return JsonResponse(data, status=500)
 
 
     def import_csv(self, request):
