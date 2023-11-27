@@ -205,3 +205,21 @@ class CurationPublicationAnnotation(models.Model):
             return True
         else:
             return False
+
+
+class EmailTemplate(models.Model):
+    TEMPLATE_TYPES = [
+        ('author_data_request','Author Data Request'),
+    ]
+    template_type = models.CharField('Template Purpose', choices=TEMPLATE_TYPES, null=False, blank=False, default='author_data_request')
+    subject = models.TextField('Email Subject')
+    body = models.TextField('Email Body')
+    is_default = models.BooleanField('Default Template', default=True)
+
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='%(class)s_created_by', verbose_name='Created By', null=True, blank=True)
+    created_on = models.DateTimeField('Created On', null=False, default=timezone.now)
+    last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='%(class)s_last_modified_by', verbose_name='Last Modified By', null=True, blank=True)
+    last_modified_on = models.DateTimeField('Last Modified On', null=True, default=timezone.now)
+
+    def __str__(self): 
+         return f'{self.get_template_type_display()} #{self.id}'
