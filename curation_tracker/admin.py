@@ -16,6 +16,8 @@ from catalog.models import Publication
 
 from curation_tracker.litsuggest import litsuggest_import_to_annotation, annotation_to_dict, dict_to_annotation_import
 from django.contrib.admin import DateFieldListFilter
+from django.contrib.auth.decorators import login_required
+
 import datetime as dt
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
@@ -426,9 +428,9 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            path('import-csv/', self.import_csv),
-            path('import-litsuggest/', self.import_litsuggest),
-            path('import-litsuggest/confirm', self.confirm_litsuggest)
+            path('import-csv/', login_required(self.import_csv, login_url='/admin/login/')),
+            path('import-litsuggest/', login_required(self.import_litsuggest, login_url='/admin/login/')),
+            path('import-litsuggest/confirm', login_required(self.confirm_litsuggest, login_url='/admin/login/'))
         ]
         return my_urls + urls
 
