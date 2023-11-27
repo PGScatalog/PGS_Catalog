@@ -38,28 +38,32 @@ env_variables:
     PGS_LIVE_SITE: '<False_or_True>' # Need to be set to True for live website
     PGS_CURATION_SITE: '<False_or_True>' # Line optional: Only used for the curation website
     ALLOWED_HOSTS: '*'
-    # PGS database #
+
+    ## PGS database ##
     DATABASE_NAME: '<db_name>'
     DATABASE_USER: '<db_user>'
     DATABASE_PASSWORD: '<db_password>'
     DATABASE_PORT: '<db_port>'
     DATABASE_PORT_LOCAL: '<db_port_local>'
     DATABASE_HOST: '<db_host>' # e.g.: localhost, IP address, /cloudsql/...
-    # PGS Benchmark database
+
+    ## PGS Benchmark database ##
     DATABASE_NAME_2: '<benchmark_db_name>'
     DATABASE_USER_2: '<db_user>'
     DATABASE_PASSWORD_2: '<db_password>'
     DATABASE_PORT_2: '<db_port>'
     DATABASE_PORT_LOCAL_2: '<db_port_local>'
     DATABASE_HOST_2: '<db_host>' # e.g.: localhost, IP address, /cloudsql/...
-    # Curation Tracker database #
+
+    ## Curation Tracker database ##
     DATABASE_NAME_TRACKER: '<db_name>' # e.g.: pgs_curation_tracker
     DATABASE_USER_TRACKER: '<db_user>'
     DATABASE_PASSWORD_TRACKER: '<db_password>'
     DATABASE_PORT_TRACKER: '<db_port>'
     DATABASE_PORT_LOCAL_TRACKER: '<db_port_local>'
     DATABASE_HOST_TRACKER: '<db_host>' # e.g.: localhost, IP address, /cloudsql/...
-    # Search
+
+    ## Search ##
     ELASTICSEARCH_URL_ROOT: '<url_to_elasticsearch_service>'
 
 # [END django_app]

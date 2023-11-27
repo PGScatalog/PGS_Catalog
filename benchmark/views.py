@@ -163,7 +163,7 @@ def add_global_data(data, cohort_name, entry_name, data_type):
 
 def benchmark(request):
     trait_id = 'EFO_0000378'
-    efotrait = BM_EFOTrait.objects.using('benchmark').prefetch_related('phenotype_structured').get(id=trait_id)
+    efotrait = BM_EFOTrait.objects.using(bm_db).prefetch_related('phenotype_structured').get(id=trait_id)
 
     pgs_data, cohort_max_sample = benchmark_data(efotrait)
 
@@ -174,11 +174,10 @@ def benchmark(request):
         for score in pgs_data['pgs_ids'][cohort]:
             scores.add(score)
 
-    score_only_attributes = ['id','name','publication','trait_efo','trait_reported','variants_number','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
-    table_scores = BM_Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').filter(id__in=list(scores)).prefetch_related(pgs_prefetch['trait']), order_by="num")
+    score_defer = ['publication__title','publication__PMID','publication__doi','publication__authors','publication__curation_status','publication__curation_notes','publication__date_released','curation_notes']
+    table_scores = BM_Browse_ScoreTable(Score.objects.defer(*score_defer).select_related('publication').filter(id__in=list(scores)).prefetch_related(pgs_prefetch['trait']), order_by="num")
 
-
-    bm_cohorts = BM_Cohort.objects.using('benchmark').filter(name_short__in=cohorts).prefetch_related('cohort_sample').distinct()
+    bm_cohorts = BM_Cohort.objects.using(bm_db).filter(name_short__in=cohorts).prefetch_related('cohort_sample').distinct()
 
     cohort_data = {}
     for bm_cohort in bm_cohorts:

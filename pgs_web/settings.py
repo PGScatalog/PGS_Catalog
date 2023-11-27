@@ -12,7 +12,7 @@ if not os.getenv('GAE_APPLICATION', None):
             secrets = yaml.load(secrets_file, Loader=yaml.FullLoader)
             for keyword in secrets['env_variables']:
                 os.environ[keyword] = secrets['env_variables'][keyword]
-    elif not os.environ['SECRET_KEY']:
+    elif 'SECRET_KEY' not in os.environ.keys():
         print("Error: missing secret key")
         exit(1)
 
@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     'rest_api.apps.RestApiConfig',
     'search.apps.SearchConfig',
     'benchmark.apps.BenchmarkConfig',
-    'curation_tracker.apps.CurationTrackerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -71,6 +70,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_elasticsearch_dsl'
 ]
+
+# Live app installation
+if PGS_ON_LIVE_SITE:
+    INSTALLED_APPS.append('corsheaders')
+# Curation app installation
+if PGS_ON_CURATION_SITE:
+    INSTALLED_APPS.append('curation_tracker.apps.CurationTrackerConfig')
 # Local app installation
 if PGS_ON_GAE == 0:
     local_apps = [
@@ -78,12 +84,10 @@ if PGS_ON_GAE == 0:
         'django_extensions'
     ]
     INSTALLED_APPS.extend(local_apps)
-# Live app installation
-if PGS_ON_LIVE_SITE:
-    INSTALLED_APPS.append('corsheaders')
+# Debug helper
+if DEBUG == True:
+    INSTALLED_APPS.append('debug_toolbar') # Debug SQL queries
 
-# if DEBUG:
-#     INSTALLED_APPS.append('django_extensions')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -97,6 +101,12 @@ MIDDLEWARE = [
 # Live middleware
 if PGS_ON_LIVE_SITE:
     MIDDLEWARE.insert(2, 'corsheaders.middleware.CorsMiddleware')
+# Debug toolbar
+if DEBUG == True:
+    MIDDLEWARE.insert(5,'debug_toolbar.middleware.DebugToolbarMiddleware') # Debug SQL queries
+    # Debug SQL queries
+    INTERNAL_IPS = ['127.0.0.1']
+
 
 ROOT_URLCONF = 'pgs_web.urls'
 
@@ -108,6 +118,7 @@ CONTEXT_PROCESSORS = [
     'catalog.context_processors.pgs_urls',
     'catalog.context_processors.pgs_settings',
     'catalog.context_processors.pgs_search_examples',
+    'catalog.context_processors.pgs_browse_examples',
     'catalog.context_processors.pgs_info',
     'catalog.context_processors.pgs_contributors'
 ]
@@ -151,7 +162,9 @@ WSGI_APPLICATION = 'pgs_web.wsgi.application'
 DB_ENGINE = 'django.db.backends.postgresql'
 if PGS_ON_GAE == 1:
     # Running on production App Engine, so connect to Google Cloud SQL using
-    # the unix socket at /cloudsql/<your-cloudsql-connection string>
+    # the Cloud SQL proxy via command line, e.g.:
+    # $ ./cloud-sql-proxy --address 0.0.0.0 --port 5430 pgs-catalog:europe-west2:pgs-*******
+    # See https://cloud.google.com/sql/docs/postgres/connect-auth-proxy
     DATABASES = {
         'default': {
             'ENGINE': DB_ENGINE,
@@ -168,21 +181,20 @@ if PGS_ON_GAE == 1:
             'PASSWORD': os.environ['DATABASE_PASSWORD_2'],
             'HOST': os.environ['DATABASE_HOST_2'],
             'PORT': os.environ['DATABASE_PORT_2']
-        },
-        'curation_tracker': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        }
+    }
+    if PGS_ON_CURATION_SITE:
+        DATABASES['curation_tracker'] = {
+            'ENGINE': DB_ENGINE,
             'NAME': os.environ['DATABASE_NAME_TRACKER'],
             'USER': os.environ['DATABASE_USER_TRACKER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD_TRACKER'],
             'HOST': os.environ['DATABASE_HOST_TRACKER'],
             'PORT': os.environ['DATABASE_PORT_TRACKER']
         }
-    }
 else:
     # Running locally so connect to either a local PostgreSQL instance or connect
-    # to Cloud SQL via the proxy.  To start the proxy via command line:
-    # $ cloud_sql_proxy -instances=pgs-catalog:europe-west2:pgs-*******=tcp:5430
-    # See https://cloud.google.com/sql/docs/postgres/connect-admin-proxy
+    # to Cloud SQL via the proxy.
     DATABASES = {
         'default': {
             'ENGINE': DB_ENGINE,
@@ -199,25 +211,24 @@ else:
             'PASSWORD': os.environ['DATABASE_PASSWORD_2'],
             'HOST': 'localhost',
             'PORT': os.environ['DATABASE_PORT_LOCAL_2']
-        },
-        'curation_tracker': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        }
+    }
+    if PGS_ON_CURATION_SITE:
+        DATABASES['curation_tracker'] = {
+            'ENGINE': DB_ENGINE,
             'NAME': os.environ['DATABASE_NAME_TRACKER'],
             'USER': os.environ['DATABASE_USER_TRACKER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD_TRACKER'],
             'HOST': 'localhost',
             'PORT': os.environ['DATABASE_PORT_LOCAL_TRACKER']
         }
-    }
 # [END db_setup]
 
 
-if 'PGS_CURATION_SITE' in os.environ:
+# Router
+if PGS_ON_CURATION_SITE:
     DATABASE_ROUTERS = ['routers.db_routers.AuthRouter',]
 
-
-# Password validation
-# https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 #---------------------#
 # Password validation #
@@ -255,7 +266,7 @@ USE_TZ = True
 #--------------#
 # Static files #
 #--------------#
-# CSS, JavaScript, Images
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
@@ -264,7 +275,7 @@ STATICFILES_FINDERS = [
 	'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 ]
-if not os.getenv('GAE_APPLICATION', None):
+if PGS_ON_GAE == 0:
     STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
 
 
@@ -347,7 +358,7 @@ ELASTICSEARCH_INDEX_NAMES = {
 #  Google Cloud Storage Settings  #
 #---------------------------------#
 
-if os.getenv('GAE_APPLICATION'):
+if PGS_ON_GAE == 1 and PGS_ON_CURATION_SITE:
     from google.oauth2 import service_account
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
         os.path.join(BASE_DIR, os.environ['GS_SERVICE_ACCOUNT_SETTINGS'])

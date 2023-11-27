@@ -13,7 +13,7 @@
 </nav>
 
 
-<h2 class="mr-auto">Downloads</h2>
+<h2 class="mr-auto pgs_page_title">Downloads</h2>
 
 <div class="content_container">
   <div class="table-of-contents">
@@ -46,51 +46,59 @@
   </div>
 </div>
 
-
 <section>
   <h3 id="dl_ftp_list">Available PGS Catalog downloads</h3>
-  <table class="table table-bordered table_pgs_h">
-    <tbody>
-      <tr>
-        <td>
-          <span class="pgs_h_big_header">PGS Scoring Files & Metadata</span>
-          <div class="mt-1">
-            <small>Individual PGS variants scoring and metadata files</small>
-          </div>
-        </td>
-        <td><a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_http_root }}/scores/" target="_blank"><span class="fas fa-folder"></span> View PGS Score Directories (FTP)</a></td>
-      </tr>
-      <tr>
-        <td>
-          <span class="pgs_h_big_header">PGS Catalog Metadata</span>
-          <div class="mt-1">
-            <small>Available PGS global metadata files</small>
-          </div>
-        </td>
-        <td><a class="btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_http_root }}/metadata/" target="_blank"><span class="fas fa-folder"></span> Bulk Metadata Downloads (FTP)</a></td>
-      </tr>
-      <tr>
-        <td>
-          <span class="pgs_h_big_header">PGS Catalog REST API</span>
-          <div class="mt-1">
-            <small>Programmatic access to the PGS Catalog metadata</small>
-          </div>
-        </td>
-        <td><a class="btn btn-pgs pgs_no_icon_link" href="/rest/"><span class="fas fa-code"></span> REST API endpoint documentation</a></td>
-      </tr>
-      <tr>
-        <td>
-          <span class="pgs_h_big_header">Python package <span class="pgs_color_1">pgscatalog_utils</span></span>
-          <div class="mt-1">
-            <small>A collection of tools, such as scoring files download</small>
-          </div>
-        </td>
-        <td><a class="btn btn-pgs pgs_no_icon_link" href="https://pypi.org/project/pgscatalog-utils/"><span class="fa-brands fa-python"></span> Python package documentation</a></td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+  <h4 class="pgs_subsection">FTP access</h4>
+  <div class="row no-gutters pgs_vignette">
+    <div class="col-xs-6 col-md-6">
+      <div class="pgs_browse_item">
+        <div class="pgs_data_access">
+          <div>PGS Scoring Files & Metadata</div>
+          <p>
+            Individual PGS variants scoring and metadata files
+          </p>
+        </div>
+        <a class="browse_link btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_http_root }}/scores/" target="_blank"><span class="fas fa-folder"></span> View PGS Score Directories (FTP)</a>
+      </div>
+    </div>
+    <div class="col-xs-6 col-md-6">
+      <div class="pgs_browse_item">
+        <div class="pgs_data_access">
+          <div>PGS Catalog Metadata</div>
+          <p>
+            Files containing the whole PGS Catalog metadata
+          </p>
+        </div>
+        <a class="browse_link btn btn-pgs pgs_no_icon_link pgs-ftp-btn" href="{{ pgs_ftp_http_root }}/metadata/" target="_blank"><span class="fas fa-folder"></span> Bulk Metadata Downloads (FTP)</a>
+      </div>
+    </div>
+  </div>
 
+  <h4 class="pgs_subsection">Programmatic access</h4>
+  <div class="row no-gutters pgs_vignette">
+    <div class="col-xs-6 col-md-6">
+      <div class="pgs_browse_item">
+        <div class="pgs_data_access">
+          <div>PGS Catalog REST API</div>
+          <p>
+            Programmatic access to the PGS Catalog metadata
+          </p>
+        </div>
+        <a class="browse_link btn btn-pgs pgs_no_icon_link" href="/rest/"><span class="fas fa-code"></span> REST API endpoint documentation</a>
+      </div>
+    </div>
+    <div class="col-xs-6 col-md-6">
+      <div class="pgs_browse_item">
+        <div class="pgs_data_access">
+          <div>Python package <span class="pgs_color_2">pgscatalog_utils</span></div>
+          <p>
+            A collection of tools, such as scoring files download
+          </p>
+        </div>
+        <a class="browse_link btn btn-pgs pgs_no_icon_link" href="https://pypi.org/project/pgscatalog-utils/"><span class="fa-brands fa-python"></span> Python package documentation</a>
+    </div>
+  </div>
+</section>
 
 <section>
   <h3 id="dl_ftp">PGS Catalog FTP structure</h3>
@@ -100,13 +108,13 @@
     <pre>
 <a href="{{ pgs_ftp_http_root }}">{{ pgs_ftp_root }}</a>
   ├── <span class="pgs_hl">pgs_scores_list.txt</span> <small>(list of Polygenic Score IDs)</small>
-  ├── <a href="{{ pgs_ftp_http_meta }}"><b>metadata/</b></a>
+  ├── <a href="{{ pgs_ftp_http_meta }}"><b>metadata/</b></a> <small class="pgs_color_1">("bulk" metadata directory)</small>
   │     ├── <span class="pgs_hl">pgs_all_metadata.xlsx</span>
   │     ├── <span class="pgs_hl">pgs_all_metadata_</span>[<span class="pgs_hl_i">sheet_name</span>]<span class="pgs_hl">.csv</span> <small>(7 files)</small>
   │     ├── <span class="pgs_hl">pgs_all_metadata.tar.gz</span> <small>(xlsx + csv files)</small>
-  │     ├── <a href="{{ pgs_ftp_http_meta }}/publications/"><b>publications/</b></a> <small>(metadata for large studies)</small>
+  │     ├── <a href="{{ pgs_ftp_http_meta }}/publications/"><b>publications/</b></a> <small class="pgs_color_1">("large studies" metadata directory)</small>
   │     └── <a href="{{ pgs_ftp_http_meta }}/previous_releases/"><b>previous_releases/</b></a>
-  └── <a href="{{ pgs_ftp_http_root }}/scores"><b>scores/</b></a>
+  └── <a href="{{ pgs_ftp_http_root }}/scores"><b>scores/</b></a> <small class="pgs_color_1">(individual scores directory)</small>
         ├── <a href="{{ pgs_ftp_http_root }}/scores/PGS000001/"><b>PGS000001/</b></a>
         │     ├── <a href="{{ pgs_ftp_http_root }}/scores/PGS000001/Metadata/"><b>Metadata/</b></a>
         │     │     ├── <span class="pgs_hl">PGS000001_metadata.xlsx</span>

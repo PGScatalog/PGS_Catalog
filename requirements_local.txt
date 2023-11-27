@@ -3,7 +3,7 @@ django-extensions==3.2.1
 
 #### Compress SCSS/SASS files in CSS
 django-libsass==0.9
-django-sass-processor==1.2.1
+django-sass-processor==1.2.2
 
 #### Version checking library for Django
 django-nine==0.2.7

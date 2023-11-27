@@ -11,7 +11,7 @@
 # from your .gitignore file, remove the corresponding line
 # below:
 .git
-.github/
+.github
 .gitignore
 
 # Static directories (GAE uses the ones in /static instead)
@@ -20,27 +20,31 @@
 /curation_tracker/static/
 
 # Curation and release directories (not needed for the website)
-/curation/
-/release/
-/curation_tracker/scripts/
+/curation
+/release
+/curation_tracker/scripts
 
 # Migrations
-**/migrations/
+**/migrations
 
 # Tests
-**/tests/
+**/tests
+**/tests.py
 
 # Python pycache:
-**/__pycache__/
+**/__pycache__
 # Ignored by the build system
 /setup.cfg
 
 # Other
-/rest_api/fixtures/
-/static/CACHE/
+/rest_api/fixtures
+/static/CACHE
 app.yaml_template
 pgs-catalog-cred.json_template
+requirements_local.txt
 LICENSE.md
 README.md
-requirements_local.txt
 **/.DS_Store
+
+## Only for Live Webiste ##
+#/curation_tracker

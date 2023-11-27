@@ -57,7 +57,7 @@ $(document).ready(function() {
       $('#gwas_table').show();
     })
     .fail(function (xhRequest, ErrorText, thrownError) {
-      $('#pgs_loading').html('<h4><i class="fa fa-exclamation-triangle pgs_color_2 pr-3"></i>Error: we can\'t retrieve the NHGRI-EBI GWAS Catalog Study information at the moment</h4>');
+      $('#pgs_loading').html('<h4><i class="fa-solid fa-exclamation-triangle pgs_color_2 pr-3"></i>Error: we can\'t retrieve the NHGRI-EBI GWAS Catalog Study information at the moment</h4>');
     });
   }
   else {

@@ -54,7 +54,7 @@ def score_disclaimer(publication_url):
 def ancestry_legend():
     ''' HTML code for the Ancestry legend. '''
     ancestry_labels = constants.ANCESTRY_LABELS
-    count = 0;
+    count = 0
     ancestry_keys = ancestry_labels.keys()
     val = len(ancestry_keys) / 2
     entry_per_col = int((len(ancestry_keys) + 1) / 2);
@@ -223,6 +223,7 @@ def index(request):
         if constants.ANNOUNCEMENT and constants.ANNOUNCEMENT != '':
             context['announcement'] = constants.ANNOUNCEMENT
 
+    # Count non-released Entries
     if settings.PGS_ON_CURATION_SITE:
         released_traits = set()
         for score in Score.objects.only('num').filter(date_released__isnull=False).prefetch_related('trait_efo'):
@@ -248,6 +249,7 @@ def browseby(request, view_selection):
             'view_name': 'Traits',
             'table': table,
             'data_chart': efo_traits_data[1],
+            'has_ebi_icons': 1,
             'has_chart': 1
         }
     elif view_selection == 'studies':
@@ -257,6 +259,7 @@ def browseby(request, view_selection):
         table = Browse_PublicationTable(publications, order_by="num")
         context = {
             'view_name': 'Publications',
+            'has_ebi_icons': 1,
             'table': table
         }
     elif view_selection == 'pending_studies':
@@ -268,10 +271,6 @@ def browseby(request, view_selection):
             'view_name': 'Pending Publications',
             'table': table
         }
-    # elif view_selection == 'sample_set':
-    #     context['view_name'] = 'Sample Sets'
-    #     table = Browse_SampleSetTable(Sample.objects.defer(*pgs_defer['sample']).filter(sampleset__isnull=False).prefetch_related('sampleset', pgs_prefetch['cohorts']).order_by('sampleset__num'))
-    #     context['table'] = table
     elif view_selection == 'scores' :
         score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
         table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').all().order_by('num').prefetch_related(pgs_prefetch['trait']))
@@ -422,6 +421,7 @@ def pgp(request, pub_id):
             'performance_disclaimer': performance_disclaimer(),
             'has_table': 1,
             'has_chart': 1,
+            'has_ebi_icons': 1,
             'ancestry_form': ancestry_form()
         }
 
@@ -562,6 +562,7 @@ def efo(request, efo_id):
         'include_children': False if exclude_children else True,
         'has_table': 1,
         'has_chart': 1,
+        'has_ebi_icons': 1,
         'ancestry_form': ancestry_form()
     }
 
@@ -806,27 +807,28 @@ def stats(request):
 
     colours = TraitCategory.objects.values_list('colour', flat=True).all().order_by('colour')
 
-    # Genome builds
-    genomebuild_data = get_data_distribution('variants_genomebuild',scores_count,colours)
+    score_stats_types = [
+        'variants_genomebuild',
+        'method_name',
+        'trait_reported',
+        'license'
+    ]
+    score_stats_types_extra = [
+        'weight_type'
+    ]
 
-    # Weight types
-    weight_type_data = get_data_distribution('weight_type',scores_count,colours,1)
-
-    # Methods
-    method_data = get_data_distribution('method_name',scores_count,colours)
-
-    # Reported traits
-    reported_trait_data = get_data_distribution('trait_reported',scores_count,colours)
+    score_stats_data = {}
+    for score_stats_type in score_stats_types:
+         score_stats_data[score_stats_type] = get_data_distribution(score_stats_type,scores_count,colours)
+    for score_stats_type in score_stats_types_extra:
+        score_stats_data[score_stats_type] = get_data_distribution(score_stats_type,scores_count,colours,1)
 
     context = {
         'variants_number_per_score': '{:,}'.format(variants_number_per_score),
         'scores_per_pub': round(scores_count/publications_count,1),
         'pub_eval_per_score': round(len(eval_scores_pubs)/scores_count,1),
         'evals_per_score': round(performances_count/scores_count,1),
-        'genomebuild_data': genomebuild_data,
-        'weight_type_data': weight_type_data,
-        'method_data': method_data,
-        'reported_trait_data': reported_trait_data,
+        'score_stats_data': score_stats_data,
         'has_chart': 1
     }
     return render(request, 'catalog/docs/stats.html', context)

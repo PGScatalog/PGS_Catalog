@@ -33,6 +33,7 @@ USEFUL_URLS = {
 }
 
 SEARCH_EXAMPLES = ['breast cancer', 'glaucoma', 'BMI', 'EFO_0001645']
+BROWSE_EXAMPLES = ['breast cancer', 'glaucoma', 'BMI', 'EFO_0001645']
 
 DISCLAIMERS = {
     'performance': """The performance metrics are displayed as reported by the source studies.

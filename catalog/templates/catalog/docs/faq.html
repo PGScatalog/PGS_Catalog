@@ -12,11 +12,11 @@
       </ol>
     </nav>
 
-    <h2>Frequently Asked Questions</h2>
+    <h2 class="pgs_page_title">Frequently Asked Questions</h2>
     <div class="content_container">
       <div class="table-of-contents">
         <nav role="navigation">
-          <h5>Table of Contents</h5>
+          <h6>Table of Contents</h6>
           <ul>
             <li class="content_group">
               <a href="#general_pgs"><b>General</b></a>
@@ -73,20 +73,7 @@
 
 
       <h3 class="mt-5" id="cite_how">How to cite the PGS Catalog?</h3>
-      <p>The PGS Catalog development is led by <a href="{{ ebi_url }}/about/people/samuel-lambert">Samuel Lambert</a>
-          under the supervision of <a href="https://www.inouyelab.org/home/people">Michael Inouye</a> (<a href="https://sysgenresearch.org/">University of Cambridge & Baker Institute</a>)
-          in collaboration with <a href="{{ hdr_uk_cam_url }}">Health Data Research - UK</a> (Laurent Gil)
-          and the <a href="{{ ebi_url }}/gwas/">NHGRI-EBI GWAS Catalog</a> (Aoife McMahon & Laura Harris).</p>
-      <p>The Catalog is under active development, and we continue to add new features and curate new data. If you use the Catalog in your research we ask that you cite our recent paper:
-      <div class="clearfix mb-3">
-        <div class="highlight_content">
-          <p>{{ pgs_citation.authors }}</p>
-          <p><u>{{ pgs_citation.title }}</u></p>
-          <p><span class="with_sep_right"><i>{{ pgs_citation.journal }}</i></span>doi: <a href="https://doi.org/{{ pgs_citation.doi }}">{{ pgs_citation.doi }}</a> ({{ pgs_citation.year }}).</p>
-        </div>
-      </div>
-      <p>Individual PGS obtained from the database should also be cited appropriately, and used in accordance with any licensing restrictions set by the authors (see our <a href="{{ terms_of_use }}">Terms of Use</a> for more information).</p>
-
+      {% include "catalog/docs/citation.html" %}
 
       <h3 class="mt-5" id="submit_how">How to submit data to the PGS Catalog?</h3>
       <p>
@@ -130,7 +117,7 @@
 
       <!-- Trait -->
       <div class="mb-5">
-        <h4 id="search_trait"><i class="fas fa-angle-right pgs_color_1"></i> Searching by trait</h4>
+        <h4 id="search_trait" class="pgs_subsection">Searching by trait</h4>
         Here are the trait information that are searchable:
         <div class="table-responsive mt-2">
           <table class="table table-striped table_pgs_auto">
@@ -152,7 +139,7 @@
 
       <!-- Publication -->
       <div class="mb-5">
-        <h4 id="search_pub"><i class="fas fa-angle-right pgs_color_1"></i> Searching by publication</h4>
+        <h4 id="search_pub" class="pgs_subsection">Searching by publication</h4>
         Here are the publication information that are searchable:
         <div class="table-responsive mt-2">
           <table class="table table-striped table_pgs_auto">
@@ -174,7 +161,7 @@
 
       <!-- Score -->
       <div class="mb-5">
-        <h4 id="search_pub"><i class="fas fa-angle-right pgs_color_1"></i> Searching by score</h4>
+        <h4 id="search_pub" class="pgs_subsection">Searching by score</h4>
         Here are the score information that are searchable:
         <div class="table-responsive mt-2">
           <table class="table table-striped table_pgs_auto">
@@ -239,9 +226,7 @@
           <!-- Score result -->
           <div class="pgs_result scores_entry mb-4">
             <div class="pgs_result_title">
-              <h4 class="mt-0 mb-2">
-                <span class="result_facet_type result_facet_type_1" title="Score"></span><a href="/score/PGS000841">PGS000841</a>
-              </h4>
+              <h4 class="pgs_facet_icon pgs_facet_1_letter mt-0 mb-2"><a href="/score/PGS000841">PGS000841</a></h4>
             </div>
             <div class="pgs_result_content"><b>Name</b>: BMI<span><b>Number of Variants</b>: <span class="badge badge-pill badge-pgs">122</span></span><span><b>Publication ID</b>: <a href="/publication/PGP000211">PGP000211</a></span></div>
             <div class="pgs_result_content mt-1"><b>Reported trait</b>: Body mass index<span><b>Mapped trait(s)</b>: <a href="/trait/EFO_0004340">body mass index <span class="pgs_bracket">EFO_0004340</span></a></span></div>
@@ -250,27 +235,27 @@
           <!-- Trait result -->
           <div class="pgs_result efo_traits_entry mb-4">
             <div class="pgs_result_title">
-              <h4 class="mt-0 mb-2 mr-4">
-                <span class="result_facet_type result_facet_type_2" title="Trait"></span><a href="/trait/EFO_0004340">body mass index</a>
-              </h4>
+              <h4 class="pgs_facet_icon pgs_facet_2_letter mt-0 mb-2 mr-4"><a href="/trait/EFO_0004340">body mass index</a></h4>
               <div class="pgs_result_subtitles">
                 <div title="Trait ID">EFO_0004340</div><div title="Trait Category">Body measurement</div>
               </div>
             </div>
             <div class="more">An indicator of body density as determined by the relationship of BODY WEIGHT&nbsp;to&nbsp;BODY HEIG<span class="moreellipses">...&nbsp;</span><span class="morecontent">HT. BMI=weight (kg)/height squared (m2). BMI correlates with body fat (ADIPOSE TISSUE). Their relationship varies with age and gender. For adults, BMI falls into these categories: below 18.5 (underweight); 18.5-24.9 (normal); 25.0-29.9 (overweight); 30.0 and above (obese). (National Center for Health Statistics, Centers for Disease Control and Prevention)</span><span class="morelink link_more">Show more</span></div>
-            <div class="mt-1"><span class="pgs_result_count">Associated PGS <span class="badge badge-pill badge-pgs">17</span></span> <span class="pgs_result_button"> <a class="toggle_btn pgs_btn_plus" id="EFO_0004340_scores">Show PGS</a></span>
+            <div class="mt-1">
+              <span class="pgs_result_count"><span>Associated PGS</span> <span class="badge badge-pill badge-pgs">72</span></span> <span class="pgs_result_button"> <a class="toggle_btn pgs_btn_plus" id="EFO_0004340_scores">Show Reported Traits</a></span>
               <div class="toggle_content" id="list_EFO_0004340_scores" style="display:none">
-                <table class="table table-striped table_pgs_score_results mt-2">
-                  <thead>
-                    <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
-                  </thead>
-                  <tbody>
-                    <tr><td><a href="/score/PGS000034">PGS000034</a></td><td>GRS_BMI</td><td>Adult Body Mass Index</td></tr>
-                    <tr><td><a href="/score/PGS000717">PGS000717</a></td><td>PGS557_albs</td><td>Adult life body size</td></tr>
-                    <tr><td><a href="/score/PGS000027">PGS000027</a></td><td>GPS_BMI</td><td>Body Mass Index</td></tr>
-                    <tr><td colspan="2">...</td></tr>
-                  </tbody>
-                </table>
+                <div class="pgs_result_reported_traits">
+                  <ul>
+                    <li>Adult Body Mass Index</li>
+                    <li>Adult life body size</li>
+                    <li>BMI</li>
+                    <li>Body Mass Index</li>
+                    <li>Body mass index (BMI)</li>
+                    <li>Early life body size</li>
+                    <li>Overweight, obesity and other hyperalimentation</li>
+                    <li>Thinness</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -278,59 +263,26 @@
           <!-- Publication result -->
           <div class="pgs_result publications_entry mb-4" style="">
             <div class="pgs_result_title">
-              <h4 class="mt-0 mb-2">
-                <span class="result_facet_type result_facet_type_3" title="Publication"></span><a href="/publication/PGP000021">Longitudinal Analysis of Genetic Susceptibility and BMI Throughout Adult Life.</a>
-              </h4>
+              <h4 class="pgs_facet_icon pgs_facet_3_letter mt-0 mb-2"><a href="/publication/PGP000021">Longitudinal Analysis of Genetic Susceptibility and BMI Throughout Adult Life.</a></h4>
             </div>
-            <div class="pgs_result_content">Song M et al. (2017) - Diabetes<span><b>PMID</b>:29212779</span><span><b>doi</b>:10.2337/db17-1156</span><span><b>PGP</b>000021</span></div>
-            <div class="mt-1"><span class="pgs_result_count">PGS developed <span class="badge badge-pill badge-pgs">1</span></span> - <span class="pgs_result_count">PGS evaluated <span class="badge badge-pill badge-pgs">1</span></span> <span class="pgs_result_button"> <a class="toggle_btn pgs_btn_plus" id="pub_0_scores">Show PGS</a></span>
-              <div class="toggle_content" id="list_pub_0_scores" style="display:none">
-                <table class="table table-striped table_pgs_score_results mt-2">
-                  <thead>
-                    <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th><th>Developed</th><th>Evaluated</th></tr>
-                  </thead>
-                  <tbody>
-                    <tr><td><a href="/score/PGS000034">PGS000034</a></td><td>GRS_BMI</td><td>Adult Body Mass Index</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <div class="pgs_result_content"><span>Song M et al. (2017) - Diabetes</span><span><b>PMID</b>:29212779</span><span><b>doi</b>:10.2337/db17-1156</span><span><b>PGP</b>000021</span></div>
+            <div class="mt-1"><span class="pgs_result_count">PGS developed <span class="badge badge-pill badge-pgs">1</span></span> - <span class="pgs_result_count">PGS evaluated <span class="badge badge-pill badge-pgs">1</span></span>
           </div>
         </div>
+      </div>
 
-        <p class="mt-5">
-          The buttons "<b>Show PGS</b>" display the list of Polygenic Score(s) associated with the Trait or the Publication.
-        </p>
-        <h6>Trait example:</h6>
-        <table class="table table-striped table_pgs_score_results mt-2 mb-4">
-          <thead>
-            <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th></tr>
-          </thead>
-          <tbody><tr><td><a href="/score/PGS000002">PGS000002</a></td><td>PRS77_ERpos</td><td>ER-positive Breast Cancer</td></tr>
-            <tr><td><a href="/score/PGS000005">PGS000005</a></td><td>PRS313_ERpos</td><td>ER-positive Breast Cancer</td></tr>
-            <tr><td><a href="/score/PGS000008">PGS000008</a></td><td>PRS3820_ERpos</td><td>ER-positive Breast Cancer</td></tr>
-            <tr><td><a href="/score/PGS000046">PGS000046</a></td><td>BCPRS_ER+</td><td>Estrogen receptor [ER]-positive breast cancer</td></tr>
-            <tr><td><a href="/score/PGS000347">PGS000347</a></td><td>PRS287_ERpos</td><td>Estrogen receptor positive breast cancer</td></tr>
-            <tr><td><a href="/score/PGS000774">PGS000774</a></td><td>PRS179_ERpos</td><td>Estrogen receptor positive breast cancer</td></tr>
-          </tbody>
-        </table>
-
-        <h6>Publication example:</h6>
-        <table class="table table-striped table_pgs_score_results mt-2">
-          <thead>
-            <tr><th>PGS ID</th><th>PGS Name</th><th>Reported Trait</th><th>Developed</th><th>Evaluated</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><a href="/score/PGS000004">PGS000004</a></td><td>PRS313_BC</td><td>Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-            <tr><td><a href="/score/PGS000007">PGS000007</a></td><td>PRS3820_BC</td><td>Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-            <tr><td><a href="/score/PGS000001">PGS000001</a></td><td>PRS77_BC</td><td>Breast Cancer</td><td>-</td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-            <tr><td><a href="/score/PGS000006">PGS000006</a></td><td>PRS313_ERneg</td><td>ER-negative Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-            <tr><td><a href="/score/PGS000009">PGS000009</a></td><td>PRS3820_ERneg</td><td>ER-negative Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-            <tr><td><a href="/score/PGS000003">PGS000003</a></td><td>PRS77_ERneg</td><td>ER-negative Breast Cancer</td><td>-</td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-            <tr><td><a href="/score/PGS000005">PGS000005</a></td><td>PRS313_ERpos</td><td>ER-positive Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-            <tr><td><a href="/score/PGS000008">PGS000008</a></td><td>PRS3820_ERpos</td><td>ER-positive Breast Cancer</td><td><i class="fa fa-check-circle pgs_color_1"></i></td><td><i class="fa fa-check-circle pgs_color_1"></i></td></tr>
-          </tbody>
-        </table>
+      <p class="mt-5 mb-2">
+        The button "<b>Show Reported Traits</b>" display the collection of traits reported by the authors and mapped to a same trait ontology.
+      </p>
+      <p class="mb-2">For instance with <b>glaucoma</b> (MONDO_0005041):</p>
+      <div class="pgs_result_reported_traits">
+        <ul>
+          <li>Eye problems/disorders (Glaucoma)</li>
+          <li>Glaucoma</li>
+          <li>Glaucoma (time-to-event)</li>
+          <li>Primary open-angle glaucoma</li>
+          <li>Primary-open angle glaucoma</li>
+        </ul>
       </div>
     </section>
 
