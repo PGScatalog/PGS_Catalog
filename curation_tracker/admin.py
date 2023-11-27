@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.db import models, transaction
 from django.utils import timezone
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.contrib.admin import DateFieldListFilter
 # Register your models here.
 from .models import *
@@ -24,6 +24,7 @@ from rest_framework.renderers import JSONRenderer
 from typing import List
 import re
 import datetime as dt
+import sys
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
 admin.site.site_title = "PGS Catalog - Curation Tracker"
@@ -486,7 +487,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     
     def contact_author(self, request, object_id):
 
-        def get_EMPC_Full_data(pmid): #TODO: refactor
+        def get_EPMC_Full_data(pmid):
             payload = {
                 'format': 'json',
                 'resultType': 'core', # for getting full journal name
@@ -498,61 +499,63 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 result = result['resultList']['result'][0]
                 return result
             else:
-                raise Exception(f'No entry for {str(pmid)}')
+                raise Exception(f'No EPMC entry for {str(pmid)}')
+            
+        data = {}
         
         try:
 
             model = CurationPublicationAnnotation.objects.using(curation_tracker_db).get(num=object_id)
-            empc_data = get_EMPC_Full_data(model.PMID)
+            epmc_data = get_EPMC_Full_data(model.PMID)
 
             user = request.user
             user_name = ' '.join([user.first_name,user.last_name])
-            first_author_name = empc_data['authorList']['author'][0]['lastName']
-            full_journal_name = empc_data['journalInfo']['journal']['title']
 
-            #TODO: Move template to external source
-            email_body_template = """Dear Dr $$AUTHOR.NAME$$,
+            first_author_name = epmc_data['authorList']['author'][0]['lastName']
+            full_journal_name = epmc_data['journalInfo']['journal']['title']
 
-I’m emailing on behalf of the Cambridge University/EBI Polygenic Score (PGS) Catalog (<a href="https://www.pgscatalog.org/">www.PGSCatalog.org</a>) to request data from your recent $$JOURNAL.NAME$$ paper $$PUBLICATION.TITLE$$, (PMID:$$PUBLICATION.PMID$$).
+            if not user_name.strip():
+                user_name = '<i>&lt;Undefined user name&gt;</i>'
+            if not first_author_name.strip():
+                first_author_name = '<i>&lt;Undefined first author name&gt;</i>'
+            if not full_journal_name.strip():
+                full_journal_name = '<i>&lt;Undefined journal name&gt;</i>'
 
-The PGS Catalog, partnered with the NHGRI-EBI GWAS Catalog is an open database that annotates and distributes published polygenic scores to enable their application and evaluation on new datasets. Specifically the PGS Catalog provides the <a href="https://www.pgscatalog.org/downloads/#dl_ftp">variant-level information</a> for each PGS, along with information about score development methods, the samples used, and reported performance metrics (<a href="https://www.pgscatalog.org/score/PGS000001/">example</a>).
+            template = EmailTemplate.objects.using(curation_tracker_db).get(template_type='author_data_request',is_default=True)
+            email_body_template = template.body
+            email_subject_template = template.subject
 
-Your paper has been selected by the PGS Catalog team as a study of particular interest to the PGS community! We enquire as to whether you would share the variant-level information used to calculate the PGS (variant IDs/locations, effect alleles and weights)? If so, your PGS will be curated and made available for users to apply to their own samples, and distributed through the PGS Catalog according to EMBL-EBI’s standard <a href="https://www.ebi.ac.uk/about/terms-of-use/">terms of use</a> or other open licenses that may better suit your data.
-
-You can find more information on the Catalog in our recent resource description (<a href="https://www.nature.com/articles/s41588-021-00783-5.epdf">Nature Genetics</a>) and Polygenic Risk Score Reporting Standards (PRS-RS; <a href="https://www.nature.com/articles/s41586-021-03243-6.epdf">Nature</a>) papers. Please let me know if you have any questions about sharing your PGS data, or any other aspect of the Catalog.
-
-I look forward to hearing from you,
-
-$$USER.NAME$$
-
-(on behalf of the PGS Catalog leadership - Prof. Michael Inouye, Dr. Samuel Lambert, Dr. Laura Harris)
-
-—
-$$USER.NAME$$
-Polygenic Score (PGS) Catalog | EMBL-EBI
-—
-"""
-            email_body:str = email_body_template.replace('$$JOURNAL.NAME$$',full_journal_name)
+            email_body = email_body_template.replace('$$JOURNAL.NAME$$',full_journal_name.title())
             email_body = email_body.replace('$$PUBLICATION.PMID$$',str(model.PMID))
             email_body = email_body.replace('$$PUBLICATION.TITLE$$',model.title)
             email_body = email_body.replace('$$USER.NAME$$',user_name)
             email_body = email_body.replace('$$AUTHOR.NAME$$', first_author_name)
 
-            email_subject_template = "Request for PGS data from $$PUBLICATION.TITLE$$ ($$PUBLICATION.YEAR$$)"
-            email_subject:str = email_subject_template.replace('$$PUBLICATION.TITLE$$', model.title)
+            email_subject = email_subject_template.replace('$$PUBLICATION.TITLE$$', model.title)
             email_subject = email_subject.replace('$$PUBLICATION.YEAR$$',str(model.year))
 
             data = {
                 'email_subject': email_subject,
                 'email_body': email_body
             }
-            return JsonResponse(data)
         
+        except EmailTemplate.DoesNotExist as e:
+            data = {
+                'error': 'No template found for author data request.'
+            }
+
+        except CurationPublicationAnnotation.DoesNotExist as e:
+            data = {
+                'error': 'No annotation found with this ID.'
+            }
+
         except Exception as e:
+            print(e, file=sys.stderr)
             data = {
                 'error': str(e)
             }
-            return JsonResponse(data, status=500)
+
+        return JsonResponse(data)
 
 
     def import_csv(self, request):

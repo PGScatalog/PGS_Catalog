@@ -103,14 +103,19 @@ function autofillForm(){
 function contactAuthor(){
     $.get('../contact-author/', function(data,status){
         if(status == 'success'){
-            var email_subject = encodeURIComponent(data.email_subject);
-            var email_body = encodeURIComponent(data.email_body);
-            window.open('mailto:'+'?subject='+email_subject+'&body='+email_body);
+            if(data.error){
+                alert(data.error);
+            } else {
+                var email_subject = encodeURIComponent(data.email_subject);
+                var email_body = encodeURIComponent(data.email_body);
+                window.open('mailto:'+'?subject='+email_subject+'&body='+email_body);
+            }
         } else {
             alert('Error');
             console.error(data);
         }
     }).fail(function(error){
+        console.error(error);
         alert('Error: '+error.statusText);
     })
 }
