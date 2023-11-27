@@ -698,6 +698,46 @@ Polygenic Score (PGS) Catalog | EMBL-EBI
         queryset.update(curation_status='Released')
 
 
+### Email Templates ###
+class EmailTemplateForm(forms.ModelForm):
+    class Meta:
+        model = EmailTemplate
+        widgets = {
+            'body': forms.Textarea(attrs={'cols': 100, 'rows': 50}),
+        }
+        exclude = ('created_on','created_by','last_modified_on','last_modified_by')
+        help_texts = {
+            'body': 'Available tokens: PUBLICATION.TITLE, PUBLICATION.PMID, PUBLICATION.YEAR, AUTHOR.NAME, JOURNAL.NAME, USER.NAME'
+        }
+
+class EmailTemplateAdmin(MultiDBModelAdmin):
+    form = EmailTemplateForm
+    list_display = ("__str__","is_default","created_on","last_modified_on")
+    fieldsets = (
+        (None, {
+         'fields': (('template_type','is_default'),'subject','body')
+        }),
+    )
+
+    @transaction.atomic
+    def save_model(self, request, obj:EmailTemplate, form, change):
+        if not obj.id:
+            obj.created_by = request.user
+            obj.created_on = timezone.now()
+
+        obj.last_modified_by = request.user
+        obj.last_modified_on = timezone.now()
+
+        # If default, set others not default
+        if obj.is_default:
+            templates = EmailTemplate.objects.using(curation_tracker_db).filter(template_type=obj.template_type)
+            if(obj.id):
+                templates = templates.exclude(id=obj.id)
+            templates.update(is_default=False)
+
+        super().save_model(request, obj, form, change)
+
 
 admin.site.register(CurationCurator, CurationCuratorAdmin)
 admin.site.register(CurationPublicationAnnotation, CurationPublicationAnnotationAdmin)
+admin.site.register(EmailTemplate, EmailTemplateAdmin)
