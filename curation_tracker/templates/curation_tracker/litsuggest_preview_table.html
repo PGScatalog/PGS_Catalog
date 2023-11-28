@@ -1,0 +1,67 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block content %}
+  <div id="content-main">
+    <div>
+      <h2 style="margin-bottom:1rem">LitSuggest file upload</h2>
+      <div>
+        <form action="./confirm_preview" method="POST" enctype="multipart/form-data">
+          {{ form.as_p }}
+          <br />
+          {% csrf_token %}
+          <div class="submit-row">
+            <input type="submit" value="Confirm" class="default" style="float:left; font-weight: bold; margin-right: 5px">
+            <input class="button" type="button" onclick="history.back()" value="Cancel" />
+          </div>
+          <div class="help">(Studies with errors and tagged as 'Not PGS' won't be imported)</div>
+        </form>
+      </div>
+      <div>
+        <h2>Import Preview:</h2>
+        <table>
+          <tr>
+            <th>PMID</th>
+            <th>Study Name</th>
+            <th>Title</th>
+            <th>Journal</th>
+            <th>Eligibility</th>
+            <th>Develop new score</th>
+            <th>Eval score</th>
+            <th>Notes</th>
+            <th>Curation Status</th>
+            <th>1st Level Curation Status</th>
+          </tr>
+          {% for annot in annotations %}
+          {% with model=annot.model %}
+          <tr>
+            <td>{{model.PMID}}</td>
+            {% if annot.error %}
+            <td colspan="100%"><p class="errornote">{{annot.error}}</p></td>
+            {% elif annot.skip_reason %}
+            <td colspan="100%"><b><i>{{annot.skip_reason}}</i></b></td>
+            {% else %}
+            <td>{{model.study_name}}</td>
+            <td>{{model.title}}</td>
+            <td>{{model.journal}}</td>
+            <td>
+            {% if model.eligibility %}
+              <img src="{% static '/admin/img/icon-yes.svg' %}" alt="Yes">
+            {% else %}
+              <img src="{% static '/admin/img/icon-no.svg' %}" alt="No">
+            {% endif %}
+            </td>
+            <td>{{model.eligibility_dev_score}}</td>
+            <td>{{model.eligibility_eval_score}}</td>
+            <td>{{model.eligibility_description}}</td>
+            <td>{{model.curation_status}}</td>
+            <td>{{model.first_level_curation_status}}</td>
+            {% endif %}
+          </tr>
+          {% endwith %}
+          {% endfor %}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

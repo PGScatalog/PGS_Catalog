@@ -97,6 +97,14 @@ class StudyNameField(forms.CharField):
         count_study_name = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name=value).count()
         if(count_study_name):
             raise ValidationError('Name already exists in the database')
+        
+class LitsuggestPreviewTableForm(forms.Form):
+    '''Deprecated'''
+    comment = forms.CharField(label='Comment', 
+                              help_text=format_html('<div class="help">eg: Litsuggest Automatic Weekly Digest (Sep 24 2023 To Sep 30 2023)</div>'),
+                              required=True, 
+                              widget=forms.Textarea(attrs={'rows':3}), 
+                              initial='Litsuggest Automatic Weekly Digest')
 
 class LitsuggestPreviewForm(forms.ModelForm):
     '''Form for bulk editing and saving newly imported litsuggest studies'''
@@ -478,7 +486,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         my_urls = [
             path('import-csv/', login_required(self.import_csv, login_url='/admin/login/')),
             path('import-litsuggest/', login_required(self.import_litsuggest, login_url='/admin/login/')),
-            #path('import-litsuggest/confirm', self.confirm_litsuggest),
+            path('import-litsuggest/confirm_preview', login_required(self.confirm_litsuggest_preview, login_url='/admin/login/')),
             path('import-litsuggest/confirm_formset', login_required(self.confirm_litsuggest_formset, login_url='/admin/login/')),
             path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/'))
         ]
@@ -602,6 +610,28 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         return render(
             request, "curation_tracker/csv_form.html", payload
         )
+    
+    def import_litsuggest_to_table(self,request):
+        '''Deprecated'''
+        if request.method == "POST":
+            litsuggest_file = request.FILES["litsuggest_file"]
+            models = litsuggest_fileupload_to_annotation_imports(litsuggest_file)
+
+            preview_data = list(map(annotation_import_to_dict,models))
+            request.session['preview_data'] = preview_data
+            
+            return render(
+                request, "curation_tracker/litsuggest_preview_table.html", {
+                    'annotations': preview_data,
+                    'form': LitsuggestPreviewTableForm()
+                }
+            )
+
+        form = LitsuggestImportForm()
+        payload = {"form": form}
+        return render(
+            request, "curation_tracker/litsuggest_form.html", payload
+        )
 
     def import_litsuggest(self,request):
         if request.method == "POST":
@@ -641,6 +671,23 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             return render(
                 request, "curation_tracker/litsuggest_form.html", payload
             )
+        
+    def confirm_litsuggest_preview(self,request):
+        '''Deprecated'''
+        if request.method == "POST":
+            form = LitsuggestPreviewTableForm(request.POST)
+            comment = None
+            if form.is_valid():
+                comment = form.cleaned_data['comment']
+            preview_data = request.session['preview_data']
+            del request.session['preview_data']
+            annotations = list(map(dict_to_annotation_import, preview_data))
+            with transaction.atomic():
+                for annotation in annotations:
+                    if annotation.is_valid() and annotation.is_importable():
+                        annotation.annotation.comment = comment
+                        annotation.save(using=curation_tracker_db)
+            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
         
     def confirm_litsuggest_formset(self,request):
         if request.method == "POST":
