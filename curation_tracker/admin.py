@@ -111,7 +111,7 @@ class LitsuggestPreviewForm(forms.ModelForm):
     class Meta:
         model = CurationPublicationAnnotation
         fields = ['PMID','study_name','title','journal','eligibility','eligibility_dev_score',
-            'eligibility_eval_score','eligibility_description','curation_status','first_level_curation_status']
+            'eligibility_eval_score','eligibility_description','curation_status','first_level_curation_status','year','publication_date']
 
     def __init__(self, *args, triage_info, **kwargs):
         super(LitsuggestPreviewForm, self).__init__(*args, **kwargs)
@@ -119,6 +119,8 @@ class LitsuggestPreviewForm(forms.ModelForm):
 
     PMID = forms.CharField(required=True, widget=forms.HiddenInput()) # PMID is shown as plain text but needed in the form for further validation/data import
     doi = forms.CharField(required=False, widget=forms.HiddenInput())
+    year = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    publication_date = forms.DateField(required=False, widget=forms.HiddenInput())
     study_name = StudyNameField(required=True, widget=forms.TextInput(attrs={"required": True, "size": 12}))
     title = forms.CharField(widget=forms.Textarea(attrs={'rows':4}))
     eligibility_description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows':4,'cols':16}))

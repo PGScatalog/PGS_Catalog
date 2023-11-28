@@ -40,7 +40,7 @@
           {{ formset.management_form }}
           {% for preview_form in formset %}
           <tr>
-            <td>{{preview_form.triage_info.PMID}}{{preview_form.PMID}}{{preview_form.doi}}</td>
+            <td>{{preview_form.triage_info.PMID}}{{preview_form.PMID}}{{preview_form.doi}}{{preview_form.year}}{{preview_form.publication_date}}</td>
             <td>{{preview_form.triage_info.triage_decision}}</td>
             <td>{{preview_form.triage_info.triage_note}}</td>
             <td>{{preview_form.study_name}}{{preview_form.study_name.errors}}</td>
