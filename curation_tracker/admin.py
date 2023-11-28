@@ -514,20 +514,25 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         try:
 
             model = CurationPublicationAnnotation.objects.using(curation_tracker_db).get(num=object_id)
-            epmc_data = get_EPMC_Full_data(model.PMID)
+            publication_title = model.title.rstrip('.') if model.title else '&lt;Missing title&gt;'
+            publication_year = str(model.year) if model.year else '&lt;Missing year&gt;'
 
             user = request.user
             user_name = ' '.join([user.first_name,user.last_name])
 
+            if not model.PMID:
+                raise Exception('No PMID')
+
+            epmc_data = get_EPMC_Full_data(model.PMID)
             first_author_name = epmc_data['authorList']['author'][0]['lastName']
             full_journal_name = epmc_data['journalInfo']['journal']['title']
 
             if not user_name.strip():
-                user_name = '<i>&lt;Undefined user name&gt;</i>'
+                user_name = '&lt;Missing user name&gt;'
             if not first_author_name.strip():
-                first_author_name = '<i>&lt;Undefined first author name&gt;</i>'
+                first_author_name = '&lt;Missing first author name&gt;'
             if not full_journal_name.strip():
-                full_journal_name = '<i>&lt;Undefined journal name&gt;</i>'
+                full_journal_name = '&lt;Missing journal name&gt;'
 
             template = EmailTemplate.objects.using(curation_tracker_db).get(template_type='author_data_request',is_default=True)
             email_body_template = template.body
@@ -535,12 +540,17 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
             email_body = email_body_template.replace('$$JOURNAL.NAME$$',full_journal_name.title())
             email_body = email_body.replace('$$PUBLICATION.PMID$$',str(model.PMID))
-            email_body = email_body.replace('$$PUBLICATION.TITLE$$',model.title)
+            email_body = email_body.replace('$$PUBLICATION.TITLE$$',publication_title)
+            email_body = email_body.replace('$$PUBLICATION.YEAR$$',publication_year)
             email_body = email_body.replace('$$USER.NAME$$',user_name)
             email_body = email_body.replace('$$AUTHOR.NAME$$', first_author_name)
 
-            email_subject = email_subject_template.replace('$$PUBLICATION.TITLE$$', model.title)
-            email_subject = email_subject.replace('$$PUBLICATION.YEAR$$',str(model.year))
+            email_subject = email_subject_template.replace('$$JOURNAL.NAME$$',full_journal_name.title())
+            email_subject = email_subject.replace('$$PUBLICATION.PMID$$',str(model.PMID))
+            email_subject = email_subject.replace('$$PUBLICATION.TITLE$$',publication_title)
+            email_subject = email_subject.replace('$$PUBLICATION.YEAR$$',publication_year)
+            email_subject = email_subject.replace('$$USER.NAME$$',user_name)
+            email_subject = email_subject.replace('$$AUTHOR.NAME$$', first_author_name)
 
             data = {
                 'email_subject': email_subject,
