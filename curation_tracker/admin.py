@@ -12,7 +12,8 @@ from django.contrib.admin import DateFieldListFilter
 from .models import *
 from catalog.models import Publication
 from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.decorators import method_decorator
 from functools import update_wrapper
 from django.http import HttpResponse, JsonResponse
 from django.core.serializers import serialize
@@ -577,7 +578,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
         return JsonResponse(data)
 
-
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def import_csv(self, request):
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
@@ -623,6 +624,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             request, "curation_tracker/csv_form.html", payload
         )
     
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def import_litsuggest_to_table(self,request):
         '''Deprecated'''
         if request.method == "POST":
@@ -645,6 +647,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             request, "curation_tracker/litsuggest_form.html", payload
         )
 
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def import_litsuggest(self,request):
         if request.method == "POST":
             litsuggest_file = request.FILES["litsuggest_file"]
@@ -684,6 +687,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 request, "curation_tracker/litsuggest_form.html", payload
             )
         
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def confirm_litsuggest_preview(self,request):
         '''Deprecated'''
         if request.method == "POST":
@@ -701,6 +705,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                         annotation.save(using=curation_tracker_db)
             return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
         
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def confirm_litsuggest_formset(self,request):
         if request.method == "POST":
             has_errors = False
