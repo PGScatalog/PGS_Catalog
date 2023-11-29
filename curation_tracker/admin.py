@@ -496,7 +496,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         ]
         return my_urls + urls
     
-    
+    @method_decorator(permission_required('curation_tracker.change_curationpublicationannotation', raise_exception=True))
     def contact_author(self, request, object_id):
 
         def get_EPMC_Full_data(pmid):
