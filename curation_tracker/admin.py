@@ -12,6 +12,7 @@ from django.contrib.admin import DateFieldListFilter
 from .models import *
 from catalog.models import Publication
 from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
+from pgs_web import constants
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
 from functools import update_wrapper
@@ -556,9 +557,12 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             email_subject = email_subject.replace('$$USER.NAME$$',user_name)
             email_subject = email_subject.replace('$$AUTHOR.NAME$$', first_author_name)
 
+            cc = constants.USEFUL_URLS['PGS_CONTACT']
+
             data = {
                 'email_subject': email_subject,
-                'email_body': email_body
+                'email_body': email_body,
+                'cc': cc
             }
         
         except EmailTemplate.DoesNotExist as e:

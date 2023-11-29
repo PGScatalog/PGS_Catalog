@@ -108,7 +108,8 @@ function requestAuthorData(){
             } else {
                 var email_subject = encodeURIComponent(data.email_subject);
                 var email_body = encodeURIComponent(data.email_body);
-                window.open('mailto:'+'?subject='+email_subject+'&body='+email_body);
+                var cc = encodeURIComponent(data.cc);
+                window.open('mailto:'+'?subject='+email_subject+'&body='+email_body+'&cc='+cc);
             }
         } else {
             alert('Error');
