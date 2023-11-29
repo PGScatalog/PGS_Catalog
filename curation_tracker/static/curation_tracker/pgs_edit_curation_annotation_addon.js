@@ -124,9 +124,6 @@ $(document).ready(function(){
     // Adding 'go to publication' and 'Autofill' buttons after the DOI and PMID form fields 
     $('div.form-row.field-doi.field-PMID > div.flex-container').append('<div><div><a title="Go to the publication page using DOI or the Pubmed page if only the PMID is provided" href="" class="extra-field-button external-link" onclick="goToPublication(); return false;">Go to publication</a></div><div style="display: flex;"><div><a title="Fetch the publication data from EPMC and fill in the form automatically (DOI or PMID required)" href="" class="extra-field-button" onclick="autofillForm(); return false;">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div></div>');
 
-    // Adding "Contact Author" email template button next to the "History" button
-    $('div#content-main > ul.object-tools').prepend('<li><a href="" class="historylink" onclick="requestAuthorData(); return false;">Request Author Data</a></li>')
-
     // Adding toggle AuthorSub suffix function
     $('#id_author_submission').click(toggleAuthorSub);
 })

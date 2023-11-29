@@ -300,6 +300,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     )
 
     change_list_template = "curation_tracker/publication_changelist.html"
+    change_form_template = 'curation_tracker/publication_change_form.html'
 
 
     def get_readonly_fields(self, request, obj=None):
