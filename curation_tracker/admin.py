@@ -427,16 +427,21 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             # First level curation
             if obj.first_level_curation_status and (not db_obj or db_obj.first_level_curation_status != obj.first_level_curation_status):
                 if obj.first_level_curation_status.startswith('Curation'):
-                    if obj.second_level_curation_status == '-' or not obj.second_level_curation_status:
+                    if not (obj.second_level_curation_status and obj.second_level_curation_status.startswith('Curation')):
                         obj.second_level_curation_status = 'Awaiting curation'
-
+                        obj.curation_status = 'Awaiting L2'
+                    else: # if for some reason L2 was already done
+                        obj.curation_status = 'Curated - Awaiting Import'
                 elif obj.first_level_curation_status.startswith('Pending'):
                     obj.curation_status = 'Pending author response'
                 elif obj.first_level_curation_status == 'Determined ineligible':
                     obj.curation_status = 'Abandoned/Ineligible'
+                elif obj.first_level_curation_status.startswith('Awaiting curation'):
+                    obj.curation_status = 'Awaiting L1'
 
             # Second level curation
-            elif obj.second_level_curation_status and (not db_obj or db_obj.second_level_curation_status != obj.second_level_curation_status):
+            if obj.second_level_curation_status and (not db_obj or db_obj.second_level_curation_status != obj.second_level_curation_status) and not (obj.first_level_curation_status and obj.first_level_curation_status.startswith('Awaiting curation')):
+                # Should always be 'Awaiting L1' if L1='Awaitng curation'
                 if obj.second_level_curation_status.startswith('Curation'):
                     obj.curation_status = 'Curated - Awaiting Import'
                 elif obj.second_level_curation_status == 'Pending author response':
@@ -445,8 +450,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                     obj.curation_status = 'Abandoned/Ineligible'
                 elif obj.second_level_curation_status == 'Awaiting curation':
                     obj.curation_status = 'Awaiting L2'
-                else:
-                    obj.curation_status = 'Awaiting L1'
 
             # Desembargo the study
             if obj.embargoed == False and (not db_obj or db_obj.embargoed == True):
