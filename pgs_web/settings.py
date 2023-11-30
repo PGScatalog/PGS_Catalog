@@ -297,7 +297,8 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+        #'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_api.renderers.NoOptionBrowsableAPIRenderer'
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_api.pagination.CustomPagination',
     'PAGE_SIZE': 50,
