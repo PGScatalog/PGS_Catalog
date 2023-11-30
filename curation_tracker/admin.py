@@ -146,6 +146,9 @@ class CurationPublicationAnnotationForm(forms.ModelForm):
             'eligibility': 'Eligibility automatically assigned (default: Yes)'
         }
         exclude = ()
+        widgets = {
+            'PMID': forms.TextInput(attrs={'size': 6})
+        }
 
     def clean(self):
         """ Used as a form validator (on some of the fields) """
