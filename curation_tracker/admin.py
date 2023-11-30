@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.db import models, transaction
 from django.utils import timezone
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.contrib.admin import DateFieldListFilter
 # Register your models here.
 from .models import *
@@ -15,13 +15,7 @@ from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_impo
 from pgs_web import constants
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
-from functools import update_wrapper
-from django.http import HttpResponse, JsonResponse
-from django.core.serializers import serialize
-
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, renderer_classes
-from rest_framework.renderers import JSONRenderer
+from django.http import JsonResponse
 
 from typing import List
 import re
