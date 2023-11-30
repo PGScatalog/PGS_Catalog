@@ -1,24 +1,26 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django import forms
-from django.urls import path,reverse
+from django.urls import path
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-import csv
-import re
-from django import forms
-from django.forms import TextInput, Textarea
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.contrib.admin import DateFieldListFilter
 # Register your models here.
 from .models import *
 from catalog.models import Publication
+from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
+from pgs_web import constants
+from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.decorators import method_decorator
+from django.http import JsonResponse
 
-from curation_tracker.litsuggest import litsuggest_import_to_annotation, annotation_to_dict, dict_to_annotation_import
-from django.contrib.admin import DateFieldListFilter
-from django.contrib.auth.decorators import login_required
-
+from typing import List
+import re
 import datetime as dt
+import sys
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
 admin.site.site_title = "PGS Catalog - Curation Tracker"
@@ -77,12 +79,62 @@ class LitsuggestImportForm(forms.Form):
     """ Litsuggest Import form """
     litsuggest_file = forms.FileField(label=format_html('Litsuggest TSV file'))
 
-class LitsuggestPreviewForm(forms.Form):
+class LitsuggestCommentForm(forms.Form):
+    '''Unique form for applying a comment to all litsuggest studies of a single import'''
     comment = forms.CharField(label='Comment', 
                               help_text=format_html('<div class="help">eg: Litsuggest Automatic Weekly Digest (Sep 24 2023 To Sep 30 2023)</div>'),
                               required=True, 
                               widget=forms.Textarea(attrs={'rows':3}), 
                               initial='Litsuggest Automatic Weekly Digest')
+    
+class StudyNameField(forms.CharField):
+    def validate(self, value):
+        super().validate(value)
+        count_study_name = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name=value).count()
+        if(count_study_name):
+            raise ValidationError('Name already exists in the database')
+        
+class LitsuggestPreviewTableForm(forms.Form):
+    '''Deprecated'''
+    comment = forms.CharField(label='Comment', 
+                              help_text=format_html('<div class="help">eg: Litsuggest Automatic Weekly Digest (Sep 24 2023 To Sep 30 2023)</div>'),
+                              required=True, 
+                              widget=forms.Textarea(attrs={'rows':3}), 
+                              initial='Litsuggest Automatic Weekly Digest')
+
+class LitsuggestPreviewForm(forms.ModelForm):
+    '''Form for bulk editing and saving newly imported litsuggest studies'''
+    class Meta:
+        model = CurationPublicationAnnotation
+        fields = ['PMID','study_name','title','journal','eligibility','eligibility_dev_score',
+            'eligibility_eval_score','eligibility_description','curation_status','first_level_curation_status','year','publication_date']
+
+    def __init__(self, *args, triage_info, **kwargs):
+        super(LitsuggestPreviewForm, self).__init__(*args, **kwargs)
+        self.triage_info = triage_info
+
+    PMID = forms.CharField(required=True, widget=forms.HiddenInput()) # PMID is shown as plain text but needed in the form for further validation/data import
+    doi = forms.CharField(required=False, widget=forms.HiddenInput())
+    year = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    publication_date = forms.DateField(required=False, widget=forms.HiddenInput())
+    study_name = StudyNameField(required=True, widget=forms.TextInput(attrs={"required": True, "size": 12}))
+    title = forms.CharField(widget=forms.Textarea(attrs={'rows':4}))
+    eligibility_description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows':4,'cols':16}))
+    triage_info:dict
+    error:str
+    skip_reason:str
+
+class LitsuggestPreviewFormSet(forms.BaseFormSet):
+    '''Formset for litsuggest imports bulk editing (requires LitsuggestPreviewForm)'''
+    def get_form_kwargs(self, index):
+        ''' Redefined so each form of the set can have different triage infos '''
+        kwargs = super().get_form_kwargs(index)
+        ti = None
+        if 'triage_info' in kwargs:
+            ti = kwargs['triage_info'][index]
+        return {'triage_info': ti}
+    
+CurationPublicationAnnotationFormSet = forms.formset_factory(LitsuggestPreviewForm, formset=LitsuggestPreviewFormSet, extra=0)
 
 class CurationPublicationAnnotationForm(forms.ModelForm):
     """ Custom Admin form """
@@ -151,7 +203,7 @@ class MultiDBModelAdmin(admin.ModelAdmin):
     using = curation_tracker_db
 
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows':3, 'cols':90})}
+        models.TextField: {'widget': forms.Textarea(attrs={'rows':3, 'cols':90})}
     }
 
     def save_model(self, request, obj, form, change):
@@ -243,6 +295,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     )
 
     change_list_template = "curation_tracker/publication_changelist.html"
+    change_form_template = 'curation_tracker/publication_change_form.html'
 
 
     def get_readonly_fields(self, request, obj=None):
@@ -342,6 +395,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
 
         ## Model data updates before saving it in the database
+        db_obj = None
         if not obj.num:
             # Primary key needs to be assigned for a new entry
             obj.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
@@ -355,51 +409,55 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             # Deal with the change(s) on curation status for an existing entry
             db_obj = CurationPublicationAnnotation.objects.using(curation_tracker_db).get(num=obj.num)
 
-            if db_obj.curation_status not in ('Released', 'Retired'):
 
-                # Eligibility - revert ineligibility
-                if obj.eligibility == True and db_obj.eligibility == False:
-                    if obj.curation_status == 'Abandoned/Ineligible':
-                        if obj.first_level_curation_status != 'Determined ineligible' and obj.second_level_curation_status != 'Determined ineligible':
-                            obj.curation_status = 'Awaiting L1' # Back to default value
+        if not db_obj or db_obj.curation_status not in ('Released', 'Retired'):
 
-                # First level curation
-                if obj.first_level_curation_status and db_obj.first_level_curation_status != obj.first_level_curation_status:
-                    if obj.first_level_curation_status.startswith('Curation'):
-                        if obj.second_level_curation_status == '-' or not obj.second_level_curation_status:
-                            obj.second_level_curation_status = 'Awaiting curation'
+            # Eligibility - revert ineligibility
+            if db_obj and db_obj.eligibility == False and obj.eligibility == True:
+                if obj.curation_status == 'Abandoned/Ineligible':
+                    if obj.first_level_curation_status != 'Determined ineligible' and obj.second_level_curation_status != 'Determined ineligible':
+                        obj.curation_status = 'Awaiting L1' # Back to default value
 
-                    elif obj.first_level_curation_status.startswith('Pending'):
-                        obj.curation_status = 'Pending author response'
-                    elif obj.first_level_curation_status == 'Determined ineligible':
-                        obj.curation_status = 'Abandoned/Ineligible'
-
-                # Second level curation
-                elif obj.second_level_curation_status and db_obj.second_level_curation_status != obj.second_level_curation_status:
-                    if obj.second_level_curation_status.startswith('Curation'):
-                        obj.curation_status = 'Curated - Awaiting Import'
-                    elif obj.second_level_curation_status == 'Pending author response':
-                        obj.curation_status = 'Pending author response'
-                    elif obj.second_level_curation_status == 'Determined ineligible':
-                        obj.curation_status = 'Abandoned/Ineligible'
-                    elif obj.second_level_curation_status == 'Awaiting curation':
-                        obj.curation_status = 'Awaiting L1'
-                    else:
+            # First level curation
+            if obj.first_level_curation_status and (not db_obj or db_obj.first_level_curation_status != obj.first_level_curation_status):
+                if obj.first_level_curation_status.startswith('Curation'):
+                    if not (obj.second_level_curation_status and obj.second_level_curation_status.startswith('Curation')):
+                        obj.second_level_curation_status = 'Awaiting curation'
                         obj.curation_status = 'Awaiting L2'
-
-                # Desembargo the study
-                if obj.embargoed == False and db_obj.embargoed == True:
-                    if obj.curation_status == 'Embargo Imported - Awaiting Release':
-                        if obj.doi or obj.PMID:
-                            obj.curation_status = 'Imported - Awaiting Release'
-                    elif obj.curation_status == 'Embargo Curated - Awaiting Import':
+                    else: # if for some reason L2 was already done
                         obj.curation_status = 'Curated - Awaiting Import'
+                elif obj.first_level_curation_status.startswith('Pending'):
+                    obj.curation_status = 'Pending author response'
+                elif obj.first_level_curation_status == 'Determined ineligible':
+                    obj.curation_status = 'Abandoned/Ineligible'
+                elif obj.first_level_curation_status.startswith('Awaiting curation'):
+                    obj.curation_status = 'Awaiting L1'
 
-                # Check if the Publication info need to be updated via EuropePMC
-                if (obj.PMID != db_obj.PMID or obj.doi != db_obj.doi) \
-                    or (obj.PMID and (not obj.title or not obj.journal or not obj.doi)) \
-                    or (obj.doi and (not obj.title or not obj.journal or not obj.PMID)):
-                    update_via_epmc = True
+            # Second level curation
+            if obj.second_level_curation_status and (not db_obj or db_obj.second_level_curation_status != obj.second_level_curation_status) and not (obj.first_level_curation_status and obj.first_level_curation_status.startswith('Awaiting curation')):
+                # Should always be 'Awaiting L1' if L1='Awaitng curation'
+                if obj.second_level_curation_status.startswith('Curation'):
+                    obj.curation_status = 'Curated - Awaiting Import'
+                elif obj.second_level_curation_status == 'Pending author response':
+                    obj.curation_status = 'Pending author response'
+                elif obj.second_level_curation_status == 'Determined ineligible':
+                    obj.curation_status = 'Abandoned/Ineligible'
+                elif obj.second_level_curation_status == 'Awaiting curation':
+                    obj.curation_status = 'Awaiting L2'
+
+            # Desembargo the study
+            if obj.embargoed == False and (not db_obj or db_obj.embargoed == True):
+                if obj.curation_status == 'Embargo Imported - Awaiting Release':
+                    if obj.doi or obj.PMID:
+                        obj.curation_status = 'Imported - Awaiting Release'
+                elif obj.curation_status == 'Embargo Curated - Awaiting Import':
+                    obj.curation_status = 'Curated - Awaiting Import'
+
+            # Check if the Publication info need to be updated via EuropePMC
+            if db_obj and (obj.PMID != db_obj.PMID or obj.doi != db_obj.doi) \
+                or (obj.PMID and (not obj.title or not obj.journal or not obj.doi)) \
+                or (obj.doi and (not obj.title or not obj.journal or not obj.PMID)):
+                update_via_epmc = True
 
             # Embargoed status
             if obj.embargoed == True:
@@ -425,50 +483,139 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         obj.save(using=self.using)
 
 
-    def get_urls(self):
+    def get_urls(self):        
         urls = super().get_urls()
         my_urls = [
             path('import-csv/', login_required(self.import_csv, login_url='/admin/login/')),
             path('import-litsuggest/', login_required(self.import_litsuggest, login_url='/admin/login/')),
-            path('import-litsuggest/confirm', login_required(self.confirm_litsuggest, login_url='/admin/login/'))
+            path('import-litsuggest/confirm_preview', login_required(self.confirm_litsuggest_preview, login_url='/admin/login/')),
+            path('import-litsuggest/confirm_formset', login_required(self.confirm_litsuggest_formset, login_url='/admin/login/')),
+            path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/'))
         ]
         return my_urls + urls
+    
+    @method_decorator(permission_required('curation_tracker.change_curationpublicationannotation', raise_exception=True))
+    def contact_author(self, request, object_id):
 
+        def get_EPMC_Full_data(pmid):
+            payload = {
+                'format': 'json',
+                'resultType': 'core', # for getting full journal name
+                'query': f'ext_id:{str(pmid)}'
+                }
+            result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
+            result = result.json()
+            if 'result' in result['resultList']:
+                result = result['resultList']['result'][0]
+                return result
+            else:
+                raise Exception(f'No EPMC entry for {str(pmid)}')
+            
+        data = {}
+        
+        try:
 
+            model = CurationPublicationAnnotation.objects.using(curation_tracker_db).get(num=object_id)
+            publication_title = model.title.rstrip('.') if model.title else '&lt;Missing title&gt;'
+            publication_year = str(model.year) if model.year else '&lt;Missing year&gt;'
+
+            user = request.user
+            user_name = ' '.join([user.first_name,user.last_name])
+
+            if not model.PMID:
+                raise Exception('No PMID')
+
+            epmc_data = get_EPMC_Full_data(model.PMID)
+            first_author_name = epmc_data['authorList']['author'][0]['lastName']
+            full_journal_name = epmc_data['journalInfo']['journal']['title']
+
+            if not user_name.strip():
+                user_name = '&lt;Missing user name&gt;'
+            if not first_author_name.strip():
+                first_author_name = '&lt;Missing first author name&gt;'
+            if not full_journal_name.strip():
+                full_journal_name = '&lt;Missing journal name&gt;'
+
+            template = EmailTemplate.objects.using(curation_tracker_db).get(template_type='author_data_request',is_default=True)
+            email_body_template = template.body
+            email_subject_template = template.subject
+
+            email_body = email_body_template.replace('$$JOURNAL.NAME$$',full_journal_name.title())
+            email_body = email_body.replace('$$PUBLICATION.PMID$$',str(model.PMID))
+            email_body = email_body.replace('$$PUBLICATION.TITLE$$',publication_title)
+            email_body = email_body.replace('$$PUBLICATION.YEAR$$',publication_year)
+            email_body = email_body.replace('$$USER.NAME$$',user_name)
+            email_body = email_body.replace('$$AUTHOR.NAME$$', first_author_name)
+
+            email_subject = email_subject_template.replace('$$JOURNAL.NAME$$',full_journal_name.title())
+            email_subject = email_subject.replace('$$PUBLICATION.PMID$$',str(model.PMID))
+            email_subject = email_subject.replace('$$PUBLICATION.TITLE$$',publication_title)
+            email_subject = email_subject.replace('$$PUBLICATION.YEAR$$',publication_year)
+            email_subject = email_subject.replace('$$USER.NAME$$',user_name)
+            email_subject = email_subject.replace('$$AUTHOR.NAME$$', first_author_name)
+
+            cc = constants.USEFUL_URLS['PGS_CONTACT']
+
+            data = {
+                'email_subject': email_subject,
+                'email_body': email_body,
+                'cc': cc
+            }
+        
+        except EmailTemplate.DoesNotExist as e:
+            data = {
+                'error': 'No template found for author data request.'
+            }
+
+        except CurationPublicationAnnotation.DoesNotExist as e:
+            data = {
+                'error': 'No annotation found with this ID.'
+            }
+
+        except Exception as e:
+            print(e, file=sys.stderr)
+            data = {
+                'error': str(e)
+            }
+
+        return JsonResponse(data)
+
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def import_csv(self, request):
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             file_data = csv_file.read().decode('utf-8')
             cvs_data = file_data.split('\n')
             msg = ''
-            for line in cvs_data:
-                study_id = line.split('\t')[0]
-                if study_id != '':
-                    print(f"\n# Data: {study_id}")
-                    if check_publication_exist(study_id):
-                        msg = msg + f"<br/>&#10060; - '{study_id}' already exists in the database - no import"
-                    else:
-                        # Create new model
-                        model = CurationPublicationAnnotation()
-                        model.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
-                        model.set_creation_date()
-                        setattr(model,'study_name',study_id)
-
-                        # Update model with EuropePMC data
-                        if re.match('^\d+$', study_id):
-                            model.PMID = study_id
+            with transaction.atomic():
+                for line in cvs_data:
+                    study_id = line.split('\t')[0]
+                    if study_id != '':
+                        print(f"\n# Data: {study_id}")
+                        if check_publication_exist(study_id):
+                            msg = msg + f"<br/>&#10060; - '{study_id}' already exists in the database - no import"
                         else:
-                            model.doi = study_id
-                        has_epmc_data = model.get_epmc_data()
-                        model.study_name = check_study_name(model.study_name)
+                            # Create new model
+                            model = CurationPublicationAnnotation()
+                            model.set_annotation_ids(next_id_number(CurationPublicationAnnotation))
+                            model.set_creation_date()
+                            setattr(model,'study_name',study_id)
 
-                        # Save model in DB
-                        model.save(using=curation_tracker_db)
+                            # Update model with EuropePMC data
+                            if re.match('^\d+$', study_id):
+                                model.PMID = study_id
+                            else:
+                                model.doi = study_id
+                            has_epmc_data = model.get_epmc_data()
+                            model.study_name = check_study_name(model.study_name)
 
-                        if has_epmc_data:
-                            msg = msg + f"<br/>&#10004; - '{study_id}' has been successfully imported in the database"
-                        else:
-                            msg = msg + f"<br/>&#10004; - '{study_id}' has been imported in the database but extra information couldn't be extracted from EuropePMC"
+                            # Save model in DB
+                            model.save(using=curation_tracker_db)
+
+                            if has_epmc_data:
+                                msg = msg + f"<br/>&#10004; - '{study_id}' has been successfully imported in the database"
+                            else:
+                                msg = msg + f"<br/>&#10004; - '{study_id}' has been imported in the database but extra information couldn't be extracted from EuropePMC"
 
             self.message_user(request,  format_html(f"Your csv file has been imported{msg}"))
             return HttpResponseRedirect('..')
@@ -478,19 +625,21 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         return render(
             request, "curation_tracker/csv_form.html", payload
         )
-
-    def import_litsuggest(self,request):
+    
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
+    def import_litsuggest_to_table(self,request):
+        '''Deprecated'''
         if request.method == "POST":
             litsuggest_file = request.FILES["litsuggest_file"]
-            models = litsuggest_import_to_annotation(litsuggest_file)
+            models = litsuggest_fileupload_to_annotation_imports(litsuggest_file)
 
-            preview_data = list(map(annotation_to_dict,models))
+            preview_data = list(map(annotation_import_to_dict,models))
             request.session['preview_data'] = preview_data
             
             return render(
-                request, "curation_tracker/litsuggest_preview_form.html", {
+                request, "curation_tracker/litsuggest_preview_table.html", {
                     'annotations': preview_data,
-                    'form': LitsuggestPreviewForm()
+                    'form': LitsuggestPreviewTableForm()
                 }
             )
 
@@ -499,23 +648,104 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         return render(
             request, "curation_tracker/litsuggest_form.html", payload
         )
-    
-    def confirm_litsuggest(self,request):
+
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
+    def import_litsuggest(self,request):
         if request.method == "POST":
-            form = LitsuggestPreviewForm(request.POST)
+            litsuggest_file = request.FILES["litsuggest_file"]
+            import_models = litsuggest_fileupload_to_annotation_imports(litsuggest_file)
+
+            skipped_publications: List[dict] = [] # as dict so it can be serialized in session
+            staged_publications_data: List[dict] = [] # format for FormSet 'initial' parameter
+            triage_info: List[dict] = []
+
+            for import_model in import_models:
+                if import_model.error:
+                    skipped_publications.append(annotation_import_to_dict(import_model))
+                elif import_model.skip_reason:
+                    skipped_publications.append(annotation_import_to_dict(import_model))
+                else:
+                    annotation = import_model.annotation
+                    staged_publications_data.append(annotation_to_dict(annotation))
+                    triage_info.append(import_model.triage_info)
+
+            formset = CurationPublicationAnnotationFormSet(initial=staged_publications_data, form_kwargs={'triage_info':triage_info})
+            # Keeping info in the session for reusing in the form if not valid
+            request.session['skipped_publications'] = skipped_publications
+            request.session['triage_info'] = triage_info                   
+            
+            return render(
+                request, "curation_tracker/litsuggest_preview_form.html", {
+                    'skipped_publications': skipped_publications,
+                    'comment_form': LitsuggestCommentForm,
+                    'formset': formset
+                }
+            )
+        
+        else:
+            form = LitsuggestImportForm()
+            payload = {"form": form}
+            return render(
+                request, "curation_tracker/litsuggest_form.html", payload
+            )
+        
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
+    def confirm_litsuggest_preview(self,request):
+        '''Deprecated'''
+        if request.method == "POST":
+            form = LitsuggestPreviewTableForm(request.POST)
             comment = None
             if form.is_valid():
                 comment = form.cleaned_data['comment']
             preview_data = request.session['preview_data']
             del request.session['preview_data']
             annotations = list(map(dict_to_annotation_import, preview_data))
-            for annotation in annotations:
-                if annotation.is_valid() and annotation.is_importable():
-                    annotation.annotation.comment = comment
-                    annotation.save(using=curation_tracker_db)
+            with transaction.atomic():
+                for annotation in annotations:
+                    if annotation.is_valid() and annotation.is_importable():
+                        annotation.annotation.comment = comment
+                        annotation.save(using=curation_tracker_db)
             return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
-            
+        
+    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
+    def confirm_litsuggest_formset(self,request):
+        if request.method == "POST":
+            has_errors = False
+            comment_form = LitsuggestCommentForm(request.POST)
+            comment = None
+            if comment_form.is_valid():
+                comment = comment_form.cleaned_data['comment']
+            else:
+                has_errors = True
 
+            triage_info = request.session.get('triage_info', []) # fetching triage infos for the formset in case it needs to be provided to the context again in case of error
+            formset = CurationPublicationAnnotationFormSet(request.POST, form_kwargs={'triage_info':triage_info})
+            annotation_imports: List[CurationPublicationAnnotationImport] = []
+            if formset.is_valid() and not has_errors:
+                for f in formset:
+                    data = f.cleaned_data
+                    data['comment'] = comment
+                    annotation_import = dict_to_annotation_import({'model':data})
+                    annotation_imports.append(annotation_import)
+                with transaction.atomic():
+                    [annotation_import.save() for annotation_import in annotation_imports]
+            else:
+                has_errors = True
+
+            if has_errors:
+                return render(
+                    request, "curation_tracker/litsuggest_preview_form.html", {
+                        'skipped_publications': request.session.get('skipped_publications', []),
+                        'comment_form': comment_form,
+                        'formset': formset
+                    }
+            )
+
+            del request.session['skipped_publications']
+            del request.session['triage_info']
+
+        return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
+            
     display_pgp_id.short_description = 'PGP ID'
     display_study_name.short_description = 'Study Name'
     display_PMID.short_description = 'Pubmed ID'
@@ -537,6 +767,46 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         queryset.update(curation_status='Released')
 
 
+### Email Templates ###
+class EmailTemplateForm(forms.ModelForm):
+    class Meta:
+        model = EmailTemplate
+        widgets = {
+            'body': forms.Textarea(attrs={'cols': 100, 'rows': 50}),
+        }
+        exclude = ('created_on','created_by','last_modified_on','last_modified_by')
+        help_texts = {
+            'body': 'Available tokens: PUBLICATION.TITLE, PUBLICATION.PMID, PUBLICATION.YEAR, AUTHOR.NAME, JOURNAL.NAME, USER.NAME'
+        }
+
+class EmailTemplateAdmin(MultiDBModelAdmin):
+    form = EmailTemplateForm
+    list_display = ("__str__","is_default","created_on","last_modified_on")
+    fieldsets = (
+        (None, {
+         'fields': (('template_type','is_default'),'subject','body')
+        }),
+    )
+
+    @transaction.atomic
+    def save_model(self, request, obj:EmailTemplate, form, change):
+        if not obj.id:
+            obj.created_by = request.user
+            obj.created_on = timezone.now()
+
+        obj.last_modified_by = request.user
+        obj.last_modified_on = timezone.now()
+
+        # If default, set others not default
+        if obj.is_default:
+            templates = EmailTemplate.objects.using(curation_tracker_db).filter(template_type=obj.template_type)
+            if(obj.id):
+                templates = templates.exclude(id=obj.id)
+            templates.update(is_default=False)
+
+        super().save_model(request, obj, form, change)
+
 
 admin.site.register(CurationCurator, CurationCuratorAdmin)
 admin.site.register(CurationPublicationAnnotation, CurationPublicationAnnotationAdmin)
+admin.site.register(EmailTemplate, EmailTemplateAdmin)

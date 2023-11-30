@@ -1,9 +1,11 @@
-import pandas as pd
+import csv
 import requests
 from pgs_web import constants
 from catalog.models import Publication
 from curation_tracker.models import CurationPublicationAnnotation
 from typing import List
+from io import TextIOWrapper
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 pgs_db = 'default'
 curation_tracker_db = 'curation_tracker'
@@ -13,12 +15,20 @@ class CurationPublicationAnnotationImport():
     error: str
     skip_reason: str
     annotation: CurationPublicationAnnotation
+    triage_info: dict
 
     def __init__(self, model: CurationPublicationAnnotation = CurationPublicationAnnotation()):
         self.annotation = model# if model else CurationPublicationAnnotation()
         self.error = None
         self.skip_reason = None
-    
+        self.triage_info = {}
+
+    def to_dict(self) -> dict:
+        values = annotation_to_dict(self.annotation)
+        values['error'] = self.error
+        values['skip_reason'] = self.skip_reason
+        return values
+
     def is_valid(self) -> bool:
         """Should be used before saving"""
         return self.error == None
@@ -130,18 +140,20 @@ def create_new_annotation(publication_info) -> CurationPublicationAnnotation:
         
     return model
 
-def annotation_to_dict(annotation_import: CurationPublicationAnnotationImport) -> dict:
+def annotation_import_to_dict(annotation_import: CurationPublicationAnnotationImport) -> dict:
     d = dict()
     for attr in ['error','skip_reason']:
         d[attr] = getattr(annotation_import,attr)
+    d['model'] = annotation_to_dict(annotation_import.annotation)
+    return d
+
+def annotation_to_dict(model: CurationPublicationAnnotation) -> dict:
     model_dict = dict()
-    model = annotation_import.annotation
     for attr in ['PMID','study_name','doi','journal','title','year','eligibility','comment',
                  'eligibility_dev_score','eligibility_eval_score','eligibility_description','first_level_curation_status','curation_status',
                  'publication_date']:
         model_dict[attr] = getattr(model,attr)
-    d['model'] = model_dict
-    return d
+    return model_dict
 
 def dict_to_annotation_import(d: dict) -> CurationPublicationAnnotationImport:
     model = CurationPublicationAnnotation()
@@ -171,13 +183,12 @@ def check_study_name(study_name: str) -> str:
         study_name = new_study_name
     return study_name
 
-def litsuggest_import_to_annotation(litsuggest_file: str) -> List[CurationPublicationAnnotationImport]:
-    #df = pd.read_csv(litsuggest_file, sep="\t").dropna(how='all')
-    df = pd.read_csv(litsuggest_file, sep="\t").fillna('') 
+def _litsuggest_IO_to_annotation_imports(litsuggest_file) -> List[CurationPublicationAnnotationImport]:
     models = []
-    for i, row in df.iterrows():
+    reader = csv.DictReader(litsuggest_file, delimiter='\t')
+    for row in reader:
         if not row['pmid']:
-            continue
+            break # litsuggest files might contain a lot of empty rows after the relevant ones
         pmid = str(int(row['pmid']))
         try:
             triage_decision = row['triage.decision']
@@ -193,6 +204,11 @@ def litsuggest_import_to_annotation(litsuggest_file: str) -> List[CurationPublic
             annotationModel.eligibility_description = triage_note
 
             annotation_import = CurationPublicationAnnotationImport(annotationModel)
+            annotation_import.triage_info = {
+                'triage_decision': triage_decision,
+                'triage_note': triage_note,
+                'PMID': pmid
+            }
 
             match triage_decision:
                 case 'New PGS':
@@ -229,3 +245,11 @@ def litsuggest_import_to_annotation(litsuggest_file: str) -> List[CurationPublic
             models.append(annotation_import)
 
     return models
+
+def litsuggest_filename_to_annotation_imports(litsuggest_file_name: str) -> List[CurationPublicationAnnotationImport]:
+    with open(litsuggest_file_name, 'r') as litsuggest_file:
+        return _litsuggest_IO_to_annotation_imports(litsuggest_file)
+    
+def litsuggest_fileupload_to_annotation_imports(litsuggest_file_upload: InMemoryUploadedFile) -> List[CurationPublicationAnnotationImport]:
+    file_wrapper = TextIOWrapper(litsuggest_file_upload.file)
+    return _litsuggest_IO_to_annotation_imports(file_wrapper)

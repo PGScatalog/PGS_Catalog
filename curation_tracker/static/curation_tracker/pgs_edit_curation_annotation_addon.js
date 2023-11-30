@@ -100,6 +100,27 @@ function autofillForm(){
     _getPublicationInfo({doi: doi, pmid: pmid});
 }
 
+function requestAuthorData(){
+    $.get('../contact-author/', function(data,status){
+        if(status == 'success'){
+            if(data.error){
+                alert(data.error);
+            } else {
+                var email_subject = encodeURIComponent(data.email_subject);
+                var email_body = encodeURIComponent(data.email_body);
+                var cc = encodeURIComponent(data.cc);
+                window.open('mailto:'+'?subject='+email_subject+'&body='+email_body+'&cc='+cc);
+            }
+        } else {
+            alert('Error');
+            console.error(data);
+        }
+    }).fail(function(error){
+        console.error(error);
+        alert('Error: '+error.statusText);
+    })
+}
+
 $(document).ready(function(){
     // Adding 'go to publication' and 'Autofill' buttons after the DOI and PMID form fields 
     $('div.form-row.field-doi.field-PMID > div.flex-container').append('<div><div><a title="Go to the publication page using DOI or the Pubmed page if only the PMID is provided" href="" class="extra-field-button external-link" onclick="goToPublication(); return false;">Go to publication</a></div><div style="display: flex;"><div><a title="Fetch the publication data from EPMC and fill in the form automatically (DOI or PMID required)" href="" class="extra-field-button" onclick="autofillForm(); return false;">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div></div>');

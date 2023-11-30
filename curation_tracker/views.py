@@ -1,15 +1,8 @@
-import os
 import datetime as dt
-from django.http import Http404
 from django.shortcuts import render
-from django.views.generic import TemplateView
-from django.views.generic.base import RedirectView
 from django.conf import settings
-from django.db.models import Prefetch, Count
-
-from pgs_web import constants
+from django.db.models import Count
 from .tables import *
-
 
 curation_tracker = 'curation_tracker'
 l1_curation_done = ['Curation done','Curation done (AS)']
