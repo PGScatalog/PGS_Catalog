@@ -22,6 +22,8 @@ It is located under curation (`curation/config.py`). There you can configure dif
 
 You might need to change the value of `skip_scorefiles` to **True** if you only want to import the metadata (to test the study data for instance)
 
+You might need to change the value of `skip_curationtracker` to **True** if you want to skip the step which update the curation status of the study in the curation tracker DB.
+
 The default values of the attributes `default_curation_status` and `scoringfiles_format_version` shouldn't be changed.
 
 Example of config file:

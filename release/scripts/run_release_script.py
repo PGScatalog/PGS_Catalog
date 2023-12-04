@@ -4,6 +4,7 @@ from catalog.models import *
 from release.scripts.UpdateGwasStudies import UpdateGwasStudies
 from release.scripts.CreateRelease import CreateRelease
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
+from curation_tracker.models import CurationPublicationAnnotation
 
 
 error_prefix = '  /!\  Error:'
@@ -46,6 +47,9 @@ def run():
 
     # Create release
     call_create_release()
+
+    # Update Curation Tracker
+    update_curation_tracker()
 
     # Generate EuropePMC linkage XML file
     generate_europePMC_linkage_xml_file()
@@ -180,6 +184,49 @@ def call_create_release():
 
     if new_release.score_count == 0 or new_release.publication_count == 0 or new_release.performance_count == 0:
         error_report("at least one of the main components (Score, Publication or Performance Metrics) hasn't a new entry this release")
+
+
+def update_curation_tracker():
+    """ Update entries in Curation Tracker """
+    lastest_release = Release.objects.latest('date').date
+
+    curation_tracker = 'curation_tracker'
+
+    # Released publications
+    publications = Publication.objects.filter(date_released=lastest_release)
+    for publication in publications:
+        if publication.doi:
+            pgp_id = publication.id
+            # Update PGP ID + curation status in Curation Tracker
+            try:
+                curation_pub = CurationPublicationAnnotation.objects.using(curation_tracker).get(doi=publication.doi)
+                print('  - Adding PGP ID to the Curation Tracker')
+                curation_pub.pgp_id = pgp_id
+                print('  - Updating curation_status on the Curation Tracker')
+                if publication.curation_status == 'E':
+                    curation_pub.curation_status = 'Embargo Imported - Awaiting Release'
+                else:
+                    curation_pub.curation_status = 'Released'
+                curation_pub.save()
+            except CurationPublicationAnnotation.DoesNotExist:
+                print(f"Can't find study in Curation Tracker to add the new PGP ID '{pgp_id}'")
+
+    # Old released entries which are still missing the PubMed ID
+    # Use the PGS Catalog data to update the study information in the Curation Tracker
+    print('  - Check for old released entries which are still missing the PubMed ID')
+    curation_pubs = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Released',PMID__isnull=True)
+    for curation_pub in curation_pubs:
+        if curation_pub.doi:
+            try:
+                publication = Publication.objects.get(doi=curation_pub.doi)
+                if publication.PMID:
+                    curation_pub.PMID = publication.PMID
+                    curation_pub.journal = publication.journal
+                    curation_pub.title = publication.title
+                    curation_pub.year = publication.pub_year
+                    curation_pub.save()
+            except Publication.DoesNotExist:
+                print(f"    > Can't find released study with the DOI '{curation_pub.doi}' ({curation_pub.id}) in the PGS Catalog")
 
 
 def generate_europePMC_linkage_xml_file():
