@@ -763,11 +763,15 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     display_created_on.admin_order_field = 'created_on'
 
     # Batch actions
-    actions = ["mark_as_released"]
+    actions = ["mark_as_imported","mark_as_released"]
 
     @admin.action(permissions=["change"],description="Mark selected studies as Released")
     def mark_as_released(self, request, queryset):
         queryset.update(curation_status='Released')
+
+    @admin.action(permissions=["change"],description="Mark selected studies as Imported")
+    def mark_as_imported(self, request, queryset):
+        queryset.update(curation_status='Imported - Awaiting Release')
 
 
 ### Email Templates ###
