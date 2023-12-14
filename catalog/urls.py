@@ -29,6 +29,8 @@ urlpatterns = [
     path('gwas/<str:gcst_id>/', views.gwas_gcst, name='NHGRI-EBI GWAS Catalog Study'),
 
     # Browse Catalog
+    # Legacy URL: /browse/all/ -> redirected to /browse/scores/
+    path('browse/all/', views.browse_all, name='Browse All'),
     # e.g.: /browse/scores/
     path('browse/scores/', views.browse_scores, name='Browse Scores'),
     # e.g.: /browse/traits/

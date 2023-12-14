@@ -152,6 +152,10 @@ def index(request):
     return render(request, 'catalog/index.html', context)
 
 
+def browse_all(request):
+    return redirect('/browse/scores/', permanent=True)
+
+
 def browse_scores(request):
     context = {}
 
