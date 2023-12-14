@@ -82,8 +82,9 @@ if PGS_ON_GAE == 0:
 if PGS_ON_LIVE_SITE:
     INSTALLED_APPS.append('corsheaders')
 
-# if DEBUG:
-#     INSTALLED_APPS.append('django_extensions')
+# Debug helper
+if DEBUG == True:
+    INSTALLED_APPS.append('debug_toolbar') # Debug SQL queries
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -97,6 +98,11 @@ MIDDLEWARE = [
 # Live middleware
 if PGS_ON_LIVE_SITE:
     MIDDLEWARE.insert(2, 'corsheaders.middleware.CorsMiddleware')
+# Debug toolbar
+if DEBUG == True:
+    MIDDLEWARE.insert(5,'debug_toolbar.middleware.DebugToolbarMiddleware') # Debug SQL queries
+    # Debug SQL queries
+    INTERNAL_IPS = ['127.0.0.1']
 
 ROOT_URLCONF = 'pgs_web.urls'
 
@@ -109,7 +115,8 @@ CONTEXT_PROCESSORS = [
     'catalog.context_processors.pgs_settings',
     'catalog.context_processors.pgs_search_examples',
     'catalog.context_processors.pgs_info',
-    'catalog.context_processors.pgs_contributors'
+    'catalog.context_processors.pgs_contributors',
+    'catalog.context_processors.pgs_ancestry_legend'
 ]
 
 if PGS_ON_GAE == 1 and DEBUG == False:
@@ -347,7 +354,7 @@ ELASTICSEARCH_INDEX_NAMES = {
 #  Google Cloud Storage Settings  #
 #---------------------------------#
 
-if os.getenv('GAE_APPLICATION'):
+if os.getenv('GAE_APPLICATION') and PGS_ON_CURATION_SITE:
     from google.oauth2 import service_account
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
         os.path.join(BASE_DIR, os.environ['GS_SERVICE_ACCOUNT_SETTINGS'])

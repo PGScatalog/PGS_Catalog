@@ -4,7 +4,7 @@ from django.shortcuts import render,redirect
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.conf import settings
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 
 from pgs_web import constants
 from .tables import *
@@ -51,107 +51,21 @@ def score_disclaimer(publication_url):
     return constants.DISCLAIMERS['score'].format(publication_url)
 
 
-def ancestry_legend():
-    ''' HTML code for the Ancestry legend. '''
-    ancestry_labels = constants.ANCESTRY_LABELS
-    count = 0;
-    ancestry_keys = ancestry_labels.keys()
-    val = len(ancestry_keys) / 2
-    entry_per_col = int((len(ancestry_keys) + 1) / 2);
-
-    div_html_1 = '<div class="ancestry_legend'
-
-    div_html = div_html_1
-
-    legend_html = ''
-    div_content = ''
-    for key in ancestry_keys:
-        if count == entry_per_col:
-            div_html += ' mr-3">'
-            div_html += div_content+'</div>'
-            legend_html += div_html
-            # New div
-            div_html = div_html_1
-            div_content = ''
-            count = 0
-
-        label = ancestry_labels[key]
-        div_content += '<div><span class="ancestry_box_legend anc_colour_'+key+'" data-key="'+key+'"></span>'+label+'</div>'
-        count += 1
-    div_html += '">'+div_content+'</div>'
-    legend_html += div_html
-
-    return '''
-    <div id="ancestry_legend" class="filter_container mb-3">
-        <div class="filter_header">Ancestry legend <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_category" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see more information about the Ancestry Categories (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
-        <div id="ancestry_legend_content">{}</div>
-    </div>'''.format(legend_html)
-
-
-def ancestry_form():
-    ''' HTML code for the Ancestry form. '''
-
-    option_html = ''
-
+def ancestry_filter(form_data:dict=None) -> str:
+    ''' HTML code for the Ancestry filter. '''
+    # Ancestry form
+    ancestry_filter_ind_option_html = '<option value="">--</option>'
     ancestry_labels = constants.ANCESTRY_LABELS
     for key in ancestry_labels.keys():
-
         label = ancestry_labels[key]
-
         if key != 'MAO' and key != 'MAE':
-          opt = f'<option value="{key}">{label}</option>'
-          option_html += opt
-
-    checkbox_title_eur = 'This button can be used to hide PGS with any European ancestry data to only show scores with data from other non-European ancestry group. The button is selected by default, displaying all PGS.'
-    checkbox_title_multi = 'Shows only PGS that include data from multiple ancestry groups at the selected study stage, hiding PGS with data from a single ancestry group.'
-
-    return '''
-    <div class="mb-3 pgs_form_container">
-        <!-- Ancestry form -->
-        <div id="ancestry_filter" class="filter_container mr-3 mb-3">
-            <div class="filter_header">Filter PGS by Participant Ancestry <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_filter" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see information about the Ancestry Filters (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
-            <div class="filter_form">
-              <!-- Type of study -->
-              <div class="filter_study">
-                <div class="filter_subheader mb-1">Individuals included in:</div>
-                  <select id="ancestry_type_list">
-                    <option value="all" selected>All Stages combined [G, D, E]</option>
-                    <option value="dev_all">Development [G, D]</option>
-                    <option value="gwas">&nbsp;&nbsp;- GWAS [G]</option>
-                    <option value="dev">&nbsp;&nbsp;- Score development [D]</option>
-                    <option value="eval">PGS Evaluation [E]</option>
-                  </select>
-                  <div class="ancestry_legend pl-1 mt-2">
-                    <div><b>G</b> - Source of Variant Associations (<b>G</b>WAS)</div>
-                    <div><b>D</b> - Score <b>D</b>evelopment/Training</div>
-                    <div><b>E</b> - PGS <b>E</b>valuation</div>
-                  </div>
-                </div>
-                <!-- Type of ancestry -->
-                <div class="filter_ancestry">
-                <div id="single_ancestry" class="filter_subheader mb-1">List of ancestries includes:</div>
-                  <div>
-                    <select id="ancestry_filter_ind">
-                      <option value="">--</option>
-                      {ancestry_option}
-                    </select>
-                  </div>
-                  <div class="filter_subheader mt-2">Display options:</div>
-                  <div id="ancestry_filter_list">
-                    <div class="custom-control custom-switch">
-                      <input type="checkbox" class="custom-control-input ancestry_filter_cb" value="" data-default="true" id="anc_cb_EUR" checked>
-                      <label class="custom-control-label" for="anc_cb_EUR">Show European ancestry data</label><span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="{title_eur}"><i class="fas fa-info-circle"></i></span>
-                    </div>
-                    <div class="custom-control custom-switch">
-                      <input type="checkbox" class="custom-control-input ancestry_filter_cb" value="MAO" data-default="false" id="anc_cb_multi">
-                      <label class="custom-control-label" for="anc_cb_multi">Show <u>only</u> Multi-ancestry data</label><span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="{title_multi}"><i class="fas fa-info-circle"></i></span>
-                    </div>
-                  </div>
-                </div>
-            </div>
-        </div>
-        {ancestry_legend}
-    </div>'''.format(ancestry_option=option_html, ancestry_legend=ancestry_legend(), title_eur=checkbox_title_eur, title_multi=checkbox_title_multi)
+            sel = ''
+            if form_data:
+                if 'browse_ancestry_filter_ind' in form_data and form_data['browse_ancestry_filter_ind'] == key:
+                    sel =' selected'
+            opt = f'<option value="{key}"{sel}>{label}</option>'
+            ancestry_filter_ind_option_html += opt
+    return ancestry_filter_ind_option_html
 
 
 def get_efo_traits_data():
@@ -238,63 +152,170 @@ def index(request):
     return render(request, 'catalog/index.html', context)
 
 
-def browseby(request, view_selection):
+def browse_scores(request):
     context = {}
 
-    if view_selection == 'traits':
-        efo_traits_data = get_efo_traits_data()
-        table = Browse_TraitTable(efo_traits_data[0])
-        context = {
-            'view_name': 'Traits',
-            'table': table,
-            'data_chart': efo_traits_data[1],
-            'has_chart': 1
-        }
-    elif view_selection == 'studies':
-        publication_defer = ['authors','curation_status','curation_notes','date_released']
-        publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
-        publications = Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related)
-        table = Browse_PublicationTable(publications, order_by="num")
-        context = {
-            'view_name': 'Publications',
-            'table': table
-        }
-    elif view_selection == 'pending_studies':
-        publication_defer = ['authors','curation_notes','date_released']
-        publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
-        pending_publications = Publication.objects.defer(*publication_defer).filter(date_released__isnull=True).prefetch_related(*publication_prefetch_related)
-        table = Browse_PendingPublicationTable(pending_publications, order_by="num")
-        context = {
-            'view_name': 'Pending Publications',
-            'table': table
-        }
-    # elif view_selection == 'sample_set':
-    #     context['view_name'] = 'Sample Sets'
-    #     table = Browse_SampleSetTable(Sample.objects.defer(*pgs_defer['sample']).filter(sampleset__isnull=False).prefetch_related('sampleset', pgs_prefetch['cohorts']).order_by('sampleset__num'))
-    #     context['table'] = table
-    elif view_selection == 'scores' :
-        score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
-        table = Browse_ScoreTable(Score.objects.only(*score_only_attributes).select_related('publication').all().order_by('num').prefetch_related(pgs_prefetch['trait']))
-        context = {
-            'view_name': 'Polygenic Scores (PGS)',
-            'table': table,
-            'ancestry_form': ancestry_form(),
-            'has_chart': 1
-        }
-    elif view_selection == 'all':
-        return redirect('/browse/scores/', permanent=True)
-    else:
-        return redirect('/', permanent=True)
+    # Ancestry form
+    input_names = {
+        'browse_ancestry_type_list': 'sel',
+        'browse_ancestry_filter_ind': 'sel',
+        'browse_anc_cb_EUR': 'cb',
+        'browse_anc_cb_multi': 'cb',
+        'browse_scores_search': 'in'
+    }
+    # Init form data
+    form_data = {}
+    for input_name in input_names.keys():
+        form_data[input_name] = None
 
-    context['has_table'] = 1
+    if request.method == "POST":
+        for input_name in input_names.keys():
+            type = input_names[input_name]
+            val = request.POST.get(input_name)
+            if type in ['sel','in']:
+                if val:
+                    form_data[input_name] = val
+            elif type == 'cb':
+                if val:
+                    form_data[input_name] = True
+                else:
+                    form_data[input_name] = False
 
-    return render(request, 'catalog/browseby.html', context)
+    score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
+    queryset = Score.objects.only(*score_only_attributes).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+
+    ## Sorting ##
+    order_by = 'num'
+    sort_param = request.GET.get('sort')
+    if sort_param:
+        order_by = sort_param
+    queryset = queryset.order_by(order_by)
+
+    ## Filter ancestry ##
+    gwas_step = 'gwas'
+    dev_step = 'dev'
+    eval_step = 'eval'
+    study_steps = [gwas_step,dev_step,eval_step]
+    # Ancestry Type
+    anc_step = form_data['browse_ancestry_type_list']
+    anc_value = form_data['browse_ancestry_filter_ind']
+    anc_include_eur = form_data['browse_anc_cb_EUR']
+    anc_include_multi = form_data['browse_anc_cb_multi']
+    browse_scores_search = form_data['browse_scores_search']
+    # Study step and ancestry selections
+    if not anc_step or anc_step == 'all':
+        if anc_value:
+            filters = {}
+            for step in study_steps:
+                filters[step] = f'ancestries__{step}__dist__{anc_value}__isnull'
+            queryset = queryset.filter(Q(**{filters[gwas_step]:False}) | Q(**{filters[dev_step]:False}) | Q(**{filters[eval_step]:False}))
+    elif anc_step:
+        if anc_step in study_steps:
+            queryset = queryset.filter(ancestries__has_key=anc_step)
+            if anc_value:
+                anc_filter = f'ancestries__{anc_step}__dist__{anc_value}__isnull'
+                queryset = queryset.filter(**{anc_filter:False})
+        elif anc_step == 'dev_all':
+            queryset = queryset.filter(ancestries__has_key=gwas_step).filter(ancestries__has_key=dev_step)
+            if anc_value:
+                filters = {}
+                for step in ['gwas','dev']:
+                    filters[step] = f'ancestries__{step}__dist__{anc_value}__isnull'
+                queryset = queryset.filter(Q(**{filters[gwas_step]:False}) | Q(**{filters[dev_step]:False}))
+
+    # Filter out European ancestry (including multi-ancestry with european)
+    if anc_include_eur == False:
+        for step in study_steps:
+            anc_filter = f'ancestries__{step}__dist__EUR__isnull'
+            queryset = queryset.filter(**{anc_filter:True})
+            anc_filter = f'ancestries__{step}__dist__MAE__isnull'
+            queryset = queryset.filter(**{anc_filter:True})
+
+    # Filter to include multi-ancestry
+    if anc_include_multi == True:
+        multi_filters = {}
+        for step in study_steps:
+            anc_m_filter = f'ancestries__{step}__multi__isnull'
+            multi_filters[step] = anc_m_filter
+        queryset = queryset.filter(Q(**{multi_filters[gwas_step]:False}) | Q(**{multi_filters[dev_step]:False}) | Q(**{multi_filters[eval_step]:False}))
+
+    # Filter term from the table search box
+    if browse_scores_search:
+        queryset = queryset.filter(
+            Q(id__icontains=browse_scores_search) | Q(name__icontains=browse_scores_search) |
+            Q(trait_reported__icontains=browse_scores_search) | Q(trait_efo__label__icontains=browse_scores_search) |
+            Q(publication__id__icontains=browse_scores_search) | Q(publication__title__icontains=browse_scores_search) | Q(publication__firstauthor__icontains=browse_scores_search)
+        )
+
+    # Data table
+    table = Browse_ScoreTable(queryset)
+
+    # Pagination
+    rows_per_page = 50
+    table.paginate(page=request.GET.get("page", 1), per_page=rows_per_page)
+
+    page_rows_number = len(table.page)
+    page_number = table.page.number
+    table.row_start = rows_per_page * (page_number - 1) + 1
+    table.row_end = table.row_start - 1 + page_rows_number;
+
+    context = {
+        'view_name': 'Polygenic Scores (PGS)',
+        'table': table,
+        'form_data': form_data,
+        'ancestry_filter': ancestry_filter(form_data),
+        'has_chart': 1,
+        # 'has_table': 1,
+        'is_browse_score': 1
+    }
+    return render(request, 'catalog/browse/scores.html', context)
+
+
+def browse_traits(request):
+    efo_traits_data = get_efo_traits_data()
+    table = Browse_TraitTable(efo_traits_data[0])
+    context = {
+        'view_name': 'Traits',
+        'table': table,
+        'data_chart': efo_traits_data[1],
+        'has_ebi_icons': 1,
+        'has_chart': 1,
+        'has_table': 1
+    }
+    return render(request, 'catalog/browse/traits.html', context)
+
+
+def browse_publications(request):
+    publication_defer = ['authors','curation_status','curation_notes','date_released']
+    publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
+    publications = Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related)
+    table = Browse_PublicationTable(publications, order_by="num")
+    context = {
+        'view_name': 'Publications',
+        'has_ebi_icons': 1,
+        'table': table,
+        'has_table': 1
+    }
+    return render(request, 'catalog/browse/publications.html', context)
+
+
+def browse_pending_publications(request):
+    publication_defer = ['authors','curation_notes','date_released']
+    publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
+    pending_publications = Publication.objects.defer(*publication_defer).filter(date_released__isnull=True).prefetch_related(*publication_prefetch_related)
+    table = Browse_PendingPublicationTable(pending_publications, order_by="num")
+    context = {
+        'view_name': 'Pending Publications',
+        'table': table,
+        'has_table': 1
+    }
+    return render(request, 'catalog/browse/pending_publications.html', context)
 
 
 def latest_release(request):
 
     context = {
-        'ancestry_form': ancestry_form(),
+        'ancestry_filter': ancestry_filter(),
         'release_date': 'NA',
         'publications_count': 0,
         'scores_count': 0,
@@ -318,7 +339,7 @@ def latest_release(request):
 
         # Scores
         score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
-        scores_table = Browse_ScoreTable(Score.objects.only(*score_only_attributes,'date_released').select_related('publication').filter(date_released=release_date).order_by('num').prefetch_related(pgs_prefetch['trait']))
+        scores_table = ScoreTable(Score.objects.only(*score_only_attributes,'date_released').select_related('publication').filter(date_released=release_date).order_by('num').prefetch_related(pgs_prefetch['trait']))
         context['scores_table'] = scores_table
         context['scores_count'] = latest_release['score_count']
 
@@ -422,13 +443,13 @@ def pgp(request, pub_id):
             'performance_disclaimer': performance_disclaimer(),
             'has_table': 1,
             'has_chart': 1,
-            'ancestry_form': ancestry_form()
+            'ancestry_filter': ancestry_filter()
         }
 
         # Display scores that were developed by this publication
         related_scores = pub.publication_score.defer(*pgs_defer['generic']).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
         if related_scores.count() > 0:
-            table = Browse_ScoreTable(related_scores)
+            table = ScoreTable(related_scores)
             context['table_scores'] = table
 
         # Get PGS evaluated by the PGP
@@ -476,7 +497,7 @@ def pgp(request, pub_id):
 
         # External Scores Evaluated By This Publication
         if len(external_scores) > 0:
-            table = Browse_ScoreTableEval(external_scores)
+            table = ScoreTableEval(external_scores)
             context['table_evaluated'] = table
 
         context['has_table'] = 1
@@ -558,11 +579,11 @@ def efo(request, efo_id):
         'trait_scores_direct_count': len(related_direct_scores),
         'trait_scores_child_count': len(related_child_scores),
         'performance_disclaimer': performance_disclaimer(),
-        'table_scores': Browse_ScoreTable(related_scores),
+        'table_scores': ScoreTable(related_scores),
         'include_children': False if exclude_children else True,
         'has_table': 1,
         'has_chart': 1,
-        'ancestry_form': ancestry_form()
+        'ancestry_filter': ancestry_filter()
     }
 
     # Find the evaluations of these scores
@@ -598,11 +619,11 @@ def gwas_gcst(request, gcst_id):
     context = {
         'gwas_id': gcst_id,
         'performance_disclaimer': performance_disclaimer(),
-        'table_scores' : Browse_ScoreTable(related_scores),
+        'table_scores' : ScoreTable(related_scores),
         'has_table': 1,
         'use_gwas_api': 1,
-        'ancestry_form': ancestry_form(),
-        'has_chart': 1
+        'has_chart': 1,
+        'ancestry_filter': ancestry_filter()
     }
 
     pquery = Performance.objects.defer(*pgs_defer['perf'],*pgs_defer['publication_sel']).select_related('score','publication').filter(score__in=related_scores).prefetch_related(*performance_prefetch)
@@ -653,7 +674,7 @@ def pss(request, pss_id):
     if related_performance.count() > 0:
         # Scores
         related_scores = [x.score for x in related_performance]
-        table_scores = Browse_ScoreTable(related_scores)
+        table_scores = ScoreTable(related_scores)
         context['table_scores'] = table_scores
         # Display performance metrics associated with this sample set
         table_performance = PerformanceTable(related_performance)
@@ -668,10 +689,10 @@ def ancestry_doc(request):
     pgs_id = "PGS000018"
     try:
         score = Score.objects.defer(*pgs_defer['generic']).select_related('publication').prefetch_related('trait_efo').get(id=pgs_id)
-        table_score = Browse_ScoreTableExample([score])
+        table_score = ScoreTableExample([score])
         context = {
             'pgs_id_example': pgs_id,
-            'ancestry_legend': ancestry_legend(),
+            'ancestry_filter': ancestry_filter(),
             'table_score': table_score,
             'has_table': 1,
             'has_chart': 1

@@ -52,9 +52,7 @@
   {% if table_scores %}
     <section>
       <h3>PGS Developed Using Variant Associations from {{ gwas_id }}</h3>
-      {% if ancestry_form %}
-        {{ ancestry_form|safe }}
-      {% endif %}
+      {% include "catalog/includes/ancestry_form.html" %}
       {% render_table table_scores %}
     </section>
   {% endif %}

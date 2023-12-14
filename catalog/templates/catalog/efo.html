@@ -133,9 +133,7 @@
     <h3>Associated Polygenic Score(s)</h3>
 
       <!-- Ancestry form -->
-      {% if ancestry_form %}
-        {{ ancestry_form|safe }}
-      {% endif %}
+      {% include "catalog/includes/ancestry_form.html" %}
       {% if trait_scores_child_count and trait_scores_direct_count %}
         <div class="mb-3" style="margin-top:auto">
           <div class="pgs_note pgs_note_1">

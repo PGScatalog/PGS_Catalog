@@ -28,8 +28,15 @@ urlpatterns = [
     # e.g.: /gwas/GCST001937/
     path('gwas/<str:gcst_id>/', views.gwas_gcst, name='NHGRI-EBI GWAS Catalog Study'),
 
-    # e.g.: /browse/{scores, traits, studies, sample_set}/
-    path('browse/<str:view_selection>/', cache_page(cache_time)(views.browseby), name='Browse data'),
+    # Browse Catalog
+    # e.g.: /browse/scores/
+    path('browse/scores/', views.browse_scores, name='Browse Scores'),
+    # e.g.: /browse/traits/
+    path('browse/traits/', cache_page(cache_time)(views.browse_traits), name='Browse Traits'),
+    # e.g.: /browse/studies/
+    path('browse/studies/', cache_page(cache_time)(views.browse_publications), name='Browse Publications'),
+    # e.g.: /browse/pending_studies/
+    path('browse/pending_studies/', cache_page(cache_time)(views.browse_pending_publications), name='Browse Pending Publications'),
 
     # e.g.: /latest_release/
     path('latest_release/', cache_page(cache_time)(views.latest_release), name='Latest Release'),

@@ -1,0 +1,32 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}All {{ view_name }}{% endblock %}
+
+{% block desc %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebPage",
+      "name": "Browse {{ view_name }}",
+      "description": "List all the {{ view_name }} of the catalog.",
+      "keywords": ["{{ view_name }}","catalog","catalogue","data"]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Browse</li>
+        <li class="breadcrumb-item">{{ view_name }}</li>
+      </ol>
+    </nav>
+    <div class="table-container">
+      <section>
+        <h2 class="pgs_facet_icon pgs_facet_3_icon icon icon-common">{{ view_name }}</h2>
+        {% render_table table %}
+      </section>
+    </div>
+{% endblock %}

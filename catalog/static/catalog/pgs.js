@@ -6,6 +6,8 @@ var anc_types = {
 };
 
 var data_toggle_table = 'table[data-toggle="table"]';
+var data_big_table = '.pgs_big_table';
+var data_table_elements = [data_toggle_table,data_big_table];
 
 $(document).ready(function() {
 
@@ -113,54 +115,79 @@ $(document).ready(function() {
     };
 
 
-    // Search autocompletion
-    var autocomplete_url = "/autocomplete/";
-    $("#q").autocomplete({
-      minLength: 3,
-      source: function (request, response) {
-        $.ajax({
-          url: autocomplete_url,
-          data: { 'q': request.term },
-          success: function (data) {
-            response(data.results);
-          },
-          error: function () {
-            response([]);
-          }
-        });
-      },
-      select: function(event, ui) {
-        $("#q").val(ui.item.id);
-        $("#search_form").submit();
-      }
-    })
-    .autocomplete( "instance" )._renderItem = function( ul, item ) {
-      return format_autocomplete(ul,item);
-    };
-    // Search autocompletion - small screen
-    $("#q2").autocomplete({
-      minLength: 3,
-      source: function (request, response) {
-        $.ajax({
-          url: autocomplete_url,
-          data: { 'q': request.term },
-          success: function (data) {
-            response(data.results);
-          },
-          error: function () {
-            response([]);
-          }
-        });
-      },
-      select: function(event, ui) {
-        $("#q2").val(ui.item.id);
-        $("#search_form_2").submit();
-      }
-    })
-    .autocomplete( "instance" )._renderItem = function( ul, item ) {
-      return format_autocomplete(ul,item);
-    };
+    /*
+     *  Search autocompletion
+     */
 
+    var autocomplete_url = "/autocomplete/";
+
+    // Search autocompletion - Main box ('q')
+    var main_search_id = 'q';
+    if ($("#"+main_search_id).length) {
+      var main_search_form_id = 'search_form';
+      $("#"+main_search_id).autocomplete({
+        minLength: 3,
+        source: function (request, response) {
+          $.ajax({
+            url: autocomplete_url,
+            data: { 'q': request.term }, // <= Keep 'q'
+            success: function (data) {
+              response(data.results);
+            },
+            error: function () {
+              response([]);
+            }
+          });
+        },
+        select: function(event, ui) {
+          $("#"+main_search_id).val(ui.item.id);
+          $("#"+main_search_form_id).submit();
+        }
+      })
+      .autocomplete( "instance" )._renderItem = function( ul, item ) {
+        return format_autocomplete(ul,item);
+      };
+      //  Submit button control
+      $('#search_btn').click(function() {
+        if ($('#'+main_search_id).val() && $('#'+main_search_id).val() != ''){
+          $('#'+main_search_form_id).submit();
+        }
+      })
+    }
+
+    // Search autocompletion - small screen (q2)
+    var alt_search_id = 'q2';
+    if ($("#"+alt_search_id).length) {
+      var alt_search_form_id = 'search_form_2';
+      $("#"+alt_search_id).autocomplete({
+        minLength: 3,
+        source: function (request, response) {
+          $.ajax({
+            url: autocomplete_url,
+            data: { 'q': request.term }, // <= Keep 'q'
+            success: function (data) {
+              response(data.results);
+            },
+            error: function () {
+              response([]);
+            }
+          });
+        },
+        select: function(event, ui) {
+          $("#"+alt_search_id).val(ui.item.id);
+          $("#"+alt_search_form_id).submit();
+        }
+      })
+      .autocomplete( "instance" )._renderItem = function( ul, item ) {
+        return format_autocomplete(ul,item);
+      };
+      //  Submit button control
+      $('#search_btn_2').click(function() {
+        if ($("#"+alt_search_id).val() && $("#"+alt_search_id).val() != ''){
+          $("#"+alt_search_form_id).submit();
+        }
+      })
+    }
 
     // Button toggle
     $('.toggle_btn').click(function() {
@@ -214,18 +241,6 @@ $(document).ready(function() {
       $(this).children('span').toggleClass('fa-folder fa-folder-open');
     });
 
-
-    // Control on search form(s)
-    $('#search_btn').click(function() {
-      if ($('#q').val() && $('#q').val() != ''){
-        $('#search_form').submit();
-      }
-    })
-    $('#search_btn_2').click(function() {
-      if ($('#q2').val() && $('#q2').val() != ''){
-        $('#search_form_2').submit();
-      }
-    })
 
     // Buttons in the Search page results
     $('.search_facet').click(function(){
@@ -296,8 +311,61 @@ $(document).ready(function() {
     });
 
 
-    function filter_score_table() {
+    // Ancestry filtering - Browse Scores
+    var anc_form_name = 'browse_ancestry_form';
+    $('#browse_ancestry_type_list').on('change', function() {
+      document.forms[anc_form_name].submit();
+    });
+    $('#browse_ancestry_filter_ind').on('change', function() {
+      document.forms[anc_form_name].submit();
+    });
+    $("#browse_ancestry_filter_list").on("change", ".browse_ancestry_filter_cb",function() {
+      document.forms[anc_form_name].submit();
+    });
 
+    // Search box events for the Browse Scores page
+    $('#browse_scores_search_btn').on("click", function(e) {
+      document.forms[anc_form_name].submit();
+    });
+    var $browse_scores_search_input = $('#browse_scores_search');
+    $browse_scores_search_input.on("keypress", function(e) {
+      if (e.keyCode === 13) {
+        document.forms[anc_form_name].submit();
+      }
+    });
+    // Functions to set timer on typing before submitting the form
+    var search_typing_timer;
+    //on keyup, start the countdown
+    $browse_scores_search_input.on('keyup', function () {
+      clearTimeout(search_typing_timer);
+      search_typing_timer = setTimeout(function() {
+        document.forms[anc_form_name].submit();
+      }, 1000);
+    });
+    //on keydown, clear the countdown
+    $browse_scores_search_input.on('keydown', function () {
+      clearTimeout(search_typing_timer);
+    });
+
+    // Send form with updated URL (sort)
+    $('.orderable > a').click(function(e) {
+      e.preventDefault();
+      var sort_url = $(this).attr('href');
+      var url = $('#'+anc_form_name).attr('action');
+      $('#'+anc_form_name).attr('action', url+sort_url).submit();
+      //document.forms[anc_form_name].submit();
+    });
+    // Send form with updated URL (pagination)
+    $('.pagination > li > a').click(function(e) {
+      e.preventDefault();
+      var sort_url = $(this).attr('href');
+      var url = $('#'+anc_form_name).attr('action');
+      $('#'+anc_form_name).attr('action', url+sort_url).submit();
+      //document.forms[anc_form_name].submit();
+    });
+
+
+    function filter_score_table() {
       /** Get data from Ancestry Filters form **/
 
       // Traits //
@@ -572,11 +640,13 @@ function alter_external_links(prefix) {
 
 // FTP Scoring File Link
 function scoring_file_link() {
-  $(data_toggle_table).on("click", '.file_link', function(){
-    var ftp_url = $(this).parent().find('.only_export').html();
-    ftp_url = ftp_url.substring(0, ftp_url.lastIndexOf('/'))+'/';
-    window.open(ftp_url,'_blank');
-  });
+  for (const element of data_table_elements) {
+    $(element).on("click", '.file_link', function(){
+      var ftp_url = $(this).parent().find('.only_export').html();
+      ftp_url = ftp_url.substring(0, ftp_url.lastIndexOf('/'))+'/';
+      window.open(ftp_url,'_blank');
+    });
+  }
 }
 
 
