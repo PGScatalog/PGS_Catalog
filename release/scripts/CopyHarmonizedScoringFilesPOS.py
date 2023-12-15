@@ -106,8 +106,11 @@ class CopyHarmonizedScoringFilesPOS:
                         if os.path.isdir(harmonized_file_prod_dir):
                             shutil.copy2(harmonized_file_staged, harmonized_file_prod)
                             # Change chmod to allow group write access
-                            os.chmod(harmonized_file_prod, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH)
-                            print(copy_msg)
+                            try:
+                                os.chmod(harmonized_file_prod, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH)
+                                print(copy_msg)
+                            except:
+                                print(f">>>>> ERROR! Can't change the read/write access of the file '{harmonized_file}'!")
 
                             file_info = { 'genebuild': gb, 'name': harmonized_file, 'status': copy_type }
                             if not pgs_id in self.harmonized_files_to_copy:
