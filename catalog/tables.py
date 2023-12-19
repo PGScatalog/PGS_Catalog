@@ -46,6 +46,120 @@ def publication_format(value, is_external=False):
     return format_html(f'<a href="{publication_path}/{value.id}">{value.id}</a> {citation}{extra_html}')
 
 
+def ancestries_format(value, record, include_filter=False):
+    if not value:
+        return '-'
+
+    anc_labels = constants.ANCESTRY_LABELS
+    stages = constants.PGS_STAGES
+
+    ancestries_data = value
+    pgs_id = record.num
+    chart_id = f'ac_{pgs_id}'
+    data_stage = {}
+    data_title = {}
+    anc_list = {}
+    anc_all_list = { 'dev_all': set(), 'all': set() }
+    multi_anc = 'multi'
+
+    # Fetch and store the data for each stage
+    for stage in stages:
+        if stage in ancestries_data:
+            ancestries_data_stage = ancestries_data[stage]
+            anc_list[stage] = set()
+            data_stage[stage] = []
+            data_title[stage] = []
+
+            # Details of the multi ancestry data
+            multi_title = {}
+            if multi_anc in ancestries_data_stage:
+                for mt in ancestries_data_stage[multi_anc]:
+                    (ma,anc) = mt.split('_') # e.g. MAO_AFR
+                    if ma not in multi_title:
+                        multi_title[ma] = []
+                    multi_title[ma].append(f'<li>{anc_labels[anc]}</li>')
+
+                    if anc == 'MAE':
+                        continue
+                    # Add to the unique list of ancestries
+                    anc_list[stage].add(anc)
+                    # Add to the unique list of ALL ancestries
+                    anc_all_list['all'].add(anc)
+                    # Add to the unique list of DEV ancestries
+                    if stage != 'eval':
+                        anc_all_list['dev_all'].add(anc)
+
+            # Ancestry data for the stage: distribution, list of ancestries and content of the chart tootlip
+            for key,val in sorted(ancestries_data_stage['dist'].items(), key=lambda item: float(item[1]), reverse=True):
+                data_stage[stage].append(f'"{key}",{val}')
+                extra_title = ''
+                if key in multi_title:
+                    extra_title += '<ul>'+''.join(multi_title[key])+'</ul>'
+                data_title[stage].append(f'<div class=\'{key}\'>{val}%{extra_title}</div>')
+
+                if key == 'MAE':
+                    continue
+                # Add to the unique list of ancestries
+                anc_list[stage].add(key)
+                # Add to the unique list of ALL ancestries
+                anc_all_list['all'].add(key)
+                # Add to the unique list of DEV ancestries
+                if stage != 'eval':
+                    anc_all_list['dev_all'].add(key)
+
+
+    # Skip if no expected data "stage" available
+    if data_stage.keys() == 0:
+        return None
+
+    # Format the data for each stage: build the HTML
+    html_list = []
+    html_filter = []
+    for stage in stages:
+        if stage in data_stage:
+            id = chart_id+'_'+stage
+
+            # Code use to add filters (except in the Browse Scores table)
+            if include_filter:
+                anc_list_stage = anc_list[stage]
+                html_filter = add_ancestries_filter(stage,anc_list_stage,html_filter)
+
+            title_count = ''
+            count = ancestries_data[stage]['count']
+            if count != 0:
+                title_count = '<span>{:,}</span>'.format(count)
+            title = ''.join(data_title[stage])+title_count
+            html_chart = f'<div class="anc_chart" data-toggle="tooltip" title="'+title+'" data-id="'+id+'" data-type="'+stage+'" data-chart=\'[['+'],['.join(data_stage[stage])+']]\'><svg id="'+id+'"></svg></div>'
+            html_list.append(html_chart)
+        else:
+            html_list.append('<div>-</div>')
+
+
+    # Code use to add filters for all dev and all data (except in the Browse Scores table)
+    if include_filter:
+        for all_stages in anc_all_list.keys():
+            if len(anc_all_list[all_stages]):
+                anc_all_data = anc_all_list[all_stages]
+                html_filter = add_ancestries_filter(all_stages,anc_all_data,html_filter)
+
+    # Wrap up the HTML
+    html = '<div class="anc_chart_container" '+' '.join(html_filter)+'>'
+    html += ''.join(html_list)
+    html += '</div>'
+    return format_html(html)
+
+
+def add_ancestries_filter(stage:str,anc_data:list,html_filter:list) -> list:
+    ''' Add ancestry filter for a given study stage '''
+    if len(anc_data) > 1:
+        anc_data.add('MAO')
+    if 'EUR' not in anc_data:
+        anc_data.add('non-EUR')
+    anc_data = [f'"{x}"' for x in list(anc_data)]
+    html_filter.append("data-anc-"+stage+"='["+','.join(anc_data)+"]'")
+    return html_filter
+
+
 class Column_joinlist(tables.Column):
     def render(self, value):
         values = smaller_in_bracket('<br/>'.join(value))
@@ -155,6 +269,9 @@ class Column_cohorts(tables.Column):
 class Column_format_html(tables.Column):
     def render(self, value):
         return format_html(value)
+
+
+################################################################################
 
 
 class Browse_PublicationTable(tables.Table):
@@ -314,94 +431,7 @@ class Browse_ScoreTable(tables.Table):
 
 
     def render_ancestries(self, value, record):
-        if not value:
-            return '-'
-
-        anc_labels = constants.ANCESTRY_LABELS
-        stages = constants.PGS_STAGES
-
-        ancestries_data = value
-        pgs_id = record.num
-        chart_id = f'ac_{pgs_id}'
-        data_stage = {}
-        data_title = {}
-        anc_list = {}
-        anc_all_list = {
-            'dev_all': set(),
-            'all': set()
-        }
-
-        # Fetch the data for each stage
-        for stage in stages:
-            if stage in ancestries_data:
-                ancestries_data_stage = ancestries_data[stage]
-                anc_list[stage] = set()
-                # Details of the multi ancestry data
-                multi_title = {}
-                multi_anc = 'multi'
-                if multi_anc in ancestries_data_stage:
-                    for mt in ancestries_data_stage[multi_anc]:
-                        (ma,anc) = mt.split('_')
-                        if ma not in multi_title:
-                            multi_title[ma] = []
-                        multi_title[ma].append(f'<li>{anc_labels[anc]}</li>')
-
-                        if anc == 'MAE':
-                            continue
-                        # Add to the unique list of ancestries
-                        anc_list[stage].add(anc)
-                        # Add to the unique list of ALL ancestries
-                        anc_all_list['all'].add(anc)
-                        # Add to the unique list of DEV ancestries
-                        if stage != 'eval':
-                            anc_all_list['dev_all'].add(anc)
-
-                # Ancestry data for the stage: distribution, list of ancestries and content of the chart tootlip
-                data_stage[stage] = []
-                data_title[stage] = []
-                for key,val in sorted(ancestries_data_stage['dist'].items(), key=lambda item: float(item[1]), reverse=True):
-                    label = anc_labels[key]
-                    data_stage[stage].append(f'"{key}",{val}')
-                    extra_title = ''
-                    if key in multi_title:
-                        extra_title += '<ul>'+''.join(multi_title[key])+'</ul>'
-                    data_title[stage].append(f'<div class=\'{key}\'>{val}%{extra_title}</div>')
-
-                    if key == 'MAE':
-                        continue
-                    # Add to the unique list of ancestries
-                    anc_list[stage].add(key)
-                    # Add to the unique list of ALL ancestries
-                    anc_all_list['all'].add(key)
-                    # Add to the unique list of DEV ancestries
-                    if stage != 'eval':
-                        anc_all_list['dev_all'].add(key)
-
-
-        # Skip if no expected data "stage" available
-        if data_stage.keys() == 0:
-            return None
-
-        # Format the data for each stage: build the HTML
-        html_list = []
-        for stage in stages:
-            if stage in data_stage:
-                id = chart_id+'_'+stage
-                title_count = ''
-                count = ancestries_data[stage]['count']
-                if count != 0:
-                    title_count = '<span>{:,}</span>'.format(count)
-                title = ''.join(data_title[stage])+title_count
-                html_chart = f'<div class="anc_chart" data-toggle="tooltip" title="'+title+'" data-id="'+id+'" data-type="'+stage+'" data-chart=\'[['+'],['.join(data_stage[stage])+']]\'><svg id="'+id+'"></svg></div>'
-                html_list.append(html_chart)
-            else:
-                html_list.append('<div>-</div>')
-
-        # Wrap up the HTML
-        html = '<div class="anc_chart_container">'
-        html += ''.join(html_list)
-        html += '</div>'
-        return format_html(html)
+        return ancestries_format(value, record)
 
 
 class ScoreTable(tables.Table):
@@ -458,121 +488,7 @@ class ScoreTable(tables.Table):
 
 
     def render_ancestries(self, value, record):
-        if not value:
-            return '-'
-
-        anc_labels = constants.ANCESTRY_LABELS
-        stages = constants.PGS_STAGES
-
-        ancestries_data = value
-        pgs_id = record.num
-        chart_id = f'ac_{pgs_id}'
-        data_stage = {}
-        data_title = {}
-        anc_list = {}
-        anc_all_list = {
-            'dev_all': set(),
-            'all': set()
-        }
-
-        # Fetch the data for each stage
-        for stage in stages:
-            if stage in ancestries_data:
-                ancestries_data_stage = ancestries_data[stage]
-                anc_list[stage] = set()
-                # Details of the multi ancestry data
-                multi_title = {}
-                multi_anc = 'multi'
-                if multi_anc in ancestries_data_stage:
-                    for mt in ancestries_data_stage[multi_anc]:
-                        (ma,anc) = mt.split('_')
-                        if ma not in multi_title:
-                            multi_title[ma] = []
-                        multi_title[ma].append(f'<li>{anc_labels[anc]}</li>')
-
-                        if anc == 'MAE':
-                            continue
-                        # Add to the unique list of ancestries
-                        anc_list[stage].add(anc)
-                        # Add to the unique list of ALL ancestries
-                        anc_all_list['all'].add(anc)
-                        # Add to the unique list of DEV ancestries
-                        if stage != 'eval':
-                            anc_all_list['dev_all'].add(anc)
-
-                # Ancestry data for the stage: distribution, list of ancestries and content of the chart tootlip
-                data_stage[stage] = []
-                data_title[stage] = []
-                for key,val in sorted(ancestries_data_stage['dist'].items(), key=lambda item: float(item[1]), reverse=True):
-                    label = anc_labels[key]
-                    data_stage[stage].append(f'"{key}",{val}')
-                    extra_title = ''
-                    if key in multi_title:
-                        extra_title += '<ul>'+''.join(multi_title[key])+'</ul>'
-                    data_title[stage].append(f'<div class=\'{key}\'>{val}%{extra_title}</div>')
-
-                    if key == 'MAE':
-                        continue
-                    # Add to the unique list of ancestries
-                    anc_list[stage].add(key)
-                    # Add to the unique list of ALL ancestries
-                    anc_all_list['all'].add(key)
-                    # Add to the unique list of DEV ancestries
-                    if stage != 'eval':
-                        anc_all_list['dev_all'].add(key)
-
-
-        # Skip if no expected data "stage" available
-        if data_stage.keys() == 0:
-            return None
-
-        # Format the data for each stage: build the HTML
-        html_list = []
-        html_filter = []
-        for stage in stages:
-            if stage in data_stage:
-                id = chart_id+'_'+stage
-                anc_list_stage = anc_list[stage]
-
-                if len(anc_list_stage) > 1:
-                    anc_list_stage.add('MAO')
-                if 'EUR' not in anc_list_stage:
-                    anc_list_stage.add('non-EUR')
-
-                anc_list_stage = [f'"{x}"' for x in list(anc_list_stage)]
-
-                html_filter.append("data-anc-"+stage+"='["+','.join(anc_list_stage)+"]'")
-
-                title_count = ''
-                count = ancestries_data[stage]['count']
-                if count != 0:
-                    title_count = '<span>{:,}</span>'.format(count)
-                title = ''.join(data_title[stage])+title_count
-                html_chart = f'<div class="anc_chart" data-toggle="tooltip" title="'+title+'" data-id="'+id+'" data-type="'+stage+'" data-chart=\'[['+'],['.join(data_stage[stage])+']]\'><svg id="'+id+'"></svg></div>'
-                html_list.append(html_chart)
-            else:
-                html_list.append('<div>-</div>')
-
-
-        # All dev and all data
-        for all_stages in anc_all_list.keys():
-            if len(anc_all_list[all_stages]):
-                anc_all_data = anc_all_list[all_stages]
-
-                if len(anc_all_data) > 1:
-                    anc_all_data.add('MAO')
-                if 'EUR' not in anc_all_data:
-                    anc_all_data.add('non-EUR')
-
-                anc_all_data = [f'"{x}"' for x in list(anc_all_data)]
-
-                html_filter.append("data-anc-"+all_stages+"='["+','.join(anc_all_data)+"]'")
-
-        # Wrap up the HTML
-        html = '<div class="anc_chart_container" '+' '.join(html_filter)+'>'
-        html += ''.join(html_list)
-        html += '</div>'
-        return format_html(html)
+        return ancestries_format(value, record, True)
 
 
 class ScoreTableEval(ScoreTable):
@@ -594,42 +510,6 @@ class ScoreTableExample(ScoreTable):
             "data-search" : "false"
         }
         template_name = 'catalog/pgs_catalog_django_table.html'
-
-
-# class Browse_SampleSetTable(tables.Table):
-#     '''Table to browse SampleSets (PSS; used in PGS evaluations) in the PGS Catalog'''
-#     sample_merged = Column_sample_merged(accessor='display_samples_for_table', verbose_name='Sample Numbers', orderable=False)
-#     sample_ancestry = Column_ancestry(accessor='display_ancestry', verbose_name='Sample Ancestry', orderable=False)
-#     sampleset = tables.Column(accessor='display_sampleset', verbose_name=format_html('PGS Sample Set ID<br /><span>(PSS)</span>'), orderable=False)
-#     phenotyping_free = Column_shorten_text_content(accessor='phenotyping_free', verbose_name='Phenotype Definitions and Methods')
-#     cohorts = Column_cohorts(accessor='cohorts', verbose_name='Cohort(s)')
-#
-#     class Meta:
-#         model = Sample
-#         attrs = {
-#             "id": "sampleset_table",
-#             "data-show-columns" : "true",
-#             "data-page-size" : page_size,
-#             "data-export-options" : '{"fileName": "pgs_samplesets_data"}'
-#         }
-#         fields = [
-#             'sampleset',
-#             'phenotyping_free',
-#             'sample_merged',
-#             'sample_ancestry','ancestry_additional',
-#             'cohorts', 'cohorts_additional',
-#         ]
-#
-#         template_name = 'catalog/pgs_catalog_django_table.html'
-#
-#     def render_sampleset(self, value):
-#         sampleset = f'<a href="/sampleset/{value.id}">{value.id}</a>'
-#         if is_pgs_on_curation_site == 'True' and value.name:
-#             sampleset += f' <div class="small">({value.name})</div>'
-#         return format_html(sampleset)
-#
-#     def render_cohorts_additional(self, value):
-#         return format_html('<span class="more">{}</span>', value)
 
 
 class SampleTable_variants(tables.Table):

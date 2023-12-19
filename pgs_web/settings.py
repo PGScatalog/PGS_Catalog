@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     'rest_api.apps.RestApiConfig',
     'search.apps.SearchConfig',
     'benchmark.apps.BenchmarkConfig',
-    'curation_tracker.apps.CurationTrackerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,6 +80,9 @@ if PGS_ON_GAE == 0:
 # Live app installation
 if PGS_ON_LIVE_SITE:
     INSTALLED_APPS.append('corsheaders')
+# Curation app installation
+if PGS_ON_CURATION_SITE:
+    INSTALLED_APPS.append('curation_tracker.apps.CurationTrackerConfig')
 
 # Debug helper
 if DEBUG == True:
@@ -175,8 +177,10 @@ if PGS_ON_GAE == 1:
             'PASSWORD': os.environ['DATABASE_PASSWORD_2'],
             'HOST': os.environ['DATABASE_HOST_2'],
             'PORT': os.environ['DATABASE_PORT_2']
-        },
-        'curation_tracker': {
+        }
+    }
+    if PGS_ON_CURATION_SITE:
+        DATABASES['curation_tracker'] = {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': os.environ['DATABASE_NAME_TRACKER'],
             'USER': os.environ['DATABASE_USER_TRACKER'],
@@ -184,7 +188,6 @@ if PGS_ON_GAE == 1:
             'HOST': os.environ['DATABASE_HOST_TRACKER'],
             'PORT': os.environ['DATABASE_PORT_TRACKER']
         }
-    }
 else:
     # Running locally so connect to either a local PostgreSQL instance or connect
     # to Cloud SQL via the proxy.  To start the proxy via command line:
@@ -206,8 +209,10 @@ else:
             'PASSWORD': os.environ['DATABASE_PASSWORD_2'],
             'HOST': 'localhost',
             'PORT': os.environ['DATABASE_PORT_LOCAL_2']
-        },
-        'curation_tracker': {
+        }
+    }
+    if PGS_ON_CURATION_SITE:
+        DATABASES['curation_tracker'] = {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': os.environ['DATABASE_NAME_TRACKER'],
             'USER': os.environ['DATABASE_USER_TRACKER'],
@@ -215,11 +220,11 @@ else:
             'HOST': 'localhost',
             'PORT': os.environ['DATABASE_PORT_LOCAL_TRACKER']
         }
-    }
 # [END db_setup]
 
 
-if 'PGS_CURATION_SITE' in os.environ:
+# Router
+if PGS_ON_CURATION_SITE:
     DATABASE_ROUTERS = ['routers.db_routers.AuthRouter',]
 
 
@@ -271,7 +276,7 @@ STATICFILES_FINDERS = [
 	'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 ]
-if not os.getenv('GAE_APPLICATION', None):
+if PGS_ON_GAE == 0:
     STATICFILES_FINDERS.append('compressor.finders.CompressorFinder')
 
 
@@ -354,7 +359,7 @@ ELASTICSEARCH_INDEX_NAMES = {
 #  Google Cloud Storage Settings  #
 #---------------------------------#
 
-if os.getenv('GAE_APPLICATION') and PGS_ON_CURATION_SITE:
+if PGS_ON_GAE == 1 and PGS_ON_CURATION_SITE:
     from google.oauth2 import service_account
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
         os.path.join(BASE_DIR, os.environ['GS_SERVICE_ACCOUNT_SETTINGS'])
