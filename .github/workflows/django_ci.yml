@@ -10,7 +10,8 @@ on:
 env:
   DEBUG: False
   ALLOWED_HOSTS: 'localhost'
-  PGS_LIVE_SITE: 'True'
+  PGS_LIVE_SITE: 'False'
+  PGS_CURATION_SITE: 'True'
   DATABASE_NAME: 'db_test'
   DATABASE_USER: 'postgres'
   DATABASE_PASSWORD: 'postgres'
@@ -55,7 +56,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: "3.10"
+        python-version: "3.11"
 
     - name: Install Python dependencies
       run: |
