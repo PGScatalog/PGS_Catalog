@@ -8,6 +8,7 @@ var anc_types = {
 var data_toggle_table = 'table[data-toggle="table"]';
 var data_big_table = '.pgs_big_table';
 var data_table_elements = [data_toggle_table,data_big_table];
+var anc_eur = 'EUR';
 
 $(document).ready(function() {
 
@@ -311,26 +312,31 @@ $(document).ready(function() {
     });
 
 
+    /*
+     * Browse Scores Form
+     */
+
     // Ancestry filtering - Browse Scores
     var anc_form_name = 'browse_ancestry_form';
     $('#browse_ancestry_type_list').on('change', function() {
-      document.forms[anc_form_name].submit();
+      submit_browse_score_form();
     });
     $('#browse_ancestry_filter_ind').on('change', function() {
-      document.forms[anc_form_name].submit();
+      submit_browse_score_form();
     });
     $("#browse_ancestry_filter_list").on("change", ".browse_ancestry_filter_cb",function() {
-      document.forms[anc_form_name].submit();
+      submit_browse_score_form();
     });
+    show_hide_european_filter(true);
 
-    // Search box events for the Browse Scores page
+    // Search box events for - Browse Scores
     $('#browse_scores_search_btn').on("click", function(e) {
-      document.forms[anc_form_name].submit();
+      submit_browse_score_form();
     });
     var $browse_scores_search_input = $('#browse_scores_search');
     $browse_scores_search_input.on("keypress", function(e) {
       if (e.keyCode === 13) {
-        document.forms[anc_form_name].submit();
+        submit_browse_score_form();
       }
     });
     // Functions to set timer on typing before submitting the form
@@ -339,7 +345,7 @@ $(document).ready(function() {
     $browse_scores_search_input.on('keyup', function () {
       clearTimeout(search_typing_timer);
       search_typing_timer = setTimeout(function() {
-        document.forms[anc_form_name].submit();
+        submit_browse_score_form();
       }, 1000);
     });
     //on keydown, clear the countdown
@@ -347,22 +353,45 @@ $(document).ready(function() {
       clearTimeout(search_typing_timer);
     });
 
-    // Send form with updated URL (sort)
+    // Send form with updated URL (sort) - Browse Scores
     $('.orderable > a').click(function(e) {
       e.preventDefault();
       var sort_url = $(this).attr('href');
       var url = $('#'+anc_form_name).attr('action');
+      show_hide_european_filter();
       $('#'+anc_form_name).attr('action', url+sort_url).submit();
-      //document.forms[anc_form_name].submit();
     });
     // Send form with updated URL (pagination)
     $('.pagination > li > a').click(function(e) {
       e.preventDefault();
       var sort_url = $(this).attr('href');
       var url = $('#'+anc_form_name).attr('action');
+      show_hide_european_filter();
       $('#'+anc_form_name).attr('action', url+sort_url).submit();
-      //document.forms[anc_form_name].submit();
     });
+
+
+    function submit_browse_score_form() {
+      show_hide_european_filter();
+      document.forms[anc_form_name].submit();
+    }
+
+
+    function show_hide_european_filter(show_hide_parent) {
+      // Function to show/hide the European filter checkbox - Browse Scores page
+      var filter_ind_anc = $("#browse_ancestry_filter_ind option:selected").val();
+      var $cb_eur_id_elem = $('#browse_anc_cb_EUR');
+      if (filter_ind_anc == anc_eur) {
+        var default_val = $cb_eur_id_elem.data('default');
+        $cb_eur_id_elem.prop('checked', default_val);
+        if (show_hide_parent) {
+          $cb_eur_id_elem.parent().hide();
+        }
+      }
+      else if (filter_ind_anc != anc_eur && show_hide_parent) {
+        $cb_eur_id_elem.parent().show();
+      }
+    }
 
 
     function filter_score_table() {
@@ -395,7 +424,6 @@ $(document).ready(function() {
 
       var stage = $("#ancestry_type_list option:selected").val();
       var anc_eur_cb = 'anc_cb_EUR';
-      var anc_eur = 'EUR';
 
       // Single ancestry selection + show/hide European checkbox filter
       var ind_anc = $("#ancestry_filter_ind option:selected").val();
