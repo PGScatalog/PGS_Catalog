@@ -139,7 +139,7 @@ class Browse_CurationPublicationAnnotationReleaseReady(tables.Table):
     publication_ids = Column_publication_ids(accessor='PMID', verbose_name=format_html('Publication IDs'), orderable=False)
     l1_curation_status =  Column_l1_curation_ids(accessor='first_level_curation_status', verbose_name=format_html('<span class="pgs_bg_color_amber pl-1 pr-1"><b>L1</b></span> Curation'), orderable=False)
     first_level_comment = tables.Column(accessor='first_level_comment', verbose_name=format_html('<span class="pgs_bg_color_amber pl-1 pr-1"><b>L1</b></span> Curation Comment'))
-    l2_curation_status =  Column_l1_curation_ids(accessor='second_level_curation_status', verbose_name=format_html('<span class="pgs_bg_color_1 pl-1 pr-1"><b>L2</b></span> Curation'), orderable=False)
+    l2_curation_status =  Column_l2_curation_ids(accessor='second_level_curation_status', verbose_name=format_html('<span class="pgs_bg_color_1 pl-1 pr-1"><b>L2</b></span> Curation'), orderable=False)
     second_level_comment = tables.Column(accessor='second_level_comment', verbose_name=format_html('<span class="pgs_bg_color_1 pl-1 pr-1"><b>L2</b></span> Curation Comment'))
     eligibility = tables.BooleanColumn(accessor='eligibility', verbose_name='Eligibility')
     embargoed = tables.BooleanColumn(accessor='embargoed', verbose_name='Embargoed')

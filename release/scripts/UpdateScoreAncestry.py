@@ -87,6 +87,21 @@ class UpdateScoreAncestry:
         if len(data_ancestry.keys())==1 and data_ancestry_total == 0:
             for key,value in data_ancestry.items():
                 data_ancestry[key] = 1
+        # Replace multi-ancestry entry if there is only 1 labelled ancestry (e.g. MOA_AFR => AFR)
+        if len(multi_ancestry) == 1:
+            ma_label = multi_ancestry[0]
+            [ma_code,anc_code] = ma_label.split('_')
+            # Multi ancestry sample count
+            sample_count = data_ancestry[ma_code]
+            # Add the new ancestry and add the sample count
+            if not anc_code in data_ancestry:
+                data_ancestry[anc_code] = sample_count
+            else:
+                data_ancestry[anc_code] += sample_count
+            # Remove the multi-ancestry data
+            del data_ancestry[ma_code]
+            multi_ancestry.remove(ma_label)
+
         return { 'data': data_ancestry, 'total': data_ancestry_total, 'multi': multi_ancestry }
 
 
