@@ -66,6 +66,7 @@ class CurationImport():
         for study_data in self.studies_list:
 
             ## Parsing ##
+            self.step = 1
             study_import = StudyImport(study_data, self.studies_path, self.curation2schema, self.curation_status_by_default)
             study_import.print_title()
             print(f'==> Step {self.step}/{self.steps_total}: Parsing study data')
