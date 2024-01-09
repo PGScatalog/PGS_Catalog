@@ -12,7 +12,7 @@ if not os.getenv('GAE_APPLICATION', None):
             secrets = yaml.load(secrets_file, Loader=yaml.FullLoader)
             for keyword in secrets['env_variables']:
                 os.environ[keyword] = secrets['env_variables'][keyword]
-    elif not os.environ['SECRET_KEY']:
+    elif 'SECRET_KEY' not in os.environ.keys():
         print("Error: missing secret key")
         exit(1)
 
@@ -83,10 +83,10 @@ if PGS_ON_LIVE_SITE:
 # Curation app installation
 if PGS_ON_CURATION_SITE:
     INSTALLED_APPS.append('curation_tracker.apps.CurationTrackerConfig')
-
 # Debug helper
 if DEBUG == True:
     INSTALLED_APPS.append('debug_toolbar') # Debug SQL queries
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -181,7 +181,7 @@ if PGS_ON_GAE == 1:
     }
     if PGS_ON_CURATION_SITE:
         DATABASES['curation_tracker'] = {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'ENGINE': DB_ENGINE,
             'NAME': os.environ['DATABASE_NAME_TRACKER'],
             'USER': os.environ['DATABASE_USER_TRACKER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD_TRACKER'],
@@ -213,7 +213,7 @@ else:
     }
     if PGS_ON_CURATION_SITE:
         DATABASES['curation_tracker'] = {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'ENGINE': DB_ENGINE,
             'NAME': os.environ['DATABASE_NAME_TRACKER'],
             'USER': os.environ['DATABASE_USER_TRACKER'],
             'PASSWORD': os.environ['DATABASE_PASSWORD_TRACKER'],
