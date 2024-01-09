@@ -339,6 +339,10 @@ $(document).ready(function() {
         submit_browse_score_form();
       }
     });
+    // Catch event when the "X" button is clicked in the search box.
+    $browse_scores_search_input.on('search', function () {
+      submit_browse_score_form();
+    });
     // Functions to set timer on typing before submitting the form
     var search_typing_timer;
     //on keyup, start the countdown
