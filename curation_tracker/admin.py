@@ -146,6 +146,9 @@ class CurationPublicationAnnotationForm(forms.ModelForm):
             'eligibility': 'Eligibility automatically assigned (default: Yes)'
         }
         exclude = ()
+        widgets = {
+            'PMID': forms.TextInput(attrs={'size': 6})
+        }
 
     def clean(self):
         """ Used as a form validator (on some of the fields) """
@@ -268,7 +271,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         "curation_status","display_first_level_curation_status","display_first_level_curator",
         "display_second_level_curation_status","display_second_level_curator",
         "priority")
-    list_filter = ("curation_status","first_level_curator","second_level_curator","priority",("publication_date",PublicationDateFilter),)
+    list_filter = ("curation_status","first_level_curator","second_level_curator","priority",("publication_date",PublicationDateFilter),"created_on")
     search_fields = ["id","study_name","pgp_id","doi","PMID","first_level_curation_status","second_level_curation_status","curation_status","reported_trait"]
     ordering = ('-id',)
     list_per_page = 25 # No of records per page
@@ -760,11 +763,15 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
     display_created_on.admin_order_field = 'created_on'
 
     # Batch actions
-    actions = ["mark_as_released"]
+    actions = ["mark_as_imported","mark_as_released"]
 
     @admin.action(permissions=["change"],description="Mark selected studies as Released")
     def mark_as_released(self, request, queryset):
         queryset.update(curation_status='Released')
+
+    @admin.action(permissions=["change"],description="Mark selected studies as Imported")
+    def mark_as_imported(self, request, queryset):
+        queryset.update(curation_status='Imported - Awaiting Release')
 
 
 ### Email Templates ###
