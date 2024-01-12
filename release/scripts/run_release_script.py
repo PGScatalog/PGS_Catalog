@@ -188,12 +188,12 @@ def call_create_release():
 
 def update_curation_tracker():
     """ Update entries in Curation Tracker """
-    lastest_release = Release.objects.latest('date').date
+    new_release_date = Release.objects.latest('date').date
 
     curation_tracker = 'curation_tracker'
 
     # Released publications
-    publications = Publication.objects.filter(date_released=lastest_release)
+    publications = Publication.objects.filter(date_released=new_release_date)
     for publication in publications:
         if publication.doi:
             pgp_id = publication.id
@@ -207,7 +207,7 @@ def update_curation_tracker():
                     curation_pub.curation_status = 'Embargo Imported - Awaiting Release'
                 else:
                     curation_pub.curation_status = 'Released'
-                    curation_pub.release_date = lastest_release
+                    curation_pub.release_date = new_release_date
                 curation_pub.save()
             except CurationPublicationAnnotation.DoesNotExist:
                 print(f"Can't find study in Curation Tracker to add the new PGP ID '{pgp_id}'")
