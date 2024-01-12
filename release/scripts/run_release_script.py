@@ -207,6 +207,7 @@ def update_curation_tracker():
                     curation_pub.curation_status = 'Embargo Imported - Awaiting Release'
                 else:
                     curation_pub.curation_status = 'Released'
+                    curation_pub.release_date = lastest_release
                 curation_pub.save()
             except CurationPublicationAnnotation.DoesNotExist:
                 print(f"Can't find study in Curation Tracker to add the new PGP ID '{pgp_id}'")
