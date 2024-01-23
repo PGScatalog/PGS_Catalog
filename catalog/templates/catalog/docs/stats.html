@@ -9,27 +9,27 @@
 
   <h2><span class="fa-solid fa-chart-pie pgs_color_1 pr-2"></span>PGS Catalog statistics</h2>
 
-  <div class="d-flex justify-content-between mt-5">
+  <div class="d-flex justify-content-start mt-5 m">
     <div class="content_container mr-5">
-      <div class="table-of-contents">
+      <div class="table-of-contents mr-5">
         <nav role="navigation">
           <h6>Table of Contents</h6>
           <ul>
-            <li><a href="#genome_build_dist"><b>Genome build</b> distribution</a></li>
-            <li><a href="#weight_type_dist"><b>Weight Type</b> distribution</a></li>
-            <li><a href="#method_dist"><b>Score Method</b> distribution</a></li>
-            <li><a href="#reported_trait_dist"><b>Reported Trait</b> distribution</a></li>
-            <li><a href="#license_dist"><b>License</b> distribution</a></li>
+            <li><a href="#genome_build_dist"><b>Genome build</b> distribution</a> (<span class="pgs_color_1">{{score_stats_data.variants_genomebuild|length}}</span>)</li>
+            <li><a href="#weight_type_dist"><b>Weight Type</b> distribution</a> (<span class="pgs_color_1">{{score_stats_data.weight_type|length}}</span>)</li>
+            <li><a href="#method_dist"><b>Score Method</b> distribution</a> (<span class="pgs_color_1">{{score_stats_data.method_name|length}}</span>)</li>
+            <li><a href="#reported_trait_dist"><b>Reported Trait</b> distribution</a> (<span class="pgs_color_1">{{score_stats_data.trait_reported|length}}</span>)</li>
+            <li><a href="#license_dist"><b>License</b> distribution</a> (<span class="pgs_color_1">{{score_stats_data.license|length}}</span>)</li>
           </ul>
         </nav>
       </div>
     </div>
 
-    <div>
+    <div class="pl-5">
       <table class="table table-bordered table_pgs_h">
         <tbody>
           <tr>
-            <td class="table_title table_title_c font_16" colspan="2">Data Average</td>
+            <td class="table_title table_title_c font_16" colspan="2"><span class="fa-solid fa-angle-right mr-2"></span>Data Summary - Average</td>
           </tr>
           <tr>
             <td>Variants Number per Score</td>
@@ -40,7 +40,12 @@
             <td>{{ scores_per_pub }}</td>
           </tr>
           <tr>
-            <td>Publications per Score</td>
+            <td>
+              Publications per Score
+              <div>
+                <small>(Re-evaluation of scores)</small>
+              </div>
+            </td>
             <td>{{ pub_eval_per_score }}</td>
           </tr>
           <tr>

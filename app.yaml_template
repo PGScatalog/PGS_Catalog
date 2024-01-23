@@ -1,6 +1,6 @@
 # [START django_app]
 
-runtime: python310
+runtime: python311
 
 # For the live site, comment the following line (it uses the default service value 'default')
 service: <service_name>

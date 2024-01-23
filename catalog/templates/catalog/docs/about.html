@@ -29,12 +29,12 @@
       <div class="pgs_buttons_right clearfix mb-2">
         <div class="mr-2">
           <a class="btn btn-pgs pgs_no_icon_link" title="Email" href="mailto:{{ pgs_contact }}" target="_blank">
-            <span class="fas fa-envelope"></span><br/><span>Contact us</span>
+            <span class="fa-solid fa-envelope"></span><br/><span>Contact us</span>
           </a>
         </div>
         <div>
           <a class="btn btn-pgs pgs_no_icon_link" title="Twitter {{ pgs_twitter }}" href="{{ pgs_twitter_url }}"  target="_blank">
-            <span class="fab fa-twitter"></span> <small>{{ pgs_twitter }}</small><br/><span>Follow us</span>
+            <span class="fa-brands fa-x-twitter"></span> <small>{{ pgs_twitter }}</small><br/><span>Follow us</span>
           </a>
         </div>
       </div>
@@ -50,11 +50,11 @@
             <li><a href="#score">What is a Polygenic Score?</a></li>
             <li><a href="#project">The PGS Catalog Project</a></li>
               <ul>
-                  <li><a href="#citation">Citation</a></li>
+                  <li><a href="#citation"><i class="fa-solid fa-quote-left pr-1 pgs_color_2"></i>Citation</a></li>
               </ul>
             <li><a href="#eligibility">PGS Catalog Inclusion Criteria</a></li>
               <ul>
-                  <li><a href="#submission"><i class="fas fa-file-import pr-1 pgs_color_2"></i>Data submission</a></li>
+                  <li><a href="#submission"><i class="fa-solid fa-file-import pr-1 pgs_color_2"></i>Data submission</a></li>
               </ul>
             <li><a href="#pgs_tools">PGS Catalog Software/Tools</a></li>
             <li><a href="#under_dev">Features Under Development</a></li>
@@ -85,7 +85,7 @@
             See the <a href="/docs/">PGS Catalog Data Description</a> page for a complete description of the metadata captured for PGS, Samples, Performance Metrics, Traits, and Publications.
         </p>
 
-      <h4 id="citation">Citation</h4>
+      <h4 id="citation"><i class="fa-solid fa-quote-left mr-2 pgs_color_2"></i>Citation</h4>
       {% include "catalog/docs/citation.html" %}
     </section>
 
@@ -115,7 +115,7 @@
 
 
     <section>
-      <h4 id="submission"><i class="fas fa-file-import pr-2 pgs_color_2"></i>Data Submission</h4>
+      <h4 id="submission"><i class="fa-solid fa-file-import mr-2 pgs_color_2"></i>Data Submission</h4>
       <p>If you have a PGS or publication that meets the Catalog's eligibility requirements we invite you to submit your data by e-mail (<a href="mailto:{{ pgs_contact }}"><span class="fas fa-envelope pgs_color_1"></span> {{ pgs_contact }}</a>).
           To ensure a speedy curation and inclusion into the catalog it would be helpful if you provide the following information about your study:</p>
       <ul>
@@ -181,7 +181,8 @@
 
     <section>
       <h3 id="contact">Feedback & Contact Information</h3>
-      <p>To submit a PGS to the catalog, provide feedback, or ask questions please contact the PGS Catalog team at <a href="mailto:{{ pgs_contact }}"><span class="fas fa-envelope pgs_color_1"></span> {{ pgs_contact }}</a>.</p>
+      <p class="mb-2">To submit a PGS to the catalog, provide feedback, or ask questions please contact the PGS Catalog team at <a href="mailto:{{ pgs_contact }}"><span class="fa-solid fa-envelope pgs_color_1"></span> {{ pgs_contact }}</a>.</p>
+      <p class="mb-0">For technical questions or bug reports (e.g. REST API, file formats), please contact us via the GitHub issues on the <a href="{{pgs_github}}PGS_Catalog/issues"><span class="fa-brands fa-github pgs_color_1"></span> PGS_Catalog</a> repository.</p>
     </section>
 
 
