@@ -52,6 +52,9 @@ urlpatterns = [
     # e.g.: /downloads/
     path('downloads/', views.DownloadView.as_view(), name='Downloads'),
 
+    # e.g.: /inclusioncriteria/
+    path('inclusioncriteria/', RedirectView.as_view(url='/about/#eligibility')),
+    
     # e.g.: /submit/
     path('submit/', RedirectView.as_view(url='/about/#submission')),
 
