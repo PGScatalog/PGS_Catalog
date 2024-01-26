@@ -402,7 +402,7 @@ class Browse_ScoreTable(tables.Table):
             'ancestries',
             'ftp_link'
         ]
-        template_name = 'catalog/pgs_catalog_django_tables2_browse_scores.html'
+        template_name = 'catalog/pgs_catalog_django_tables2_browse.html'
 
 
     def render_id(self, value, record):

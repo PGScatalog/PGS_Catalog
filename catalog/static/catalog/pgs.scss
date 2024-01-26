@@ -969,6 +969,18 @@ td > ul {
   }
 }
 
+.pgs_search_toolbar {
+  display:flex;
+  justify-content:flex-end;
+  > div:first-child {
+    width:200px;
+    margin: 8px 5px 8px 8px;
+  }
+  > div:last-child {
+    margin: 8px 0px;
+  }
+}
+
 
 /* Icons related CSS */
 .external-link:after {
@@ -2528,6 +2540,7 @@ footer {
 }
 
 .anc_col_subtitle {
+  display:flex;
   font-size:12px;
   white-space:nowrap;
   text-align:center;

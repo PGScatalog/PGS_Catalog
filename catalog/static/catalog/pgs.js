@@ -317,43 +317,43 @@ $(document).ready(function() {
      */
 
     // Ancestry filtering - Browse Scores
-    var anc_form_name = 'browse_ancestry_form';
+    var browse_form_name = 'browse_form';
     $('#browse_ancestry_type_list').on('change', function() {
-      submit_browse_score_form();
+      submit_browse_form();
     });
     $('#browse_ancestry_filter_ind').on('change', function() {
-      submit_browse_score_form();
+      submit_browse_form();
     });
     $("#browse_ancestry_filter_list").on("change", ".browse_ancestry_filter_cb",function() {
-      submit_browse_score_form();
+      submit_browse_form();
     });
     show_hide_european_filter(true);
 
     // Search box events for - Browse Scores
-    $('#browse_scores_search_btn').on("click", function(e) {
-      submit_browse_score_form();
+    $('#browse_search_btn').on("click", function(e) {
+      submit_browse_form();
     });
-    var $browse_scores_search_input = $('#browse_scores_search');
-    $browse_scores_search_input.on("keypress", function(e) {
+    var $browse_search_input = $('#browse_search');
+    $browse_search_input.on("keypress", function(e) {
       if (e.keyCode === 13) {
-        submit_browse_score_form();
+        submit_browse_form();
       }
     });
     // Catch event when the "X" button is clicked in the search box.
-    $browse_scores_search_input.on('search', function () {
-      submit_browse_score_form();
+    $browse_search_input.on('search', function () {
+      submit_browse_form();
     });
     // Functions to set timer on typing before submitting the form
     var search_typing_timer;
     //on keyup, start the countdown
-    $browse_scores_search_input.on('keyup', function () {
+    $browse_search_input.on('keyup', function () {
       clearTimeout(search_typing_timer);
       search_typing_timer = setTimeout(function() {
-        submit_browse_score_form();
+        submit_browse_form();
       }, 1000);
     });
     //on keydown, clear the countdown
-    $browse_scores_search_input.on('keydown', function () {
+    $browse_search_input.on('keydown', function () {
       clearTimeout(search_typing_timer);
     });
 
@@ -361,23 +361,25 @@ $(document).ready(function() {
     $('.orderable > a').click(function(e) {
       e.preventDefault();
       var sort_url = $(this).attr('href');
-      var url = $('#'+anc_form_name).attr('action');
+      var url = $('#'+browse_form_name).attr('action');
       show_hide_european_filter();
-      $('#'+anc_form_name).attr('action', url+sort_url).submit();
+      $('#'+browse_form_name).attr('action', url+sort_url).submit();
     });
     // Send form with updated URL (pagination)
     $('.pagination > li > a').click(function(e) {
       e.preventDefault();
       var sort_url = $(this).attr('href');
-      var url = $('#'+anc_form_name).attr('action');
+      var url = $('#'+browse_form_name).attr('action');
       show_hide_european_filter();
-      $('#'+anc_form_name).attr('action', url+sort_url).submit();
+      $('#'+browse_form_name).attr('action', url+sort_url).submit();
     });
 
 
-    function submit_browse_score_form() {
-      show_hide_european_filter();
-      document.forms[anc_form_name].submit();
+    function submit_browse_form() {
+      if ($('#browse_anc_cb_EUR').length) {
+        show_hide_european_filter();
+      }
+      document.forms[browse_form_name].submit();
     }
 
 

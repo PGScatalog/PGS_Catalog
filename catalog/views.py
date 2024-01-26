@@ -165,7 +165,7 @@ def browse_scores(request):
         'browse_ancestry_filter_ind': 'sel',
         'browse_anc_cb_EUR': 'cb',
         'browse_anc_cb_multi': 'cb',
-        'browse_scores_search': 'in'
+        'browse_search': 'in'
     }
     # Init form data
     form_data = {}
@@ -186,7 +186,7 @@ def browse_scores(request):
                     form_data[input_name] = False
 
     score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
-    queryset = Score.objects.only(*score_only_attributes).select_related('publication').all().prefetch_related(pgs_prefetch['trait'])
+    queryset = Score.objects.only(*score_only_attributes).select_related('publication').all().prefetch_related(pgs_prefetch['trait']).distinct()
 
     ## Sorting ##
     order_by = 'num'
@@ -205,7 +205,7 @@ def browse_scores(request):
     anc_value = form_data['browse_ancestry_filter_ind']
     anc_include_eur = form_data['browse_anc_cb_EUR']
     anc_include_multi = form_data['browse_anc_cb_multi']
-    browse_scores_search = form_data['browse_scores_search']
+    browse_search = form_data['browse_search']
     # Study step and ancestry selections
     if not anc_step or anc_step == 'all':
         if anc_value:
@@ -244,11 +244,11 @@ def browse_scores(request):
         queryset = queryset.filter(Q(**{multi_filters[gwas_step]:False}) | Q(**{multi_filters[dev_step]:False}) | Q(**{multi_filters[eval_step]:False}))
 
     # Filter term from the table search box
-    if browse_scores_search:
+    if browse_search:
         queryset = queryset.filter(
-            Q(id__icontains=browse_scores_search) | Q(name__icontains=browse_scores_search) |
-            Q(trait_reported__icontains=browse_scores_search) | Q(trait_efo__label__icontains=browse_scores_search) |
-            Q(publication__id__icontains=browse_scores_search) | Q(publication__title__icontains=browse_scores_search) | Q(publication__firstauthor__icontains=browse_scores_search)
+            Q(id__icontains=browse_search) | Q(name__icontains=browse_search) |
+            Q(trait_reported__icontains=browse_search) | Q(trait_efo__label__icontains=browse_search) |
+            Q(publication__id__icontains=browse_search) | Q(publication__title__icontains=browse_search) | Q(publication__firstauthor__icontains=browse_search)
         )
 
     # Data table
@@ -269,7 +269,6 @@ def browse_scores(request):
         'form_data': form_data,
         'ancestry_filter': ancestry_filter(form_data),
         'has_chart': 1,
-        # 'has_table': 1,
         'is_browse_score': 1
     }
     return render(request, 'catalog/browse/scores.html', context)

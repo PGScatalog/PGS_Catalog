@@ -27,14 +27,14 @@
         <section>
           <h2 class="pgs_facet_icon pgs_facet_1_icon">{{ view_name }}</h2>
 
-          <form action="/browse/scores/" method="post" id="browse_ancestry_form" name="browse_ancestry_form">{% csrf_token %}
+          <form action="/browse/scores/" method="post" id="browse_form" name="browse_form">{% csrf_token %}
             {% include "catalog/includes/ancestry_form.html" %}
-            <div class="fixed-table-toolbar" style="display:flex;justify-content:flex-end">
-              <div style="200px;margin: 8px 5px 8px 8px">
-                <input class="form-control search-input" type="search" aria-label="Search" placeholder="Search" autocomplete="off" name="browse_scores_search" id="browse_scores_search" {% if form_data.browse_scores_search %}value="{{ form_data.browse_scores_search }}"{% endif %}/>
+            <div class="fixed-table-toolbar pgs_search_toolbar">
+              <div>
+                <input class="form-control search-input" type="search" aria-label="Search" placeholder="Search" autocomplete="off" name="browse_search" id="browse_search" {% if form_data.browse_search %}value="{{ form_data.browse_search }}"{% endif %}/>
               </div>
-                <div style="margin: 8px 0px">
-                <button type="button" class="btn btn-pgs pgs_no_icon_link" id="browse_scores_search_btn" value="Submit">
+              <div>
+                <button type="button" class="btn btn-pgs pgs_no_icon_link" id="browse_search_btn" value="Submit">
                   <span class="fas fa-search"></span>
                 </button>
               </div>
