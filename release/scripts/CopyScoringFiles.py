@@ -1,4 +1,4 @@
-import sys, os, shutil, stat, glob, re
+import sys, os, shutil, stat, glob, re, pwd
 from os import path
 import requests
 import argparse
@@ -10,18 +10,18 @@ class CopyScoringFiles:
     ftp_std_scoringfile_suffix = '.txt.gz'
     scores_list_file = 'pgs_scores_list.txt'
     sql_table = 'catalog_scorefilemd5'
-
     log_msg = {
         'new': [],
         'updated': [],
         'skipped': []
     }
 
-    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir,md5_sql_filepath):
+    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir, md5_sql_filepath, username):
         self.new_ftp_scores_dir = new_ftp_scores_dir
         self.new_scoringfiles_dir = staged_scores_dir
         self.scoring_files_dir = scoring_files_dir
         self.md5_sql_filepath = md5_sql_filepath
+        self.username = username
 
         if not os.path.exists(new_ftp_scores_dir):
             print(f'Error: The path to the data directory can\'t be found ({new_ftp_scores_dir}).')
@@ -128,7 +128,7 @@ class CopyScoringFiles:
             if copy_msg != '':
                 # Copy file
                 try:
-                    shutil.copy2(scoring_file_ftp_priv, scoring_file_prod)
+                    shutil.copyfile(scoring_file_ftp_priv, scoring_file_prod)
                     print(copy_msg)
                     if copy_type == 'update':
                         count_updated_pgs += 1
@@ -136,15 +136,20 @@ class CopyScoringFiles:
                         count_new_pgs += 1
                     else:
                         print(f'>>>>> ERROR! Can\'t determine whether the copy of \'{scoring_file}\' was due to the very first version of the scoring file or an updated version of the file')
+                # If there is any permission issue
+                except PermissionError as e:
+                    print(f'>>>>> ERROR! File \'{scoring_file}\' (Permission issue) - {e}')
                 except IOError as e:
-                    print(f'>>>>> ERROR! File \'{scoring_file}\' couldn\'t be copied to "{self.scoring_files_dir}"!')
+                    print(f'>>>>> ERROR! File \'{scoring_file}\' couldn\'t be copied to production: "{self.scoring_files_dir}"!')
                     print(e)
                 # Change chmod to allow group write access
                 if os.path.isfile(scoring_file_prod):
-                    try:
-                        os.chmod(scoring_file_prod, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH)
-                    except:
-                        print(f">>>>> ERROR! Can't change the read/write access of the file '{scoring_file}'!")
+                    file_owner = pwd.getpwuid(os.stat(scoring_file_prod).st_uid).pw_name
+                    if self.username == file_owner:
+                        try:
+                            os.chmod(scoring_file_prod, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH)
+                        except:
+                            print(f">>>>> ERROR! Can't change the read/write access of the file '{scoring_file}'!")
         total_count = count_new_pgs + count_updated_pgs
         print(f'Number of PGS files successfully copied: {total_count} (New: {count_new_pgs} | Updated: {count_updated_pgs} | Skipped: {count_skipped_pgs})')
 
@@ -153,7 +158,7 @@ class CopyScoringFiles:
         """ Copy the new/updated scoring files to the metadata directory (temporary FTP) """
         print("\n***** Step 2 - Copy the new/updated scoring files to the metadata directory (temporary FTP) *****")
 
-        md5_sql_file = open(self.md5_sql_filepath,'w')
+        # md5_sql_file = open(self.md5_sql_filepath,'w')
 
         for score_id in sorted(os.listdir(self.new_ftp_scores_dir+'/scores/')):
             score_release_dir = self.new_ftp_scores_dir+'/scores/'+score_id+'/ScoringFiles/'
@@ -211,15 +216,15 @@ class CopyScoringFiles:
                 if not score_id in self.log_msg['updated']:
                     self.log_msg['new'].append(score_id)
 
-                # md5 checksum SQL commands
-                id = re.sub(r'PGS0+(.+)', r'\1', score_id)
-                if is_updated:
-                    sql_cmd = f"UPDATE {self.sql_table} SET score_md5='{new_score_md5}' WHERE score_id={id};\n"
-                else:
-                    sql_cmd = f"INSERT INTO {self.sql_table} (score_id,score_md5) VALUES ({id},'{new_score_md5}');\n"
-                md5_sql_file.write(sql_cmd)
+                # # md5 checksum SQL commands
+                # id = re.sub(r'PGS0+(.+)', r'\1', score_id)
+                # if is_updated:
+                #     sql_cmd = f"UPDATE {self.sql_table} SET score_md5='{new_score_md5}' WHERE score_id={id};\n"
+                # else:
+                #     sql_cmd = f"INSERT INTO {self.sql_table} (score_id,score_md5) VALUES ({id},'{new_score_md5}');\n"
+                # md5_sql_file.write(sql_cmd)
 
-        md5_sql_file.close()
+        # md5_sql_file.close()
 
 
         # Copied PGS Scoring files

@@ -1,4 +1,4 @@
-import sys, os, shutil, stat, glob, re
+import sys, os, shutil, stat, glob, re, pwd
 from os import path
 import requests
 import argparse
@@ -18,12 +18,13 @@ class CopyHarmonizedScoringFilesPOS:
         for gb in genebuilds:
             log_msg[type][gb] = []
 
-    def __init__(self, new_ftp_scores_dir, staged_harmonized_files_dir, harmonized_files_dir,md5_sql_filepath):
+    def __init__(self, new_ftp_scores_dir, staged_harmonized_files_dir, harmonized_files_dir, md5_sql_filepath, username):
         self.new_ftp_scores_dir = new_ftp_scores_dir
         self.harmonized_files_staged_dir = staged_harmonized_files_dir
         self.harmonized_files_prod_dir = harmonized_files_dir
         self.scores_list_file_path = new_ftp_scores_dir+'/'+self.scores_list_file
         self.md5_sql_filepath = md5_sql_filepath
+        self.username = username
 
         if not os.path.exists(new_ftp_scores_dir):
             print(f'Error: The path to the data directory can\'t be found ({new_ftp_scores_dir}).')
@@ -104,13 +105,23 @@ class CopyHarmonizedScoringFilesPOS:
                         self.create_directory(f'{self.harmonized_files_prod_dir}/{pgs_id}/')
                         self.create_directory(harmonized_file_prod_dir)
                         if os.path.isdir(harmonized_file_prod_dir):
-                            shutil.copy2(harmonized_file_staged, harmonized_file_prod)
-                            # Change chmod to allow group write access
                             try:
-                                os.chmod(harmonized_file_prod, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH)
-                                print(copy_msg)
-                            except:
-                                print(f">>>>> ERROR! Can't change the read/write access of the file '{harmonized_file}'!")
+                                shutil.copyfile(harmonized_file_staged, harmonized_file_prod)
+                                # If there is any permission issue
+                            except PermissionError as e:
+                                print(f'>>>>> ERROR! File \'{harmonized_file}\' (Permission issue) - {e}')
+                            except IOError as e:
+                                print(f'>>>>> ERROR! File \'{harmonized_file}\' couldn\'t be copied to production: "{self.harmonized_files_prod_dir}"!')
+                                print(e)
+
+                            # Change chmod to allow group write access
+                            file_owner = pwd.getpwuid(os.stat(harmonized_file_prod).st_uid).pw_name
+                            if self.username == file_owner:
+                                try:
+                                    os.chmod(harmonized_file_prod, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH)
+                                    print(copy_msg)
+                                except:
+                                    print(f">>>>> ERROR! Can't change the read/write access of the file '{harmonized_file}'!")
 
                             file_info = { 'genebuild': gb, 'name': harmonized_file, 'status': copy_type }
                             if not pgs_id in self.harmonized_files_to_copy:
@@ -140,7 +151,7 @@ class CopyHarmonizedScoringFilesPOS:
         """ Copy the new/updated scoring files to the metadata directory (temporary FTP) """
         print("\n***** Step 2 - Copy the new/updated scoring files to the metadata directory (temporary FTP) *****")
 
-        md5_sql_file = open(self.md5_sql_filepath,'a')
+        # md5_sql_file = open(self.md5_sql_filepath,'a')
 
         for score_id in sorted(self.harmonized_files_to_copy.keys()):
 
@@ -169,11 +180,11 @@ class CopyHarmonizedScoringFilesPOS:
                 shutil.copy2(harmonized_file_prod, harmonized_file_release)
                 self.log_msg[harmonized_status][harmonized_gb].append(score_id)
 
-                # md5 checksum SQL commands
-                sql_cmd = f"UPDATE {self.sql_table} SET hmpos_{harmonized_gb}_md5='{harmonized_file_md5}' WHERE score_id={id};\n"
-                md5_sql_file.write(sql_cmd)
+                # # md5 checksum SQL commands
+                # sql_cmd = f"UPDATE {self.sql_table} SET hmpos_{harmonized_gb}_md5='{harmonized_file_md5}' WHERE score_id={id};\n"
+                # md5_sql_file.write(sql_cmd)
 
-        md5_sql_file.close()
+        # md5_sql_file.close()
 
         # Copied PGS Scoring files
         self.print_log_msg('new', 'New PGS Scoring files')
