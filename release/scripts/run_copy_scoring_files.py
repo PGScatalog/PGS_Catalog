@@ -5,17 +5,17 @@ from release.scripts.CopyScoringFiles import CopyScoringFiles
 from release.scripts.CopyHarmonizedScoringFilesPOS import CopyHarmonizedScoringFilesPOS
 
 
-def copy_scoring_files(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath):
+def copy_scoring_files(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath,username):
     print("\n#### Copy the new formatted scoring files ####")
-    pgs_scoring_files = CopyScoringFiles(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath)
+    pgs_scoring_files = CopyScoringFiles(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath,username)
     pgs_scoring_files.get_previous_release()
     pgs_scoring_files.get_list_of_scores()
     pgs_scoring_files.copy_scoring_files_to_production()
     pgs_scoring_files.copy_scoring_files_to_metadata()
 
-def copy_hmpos_scoring_files(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath):
+def copy_hmpos_scoring_files(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath,username):
     print("\n#### Copy the new harmonized position scoring files ####")
-    pgs_harmonized_files = CopyHarmonizedScoringFilesPOS(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath)
+    pgs_harmonized_files = CopyHarmonizedScoringFilesPOS(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath,username)
     pgs_harmonized_files.copy_harmonized_files_to_production()
     pgs_harmonized_files.copy_harmonized_files_to_metadata()
 
@@ -42,7 +42,7 @@ def main():
     argparser.add_argument("--scores_dir", type=str, help='The path to the scoring files directory (Production)', required=False)
     argparser.add_argument("--hm_staged_scores_dir", type=str, help='The path to the harmonized Position staged files directory', required=True)
     argparser.add_argument("--hm_scores_dir", type=str, help='The path to the harmonized scoring files directory (Production)', required=False)
-
+    argparser.add_argument("--username", type=str, help='Linux/Unix username', required=True)
 
     args = argparser.parse_args()
 
@@ -51,6 +51,7 @@ def main():
     scores_dir = args.scores_dir
     hm_staged_scores_dir = args.hm_staged_scores_dir
     hm_scores_dir = args.hm_scores_dir
+    username = args.username
 
     release_date_file = f'{new_ftp_dir}/release_date.txt'
     new_release_date = get_new_release_date(release_date_file)
@@ -58,9 +59,9 @@ def main():
     md5_sql_filename = f'scores_md5_{new_release_date}.sql'
     md5_sql_filepath = f'{new_ftp_dir}/{md5_sql_filename}'
 
-    copy_scoring_files(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath)
+    copy_scoring_files(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath,username)
 
-    copy_hmpos_scoring_files(new_ftp_dir,hm_staged_scores_dir,hm_scores_dir,md5_sql_filepath)
+    copy_hmpos_scoring_files(new_ftp_dir,hm_staged_scores_dir,hm_scores_dir,md5_sql_filepath,username)
 
     # Move/remove temporary files
     if os.path.isfile(release_date_file):
