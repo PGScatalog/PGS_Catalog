@@ -1,4 +1,5 @@
-import os
+import operator
+from functools import reduce
 from django.http import Http404
 from django.shortcuts import render,redirect
 from django.views.generic import TemplateView
@@ -188,25 +189,21 @@ def browse_scores(request):
     score_only_attributes = ['id','name','trait_efo','trait_reported','variants_number','ancestries','license','publication__id','publication__date_publication','publication__journal','publication__firstauthor']
     queryset = Score.objects.only(*score_only_attributes).select_related('publication').all().prefetch_related(pgs_prefetch['trait']).distinct()
 
-    ## Sorting ##
-    order_by = 'num'
-    sort_param = request.GET.get('sort')
-    if sort_param:
-        order_by = sort_param
-    queryset = queryset.order_by(order_by)
-
     ## Filter ancestry ##
     gwas_step = 'gwas'
     dev_step = 'dev'
     eval_step = 'eval'
     study_steps = [gwas_step,dev_step,eval_step]
+    dev_all_steps = [gwas_step,dev_step]
     # Ancestry Type
     anc_step = form_data['browse_ancestry_type_list']
     anc_value = form_data['browse_ancestry_filter_ind']
     anc_include_eur = form_data['browse_anc_cb_EUR']
     anc_include_multi = form_data['browse_anc_cb_multi']
     browse_search = form_data['browse_search']
-    # Study step and ancestry selections
+
+    # Study step (gwas,development,evaluation) and ancestry dropdown selection
+    # [G,D,E]
     if not anc_step or anc_step == 'all':
         if anc_value:
             filters = {}
@@ -214,34 +211,78 @@ def browse_scores(request):
                 filters[step] = f'ancestries__{step}__dist__{anc_value}__isnull'
             queryset = queryset.filter(Q(**{filters[gwas_step]:False}) | Q(**{filters[dev_step]:False}) | Q(**{filters[eval_step]:False}))
     elif anc_step:
+        # G | D | E
         if anc_step in study_steps:
-            queryset = queryset.filter(ancestries__has_key=anc_step)
+            has_anc_step = Q(ancestries__has_key=anc_step)
             if anc_value:
-                anc_filter = f'ancestries__{anc_step}__dist__{anc_value}__isnull'
-                queryset = queryset.filter(**{anc_filter:False})
+                queryset = queryset.filter(has_anc_step & Q(**{f'ancestries__{anc_step}__dist__{anc_value}__isnull':False}))
+            else:
+                queryset = queryset.filter(has_anc_step)
+        # [G,D]
         elif anc_step == 'dev_all':
-            queryset = queryset.filter(ancestries__has_key=gwas_step).filter(ancestries__has_key=dev_step)
-            if anc_value:
-                filters = {}
-                for step in ['gwas','dev']:
-                    filters[step] = f'ancestries__{step}__dist__{anc_value}__isnull'
-                queryset = queryset.filter(Q(**{filters[gwas_step]:False}) | Q(**{filters[dev_step]:False}))
+            has_step = {}
+            for step in dev_all_steps:
+                has_step[step] = Q(ancestries__has_key=step)
+                if anc_value:
+                    filters = {}
+                    for step in dev_all_steps:
+                        filters[step] = f'ancestries__{step}__dist__{anc_value}__isnull'
+                    queryset = queryset.filter((has_step[gwas_step] & Q(**{filters[gwas_step]:False})) |
+                                               (has_step[dev_step] & Q(**{filters[dev_step]:False})))
+                else:
+                    queryset = queryset.filter(has_step[gwas_step] | has_step[dev_step])
 
     # Filter out European ancestry (including multi-ancestry with european)
     if anc_include_eur == False:
+        eur_filters = {}
+        eur_query_list = []
+        eur_anc_labels = ['EUR','MAE']
+        eur_filters_steps = []
         for step in study_steps:
-            anc_filter = f'ancestries__{step}__dist__EUR__isnull'
-            queryset = queryset.filter(**{anc_filter:True})
-            anc_filter = f'ancestries__{step}__dist__MAE__isnull'
-            queryset = queryset.filter(**{anc_filter:True})
+            for anc_label in eur_anc_labels:
+                if not step in eur_filters.keys():
+                    eur_filters[step] = {}
+                eur_filters[step][anc_label] = Q(**{f'ancestries__{step}__dist__{anc_label}__isnull':True})
+        # [G,D,E]
+        if not anc_step or anc_step == 'all':
+            eur_filters_steps = study_steps
+        elif anc_step:
+            # G | D | E
+            if anc_step in study_steps:
+                eur_filters_steps = [anc_step]
+            # [G,D]
+            elif anc_step == 'dev_all':
+                eur_filters_steps = dev_all_steps
+        # Build European filter
+        if eur_filters_steps:
+            for eur_step in eur_filters_steps:
+                for anc_label in eur_anc_labels:
+                    eur_query_list.append(eur_filters[eur_step][anc_label])
+            # Update query filter
+            queryset = queryset.filter(reduce(operator.and_,eur_query_list))
 
     # Filter to include multi-ancestry
     if anc_include_multi == True:
         multi_filters = {}
+        multi_query_list = []
         for step in study_steps:
-            anc_m_filter = f'ancestries__{step}__multi__isnull'
-            multi_filters[step] = anc_m_filter
-        queryset = queryset.filter(Q(**{multi_filters[gwas_step]:False}) | Q(**{multi_filters[dev_step]:False}) | Q(**{multi_filters[eval_step]:False}))
+            multi_filters[step] = Q(**{f'ancestries__{step}__has_any_keys':['multi','dist_count']})
+        # [G,D,E]
+        if not anc_step or anc_step == 'all':
+            multi_query_list = [multi_filters[gwas_step],multi_filters[dev_step],multi_filters[eval_step]]
+        elif anc_step:
+            # G | D | E
+            if anc_step in study_steps:
+                multi_query_list = [multi_filters[anc_step]]
+            # [G,D]
+            elif anc_step == 'dev_all':
+                multi_query_list = [multi_filters[gwas_step],multi_filters[dev_step]]
+        # Update query filter
+        if multi_query_list:
+            if len(multi_query_list) > 1:
+                queryset = queryset.filter(reduce(operator.or_,multi_query_list))
+            else:
+                queryset = queryset.filter(multi_query_list[0])
 
     # Filter term from the table search box
     if browse_search:
@@ -250,6 +291,13 @@ def browse_scores(request):
             Q(trait_reported__icontains=browse_search) | Q(trait_efo__label__icontains=browse_search) |
             Q(publication__id__icontains=browse_search) | Q(publication__title__icontains=browse_search) | Q(publication__firstauthor__icontains=browse_search)
         )
+
+    ## Sorting ##
+    order_by = 'num'
+    sort_param = request.GET.get('sort')
+    if sort_param:
+        order_by = sort_param
+    queryset = queryset.order_by(order_by)
 
     # Data table
     table = Browse_ScoreTable(queryset)

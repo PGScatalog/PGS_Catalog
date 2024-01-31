@@ -125,7 +125,7 @@ def pgs_ancestry_legend(request) -> str:
 
     return {
         'ancestry_legend': '''
-    <div id="ancestry_legend" class="filter_container mb-3">
+    <div id="ancestry_legend" class="filter_container">
         <div class="filter_header">Ancestry legend <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_category" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see more information about the Ancestry Categories (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
         <div id="ancestry_legend_content">{}</div>
     </div>'''.format(legend_html)

@@ -2411,7 +2411,10 @@ footer {
   display: flex;
   justify-content: flex-start;
   > div:not(:last-child) {
-    margin-right: 1rem!important;
+    margin-right: 1rem;
+  }
+  .filter_container {
+    margin-bottom: 1rem;
   }
 }
 /* Mobile phone display */
@@ -2420,7 +2423,7 @@ footer {
     flex-direction:column;
     justify-content: center;
     > div {
-      margin-right:0px;
+      margin-right:0px !important;
     }
   }
 }
