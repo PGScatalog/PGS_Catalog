@@ -3,3 +3,5 @@
 /static/
 app.yaml
 pgs-catalog-cred.json
+.idea
+.vscode
