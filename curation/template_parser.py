@@ -96,7 +96,7 @@ class CurationTemplate():
         ''' Extract publication information, fetch extra information via EuropePMC REST API and store it into a PublicationData object. '''
         spreadsheet_name = self.spreadsheet_names['Publication']
         pinfo = self.table_publication.iloc[0]
-        c_doi = pinfo['doi']
+        c_doi = pinfo['doi'] if not pd.isnull(pinfo['doi']) else None  # Getting rid of potential NaN
         if type(c_doi) == str:
             c_doi = c_doi.strip()
             if c_doi.startswith('https'):
