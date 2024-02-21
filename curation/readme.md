@@ -51,6 +51,15 @@ default_curation_status = 'IP'
 scoringfiles_format_version = '2.0'
 
 skip_scorefiles = False
+
+skip_curationtracker = False
+
+variant_positions_qc_config = {
+    'skip': False,
+    'n_requests': 4,
+    'ensembl_max_variation_req_size': 10,
+    'ensembl_max_sequence_req_size': 50
+}
 ```
 
 #### Additional attributes for the study_names_list

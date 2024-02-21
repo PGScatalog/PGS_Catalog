@@ -1,6 +1,6 @@
 import pandas as pd
 from curation.imports.study import StudyImport
-from curation.imports.scoring_file import ScoringFileUpdate
+from curation.imports.scoring_file import ScoringFileUpdate, VariantPositionsQC
 from curation_tracker.models import CurationPublicationAnnotation
 
 
@@ -17,7 +17,7 @@ class CurationImport():
 
     failed_studies = {}
 
-    def __init__(self, data_path, studies_list, curation_status_by_default, scoringfiles_format_version, skip_scoringfiles, skip_curationtracker):
+    def __init__(self, data_path, studies_list, curation_status_by_default, scoringfiles_format_version, skip_scoringfiles, skip_curationtracker, variant_positions_qc_config):
         self.curation2schema = pd.read_excel(data_path['template_schema'], sheet_name='Curation', index_col=0)
         self.curation2schema_scoring = pd.read_excel(data_path['scoring_schema'], sheet_name='Columns', index_col=0)
 
@@ -30,12 +30,15 @@ class CurationImport():
         self.skip_curationtracker = skip_curationtracker
 
         self.curation_status_by_default = curation_status_by_default
+        self.variant_positions_qc_config = variant_positions_qc_config
 
         self.step = 1
         self.steps_total = 2
         if self.skip_scoringfiles == False:
             self.steps_total = self.steps_total + 1
         if self.skip_curationtracker == False:
+            self.steps_total = self.steps_total + 1
+        if self.variant_positions_qc_config['skip'] == False:
             self.steps_total = self.steps_total + 1
 
 
@@ -91,6 +94,27 @@ class CurationImport():
                         scoring_file_update = ScoringFileUpdate(score, study_import.study_path, self.new_scoring_path, self.curation2schema_scoring, self.scoringfiles_format_version)
                         is_failed = scoring_file_update.update_scoring_file()
                         if is_failed == True:
+                            self.failed_studies[study_import.study_name] = 'scoring file error'
+                            continue
+                else:
+                    print("  > No scores for this study, therefore no scoring files")
+                if study_import.study_name in self.failed_studies.keys():
+                    continue
+
+            ## Variant positions QC ##
+            if not self.variant_positions_qc_config['skip']:
+                self.step += 1
+                print('\n----------------------------------\n')
+                print(f'==> Step {self.step}/{self.steps_total}: QC of the variant positions of the Scoring file(s)')
+                if study_import.study_scores:
+                    for score_id, score in study_import.study_scores.items():
+                        print(f'SCORE: {score.id}')
+                        variant_pos_qc = VariantPositionsQC(score, self.new_scoring_path, self.variant_positions_qc_config)
+                        is_failed = variant_pos_qc.qc_variant_positions(
+                            report_func=lambda msg: print(f'  > {msg}'),
+                            error_func=lambda msg: print(f'ERROR: {msg}!')
+                        )
+                        if is_failed:
                             self.failed_studies[study_import.study_name] = 'scoring file error'
                             continue
                 else:
