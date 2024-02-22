@@ -23,3 +23,7 @@ variant_positions_qc_config = {
     'ensembl_max_variation_req_size': 10,  # Maximum number of variants per request to the Ensembl variation REST API
     'ensembl_max_sequence_req_size': 50  # Maximum number of variants per request to the Ensembl sequence REST API
 }
+
+# TSV file containing the reported traits to be replaced for homogeneity.
+# Required columns: "trait_reported", "corrected".
+trait_reported_replacement_file = '<local_dir>/reported_traits_dict.tsv'
