@@ -1,11 +1,7 @@
-import csv
-import sys
-
 from django.db import IntegrityError, transaction
 from curation.parsers.generic import GenericData
 from curation.parsers.trait import TraitData
 from catalog.models import Score
-from curation.config import trait_reported_replacement_file
 
 
 class ScoreData(GenericData):
@@ -17,18 +13,13 @@ class ScoreData(GenericData):
         'PRScs': 'PRS-CS'
     }
 
-    # Reading the reported-traits dictionary file
-    with open(trait_reported_replacement_file, mode='r') as infile:
-        reader = csv.DictReader(infile, delimiter='\t')
-        trait_reported_replacement = {row['trait_reported']: row['corrected'] for row in reader}
-
     def __init__(self, score_name, spreadsheet_name):
         GenericData.__init__(self, spreadsheet_name)
         self.name = score_name
         self.data = {'name': score_name}
 
     @transaction.atomic
-    def create_score_model(self, publication):
+    def create_score_model(self, publication, reported_traits_cleaner: dict):
         '''
         Create an instance of the Score model.
         It also create instance(s) of the EFOTrait model if needed.
@@ -52,8 +43,8 @@ class ScoreData(GenericData):
                             if val in self.method_name_replacement.keys():
                                 val = self.method_name_replacement[val]
                         elif field == 'trait_reported':
-                            if val in self.trait_reported_replacement:
-                                new_val = self.trait_reported_replacement[val]
+                            if val in reported_traits_cleaner:
+                                new_val = reported_traits_cleaner[val]
                                 print("Replaced reported trait \"{}\" with \"{}\"".format(val, new_val))
                                 val = new_val
                         setattr(self.model, field, val)

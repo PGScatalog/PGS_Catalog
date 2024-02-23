@@ -61,7 +61,7 @@ variant_positions_qc_config = {
     'ensembl_max_sequence_req_size': 50
 }
 
-trait_reported_replacement_file = '/Users/myhome/PGS/reported_traits_dict.tsv'
+reported_traits_replacement_file = '/Users/myhome/PGS/reported_traits_dict.tsv'
 ```
 
 #### Additional attributes for the study_names_list

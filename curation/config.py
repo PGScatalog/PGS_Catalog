@@ -26,4 +26,4 @@ variant_positions_qc_config = {
 
 # TSV file containing the reported traits to be replaced for homogeneity.
 # Required columns: "trait_reported", "corrected".
-trait_reported_replacement_file = '<local_dir>/reported_traits_dict.tsv'
+reported_traits_replacement_file = '<local_dir>/reported_traits_dict.tsv'

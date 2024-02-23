@@ -1,4 +1,5 @@
 import pandas as pd
+import csv
 from curation.imports.study import StudyImport
 from curation.imports.scoring_file import ScoringFileUpdate, VariantPositionsQC
 from curation_tracker.models import CurationPublicationAnnotation
@@ -17,7 +18,7 @@ class CurationImport():
 
     failed_studies = {}
 
-    def __init__(self, data_path, studies_list, curation_status_by_default, scoringfiles_format_version, skip_scoringfiles, skip_curationtracker, variant_positions_qc_config):
+    def __init__(self, data_path, studies_list, curation_status_by_default, scoringfiles_format_version, skip_scoringfiles, skip_curationtracker, variant_positions_qc_config, reported_traits_dict_file:str):
         self.curation2schema = pd.read_excel(data_path['template_schema'], sheet_name='Curation', index_col=0)
         self.curation2schema_scoring = pd.read_excel(data_path['scoring_schema'], sheet_name='Columns', index_col=0)
 
@@ -31,6 +32,15 @@ class CurationImport():
 
         self.curation_status_by_default = curation_status_by_default
         self.variant_positions_qc_config = variant_positions_qc_config
+
+        # Reading the reported-traits dictionary file
+        try:
+            with open(reported_traits_dict_file, mode='r') as infile:
+                reader = csv.DictReader(infile, delimiter='\t')
+                self.reported_traits_cleaner = {row['trait_reported']: row['corrected'] for row in reader}
+        except FileNotFoundError:
+            print('ERROR: Could not find \'reported_traits_dict_file\'')
+            self.reported_traits_cleaner = {}
 
         self.step = 1
         self.steps_total = 2
@@ -70,7 +80,7 @@ class CurationImport():
 
             ## Parsing ##
             self.step = 1
-            study_import = StudyImport(study_data, self.studies_path, self.curation2schema, self.curation_status_by_default)
+            study_import = StudyImport(study_data, self.studies_path, self.curation2schema, self.curation_status_by_default, self.reported_traits_cleaner)
             study_import.print_title()
             print(f'==> Step {self.step}/{self.steps_total}: Parsing study data')
             study_import.parse_curation_data()
