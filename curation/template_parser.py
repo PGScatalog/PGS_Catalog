@@ -153,7 +153,6 @@ class CurationTemplate():
                     previous_field = field
             if 'date_publication' not in parsed_publication.data:
                 parsed_publication.add_data('date_publication',date.today())
-            parsed_publication
 
         if new_publication == True:
             parsed_publication.add_curation_notes()
