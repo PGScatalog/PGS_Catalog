@@ -233,13 +233,15 @@ class VariantPositionsQC:
          - Mismatches: {1}'''
         report_func(final_report.format(str(match), str(mismatch)))
 
+        minimum_match_rate = self.variant_positions_qc_config['minimum_match_rate']
+
         # Fail if low match rate
         if match+mismatch == 0:
             report_func('WARNING: No match data!')
         else:
             match_rate: float = float(match) / (match + mismatch)
             report_func(f'Match rate: {match_rate}')
-            if match_rate < 0.9:
+            if match_rate < minimum_match_rate:
                 error_func('Low match rate! The assigned genome build might be incorrect')
                 failed_qc = True
 

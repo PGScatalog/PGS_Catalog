@@ -21,7 +21,8 @@ variant_positions_qc_config = {
     'skip': False,  # Set to True to ignore the variant positions QC step
     'n_requests': 4,  # Maximum number of requests allowed per score to the Ensembl REST API
     'ensembl_max_variation_req_size': 10,  # Maximum number of variants per request to the Ensembl variation REST API
-    'ensembl_max_sequence_req_size': 50  # Maximum number of variants per request to the Ensembl sequence REST API
+    'ensembl_max_sequence_req_size': 50,  # Maximum number of variants per request to the Ensembl sequence REST API
+    'minimum_match_rate': 0.9  # The minimum required match rate for the QC to be satisfactory
 }
 
 # TSV file containing the reported traits to be replaced for homogeneity.

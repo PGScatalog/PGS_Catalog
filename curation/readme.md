@@ -58,7 +58,8 @@ variant_positions_qc_config = {
     'skip': False,
     'n_requests': 4,
     'ensembl_max_variation_req_size': 10,
-    'ensembl_max_sequence_req_size': 50
+    'ensembl_max_sequence_req_size': 50,
+    'minimum_match_rate': 0.9
 }
 
 reported_traits_replacement_file = '/Users/myhome/PGS/reported_traits_dict.tsv'
