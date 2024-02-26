@@ -9,8 +9,12 @@ import re
 from typing import TypedDict
 
 # Ensembl REST server config
-server = "https://rest.ensembl.org"
+servers = {
+   '37': 'https://grch37.rest.ensembl.org',
+   '38': 'https://rest.ensembl.org/'
+}
 ext_seq = "/sequence/region/human"
+ext_var = "/variation/human"
 headers = {"Content-Type": "application/json", "Accept": "application/json"}
 MAX_SEQUENCE_REQUEST_SIZE = 50
 MAX_VARIATION_REQUEST_SIZE = 10  # maximum is 200, although it causes some requests to return no result
@@ -72,14 +76,15 @@ def post_request_with_retry(url, data, retry: int = 0):
 
 
 def get_variation_from_ensembl(rsids: list[str], ref_genome):
-    url = 'https://grch37.rest.ensembl.org/variation/human/' if ref_genome == '37' else 'https://rest.ensembl.org/variation/human/'
+    url = servers[ref_genome] + ext_var
     data = {'ids': rsids}
     return post_request_with_retry(url, data, 4)
 
 
 def get_ref_alleles_from_ensembl(variants: list[Variant], ref_genome):
+    url = servers[ref_genome] + ext_seq
     data = {"regions": ["{}:{}-{}".format(v['chr'], v['pos'], v['pos']) for v in variants]}
-    return post_request_with_retry(server + ext_seq + '?coord_system_version=GRCh' + ref_genome, data)
+    return post_request_with_retry(url, data)
 
 
 def map_variants_to_reference_genome(variants: list[Variant], ref_genome) -> MappingResults:
