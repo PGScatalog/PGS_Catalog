@@ -19,6 +19,8 @@ It is located under curation (`curation/config.py`). There you can configure dif
 * the study input directory: `curation_directories['studies_dir']`
 * the scoring files output directory: `curation_directories['scoring_dir']`
 * the list of study names to import: `study_names_list`
+* the settings of the variant positions quality control: `variant_positions_qc_config`
+* the location of the reported traits cleaning dictionary: `reported_traits_replacement_file`
 
 You might need to change the value of `skip_scorefiles` to **True** if you only want to import the metadata (to test the study data for instance)
 
@@ -92,6 +94,21 @@ study_names_list = [
 ```
 The value **E** corresponds to the curation status "Embargoed".
 
+
+#### Variant positions quality control settings
+This quality control step can be skipped by setting the attribute **skip** to **True**
+
+###### **'n_requests'**: number of requests sent
+The QC uses the Ensembl REST API to validate the variant positions. The requests have a limited size (see other parameters below), therefore multiple requests might be required to get an accurate result. Each request takes a random sample of variants with the specified size from the scoring file (without replacement). A higher number will increase the accuracy of the results but slow down the import.
+
+###### **'ensembl_max_variation_req_size'**: the maximum number of variants sent the Ensembl Variation API
+If the scoring file contains rsIDs, the Ensembl Variation API is used to validate the variant coordinates. In theory, variation requests maximum size is 200, however the API is likely to malfunction with that many variants. A smaller number like **10** is recommended.
+
+###### **'ensembl_max_sequence_req_size'**: the maximum number of variants sent the Ensembl Sequence API
+If the scoring file doesn't contain the rsIDs but only the chromosome and position of the variants, the Ensembl Sequence API is used to validate the variant positions. The test compares each variant effect allele and other allele with the nucleotide found in the reference genome at the variant position. Both alleles are used as there is no certainty about which of the alleles is the reference allele. This means that a scoring file with a wrongly assigned reference genome can get 50% success match rate. It is assumed that the variant alleles use the forward strand as reference.
+
+###### **'minimum_match_rate'**: the threshold used to determine of the assigned reference genome of the scoring file is correct
+A scoring file with a correctly assigned reference genome should get a match rate close to 100%. A scoring file with a wrongly assigned genome build can get 50% match rate. A threshold of 0.9 is recommended.
 
 ### 3 - Update the Django settings
 In order to run the script, you might need to update the global settings of the Django project by adding the **Curation** app (`curation.apps.CurationConfig`) to the list of **INSTALLED_APPS**, in `pgs_web/settings.py`, e.g.:
