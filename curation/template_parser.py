@@ -96,7 +96,7 @@ class CurationTemplate():
         ''' Extract publication information, fetch extra information via EuropePMC REST API and store it into a PublicationData object. '''
         spreadsheet_name = self.spreadsheet_names['Publication']
         pinfo = self.table_publication.iloc[0]
-        c_doi = pinfo['doi']
+        c_doi = pinfo['doi'] if not pd.isnull(pinfo['doi']) else None  # Getting rid of potential NaN
         if type(c_doi) == str:
             c_doi = c_doi.strip()
             if c_doi.startswith('https'):
@@ -153,7 +153,6 @@ class CurationTemplate():
                     previous_field = field
             if 'date_publication' not in parsed_publication.data:
                 parsed_publication.add_data('date_publication',date.today())
-            parsed_publication
 
         if new_publication == True:
             parsed_publication.add_curation_notes()

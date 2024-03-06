@@ -13,14 +13,13 @@ class ScoreData(GenericData):
         'PRScs': 'PRS-CS'
     }
 
-    def __init__(self,score_name,spreadsheet_name):
-        GenericData.__init__(self,spreadsheet_name)
+    def __init__(self, score_name, spreadsheet_name):
+        GenericData.__init__(self, spreadsheet_name)
         self.name = score_name
         self.data = {'name': score_name}
 
-
     @transaction.atomic
-    def create_score_model(self,publication):
+    def create_score_model(self, publication, reported_traits_cleaner: dict):
         '''
         Create an instance of the Score model.
         It also create instance(s) of the EFOTrait model if needed.
@@ -35,7 +34,7 @@ class ScoreData(GenericData):
                     if field == 'trait_efo':
                         efo_traits = []
                         for trait_id in val:
-                            trait_id = trait_id.replace(':','_').strip()
+                            trait_id = trait_id.replace(':', '_').strip()
                             trait = TraitData(trait_id, self.spreadsheet_name)
                             efo = trait.efotrait_model()
                             efo_traits.append(efo)
@@ -43,6 +42,11 @@ class ScoreData(GenericData):
                         if field == 'method_name':
                             if val in self.method_name_replacement.keys():
                                 val = self.method_name_replacement[val]
+                        elif field == 'trait_reported':
+                            if val in reported_traits_cleaner:
+                                new_val = reported_traits_cleaner[val]
+                                print("Replaced reported trait \"{}\" with \"{}\"".format(val, new_val))
+                                val = new_val
                         setattr(self.model, field, val)
                 # Associate a Publication
                 self.model.publication = publication

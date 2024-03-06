@@ -17,7 +17,7 @@ class StudyImport():
         ('sample', 'id', Sample)
     ]
 
-    def __init__(self, study_data, studies_dir, curation_schema, curation_status_by_default):
+    def __init__(self, study_data, studies_dir, curation_schema, curation_status_by_default, reported_traits_cleaner:dict):
         self.study_name = study_data['name']
 
         if not studies_dir.endswith('/'):
@@ -48,6 +48,8 @@ class StudyImport():
         self.import_warnings = []
         self.failed_data_import = []
         self.has_failed = False
+
+        self.reported_traits_cleaner = reported_traits_cleaner
 
 
     def print_title(self):
@@ -144,7 +146,7 @@ class StudyImport():
                 self.existing_scores.append(score.id)
             # Create Score model
             except Score.DoesNotExist:
-                score = score_data.create_score_model(self.study_publication)
+                score = score_data.create_score_model(self.study_publication, self.reported_traits_cleaner)
                 self.import_warnings.append(f'New Score: {score.id} ({score_id})')
             self.study_scores[score_id] = score
 

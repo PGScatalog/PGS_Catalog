@@ -73,16 +73,13 @@ class PublicationData(GenericData):
         - query: the search query
         Return type: JSON
         '''
-        payload = {'format': 'json'}
-        payload['query'] = query
+        payload = {'format': 'json', 'query': query}
         result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
         result = result.json()
-        try:
-            result = result['resultList']['result'][0]
-        except:
-            result = {}
-            print("ERROR: Can't find the paper in EuropePMC!")
-        return result
+        if 'result' in result['resultList']:
+            return result['resultList']['result'][0]
+        else:
+            raise Exception(f'Can\'t find the paper in EuropePMC! (query:{query})')
 
 
     def create_publication_model(self):

@@ -26,6 +26,12 @@ skip_scorefiles = True
 
 skip_curationtracker = True
 
+variant_positions_qc_config = {
+    'skip': True
+}
+
+reported_traits_replacement_file = './curation/tests/test_files/reported_traits_dict.tsv'
+
 # Test values
 data_counts = {
     'publication': len(study_names_list),
@@ -40,7 +46,11 @@ class ImportTest(TestCase):
 
     def run_import(self):
         # Main script
-        curation_import = CurationImport(curation_directories, study_names_list, default_curation_status, scoringfiles_format_version, skip_scorefiles, skip_curationtracker)
+        curation_import = CurationImport(
+            data_path=curation_directories, studies_list=study_names_list, curation_status_by_default=default_curation_status,
+            scoringfiles_format_version=scoringfiles_format_version, skip_scoringfiles=skip_scorefiles,
+            skip_curationtracker=skip_curationtracker, variant_positions_qc_config=variant_positions_qc_config,
+            reported_traits_dict_file=reported_traits_replacement_file)
         curation_import.run_curation_import()
 
 
@@ -111,3 +121,7 @@ class ImportTest(TestCase):
                 for performance in performances:
                     metrics = Metric.objects.filter(performance=performance)
                     self.assertGreater(metrics.count(), 0)
+
+        ## Reported trait cleaning test ##
+        coffee_score = Score.objects.get(name='PGS_test1')
+        self.assertEqual(coffee_score.trait_reported, 'Caffeine consumption')
