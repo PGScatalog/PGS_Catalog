@@ -16,6 +16,7 @@ from pgs_web import constants
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
+from django.contrib import messages
 
 from typing import List
 import re
@@ -493,7 +494,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             path('import-litsuggest/', login_required(self.import_litsuggest, login_url='/admin/login/')),
             path('import-litsuggest/confirm_preview', login_required(self.confirm_litsuggest_preview, login_url='/admin/login/')),
             path('import-litsuggest/confirm_formset', login_required(self.confirm_litsuggest_formset, login_url='/admin/login/')),
-            path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/'))
+            path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/')),
+            path('by_pgp_id/<path:pgp_id>', login_required(self.by_pgp_id, login_url='/admin/login/'))
         ]
         return my_urls + urls
     
@@ -748,6 +750,16 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             del request.session['triage_info']
 
         return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
+
+    @method_decorator(permission_required('curation_tracker.change_curationpublicationannotation', raise_exception=True))
+    def by_pgp_id(self, request, pgp_id):
+        try:
+            annotation = CurationPublicationAnnotation.objects.get(pgp_id=pgp_id)
+            num = annotation.num
+            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation/' + str(num))
+        except CurationPublicationAnnotation.DoesNotExist:
+            messages.error(request, "No annotation associated with '{}'".format(pgp_id))
+            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
             
     display_pgp_id.short_description = 'PGP ID'
     display_study_name.short_description = 'Study Name'
