@@ -1,27 +1,26 @@
-from django.contrib import admin
-from django.utils.html import format_html
-from django import forms
-from django.urls import path
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.db import models, transaction
-from django.utils import timezone
-from django.core.exceptions import ValidationError
-from django.contrib.admin import DateFieldListFilter
-# Register your models here.
-from .models import *
-from catalog.models import Publication
-from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
-from pgs_web import constants
-from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.decorators import method_decorator
-from django.http import JsonResponse
-from django.contrib import messages
-
-from typing import List
-import re
 import datetime as dt
 import sys
+from typing import List
+
+from django import forms
+from django.contrib import admin
+from django.contrib import messages
+from django.contrib.admin import DateFieldListFilter
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.http import HttpResponseRedirect
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.urls import path
+from django.utils.decorators import method_decorator
+from django.utils.html import format_html
+
+from catalog.models import Publication
+from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, \
+    dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
+# Register your models here.
+from .models import *
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
 admin.site.site_title = "PGS Catalog - Curation Tracker"
