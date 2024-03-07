@@ -35,6 +35,13 @@
 # Ignored by the build system
 /setup.cfg
 
+# IDE configs
+.idea
+.vscode
+
+# Virtual env
+/venv/
+
 # Other
 /rest_api/fixtures/
 /static/CACHE/
