@@ -9,6 +9,16 @@ function setError(error){
     }
 }
 
+function goToPGP(){
+    setError('');
+    var pgp_id = $('#id_pgp_id').val();
+    if(pgp_id){
+        window.open('/publication/'+pgp_id)
+    } else {
+        alert('Please provide a PGP ID first')
+    }
+}
+
 function goToPublication(){
     setError('');
     var doi = $('#id_doi').val();
@@ -122,6 +132,12 @@ function requestAuthorData(){
 }
 
 $(document).ready(function(){
+    // Adding 'go to PGS Catalog publication' button after the PGP id field
+    var pgp_id_div = $('div.form-row.field-pgp_id > div')
+    pgp_id_div.addClass('flex-container')
+    pgp_id_div.find(">:first-child").addClass('fieldBox')
+    pgp_id_div.append('<div><a title="Go to the PGS Catalog curation publication page" href="" class="extra-field-button external-link" onClick="goToPGP(); return false;">Go to PGS Catalog publication</a></div>')
+
     // Adding 'go to publication' and 'Autofill' buttons after the DOI and PMID form fields 
     $('div.form-row.field-doi.field-PMID > div.flex-container').append('<div><div><a title="Go to the publication page using DOI or the Pubmed page if only the PMID is provided" href="" class="extra-field-button external-link" onclick="goToPublication(); return false;">Go to publication</a></div><div style="display: flex;"><div><a title="Fetch the publication data from EPMC and fill in the form automatically (DOI or PMID required)" href="" class="extra-field-button" onclick="autofillForm(); return false;">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div></div>');
 
