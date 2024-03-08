@@ -1257,6 +1257,11 @@ td > ul {
   font-size: 14px;
   padding: 3px 8px;
 }
+.btn-pgs-2-small {
+  @extend .btn-pgs-2;
+  font-size:14px !important;
+  padding: 3px 8px;
+}
 
 .btn-pgs-like {
   i {

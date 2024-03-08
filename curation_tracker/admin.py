@@ -1,26 +1,24 @@
-from django.contrib import admin
-from django.utils.html import format_html
-from django import forms
-from django.urls import path
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.db import models, transaction
-from django.utils import timezone
-from django.core.exceptions import ValidationError
-from django.contrib.admin import DateFieldListFilter
-# Register your models here.
-from .models import *
-from catalog.models import Publication
-from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
-from pgs_web import constants
-from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.decorators import method_decorator
-from django.http import JsonResponse
-
-from typing import List
-import re
 import datetime as dt
 import sys
+from typing import List
+
+from django import forms
+from django.contrib import admin, messages
+from django.contrib.admin import DateFieldListFilter
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render
+from django.urls import path
+from django.utils.decorators import method_decorator
+from django.utils.html import format_html
+
+from catalog.models import Publication
+from curation_tracker.litsuggest import litsuggest_fileupload_to_annotation_imports, annotation_to_dict, \
+    dict_to_annotation_import, annotation_import_to_dict, CurationPublicationAnnotationImport
+# Register your models here.
+from .models import *
 
 admin.site.site_header = "PGS Catalog - Curation Tracker"
 admin.site.site_title = "PGS Catalog - Curation Tracker"
@@ -493,7 +491,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             path('import-litsuggest/', login_required(self.import_litsuggest, login_url='/admin/login/')),
             path('import-litsuggest/confirm_preview', login_required(self.confirm_litsuggest_preview, login_url='/admin/login/')),
             path('import-litsuggest/confirm_formset', login_required(self.confirm_litsuggest_formset, login_url='/admin/login/')),
-            path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/'))
+            path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/')),
+            path('by_pgp_id/<path:pgp_id>', login_required(self.by_pgp_id, login_url='/admin/login/'))
         ]
         return my_urls + urls
     
@@ -748,6 +747,16 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             del request.session['triage_info']
 
         return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
+
+    @method_decorator(permission_required('curation_tracker.change_curationpublicationannotation', raise_exception=True))
+    def by_pgp_id(self, request, pgp_id):
+        try:
+            annotation = CurationPublicationAnnotation.objects.get(pgp_id=pgp_id)
+            num = annotation.num
+            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation/' + str(num))
+        except CurationPublicationAnnotation.DoesNotExist:
+            messages.error(request, "No annotation associated with '{}'".format(pgp_id))
+            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
             
     display_pgp_id.short_description = 'PGP ID'
     display_study_name.short_description = 'Study Name'

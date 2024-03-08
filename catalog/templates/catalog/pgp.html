@@ -21,6 +21,9 @@
           Publication:
         {% endif %}
         <span class="pgs_title">{{ publication.id }}</span></h2>
+        {% if is_pgs_curation_site %}
+            <a class="btn-pgs-2-small" href="/admin/curation_tracker/curationpublicationannotation/by_pgp_id/{{ publication.id }}"><span class="fas fa-user-pen pgs_color_2 pr-1"></span>Open in Curation Tracker</a>
+        {% endif %}
       <table class="table table-bordered table_pgs_h mt-4">
         <tbody>
           <tr>
