@@ -1,6 +1,6 @@
 ## About the reference genome QC script
 
-This scripts verifies if the variant positions of a scoring file match the given reference genome.
+This script verifies if the variant positions of a scoring file match the given reference genome.
 
 ### How it works
 
