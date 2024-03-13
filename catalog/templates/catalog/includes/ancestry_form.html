@@ -10,7 +10,8 @@
           <div class="filter_subheader mb-1">Individuals included in:</div>
           {% if is_browse_score %}
             <select id="browse_ancestry_type_list" name="browse_ancestry_type_list">
-              <option value="all" {% if form_data.browse_ancestry_type_list == 'all' %}selected{% endif %}>All Stages combined [G, D, E]</option>
+              <option value="any" {% if form_data.browse_ancestry_type_list == 'any' %}selected{% endif %}>Any Stage [G, D, E]</option>
+              <option value="all" {% if form_data.browse_ancestry_type_list == 'all' %}selected{% endif %}>All Stages combined [G + D + E]</option>
               <option value="dev_all" {% if form_data.browse_ancestry_type_list == 'dev_all' %}selected{% endif %}>Development [G, D]</option>
               <option value="gwas" {% if form_data.browse_ancestry_type_list == 'gwas' %}selected{% endif %}>&nbsp;&nbsp;- GWAS [G]</option>
               <option value="dev" {% if form_data.browse_ancestry_type_list == 'dev' %}selected{% endif %}>&nbsp;&nbsp;- Score development [D]</option>
@@ -18,7 +19,8 @@
             </select>
           {% else %}
             <select id="ancestry_type_list">
-              <option value="all" selected>All Stages combined [G, D, E]</option>
+              <option value="any" selected>Any Stage [G, D, E]</option>
+              <option value="all">All Stages combined [G + D + E]</option>
               <option value="dev_all">Development [G, D]</option>
               <option value="gwas">&nbsp;&nbsp;- GWAS [G]</option>
               <option value="dev">&nbsp;&nbsp;- Score development [D]</option>
@@ -45,7 +47,7 @@
           <div id="{% if is_browse_score %}browse_{% endif %}ancestry_filter_list">
             <div class="custom-control custom-switch">
               <input type="checkbox" class="custom-control-input {% if is_browse_score %}browse_{% endif %}ancestry_filter_cb" value="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR" data-default="true" id="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR" name="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR" {% if form_data.browse_anc_cb_EUR or not form_data.browse_ancestry_type_list %}checked{% endif %}>
-              <label class="custom-control-label" for="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR">Show European ancestry data</label><span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="" data-original-title="This button can be used to hide PGS with any European ancestry data to only show scores with data from other non-European ancestry group. The button is selected by default, displaying all PGS."><i class="fas fa-info-circle"></i></span>
+              <label class="custom-control-label" for="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR">Show European ancestry data</label><span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="" data-original-title="This button can be used to hide PGS with any European ancestry data in the selected study stage(s) to only show scores with data from other non-European ancestry group. The button is selected by default, displaying all PGS."><i class="fas fa-info-circle"></i></span>
             </div>
             <div class="custom-control custom-switch">
               <input type="checkbox" class="custom-control-input {% if is_browse_score %}browse_{% endif %}ancestry_filter_cb" value="MAO" data-default="false" id="{% if is_browse_score %}browse_{% endif %}anc_cb_multi" name="{% if is_browse_score %}browse_{% endif %}anc_cb_multi" {% if form_data.browse_anc_cb_multi %}checked{% endif %}>

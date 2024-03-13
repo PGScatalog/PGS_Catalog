@@ -195,6 +195,9 @@ def browse_scores(request):
     eval_step = 'eval'
     study_steps = [gwas_step,dev_step,eval_step]
     dev_all_steps = [gwas_step,dev_step]
+    # Filters
+    g_d_e = []
+    g_e = []
     # Ancestry Type
     anc_step = form_data['browse_ancestry_type_list']
     anc_value = form_data['browse_ancestry_filter_ind']
@@ -203,30 +206,44 @@ def browse_scores(request):
     browse_search = form_data['browse_search']
 
     # Study step (gwas,development,evaluation) and ancestry dropdown selection
-    # [G,D,E]
-    if not anc_step or anc_step == 'all':
+    # [G | D | E]
+    if not anc_step or anc_step == 'any':
         if anc_value:
             filters = {}
             for step in study_steps:
                 filters[step] = f'ancestries__{step}__dist__{anc_value}__isnull'
             queryset = queryset.filter(Q(**{filters[gwas_step]:False}) | Q(**{filters[dev_step]:False}) | Q(**{filters[eval_step]:False}))
     elif anc_step:
+        # [G + D + E] - Build "All" filter
+        if anc_step == 'all':
+            for step in study_steps:
+                g_d_e.append(Q(ancestries__has_key=step))
+                if step == 'dev':
+                    g_e.append(~Q(ancestries__has_key=step))
+                else:
+                    g_e.append(Q(ancestries__has_key=step))
+
+                if anc_value:
+                    g_d_e.append(Q(**{f'ancestries__{step}__dist__{anc_value}__isnull':False}))
+                    if step != 'dev':
+                        g_e.append(Q(**{f'ancestries__{step}__dist__{anc_value}__isnull':False}))
         # G | D | E
-        if anc_step in study_steps:
-            has_anc_step = Q(ancestries__has_key=anc_step)
+        elif anc_step in study_steps:
+            query_list = []
+            query_list.append(Q(ancestries__has_key=anc_step))
             if anc_value:
-                queryset = queryset.filter(has_anc_step & Q(**{f'ancestries__{anc_step}__dist__{anc_value}__isnull':False}))
-            else:
-                queryset = queryset.filter(has_anc_step)
+                query_list.append(Q(**{f'ancestries__{anc_step}__dist__{anc_value}__isnull':False}))
+            queryset = queryset.filter(reduce(operator.and_,query_list))
         # [G,D]
         elif anc_step == 'dev_all':
             has_step = {}
             for step in dev_all_steps:
                 has_step[step] = Q(ancestries__has_key=step)
+            for step in dev_all_steps:
                 if anc_value:
                     filters = {}
-                    for step in dev_all_steps:
-                        filters[step] = f'ancestries__{step}__dist__{anc_value}__isnull'
+                    for step2 in dev_all_steps:
+                        filters[step2] = f'ancestries__{step2}__dist__{anc_value}__isnull'
                     queryset = queryset.filter((has_step[gwas_step] & Q(**{filters[gwas_step]:False})) |
                                                (has_step[dev_step] & Q(**{filters[dev_step]:False})))
                 else:
@@ -243,9 +260,17 @@ def browse_scores(request):
                 if not step in eur_filters.keys():
                     eur_filters[step] = {}
                 eur_filters[step][anc_label] = Q(**{f'ancestries__{step}__dist__{anc_label}__isnull':True})
-        # [G,D,E]
-        if not anc_step or anc_step == 'all':
+
+        # [G | D | E]
+        if not anc_step or anc_step == 'any':
             eur_filters_steps = study_steps
+        # [G + D + E] - Build "All" filter
+        elif anc_step == 'all':
+            for step in study_steps:
+                for anc_label in eur_anc_labels:
+                    g_d_e.append(eur_filters[step][anc_label])
+                    if step != 'dev':
+                        g_e.append(eur_filters[step][anc_label])
         elif anc_step:
             # G | D | E
             if anc_step in study_steps:
@@ -253,6 +278,7 @@ def browse_scores(request):
             # [G,D]
             elif anc_step == 'dev_all':
                 eur_filters_steps = dev_all_steps
+
         # Build European filter
         if eur_filters_steps:
             for eur_step in eur_filters_steps:
@@ -267,9 +293,16 @@ def browse_scores(request):
         multi_query_list = []
         for step in study_steps:
             multi_filters[step] = Q(**{f'ancestries__{step}__has_any_keys':['multi','dist_count']})
-        # [G,D,E]
-        if not anc_step or anc_step == 'all':
-            multi_query_list = [multi_filters[gwas_step],multi_filters[dev_step],multi_filters[eval_step]]
+        # [G | D | E]
+        if not anc_step or anc_step == 'any':
+            for step in study_steps:
+                multi_query_list.append(multi_filters[step])
+        # [G + D + E] - Build "All" filter
+        elif anc_step == 'all':
+            for step in study_steps:
+                g_d_e.append(multi_filters[step])
+                if step != 'dev':
+                    g_e.append(multi_filters[step])
         elif anc_step:
             # G | D | E
             if anc_step in study_steps:
@@ -277,12 +310,19 @@ def browse_scores(request):
             # [G,D]
             elif anc_step == 'dev_all':
                 multi_query_list = [multi_filters[gwas_step],multi_filters[dev_step]]
+
         # Update query filter
-        if multi_query_list:
+        if multi_query_list and anc_step != 'all':
             if len(multi_query_list) > 1:
                 queryset = queryset.filter(reduce(operator.or_,multi_query_list))
             else:
                 queryset = queryset.filter(multi_query_list[0])
+
+    # Finalise the "All" filter
+    if anc_step == 'all':
+        g_d_e_filter = reduce(operator.and_,g_d_e)
+        g_e_filter = reduce(operator.and_,g_e)
+        queryset = queryset.filter(g_d_e_filter | g_e_filter)
 
     # Filter term from the table search box
     if browse_search:
@@ -337,15 +377,68 @@ def browse_traits(request):
 
 
 def browse_publications(request):
+    context = {}
+
+    # Ancestry form
+    input_names = {
+        'browse_search': 'in'
+    }
+    # Init form data
+    form_data = {}
+    for input_name in input_names.keys():
+        form_data[input_name] = None
+
+    if request.method == "POST":
+        for input_name in input_names.keys():
+            type = input_names[input_name]
+            val = request.POST.get(input_name)
+            if type in ['sel','in']:
+                if val:
+                    form_data[input_name] = val
+            elif type == 'cb':
+                if val:
+                    form_data[input_name] = True
+                else:
+                    form_data[input_name] = False
+
     publication_defer = ['authors','curation_status','curation_notes','date_released']
     publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
-    publications = Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related)
-    table = Browse_PublicationTable(publications, order_by="num")
+    queryset = Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related)
+
+    browse_search = form_data['browse_search']
+
+    ## Filter by search ##
+    if browse_search:
+        queryset = queryset.filter(
+            Q(id__icontains=browse_search) | Q(title__icontains=browse_search) |
+            Q(firstauthor__icontains=browse_search) | Q(PMID__icontains=browse_search) |
+            Q(journal__icontains=browse_search) | Q(doi__icontains=browse_search)
+        )
+
+    ## Sorting ##
+    order_by = 'num'
+    sort_param = request.GET.get('sort')
+    if sort_param:
+        order_by = sort_param
+    queryset = queryset.order_by(order_by)
+
+    # Data table
+    table = Browse_PublicationTable(queryset)
+
+    # Pagination
+    rows_per_page = 50
+    table.paginate(page=request.GET.get("page", 1), per_page=rows_per_page)
+
+    page_rows_number = len(table.page)
+    page_number = table.page.number
+    table.row_start = rows_per_page * (page_number - 1) + 1
+    table.row_end = table.row_start - 1 + page_rows_number;
+
     context = {
         'view_name': 'Publications',
         'has_ebi_icons': 1,
-        'table': table,
-        'has_table': 1
+        'form_data': form_data,
+        'table': table
     }
     return render(request, 'catalog/browse/publications.html', context)
 

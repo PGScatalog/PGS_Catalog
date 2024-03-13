@@ -59,7 +59,7 @@ def ancestries_format(value, record, include_filter=False):
     data_stage = {}
     data_title = {}
     anc_list = {}
-    anc_all_list = { 'dev_all': set(), 'all': set() }
+    anc_all_list = { 'dev_all': set(), 'any': set() }
     multi_anc = 'multi'
 
     # Fetch and store the data for each stage
@@ -84,7 +84,7 @@ def ancestries_format(value, record, include_filter=False):
                     # Add to the unique list of ancestries
                     anc_list[stage].add(anc)
                     # Add to the unique list of ALL ancestries
-                    anc_all_list['all'].add(anc)
+                    anc_all_list['any'].add(anc)
                     # Add to the unique list of DEV ancestries
                     if stage != 'eval':
                         anc_all_list['dev_all'].add(anc)
@@ -102,7 +102,7 @@ def ancestries_format(value, record, include_filter=False):
                 # Add to the unique list of ancestries
                 anc_list[stage].add(key)
                 # Add to the unique list of ALL ancestries
-                anc_all_list['all'].add(key)
+                anc_all_list['any'].add(key)
                 # Add to the unique list of DEV ancestries
                 if stage != 'eval':
                     anc_all_list['dev_all'].add(key)
@@ -285,10 +285,8 @@ class Browse_PublicationTable(tables.Table):
     class Meta:
         model = Publication
         attrs = {
-            "data-show-columns" : "true",
-            "data-sort-name" : "id",
-            "data-page-size" : page_size,
-            "data-export-options" : '{"fileName": "pgs_publications_data"}'
+            "id": "publications_table",
+            "data-sort-name" : "id"
         }
         fields  = [
             'id',
@@ -301,7 +299,7 @@ class Browse_PublicationTable(tables.Table):
             'doi',
             'PMID'
         ]
-        template_name = 'catalog/pgs_catalog_django_table.html'
+        template_name = 'catalog/pgs_catalog_django_tables2_browse.html'
 
     def render_id(self, value):
         return format_html('<a href="'+publication_path+'/{}">{}</a>', value, value)

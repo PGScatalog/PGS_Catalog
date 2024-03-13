@@ -429,28 +429,29 @@ $(document).ready(function() {
       $(sample_table_id).bootstrapTable('filterBy', {});
 
       var stage = $("#ancestry_type_list option:selected").val();
-      var anc_eur_cb = 'anc_cb_EUR';
+      var anc_eur_cb_id = 'anc_cb_EUR';
+      var $anc_eur_cb = $('#'+anc_eur_cb_id);
 
       // Single ancestry selection + show/hide European checkbox filter
       var ind_anc = $("#ancestry_filter_ind option:selected").val();
       if (ind_anc != '') {
         // Hide European checkbox if European selected in the dropdown
         if (ind_anc == anc_eur) {
-          var default_val = $('#'+anc_eur_cb).data('default');
-          $('#'+anc_eur_cb).prop('checked', default_val);
-          $('#'+anc_eur_cb).parent().hide();
+          var default_val = $anc_eur_cb.data('default');
+          $anc_eur_cb.prop('checked', default_val);
+          $anc_eur_cb.parent().hide();
         }
         anc_filter.push(ind_anc);
       }
       // Show European checkbox if European is not selected in the dropdown
       if (ind_anc != anc_eur) {
-        $('#'+anc_eur_cb).parent().show();
+        $anc_eur_cb.parent().show();
       }
 
       // Fetch checkboxes selection
       $(".ancestry_filter_cb").each(function () {
         // Add filter when "European" checkbox is NOT checked
-        if ($(this).attr('id') == anc_eur_cb) {
+        if ($(this).attr('id') == anc_eur_cb_id) {
           if (!$(this).prop('checked')) {
             anc_filter.push('non-'+anc_eur);
           }
@@ -464,8 +465,11 @@ $(document).ready(function() {
 
 
       /** Filter the PGS Scores table **/
+      if (anc_filter_length != 0 || stage || trait_filter != '') {
 
-      if ((anc_filter_length != 0 && stage) || trait_filter != '') {
+        if (stage) {
+          anc_filter_length += 1;
+        }
 
         if (trait_filter != '') {
           anc_filter_length += 1;
@@ -485,23 +489,49 @@ $(document).ready(function() {
           }
 
           pgs_ids_list_link[scores_table_id] = [];
-
           var data = $(scores_table_id).bootstrapTable('getData');
+          // Filter each row
           $.each(data,function(i, row) {
             var pass_filter = 0;
             // Ancestry
-            if (anc_filter.length != 0 && stage) {
+            if (anc_filter.length != 0 || stage) {
               var ancestry_html = $(row[ancestry_col]);
-              var anc_list = ancestry_html.attr('data-anc-'+stage);
-              if (!anc_list) {
-                return;
+              var stages_list = [stage];
+              if (stage == 'all') {
+                stages_list = ['gwas','dev','eval'];
               }
-              anc_list = JSON.parse(anc_list);
+              var pass_anc_stage = 0;
+              var pass_anc_filter = 0;
+              for (var i=0; i<stages_list.length; i++) {
+                var data_stage = stages_list[i];
+                var anc_list = ancestry_html.attr('data-anc-'+data_stage);
+                // Has stage
+                if (anc_list) {
+                  pass_anc_stage += 1;
+                  anc_list = JSON.parse(anc_list);
 
-              for (var f in anc_filter) {
-                if (anc_list.includes(anc_filter[f])) {
-                  pass_filter += 1;
+                  // Check additional filters
+                  if (anc_filter.length != 0) {
+                    for (var f in anc_filter) {
+                      if (anc_list.includes(anc_filter[f])) {
+                        pass_anc_filter += 1;
+                      }
+                    }
+                  }
                 }
+                // For "all" filters, allow missing value for the "dev" stage (but having data at thw gwas and eval stages)
+                else if (stage == 'all' && data_stage == 'dev' && ancestry_html.attr('data-anc-gwas') && ancestry_html.attr('data-anc-eval')) {
+                  pass_anc_stage += 1;
+                  for (var f in anc_filter) {
+                    pass_anc_filter += 1;
+                  }
+                }
+              }
+              if (pass_anc_filter == stages_list.length){
+                pass_filter += 1;
+              }
+              if (pass_anc_stage == stages_list.length){
+                pass_filter += 1;
               }
             }
 

@@ -26,7 +26,20 @@
     <div class="table-container">
       <section>
         <h2 class="pgs_facet_icon pgs_facet_3_icon icon icon-common">{{ view_name }}</h2>
-        {% render_table table %}
+
+        <form action="/browse/studies/" method="post" id="browse_form" name="browse_form">{% csrf_token %}
+          <div class="fixed-table-toolbar pgs_search_toolbar">
+            <div>
+              <input class="form-control search-input" type="search" aria-label="Search" placeholder="Search" autocomplete="off" name="browse_search" id="browse_search" {% if form_data.browse_search %}value="{{ form_data.browse_search }}"{% endif %}/>
+            </div>
+            <div>
+              <button type="button" class="btn btn-pgs pgs_no_icon_link" id="browse_search_btn" value="Submit">
+                <span class="fas fa-search"></span>
+              </button>
+            </div>
+          </div>
+          {% render_table table %}
+        </form>
       </section>
     </div>
 {% endblock %}
