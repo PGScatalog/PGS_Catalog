@@ -64,7 +64,9 @@ variant_positions_qc_config = {
     'minimum_match_rate': 0.9
 }
 
-reported_traits_replacement_file = '/Users/myhome/PGS/reported_traits_dict.tsv'
+reported_traits_cleaning_config = {
+    'replacement_file': '<local_dir>/reported_traits_dict.tsv'
+}
 ```
 
 #### Additional attributes for the study_names_list
