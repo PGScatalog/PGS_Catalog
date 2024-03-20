@@ -1,6 +1,7 @@
 # import gzip
 # import pandas as pd
 # import numpy as np
+from curation.imports.reported_trait_cleaner import ReportedTraitCleaner
 from curation.template_parser import *
 from catalog.models import *
 
@@ -17,7 +18,7 @@ class StudyImport():
         ('sample', 'id', Sample)
     ]
 
-    def __init__(self, study_data, studies_dir, curation_schema, curation_status_by_default, reported_traits_cleaner:dict):
+    def __init__(self, study_data, studies_dir, curation_schema, curation_status_by_default, reported_traits_cleaner: ReportedTraitCleaner):
         self.study_name = study_data['name']
 
         if not studies_dir.endswith('/'):
