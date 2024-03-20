@@ -26,5 +26,7 @@ variant_positions_qc_config = {
 }
 
 # TSV file containing the reported traits to be replaced for homogeneity.
-# Required columns: "trait_reported", "corrected".
-reported_traits_replacement_file = '<local_dir>/reported_traits_dict.tsv'
+# Required columns: "trait_reported", "corrected", optional: "date_added".
+reported_traits_cleaning_config = {
+    'replacement_file': '/home/florent/PGS_Catalog/Fix_reported_traits/reported_traits_dict.tsv'
+}
