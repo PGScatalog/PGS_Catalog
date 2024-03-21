@@ -1,4 +1,6 @@
 from django.db import IntegrityError, transaction
+
+from curation.imports.reported_trait_cleaner import ReportedTraitCleaner
 from curation.parsers.generic import GenericData
 from curation.parsers.trait import TraitData
 from catalog.models import Score
@@ -19,7 +21,7 @@ class ScoreData(GenericData):
         self.data = {'name': score_name}
 
     @transaction.atomic
-    def create_score_model(self, publication, reported_traits_cleaner: dict):
+    def create_score_model(self, publication, reported_traits_cleaner: ReportedTraitCleaner):
         '''
         Create an instance of the Score model.
         It also create instance(s) of the EFOTrait model if needed.
@@ -43,10 +45,10 @@ class ScoreData(GenericData):
                             if val in self.method_name_replacement.keys():
                                 val = self.method_name_replacement[val]
                         elif field == 'trait_reported':
-                            if val in reported_traits_cleaner:
-                                new_val = reported_traits_cleaner[val]
-                                print("Replaced reported trait \"{}\" with \"{}\"".format(val, new_val))
-                                val = new_val
+                            cleaned_val = reported_traits_cleaner.clean_trait(val)
+                            if cleaned_val != val:
+                                print("Replaced reported trait \"{}\" with \"{}\"".format(val, cleaned_val))
+                                val = cleaned_val
                         setattr(self.model, field, val)
                 # Associate a Publication
                 self.model.publication = publication
