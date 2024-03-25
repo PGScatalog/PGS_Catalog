@@ -4,12 +4,14 @@ bg_colours = {
   'score': '#007C82',
   'publication': '#BE4A81',
   'performance': 'DodgerBlue',
+  'trait': '#c03b23',
   'new_entry': '#FFC200'
 };
 bg_hover_colours = {
   'score': '#00adb5',
   'publication': '#e83e8c',
   'performance': '#51a9ff',
+  'trait': '#f67d51',
   'new_entry': '#FFD700'
 };
 

@@ -130,6 +130,7 @@
         draw_js_barchart(data_chart, 'release_score', 'score');
         draw_js_barchart(data_chart, 'release_publication', 'publication');
         draw_js_barchart(data_chart, 'release_perf', 'performance');
+        draw_js_barchart(data_chart, 'release_trait', 'trait');
         draw_js_barchart_with_label(pub_year_chart.all, 'pub_per_year_all', 'Publications per year (All)', 'publication');
         if (pub_year_chart.nr) {
           draw_js_barchart_with_label(pub_year_chart.r, 'pub_per_year_r', 'Publications per year (Released)', 'publication');
@@ -148,7 +149,7 @@
       </div>
     </div>
 
-    <h3 style="font-weight:200"><i class="fa-solid fa-chart-column pgs_color_1 pr-3"></i>Scores, Publications and Performance Metrics per release</h3>
+    <h3 style="font-weight:200"><i class="fa-solid fa-chart-column pgs_color_1 pr-3"></i>Scores, Publications, Performance Metrics and Traits per release</h3>
     <div class="clearfix mb-2">
       <div class="mb-4 mr-4" style="float:left;width:425px;height:300px">
         <canvas id="release_score" width="425" height="300"></canvas>
@@ -158,6 +159,9 @@
       </div>
       <div class="mb-4" style="float:left;width:425px;height:300px">
         <canvas id="release_perf" width="425" height="300"></canvas>
+      </div>
+      <div class="mb-4" style="float:left;width:425px;height:300px">
+        <canvas id="release_trait" width="425" height="300"></canvas>
       </div>
     </div>
 
