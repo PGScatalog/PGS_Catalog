@@ -1138,6 +1138,7 @@ class Release(models.Model):
     score_count = models.IntegerField('Number of new PGS scores released', default=0)
     performance_count = models.IntegerField('Number of new PGS Performance metrics released', default=0)
     publication_count = models.IntegerField('Number of new PGS Publication released', default=0)
+    efotrait_count = models.IntegerField('Number of new EFO traits released', default=0)
     notes = models.TextField(verbose_name='Release notes', max_length=600, blank=True)
     updated_score_count = models.IntegerField('Number of PGS scores updated', default=0)
     updated_performance_count = models.IntegerField('Number of PGS Performance metrics updated', default=0)
