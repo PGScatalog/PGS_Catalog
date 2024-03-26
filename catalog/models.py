@@ -1161,3 +1161,9 @@ class Release(models.Model):
     def released_performance_ids(self):
         performances = Performance.objects.values_list('id', flat=True).filter(date_released__exact=self.date).order_by('id')
         return list(performances)
+
+    @property
+    def released_new_trait_ids(self):
+        previous_traits = Score.objects.values_list('trait_efo__id', flat=True).filter(date_released__lt=self.date).distinct()
+        new_traits = Score.objects.values_list('trait_efo__id', flat=True).filter(date_released__exact=self.date).distinct()
+        return list(new_traits.difference(previous_traits))
