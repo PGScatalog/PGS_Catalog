@@ -1,4 +1,4 @@
-var rest_url = 'https://www.pgscatalog.org/rest/release/'
+var rest_url = '/rest/release/'
 
 bg_colours = {
   'score': '#007C82',
