@@ -33,7 +33,7 @@
                   {% if latest_release.score_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ latest_release.score_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_score_{{ latest_release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Score IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_score_{{ latest_release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_score_{{ latest_release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -42,7 +42,7 @@
                   {% if latest_release.publication_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ latest_release.publication_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_pub_{{ latest_release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Publication IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_pub_{{ latest_release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_pub_{{ latest_release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -58,7 +58,7 @@
                   {% if latest_release.efotrait_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ latest_release.efotrait_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_trait_{{ latest_release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of Trait IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_trait_{{ latest_release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_trait_{{ latest_release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -99,7 +99,7 @@
                   {% if release.score_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ release.score_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_score_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Score IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_score_{{ release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_score_{{ release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -108,7 +108,7 @@
                   {% if release.publication_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ release.publication_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_pub_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Publication IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_pub_{{ release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_pub_{{ release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -124,7 +124,7 @@
                   {% if latest_release.efotrait_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ release.efotrait_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_trait_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of Trait IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_trait_{{ release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_trait_{{ release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
