@@ -1,0 +1,63 @@
+{% load static %}
+<div class="mb-3 pgs_form_container">
+  <!-- Ancestry form -->
+  <div id="ancestry_filter" class="filter_container">
+    <div class="filter_header">Filter PGS by Participant Ancestry <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_filter" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Click on this icon to see information about the Ancestry Filters (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
+
+      <div class="filter_form">
+        <!-- Type of study -->
+        <div class="filter_study">
+          <div class="filter_subheader mb-1">Individuals included in:</div>
+          {% if is_browse_score %}
+            <select id="browse_ancestry_type_list" name="browse_ancestry_type_list">
+              <option value="any" {% if form_data.browse_ancestry_type_list == 'any' %}selected{% endif %}>Any Stage [G, D, E]</option>
+              <option value="all" {% if form_data.browse_ancestry_type_list == 'all' %}selected{% endif %}>All Stages combined [G + D + E]</option>
+              <option value="dev_all" {% if form_data.browse_ancestry_type_list == 'dev_all' %}selected{% endif %}>Development [G, D]</option>
+              <option value="gwas" {% if form_data.browse_ancestry_type_list == 'gwas' %}selected{% endif %}>&nbsp;&nbsp;- GWAS [G]</option>
+              <option value="dev" {% if form_data.browse_ancestry_type_list == 'dev' %}selected{% endif %}>&nbsp;&nbsp;- Score development [D]</option>
+              <option value="eval" {% if form_data.browse_ancestry_type_list == 'eval' %}selected{% endif %}>PGS Evaluation [E]</option>
+            </select>
+          {% else %}
+            <select id="ancestry_type_list">
+              <option value="any" selected>Any Stage [G, D, E]</option>
+              <option value="all">All Stages combined [G + D + E]</option>
+              <option value="dev_all">Development [G, D]</option>
+              <option value="gwas">&nbsp;&nbsp;- GWAS [G]</option>
+              <option value="dev">&nbsp;&nbsp;- Score development [D]</option>
+              <option value="eval">PGS Evaluation [E]</option>
+            </select>
+          {% endif %}
+          <div class="ancestry_legend pl-1 mt-2">
+            <div><b>G</b> - Source of Variant Associations (<b>G</b>WAS)</div>
+            <div><b>D</b> - Score <b>D</b>evelopment/Training</div>
+            <div><b>E</b> - PGS <b>E</b>valuation</div>
+          </div>
+        </div>
+        <!-- Type of ancestry -->
+        <div class="filter_ancestry">
+          <div id="single_ancestry" class="filter_subheader mb-1">List of ancestries includes:</div>
+          <div>
+            <select id="{% if is_browse_score %}browse_{% endif %}ancestry_filter_ind" name="{% if is_browse_score %}browse_{% endif %}ancestry_filter_ind">
+              {% if ancestry_filter %}
+                {{ ancestry_filter|safe }}
+              {% endif %}
+            </select>
+          </div>
+          <div class="filter_subheader mt-2">Display options:</div>
+          <div id="{% if is_browse_score %}browse_{% endif %}ancestry_filter_list">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input {% if is_browse_score %}browse_{% endif %}ancestry_filter_cb" value="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR" data-default="true" id="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR" name="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR" {% if form_data.browse_anc_cb_EUR or not form_data.browse_ancestry_type_list %}checked{% endif %}>
+              <label class="custom-control-label" for="{% if is_browse_score %}browse_{% endif %}anc_cb_EUR">Show European ancestry data</label><span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="" data-original-title="This button can be used to hide PGS with any European ancestry data in the selected study stage(s) to only show scores with data from other non-European ancestry group. The button is selected by default, displaying all PGS."><i class="fas fa-info-circle"></i></span>
+            </div>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input {% if is_browse_score %}browse_{% endif %}ancestry_filter_cb" value="MAO" data-default="false" id="{% if is_browse_score %}browse_{% endif %}anc_cb_multi" name="{% if is_browse_score %}browse_{% endif %}anc_cb_multi" {% if form_data.browse_anc_cb_multi %}checked{% endif %}>
+              <label class="custom-control-label" for="{% if is_browse_score %}browse_{% endif %}anc_cb_multi">Show <u>only</u> Multi-ancestry data</label><span class="info-icon-small" data-toggle="tooltip" data-placement="right" title="" data-original-title="Shows only PGS that include data from multiple ancestry groups at the selected study stage, hiding PGS with data from a single ancestry group."><i class="fas fa-info-circle"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  {% if ancestry_legend %}
+    {{ ancestry_legend|safe }}
+  {% endif %}
+</div>

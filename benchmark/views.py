@@ -7,7 +7,7 @@ from django.db.models import Prefetch
 from .models import *
 from .tables import *
 from catalog.models import Score, EFOTrait
-from catalog.views import ancestry_legend
+from catalog.views import ancestry_filter
 
 bm_db = 'benchmark'
 
@@ -195,7 +195,7 @@ def benchmark(request):
         'pgs_data': pgs_data,
         'table_scores': table_scores,
         'cohorts': cohort_data,
-        'ancestry_legend': ancestry_legend(),
+        'ancestry_filter': ancestry_filter(),
         'has_table': 1,
         'has_chart': 1,
         'is_benchmark': 1

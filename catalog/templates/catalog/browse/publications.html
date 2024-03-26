@@ -1,0 +1,45 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Browse {{ view_name }}{% endblock %}
+
+{% block desc %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebPage",
+      "name": "Browse {{ view_name }}",
+      "description": "List all the {{ view_name }} of the catalog.",
+      "keywords": ["{{ view_name }}","catalog","catalogue","data"]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Browse</li>
+        <li class="breadcrumb-item">{{ view_name }}</li>
+      </ol>
+    </nav>
+    <div class="table-container">
+      <section>
+        <h2 class="pgs_facet_icon pgs_facet_3_icon icon icon-common">{{ view_name }}</h2>
+
+        <form action="/browse/studies/" method="post" id="browse_form" name="browse_form">{% csrf_token %}
+          <div class="fixed-table-toolbar pgs_search_toolbar">
+            <div>
+              <input class="form-control search-input" type="search" aria-label="Search" placeholder="Search" autocomplete="off" name="browse_search" id="browse_search" {% if form_data.browse_search %}value="{{ form_data.browse_search }}"{% endif %}/>
+            </div>
+            <div>
+              <button type="button" class="btn btn-pgs pgs_no_icon_link" id="browse_search_btn" value="Submit">
+                <span class="fas fa-search"></span>
+              </button>
+            </div>
+          </div>
+          {% render_table table %}
+        </form>
+      </section>
+    </div>
+{% endblock %}

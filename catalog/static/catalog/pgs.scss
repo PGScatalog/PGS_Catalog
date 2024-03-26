@@ -31,6 +31,9 @@ $pgs_colour_red: #E00;
 $pgs_colour_amber: #FFA500;
 $pgs_colour_green: #008000;
 
+$bootstrap-table_border_colour: #dee2e6;
+$bootstrap-table_colour: #495057;
+
 $header_height_with_margin: 75px;
 $header_height_with_margin_mobile: $header_height_with_margin + 60px;
 $footer_height: 97px;
@@ -102,6 +105,7 @@ a {
     color: $pgs_colour_1;
     text-decoration: none;
     border-bottom: 1px dotted $pgs_colour_2;
+    cursor: pointer !important;
   }
 }
 
@@ -611,11 +615,14 @@ h2 {
   }
 }
 
-th .th-inner {
-  padding: 10px 24px 10px 12px !important;
+th {
   span {
     font-weight: normal !important;
   }
+}
+
+th .th-inner {
+  padding: 10px 24px 10px 12px !important;
 }
 
 th .th-inner-not-sortable {
@@ -915,6 +922,65 @@ td > ul {
     background-color: $pgs_light_grey2 !important;
   }
 }
+
+.pgs_big_table {
+  border-bottom: 1px solid $bootstrap-table_border_colour;
+  th {
+    background-color: $pgs_light_grey;
+    color: $bootstrap-table_colour;
+  }
+  th, td {
+    border-left: 1px solid $bootstrap-table_border_colour;
+  }
+  th:last-child, td:last-child {
+    border-right: 1px solid $bootstrap-table_border_colour;
+  }
+  tr:hover {
+    background-color: rgba(0,0,0,.075);
+  }
+  th.orderable > a {
+    color: $bootstrap-table_colour;
+    border-bottom: none;
+    &:after {
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      content: "\f0dc";
+      color: $pgs_darkC;
+      padding-left: 0.5rem;
+    }
+  }
+  th.orderable.asc > a {
+    &:after {
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      content: "\f0de";
+      color: $pgs_colour_1;
+      padding-left: 0.5rem;
+    }
+  }
+  th.orderable.desc > a {
+    &:after {
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      content: "\f0dd";
+      color: $pgs_colour_1;
+      padding-left: 0.5rem;
+    }
+  }
+}
+
+.pgs_search_toolbar {
+  display:flex;
+  justify-content:flex-end;
+  > div:first-child {
+    width:200px;
+    margin: 8px 5px 8px 8px;
+  }
+  > div:last-child {
+    margin: 8px 0px;
+  }
+}
+
 
 /* Icons related CSS */
 .external-link:after {
@@ -2350,7 +2416,10 @@ footer {
   display: flex;
   justify-content: flex-start;
   > div:not(:last-child) {
-    margin-right: 1rem!important;
+    margin-right: 1rem;
+  }
+  .filter_container {
+    margin-bottom: 1rem;
   }
 }
 /* Mobile phone display */
@@ -2359,7 +2428,7 @@ footer {
     flex-direction:column;
     justify-content: center;
     > div {
-      margin-right:0px;
+      margin-right:0px !important;
     }
   }
 }
@@ -2478,6 +2547,22 @@ footer {
   }
 }
 
+.anc_col_subtitle {
+  display:flex;
+  font-size:12px;
+  white-space:nowrap;
+  text-align:center;
+  font-weight: normal !important;
+  div {
+    display:inline-block;
+    width:48px;
+    padding:4px 5px;
+    margin:0px;
+  }
+  div:not(:first-child) {
+    border-left: 1px solid $bootstrap-table_border_colour;
+  }
+}
 .anc_chart_container {
   display:flex;
   > div {

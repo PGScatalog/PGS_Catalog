@@ -1,9 +1,7 @@
 from elasticsearch_dsl import Q
-from elasticsearch_dsl import Search
 from search.documents.efo_trait import EFOTraitDocument
 from search.documents.publication import PublicationDocument
 from search.documents.score import ScoreDocument
-from elasticsearch import Elasticsearch
 
 
 class PGSSearch:
@@ -211,7 +209,7 @@ class ScoreSearch(PGSSearch):
         super().__init__(query)
         self.query_fields = [
             "id^3",
-            "name",
+            "name"
         ]
         self.display_fields = [
             'id',
