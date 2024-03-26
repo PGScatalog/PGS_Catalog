@@ -11,6 +11,7 @@ class CreateRelease:
 
     new_scores = {}
     new_performances = {}
+    new_traits = set()
 
     def __init__(self, release_tomorrow=None):
         self.release_tomorrow = release_tomorrow
@@ -30,6 +31,7 @@ class CreateRelease:
         by adding a date in the 'date_released' columns
         """
         self.get_release_date()
+        previous_traits = set(Score.objects.values_list('trait_efo__id', flat=True).exclude(date_released__isnull=True).distinct())
         #### Add release date for each publications and dependent models ####
         for publication in self.new_publications:
             publication.date_released = self.new_release_date
@@ -42,6 +44,9 @@ class CreateRelease:
                 # Update date_release
                 score.date_released = self.new_release_date
                 score.save()
+                # Get new traits
+                score_traits = {efotrait.id for efotrait in score.trait_efo.all()}
+                self.new_traits.update(score_traits.difference(previous_traits))
 
             # Performances
             performances_list = Performance.objects.filter(date_released__isnull=True, publication=publication)
@@ -55,12 +60,13 @@ class CreateRelease:
     def create_new_release(self):
         """ Create new release instance and save it in the database """
         #### Create new release instance ####
-        release_notes = 'This release contains {} new Score(s), {} new Publication(s) and {} new Performance metric(s)'.format(len(self.new_scores.keys()), len(self.new_publications), len(self.new_performances.keys()))
+        release_notes = 'This release contains {} new Score(s), {} new Publication(s), {} new Performance metric(s) and {} new Trait(s)'.format(len(self.new_scores.keys()), len(self.new_publications), len(self.new_performances.keys()), len(self.new_traits))
         release = Release.objects.create(
                 date=self.new_release_date,
                 performance_count=len(self.new_performances.keys()),
                 publication_count=len(self.new_publications),
                 score_count=len(self.new_scores.keys()),
+                efotrait_count=len(self.new_traits),
                 notes=release_notes
               )
         return release
@@ -123,6 +129,7 @@ def run():
     print(', '.join(release.new_scores.keys()))
     print("Number of new Publications: "+str(new_release.publication_count))
     print("Number of new Performances: "+str(new_release.performance_count))
+    print("Number of new Traits: " + str(new_release.efotrait_count))
 
     # Scores
     scores_direct = Score.objects.filter(date_released__isnull=True)

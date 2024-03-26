@@ -196,8 +196,8 @@ class ReleaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Release
-        meta_fields = ('date', 'score_count', 'performance_count', 'publication_count', 'notes',
-                    'released_score_ids', 'released_publication_ids', 'released_performance_ids')
+        meta_fields = ('date', 'score_count', 'performance_count', 'publication_count', 'efotrait_count', 'notes',
+                    'released_score_ids', 'released_publication_ids', 'released_performance_ids', 'released_new_trait_ids')
         fields = meta_fields
         read_only_fields = meta_fields
 

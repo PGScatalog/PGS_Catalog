@@ -689,6 +689,7 @@ def releases(request):
     total_score = 0
     total_perf = 0
     total_publi = 0
+    total_trait = 0
     max_score = 0
     max_publi = 0
     max_perf = 0
@@ -756,6 +757,7 @@ def releases(request):
         score = release.score_count
         perf  = release.performance_count
         publi = release.publication_count
+        trait = release.efotrait_count
         date  = release.date
 
         release_item = {
@@ -763,13 +765,16 @@ def releases(request):
                         'score_count': score,
                         'performance_count': perf,
                         'publication_count': publi,
+                        'trait_count': trait,
                         'total_score_count': total_score,
                         'total_performance_count': total_perf,
-                        'total_publication_count': total_publi
+                        'total_publication_count': total_publi,
+                        'total_trait_count': total_trait
                        }
         total_score += score
         total_perf += perf
         total_publi += publi
+        total_trait += trait
 
         release_data.append(release_item)
 

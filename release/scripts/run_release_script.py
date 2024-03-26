@@ -181,6 +181,7 @@ def call_create_release():
     output_report(', '.join(release.new_scores.keys()))
     output_report("Number of new Publications: "+str(new_release.publication_count))
     output_report("Number of new Performances: "+str(new_release.performance_count))
+    output_report("Number of new Traits: " + str(new_release.efotrait_count))
 
     if new_release.score_count == 0 or new_release.publication_count == 0 or new_release.performance_count == 0:
         error_report("at least one of the main components (Score, Publication or Performance Metrics) hasn't a new entry this release")

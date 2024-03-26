@@ -1,15 +1,17 @@
-var rest_url = 'https://www.pgscatalog.org/rest/release/'
+var rest_url = '/rest/release/'
 
 bg_colours = {
   'score': '#007C82',
   'publication': '#BE4A81',
   'performance': 'DodgerBlue',
+  'trait': '#c03b23',
   'new_entry': '#FFC200'
 };
 bg_hover_colours = {
   'score': '#00adb5',
   'publication': '#e83e8c',
   'performance': '#51a9ff',
+  'trait': '#f67d51',
   'new_entry': '#FFD700'
 };
 
@@ -40,6 +42,15 @@ $('.get_pgs_ids').click(function() {
         });
         html_pub += '</ul>';
         $(list_pub_id).html(html_pub);
+        $('#list_'+id).show();
+
+        list_trait_id = '#list_'+id.replace(type,'trait');
+        html_trait = "<ul>";
+        $.each(result.released_new_trait_ids, function(index, trait_id) {
+          html_trait += '<li><a href="/trait/'+trait_id+'/">'+trait_id+'</a></li>';
+        });
+        html_trait += '</ul>';
+        $(list_trait_id).html(html_trait);
         $('#list_'+id).show();
     })
     .fail(function (xhRequest, ErrorText, thrownError) {

@@ -20,6 +20,7 @@
               <th>Score(s)</th>
               <th>Publication(s)</th>
               <th>Performance(s)</th>
+              <th>Trait(s)</th>
               <th>Notes</th>
             </tr>
           </thead>
@@ -32,7 +33,7 @@
                   {% if latest_release.score_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ latest_release.score_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_score_{{ latest_release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Score IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_score_{{ latest_release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_score_{{ latest_release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -41,7 +42,7 @@
                   {% if latest_release.publication_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ latest_release.publication_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_pub_{{ latest_release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Publication IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_pub_{{ latest_release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_pub_{{ latest_release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -49,6 +50,15 @@
                 <td>
                   {% if latest_release.performance_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ latest_release.performance_count }}</span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if latest_release.efotrait_count > 0 %}
+                    <span class="badge badge-pill badge-pgs-2">{{ latest_release.efotrait_count }}</span>
+                    <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_trait_{{ latest_release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of Trait IDs"></a>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_trait_{{ latest_release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -70,6 +80,7 @@
               <th>Score(s)</th>
               <th>Publication(s)</th>
               <th>Performance(s)</th>
+              <th>Trait(s)</th>
               <th>Notes</th>
             </tr>
           </thead>
@@ -88,7 +99,7 @@
                   {% if release.score_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ release.score_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_score_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Score IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_score_{{ release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_score_{{ release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -97,7 +108,7 @@
                   {% if release.publication_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ release.publication_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_pub_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of PGS Publication IDs"></a>
-                    <div class="toggle_list mt-2" id="list_release_pub_{{ release.date|date:'Y-m-d' }}"></div>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_pub_{{ release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -105,6 +116,15 @@
                 <td>
                   {% if release.performance_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ release.performance_count }}</span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% if latest_release.efotrait_count > 0 %}
+                    <span class="badge badge-pill badge-pgs-2">{{ release.efotrait_count }}</span>
+                    <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_trait_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of Trait IDs"></a>
+                    <div class="toggle_list mt-2" style="text-align:left" id="list_release_trait_{{ release.date|date:'Y-m-d' }}"></div>
                   {% else %}
                     -
                   {% endif %}
@@ -130,6 +150,7 @@
         draw_js_barchart(data_chart, 'release_score', 'score');
         draw_js_barchart(data_chart, 'release_publication', 'publication');
         draw_js_barchart(data_chart, 'release_perf', 'performance');
+        draw_js_barchart(data_chart, 'release_trait', 'trait');
         draw_js_barchart_with_label(pub_year_chart.all, 'pub_per_year_all', 'Publications per year (All)', 'publication');
         if (pub_year_chart.nr) {
           draw_js_barchart_with_label(pub_year_chart.r, 'pub_per_year_r', 'Publications per year (Released)', 'publication');
@@ -148,7 +169,7 @@
       </div>
     </div>
 
-    <h3 style="font-weight:200"><i class="fa-solid fa-chart-column pgs_color_1 pr-3"></i>Scores, Publications and Performance Metrics per release</h3>
+    <h3 style="font-weight:200"><i class="fa-solid fa-chart-column pgs_color_1 pr-3"></i>Scores, Publications, Performance Metrics and Traits per release</h3>
     <div class="clearfix mb-2">
       <div class="mb-4 mr-4" style="float:left;width:425px;height:300px">
         <canvas id="release_score" width="425" height="300"></canvas>
@@ -158,6 +179,9 @@
       </div>
       <div class="mb-4" style="float:left;width:425px;height:300px">
         <canvas id="release_perf" width="425" height="300"></canvas>
+      </div>
+      <div class="mb-4" style="float:left;width:425px;height:300px">
+        <canvas id="release_trait" width="425" height="300"></canvas>
       </div>
     </div>
 

@@ -1138,6 +1138,7 @@ class Release(models.Model):
     score_count = models.IntegerField('Number of new PGS scores released', default=0)
     performance_count = models.IntegerField('Number of new PGS Performance metrics released', default=0)
     publication_count = models.IntegerField('Number of new PGS Publication released', default=0)
+    efotrait_count = models.IntegerField('Number of new EFO traits released', default=0)
     notes = models.TextField(verbose_name='Release notes', max_length=600, blank=True)
     updated_score_count = models.IntegerField('Number of PGS scores updated', default=0)
     updated_performance_count = models.IntegerField('Number of PGS Performance metrics updated', default=0)
@@ -1160,3 +1161,9 @@ class Release(models.Model):
     def released_performance_ids(self):
         performances = Performance.objects.values_list('id', flat=True).filter(date_released__exact=self.date).order_by('id')
         return list(performances)
+
+    @property
+    def released_new_trait_ids(self):
+        previous_traits = Score.objects.values_list('trait_efo__id', flat=True).filter(date_released__lt=self.date).distinct()
+        new_traits = Score.objects.values_list('trait_efo__id', flat=True).filter(date_released__exact=self.date).distinct()
+        return list(new_traits.difference(previous_traits))
