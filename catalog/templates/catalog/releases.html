@@ -121,7 +121,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  {% if latest_release.efotrait_count > 0 %}
+                  {% if release.efotrait_count > 0 %}
                     <span class="badge badge-pill badge-pgs-2">{{ release.efotrait_count }}</span>
                     <a class="toggle_btn pgs_btn_plus get_pgs_ids pgs_no_icon_link ml-1" id="release_trait_{{ release.date|date:'Y-m-d' }}" data-toggle="tooltip" title="Click to display the list of Trait IDs"></a>
                     <div class="toggle_list mt-2" style="text-align:left" id="list_release_trait_{{ release.date|date:'Y-m-d' }}"></div>
