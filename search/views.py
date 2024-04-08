@@ -1,12 +1,10 @@
 from django.shortcuts import render
-from elasticsearch_dsl import Q
-from search.documents.efo_trait import EFOTraitDocument
-from search.documents.publication import PublicationDocument
-from search.documents.score import ScoreDocument
 from search.search import EFOTraitSearch, PublicationSearch, ScoreSearch
 from django.http import JsonResponse
 
+
 all_results_scores = {}
+
 
 def search(request):
     global all_results_scores
@@ -63,13 +61,14 @@ def search(request):
     return render(request, 'search/search.html', context)
 
 
-def autocomplete_base(request, query):
+def autocomplete(request):
     """ Return suggestions for the autocomplete form. """
     max_items = 15
     results = []
-    if query:
+    q = request.GET.get('q')
+    if q:
         # EFO Traits
-        efo_trait_search = EFOTraitSearch(query)
+        efo_trait_search = EFOTraitSearch(q)
         efo_trait_suggestions = efo_trait_search.suggest()
 
         results = [ result for result in efo_trait_suggestions[:max_items]]
@@ -77,16 +76,9 @@ def autocomplete_base(request, query):
     return JsonResponse({ 'results': results })
 
 
-def autocomplete(request):
-    """ Return suggestions for the autocomplete form. """
-    q = request.GET.get('q')
-
-    return autocomplete_base(request,q)
-
-
 def format_score_results(request, data):
     """ Convert the Score results into HTML. """
-    results = []
+
     for idx, d in enumerate(data):
 
         mapped_traits = []
@@ -112,7 +104,7 @@ def format_score_results(request, data):
 
 def format_efo_traits_results(request, data):
     """ Convert the EFO Trait results into HTML. """
-    results = []
+
     for d in data:
         desc = d.description
         if desc:
@@ -148,9 +140,6 @@ def format_efo_traits_results(request, data):
 def format_publications_results(request, data):
     """ Convert the Publication results into HTML. """
 
-    results = []
-    doi_url = 'https://doi.org/'
-    pubmed_url = 'https://www.ncbi.nlm.nih.gov/pubmed/'
     for idx, d in enumerate(data):
         id_suffix =  d.id.replace('PGP','')
 

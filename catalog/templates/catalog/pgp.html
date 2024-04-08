@@ -90,22 +90,20 @@
 
     <section>
     {% if table_scores or table_evaluated %}
-        <h3>Associated Polygenic Score(s)</h3>
-        {% if ancestry_form %}
-          {{ ancestry_form|safe }}
-        {% endif %}
-        {% if table_scores %}
-            <h4>
-              <span>PGS Developed By This Publication</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.pgs_eval }}"><i class="fas fa-info-circle"></i></span>
-            </h4>
-            {% render_table table_scores %}
-        {% endif %}
-        {% if table_evaluated %}
-            <h4>
-              <span>External PGS Evaluated By This Publication</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.pgs_eval_ext }}"><i class="fas fa-info-circle"></i></span>
-            </h4>
-            {% render_table table_evaluated %}
-        {% endif %}
+      <h3>Associated Polygenic Score(s)</h3>
+      {% include "catalog/includes/ancestry_form.html" %}
+      {% if table_scores %}
+          <h4>
+            <span>PGS Developed By This Publication</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.pgs_eval }}"><i class="fas fa-info-circle"></i></span>
+          </h4>
+          {% render_table table_scores %}
+      {% endif %}
+      {% if table_evaluated %}
+          <h4>
+            <span>External PGS Evaluated By This Publication</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="{{ pgs_table_helper.pgs_eval_ext }}"><i class="fas fa-info-circle"></i></span>
+          </h4>
+          {% render_table table_evaluated %}
+      {% endif %}
     {% endif %}
     </section>
 

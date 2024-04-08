@@ -6,6 +6,9 @@ var anc_types = {
 };
 
 var data_toggle_table = 'table[data-toggle="table"]';
+var data_big_table = '.pgs_big_table';
+var data_table_elements = [data_toggle_table,data_big_table];
+var anc_eur = 'EUR';
 
 $(document).ready(function() {
 
@@ -113,54 +116,79 @@ $(document).ready(function() {
     };
 
 
-    // Search autocompletion
-    var autocomplete_url = "/autocomplete/";
-    $("#q").autocomplete({
-      minLength: 3,
-      source: function (request, response) {
-        $.ajax({
-          url: autocomplete_url,
-          data: { 'q': request.term },
-          success: function (data) {
-            response(data.results);
-          },
-          error: function () {
-            response([]);
-          }
-        });
-      },
-      select: function(event, ui) {
-        $("#q").val(ui.item.id);
-        $("#search_form").submit();
-      }
-    })
-    .autocomplete( "instance" )._renderItem = function( ul, item ) {
-      return format_autocomplete(ul,item);
-    };
-    // Search autocompletion - small screen
-    $("#q2").autocomplete({
-      minLength: 3,
-      source: function (request, response) {
-        $.ajax({
-          url: autocomplete_url,
-          data: { 'q': request.term },
-          success: function (data) {
-            response(data.results);
-          },
-          error: function () {
-            response([]);
-          }
-        });
-      },
-      select: function(event, ui) {
-        $("#q2").val(ui.item.id);
-        $("#search_form_2").submit();
-      }
-    })
-    .autocomplete( "instance" )._renderItem = function( ul, item ) {
-      return format_autocomplete(ul,item);
-    };
+    /*
+     *  Search autocompletion
+     */
 
+    var autocomplete_url = "/autocomplete/";
+
+    // Search autocompletion - Main box ('q')
+    var main_search_id = 'q';
+    if ($("#"+main_search_id).length) {
+      var main_search_form_id = 'search_form';
+      $("#"+main_search_id).autocomplete({
+        minLength: 3,
+        source: function (request, response) {
+          $.ajax({
+            url: autocomplete_url,
+            data: { 'q': request.term }, // <= Keep 'q'
+            success: function (data) {
+              response(data.results);
+            },
+            error: function () {
+              response([]);
+            }
+          });
+        },
+        select: function(event, ui) {
+          $("#"+main_search_id).val(ui.item.id);
+          $("#"+main_search_form_id).submit();
+        }
+      })
+      .autocomplete( "instance" )._renderItem = function( ul, item ) {
+        return format_autocomplete(ul,item);
+      };
+      //  Submit button control
+      $('#search_btn').click(function() {
+        if ($('#'+main_search_id).val() && $('#'+main_search_id).val() != ''){
+          $('#'+main_search_form_id).submit();
+        }
+      })
+    }
+
+    // Search autocompletion - small screen (q2)
+    var alt_search_id = 'q2';
+    if ($("#"+alt_search_id).length) {
+      var alt_search_form_id = 'search_form_2';
+      $("#"+alt_search_id).autocomplete({
+        minLength: 3,
+        source: function (request, response) {
+          $.ajax({
+            url: autocomplete_url,
+            data: { 'q': request.term }, // <= Keep 'q'
+            success: function (data) {
+              response(data.results);
+            },
+            error: function () {
+              response([]);
+            }
+          });
+        },
+        select: function(event, ui) {
+          $("#"+alt_search_id).val(ui.item.id);
+          $("#"+alt_search_form_id).submit();
+        }
+      })
+      .autocomplete( "instance" )._renderItem = function( ul, item ) {
+        return format_autocomplete(ul,item);
+      };
+      //  Submit button control
+      $('#search_btn_2').click(function() {
+        if ($("#"+alt_search_id).val() && $("#"+alt_search_id).val() != ''){
+          $("#"+alt_search_form_id).submit();
+        }
+      })
+    }
 
     // Button toggle
     $('.toggle_btn').click(function() {
@@ -214,18 +242,6 @@ $(document).ready(function() {
       $(this).children('span').toggleClass('fa-folder fa-folder-open');
     });
 
-
-    // Control on search form(s)
-    $('#search_btn').click(function() {
-      if ($('#q').val() && $('#q').val() != ''){
-        $('#search_form').submit();
-      }
-    })
-    $('#search_btn_2').click(function() {
-      if ($('#q2').val() && $('#q2').val() != ''){
-        $('#search_form_2').submit();
-      }
-    })
 
     // Buttons in the Search page results
     $('.search_facet').click(function(){
@@ -296,8 +312,95 @@ $(document).ready(function() {
     });
 
 
-    function filter_score_table() {
+    /*
+     * Browse Scores Form
+     */
 
+    // Ancestry filtering - Browse Scores
+    var browse_form_name = 'browse_form';
+    $('#browse_ancestry_type_list').on('change', function() {
+      submit_browse_form();
+    });
+    $('#browse_ancestry_filter_ind').on('change', function() {
+      submit_browse_form();
+    });
+    $("#browse_ancestry_filter_list").on("change", ".browse_ancestry_filter_cb",function() {
+      submit_browse_form();
+    });
+    show_hide_european_filter(true);
+
+    // Search box events for - Browse Scores
+    $('#browse_search_btn').on("click", function(e) {
+      submit_browse_form();
+    });
+    var $browse_search_input = $('#browse_search');
+    $browse_search_input.on("keypress", function(e) {
+      if (e.keyCode === 13) {
+        submit_browse_form();
+      }
+    });
+    // Catch event when the "X" button is clicked in the search box.
+    $browse_search_input.on('search', function () {
+      submit_browse_form();
+    });
+    // Functions to set timer on typing before submitting the form
+    var search_typing_timer;
+    //on keyup, start the countdown
+    $browse_search_input.on('keyup', function () {
+      clearTimeout(search_typing_timer);
+      search_typing_timer = setTimeout(function() {
+        submit_browse_form();
+      }, 1000);
+    });
+    //on keydown, clear the countdown
+    $browse_search_input.on('keydown', function () {
+      clearTimeout(search_typing_timer);
+    });
+
+    // Send form with updated URL (sort) - Browse Scores
+    $('.orderable > a').click(function(e) {
+      e.preventDefault();
+      var sort_url = $(this).attr('href');
+      var url = $('#'+browse_form_name).attr('action');
+      show_hide_european_filter();
+      $('#'+browse_form_name).attr('action', url+sort_url).submit();
+    });
+    // Send form with updated URL (pagination)
+    $('.pagination > li > a').click(function(e) {
+      e.preventDefault();
+      var sort_url = $(this).attr('href');
+      var url = $('#'+browse_form_name).attr('action');
+      show_hide_european_filter();
+      $('#'+browse_form_name).attr('action', url+sort_url).submit();
+    });
+
+
+    function submit_browse_form() {
+      if ($('#browse_anc_cb_EUR').length) {
+        show_hide_european_filter();
+      }
+      document.forms[browse_form_name].submit();
+    }
+
+
+    function show_hide_european_filter(show_hide_parent) {
+      // Function to show/hide the European filter checkbox - Browse Scores page
+      var filter_ind_anc = $("#browse_ancestry_filter_ind option:selected").val();
+      var $cb_eur_id_elem = $('#browse_anc_cb_EUR');
+      if (filter_ind_anc == anc_eur) {
+        var default_val = $cb_eur_id_elem.data('default');
+        $cb_eur_id_elem.prop('checked', default_val);
+        if (show_hide_parent) {
+          $cb_eur_id_elem.parent().hide();
+        }
+      }
+      else if (filter_ind_anc != anc_eur && show_hide_parent) {
+        $cb_eur_id_elem.parent().show();
+      }
+    }
+
+
+    function filter_score_table() {
       /** Get data from Ancestry Filters form **/
 
       // Traits //
@@ -326,29 +429,29 @@ $(document).ready(function() {
       $(sample_table_id).bootstrapTable('filterBy', {});
 
       var stage = $("#ancestry_type_list option:selected").val();
-      var anc_eur_cb = 'anc_cb_EUR';
-      var anc_eur = 'EUR';
+      var anc_eur_cb_id = 'anc_cb_EUR';
+      var $anc_eur_cb = $('#'+anc_eur_cb_id);
 
       // Single ancestry selection + show/hide European checkbox filter
       var ind_anc = $("#ancestry_filter_ind option:selected").val();
       if (ind_anc != '') {
         // Hide European checkbox if European selected in the dropdown
         if (ind_anc == anc_eur) {
-          var default_val = $('#'+anc_eur_cb).data('default');
-          $('#'+anc_eur_cb).prop('checked', default_val);
-          $('#'+anc_eur_cb).parent().hide();
+          var default_val = $anc_eur_cb.data('default');
+          $anc_eur_cb.prop('checked', default_val);
+          $anc_eur_cb.parent().hide();
         }
         anc_filter.push(ind_anc);
       }
       // Show European checkbox if European is not selected in the dropdown
       if (ind_anc != anc_eur) {
-        $('#'+anc_eur_cb).parent().show();
+        $anc_eur_cb.parent().show();
       }
 
       // Fetch checkboxes selection
       $(".ancestry_filter_cb").each(function () {
         // Add filter when "European" checkbox is NOT checked
-        if ($(this).attr('id') == anc_eur_cb) {
+        if ($(this).attr('id') == anc_eur_cb_id) {
           if (!$(this).prop('checked')) {
             anc_filter.push('non-'+anc_eur);
           }
@@ -362,8 +465,11 @@ $(document).ready(function() {
 
 
       /** Filter the PGS Scores table **/
+      if (anc_filter_length != 0 || stage || trait_filter != '') {
 
-      if ((anc_filter_length != 0 && stage) || trait_filter != '') {
+        if (stage) {
+          anc_filter_length += 1;
+        }
 
         if (trait_filter != '') {
           anc_filter_length += 1;
@@ -383,23 +489,49 @@ $(document).ready(function() {
           }
 
           pgs_ids_list_link[scores_table_id] = [];
-
           var data = $(scores_table_id).bootstrapTable('getData');
+          // Filter each row
           $.each(data,function(i, row) {
             var pass_filter = 0;
             // Ancestry
-            if (anc_filter.length != 0 && stage) {
+            if (anc_filter.length != 0 || stage) {
               var ancestry_html = $(row[ancestry_col]);
-              var anc_list = ancestry_html.attr('data-anc-'+stage);
-              if (!anc_list) {
-                return;
+              var stages_list = [stage];
+              if (stage == 'all') {
+                stages_list = ['gwas','dev','eval'];
               }
-              anc_list = JSON.parse(anc_list);
+              var pass_anc_stage = 0;
+              var pass_anc_filter = 0;
+              for (var i=0; i<stages_list.length; i++) {
+                var data_stage = stages_list[i];
+                var anc_list = ancestry_html.attr('data-anc-'+data_stage);
+                // Has stage
+                if (anc_list) {
+                  pass_anc_stage += 1;
+                  anc_list = JSON.parse(anc_list);
 
-              for (var f in anc_filter) {
-                if (anc_list.includes(anc_filter[f])) {
-                  pass_filter += 1;
+                  // Check additional filters
+                  if (anc_filter.length != 0) {
+                    for (var f in anc_filter) {
+                      if (anc_list.includes(anc_filter[f])) {
+                        pass_anc_filter += 1;
+                      }
+                    }
+                  }
                 }
+                // For "all" filters, allow missing value for the "dev" stage (but having data at thw gwas and eval stages)
+                else if (stage == 'all' && data_stage == 'dev' && ancestry_html.attr('data-anc-gwas') && ancestry_html.attr('data-anc-eval')) {
+                  pass_anc_stage += 1;
+                  for (var f in anc_filter) {
+                    pass_anc_filter += 1;
+                  }
+                }
+              }
+              if (pass_anc_filter == stages_list.length){
+                pass_filter += 1;
+              }
+              if (pass_anc_stage == stages_list.length){
+                pass_filter += 1;
               }
             }
 
@@ -572,11 +704,13 @@ function alter_external_links(prefix) {
 
 // FTP Scoring File Link
 function scoring_file_link() {
-  $(data_toggle_table).on("click", '.file_link', function(){
-    var ftp_url = $(this).parent().find('.only_export').html();
-    ftp_url = ftp_url.substring(0, ftp_url.lastIndexOf('/'))+'/';
-    window.open(ftp_url,'_blank');
-  });
+  for (const element of data_table_elements) {
+    $(element).on("click", '.file_link', function(){
+      var ftp_url = $(this).parent().find('.only_export').html();
+      ftp_url = ftp_url.substring(0, ftp_url.lastIndexOf('/'))+'/';
+      window.open(ftp_url,'_blank');
+    });
+  }
 }
 
 

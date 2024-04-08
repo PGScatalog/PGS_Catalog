@@ -1,0 +1,68 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Browse {{ view_name }}{% endblock %}
+
+{% block desc %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebPage",
+      "name": "Browse {{ view_name }}",
+      "description": "List all the {{ view_name }} of the catalog.",
+      "keywords": ["{{ view_name }}","catalog","catalogue","data"]
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Browse</li>
+        <li class="breadcrumb-item">{{ view_name }}</li>
+      </ol>
+    </nav>
+    <div class="table-container">
+      <section>
+          <h2 class="pgs_facet_icon pgs_facet_2_icon icon icon-species">{{ view_name }}</h2>
+          <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function(event) {
+              var data_chart = {{ data_chart|safe }};
+              // Draw the PGS Scores per trait category piechart
+              var pgs_trait_chart = new PGSPieChart('trait_cat_piechart',data_chart,10);
+              pgs_trait_chart.draw_piechart();
+              // Build the categories and sub-categories
+              display_category_list(data_chart);
+
+              // Trait category list hover
+              $('#trait_cat > .trait_item').mouseover(function(d) {
+                pgs_trait_chart.trait_item_hover(this,'in');
+              });
+              $('#trait_cat > .trait_item').mouseout(function(d) {
+                  pgs_trait_chart.trait_item_hover(this,'out');
+              });
+            });
+          </script>
+
+          <h3 class="mt-4">
+            <span>Browse PGS by Trait Category</span><span class="info-icon-title" data-toggle="tooltip" data-placement="right" title="The trait categories are based on automatic annotations of the underlying traits in the Experimental Factor Ontology (EFO), and are used to browse the current data and describe the diversity of traits captured in the catalog in a minimal hierarchical structure."><i class="fas fa-info-circle"></i></span>
+            <span id="reset_cat" class="btn btn-pgs pgs_no_icon_link" onclick="reset_showhide_trait();"><span class="fas fa-redo"></span> Reset view</span>
+          </h3>
+
+          <div class="trait_graph_container">
+            <div class="trait_piechart_container clearfix">
+              <div class="trait_piechart">
+                <svg id="trait_cat_piechart" ></svg>
+              </div>
+            </div>
+            <div class="trait_cat_container clearfix">
+              <div id="trait_cat"></div>
+              <div id="trait_subcat"></div>
+            </div>
+          </div>
+          <h3>Traits</h3>
+          {% render_table table %}
+        </section>
+    </div>
+{% endblock %}

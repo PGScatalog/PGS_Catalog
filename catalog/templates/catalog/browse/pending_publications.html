@@ -1,0 +1,20 @@
+{% extends 'catalog/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Browse {{ view_name }}{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Browse</li>
+        <li class="breadcrumb-item">{{ view_name }}</li>
+      </ol>
+    </nav>
+    <div class="table-container">
+      <section>
+        <h2><span class="fa-solid fa-hourglass-half pgs_color_1" style="padding:5px 4px"></span> {{ view_name }}</h2>
+        {% render_table table %}
+      </section>
+    </div>
+{% endblock %}

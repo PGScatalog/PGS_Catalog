@@ -28,3 +28,8 @@ if settings.PGS_ON_CURATION_SITE == True:
     from django.contrib import admin
     urlpatterns.append(path('admin/', admin.site.urls))
     urlpatterns.append(path('', include('curation_tracker.urls')))
+
+# Debug SQL queries
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))

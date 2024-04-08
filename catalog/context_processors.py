@@ -91,3 +91,42 @@ def pgs_contributors(request):
     return {
         'pgs_contributors': html
     }
+
+
+def pgs_ancestry_legend(request) -> str:
+    ''' HTML code for the Ancestry legend. '''
+    ancestry_labels = constants.ANCESTRY_LABELS
+    count = 0
+    ancestry_keys = ancestry_labels.keys()
+    val = len(ancestry_keys) / 2
+    entry_per_col = int((len(ancestry_keys) + 1) / 2);
+
+    div_html_1 = '<div class="ancestry_legend'
+
+    div_html = div_html_1
+
+    legend_html = ''
+    div_content = ''
+    for key in ancestry_keys:
+        if count == entry_per_col:
+            div_html += ' mr-3">'
+            div_html += div_content+'</div>'
+            legend_html += div_html
+            # New div
+            div_html = div_html_1
+            div_content = ''
+            count = 0
+
+        label = ancestry_labels[key]
+        div_content += '<div><span class="ancestry_box_legend anc_colour_'+key+'" data-key="'+key+'"></span>'+label+'</div>'
+        count += 1
+    div_html += '">'+div_content+'</div>'
+    legend_html += div_html
+
+    return {
+        'ancestry_legend': '''
+    <div id="ancestry_legend" class="filter_container">
+        <div class="filter_header">Ancestry legend <a class="pgs_no_icon_link info-icon" target="_blank" href="/docs/ancestry/#anc_category" data-toggle="tooltip" data-placement="bottom" title="Click on this icon to see more information about the Ancestry Categories (open in a new tab)"><i class="fas fa-info-circle"></i></a></div>
+        <div id="ancestry_legend_content">{}</div>
+    </div>'''.format(legend_html)
+    }
