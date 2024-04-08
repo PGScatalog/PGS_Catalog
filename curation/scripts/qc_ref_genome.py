@@ -198,6 +198,7 @@ def main():
     parser.add_argument("--n_requests", type=int, default=1,
                         help="Number of requests of size 50 (maximum allowed per Ensembl POST request). Default: 1")
     parser.add_argument("--flip", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--use_pos", default=False, action=argparse.BooleanOptionalAction)
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -219,6 +220,7 @@ def main():
         ref_genome = args.ref
 
     flip = args.flip
+    use_pos = args.use_pos
 
     # Reading the scoring file
     df = pd.read_csv(scoring_file,
@@ -248,7 +250,7 @@ def main():
     # If rsID, just fetch the variant position and compare it
     max_request_size = None
     map_variants_func = None
-    if 'rsID' in df.columns:
+    if 'rsID' in df.columns and not use_pos:
         report('Using rsIDs to validate variant positions')
         max_request_size = MAX_VARIATION_REQUEST_SIZE
         map_variants_func = map_rsids
