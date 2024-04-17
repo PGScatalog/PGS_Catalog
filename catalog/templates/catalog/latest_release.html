@@ -55,9 +55,7 @@
     {% if scores_count %}
       <section>
         <h3 class="mt-5" id="scores">New Polygenic Score{% if scores_count > 1 %}s{% endif %} (<span class="pgs_color_1">{{ scores_count }}</span>)</h3>
-        {% if ancestry_form %}
-          {{ ancestry_form|safe }}
-        {% endif %}
+        {% include "catalog/includes/ancestry_form.html" %}
         {% render_table scores_table %}
       </section>
     {% endif %}
