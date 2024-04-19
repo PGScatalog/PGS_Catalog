@@ -349,7 +349,7 @@ def browse_scores(request):
     page_rows_number = len(table.page)
     page_number = table.page.number
     table.row_start = rows_per_page * (page_number - 1) + 1
-    table.row_end = table.row_start - 1 + page_rows_number;
+    table.row_end = table.row_start - 1 + page_rows_number
 
     context = {
         'view_name': 'Polygenic Scores (PGS)',
@@ -432,7 +432,7 @@ def browse_publications(request):
     page_rows_number = len(table.page)
     page_number = table.page.number
     table.row_start = rows_per_page * (page_number - 1) + 1
-    table.row_end = table.row_start - 1 + page_rows_number;
+    table.row_end = table.row_start - 1 + page_rows_number
 
     context = {
         'view_name': 'Publications',
@@ -696,7 +696,7 @@ def efo(request, efo_id):
         return redirect_with_upper_case_id(request, url_dir, efo_id)
 
     exclude_children = False
-    include_children = request.GET.get('include_children');
+    include_children = request.GET.get('include_children')
     if include_children:
         if include_children.lower() == 'false':
             exclude_children = True
