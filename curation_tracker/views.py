@@ -37,10 +37,10 @@ def browse_release_ready(request):
         import_ready = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Curated - Awaiting Import')
         context['table_to_import'] = Browse_CurationPublicationAnnotationReleaseReady(import_ready)
 
-    release_ready_count = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Imported - Awaiting Release').count()
+    release_ready_count = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status__in=('Imported - Awaiting Release', 'Embargo Lifted - Awaiting Release')).count()
     context['studies_to_release_count'] = release_ready_count
     if release_ready_count:
-        release_ready = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status='Imported - Awaiting Release')
+        release_ready = CurationPublicationAnnotation.objects.using(curation_tracker).filter(curation_status__in=('Imported - Awaiting Release', 'Embargo Lifted - Awaiting Release'))
         context['table_to_release'] = Browse_CurationPublicationAnnotationReleaseReady(release_ready)
 
     if context:
