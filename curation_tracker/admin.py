@@ -448,7 +448,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
             # Desembargo the study
             if obj.embargoed == False and (not db_obj or db_obj.embargoed == True):
-                if obj.curation_status == 'Embargo Imported - Awaiting Release':
+                if obj.curation_status == 'Embargo Imported - Awaiting Publication':
                     if obj.doi or obj.PMID:
                         obj.curation_status = 'Imported - Awaiting Release'
                 elif obj.curation_status == 'Embargo Curated - Awaiting Import':
@@ -465,7 +465,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 if obj.curation_status == 'Curated - Awaiting Import':
                     obj.curation_status = 'Embargo Curated - Awaiting Import'
                 elif obj.curation_status == 'Imported - Awaiting Release':
-                    obj.curation_status == 'Embargo Imported - Awaiting Release'
+                    obj.curation_status = 'Embargo Imported - Awaiting Publication'
 
             # Eligibility - part 2
             if obj.curation_status == 'Abandoned/Ineligible':

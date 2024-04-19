@@ -151,7 +151,7 @@ class CurationImport():
 
                 if curation_pub != None:
                     if study_import.study_publication.curation_status == 'E':
-                        curation_pub.curation_status = 'Embargo Imported - Awaiting Release'
+                        curation_pub.curation_status = 'Embargo Imported - Awaiting Publication'
                     else:
                         curation_pub.curation_status = 'Imported - Awaiting Release'
                     curation_pub.save()
