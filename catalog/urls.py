@@ -36,7 +36,7 @@ urlpatterns = [
     # e.g.: /browse/traits/
     path('browse/traits/', cache_page(cache_time)(views.browse_traits), name='Browse Traits'),
     # e.g.: /browse/studies/
-    path('browse/studies/', cache_page(cache_time)(views.browse_publications), name='Browse Publications'),
+    path('browse/studies/', views.browse_publications, name='Browse Publications'),
 
     # e.g.: /latest_release/
     path('latest_release/', cache_page(cache_time)(views.latest_release), name='Latest Release'),
