@@ -205,7 +205,7 @@ def update_curation_tracker():
                 curation_pub.pgp_id = pgp_id
                 print('  - Updating curation_status on the Curation Tracker')
                 if publication.curation_status == 'E':
-                    curation_pub.curation_status = 'Embargo Imported - Awaiting Release'
+                    curation_pub.curation_status = 'Embargo Imported - Awaiting Publication'
                 else:
                     curation_pub.curation_status = 'Released'
                     curation_pub.release_date = new_release_date

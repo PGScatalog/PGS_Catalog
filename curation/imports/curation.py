@@ -150,7 +150,11 @@ class CurationImport():
                         self.failed_studies[study_import.study_name] = 'curation tracker error'
 
                 if curation_pub != None:
-                    curation_pub.curation_status = 'Imported - Awaiting Release'
+                    curation_pub.pgp_id = study_import.study_publication.id
+                    if study_import.study_publication.curation_status == 'E':
+                        curation_pub.curation_status = 'Embargo Imported - Awaiting Publication'
+                    else:
+                        curation_pub.curation_status = 'Imported - Awaiting Release'
                     curation_pub.save()
                     print("  > Curation status updated in the Curation Tracker")
 

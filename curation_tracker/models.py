@@ -83,7 +83,7 @@ class CurationPublicationAnnotation(models.Model):
         ('Imported - Awaiting Release','Imported - Awaiting Release'),
         ('Released','Released'),
         ('Embargo Curated - Awaiting Import','Embargo Curated - Awaiting Import'),
-        ('Embargo Imported - Awaiting Release','Embargo Imported - Awaiting Release'),
+        ('Embargo Imported - Awaiting Publication','Embargo Imported - Awaiting Publication'),
         ('Embargo Lifted - Awaiting Release','Embargo Lifted - Awaiting Release'),
         ('Retired','Retired')
     ]
