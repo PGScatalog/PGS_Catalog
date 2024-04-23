@@ -170,11 +170,11 @@ def dict_to_annotation_import(d: dict) -> CurationPublicationAnnotationImport:
     model_import.annotation = model
     return model_import
 
-def check_study_name(study_name: str) -> str:
+def check_study_name(study_name: str, imported_study_names: list[str]) -> str:
     ''' Check that the study_name is unique. Otherwise it will add incremental number as suffix '''
     queryset = CurationPublicationAnnotation.objects.using(curation_tracker_db).filter(study_name=study_name).count()
     if queryset:
-        sn_list = CurationPublicationAnnotation.objects.using(curation_tracker_db).values_list('study_name',flat=True)
+        sn_list = imported_study_names + list(CurationPublicationAnnotation.objects.using(curation_tracker_db).values_list('study_name', flat=True))
         num = 2
         new_study_name = f'{study_name}_{num}'
         while new_study_name in sn_list:
@@ -186,6 +186,7 @@ def check_study_name(study_name: str) -> str:
 def _litsuggest_IO_to_annotation_imports(litsuggest_file) -> List[CurationPublicationAnnotationImport]:
     models = []
     reader = csv.DictReader(litsuggest_file, delimiter='\t')
+    imported_study_names = []
     for row in reader:
         if not row['pmid']:
             break # litsuggest files might contain a lot of empty rows after the relevant ones
@@ -198,7 +199,9 @@ def _litsuggest_IO_to_annotation_imports(litsuggest_file) -> List[CurationPublic
             assert_study_doesnt_exist(pmid)
             study_epmc_info = get_publication_info_from_epmc(pmid)
             annotationModel = create_new_annotation(study_epmc_info)
-            annotationModel.study_name = check_study_name(annotationModel.study_name)
+            study_name = check_study_name(annotationModel.study_name, imported_study_names)
+            annotationModel.study_name = study_name
+            imported_study_names.append(study_name)
 
             triage_note = row['triage.note']
             annotationModel.eligibility_description = triage_note
