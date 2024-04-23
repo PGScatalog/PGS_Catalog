@@ -3,6 +3,7 @@ from curation_tracker.litsuggest import litsuggest_filename_to_annotation_import
 
 litsuggest_dir = '/home/florent/PGS_Catalog/Curation/Litsuggest/'
 
+
 def run():
     
     files = [f for f in os.listdir(litsuggest_dir) if os.path.isfile(f'{litsuggest_dir}/{f}')]
