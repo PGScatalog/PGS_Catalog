@@ -27,7 +27,7 @@ USEFUL_URLS = {
     'UOC_URL'           : 'https://www.phpc.cam.ac.uk/',
     'TERMS_OF_USE'      : 'https://www.ebi.ac.uk/about/terms-of-use',
     'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1UEGH0NNuQ8ifbsxIhe8HbnG9XYjsIwSF/edit?usp=sharing',
-    'CurationGoogleDoc_URL' : 'https://drive.google.com/file/d/1aK1YIXoW267Dq9sL6jxlZCb0ZgEk1XFY/view',
+    'CurationGoogleDoc_URL' : 'https://drive.google.com/file/d/1QYdKBnEqAmhSZIuMux7ifpT3ZBk9gupT/view',
     'CATALOG_PUBLICATION_URL' : 'https://doi.org/'+PGS_CITATION['doi'],
     'EPMC_REST_SEARCH'  : 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'
 }
