@@ -416,7 +416,8 @@ $(document).ready(function() {
 
       // Setup variables
       var anc_filter = [];
-      var anc_filter_length = 0;
+      // Count the matched filter categories: Stages, Ancestry filters (list of ancestries, display options), Trait Search
+      var anc_filter_category_length = 0;
 
       var scores_table_id = '#scores_table';
       var scores_eval_table_id = '#scores_eval_table';
@@ -461,18 +462,21 @@ $(document).ready(function() {
           anc_filter.push($(this).val());
         }
       });
-      anc_filter_length = anc_filter.length;
 
+      // Count the "List of ancestries includes" and "Display options" as 1 filter Category
+      if (anc_filter.length != 0) {
+        anc_filter_category_length += 1;
+      }
 
       /** Filter the PGS Scores table **/
-      if (anc_filter_length != 0 || stage || trait_filter != '') {
+      if (anc_filter_category_length != 0 || stage || trait_filter != '') {
 
         if (stage) {
-          anc_filter_length += 1;
+          anc_filter_category_length += 1;
         }
 
         if (trait_filter != '') {
-          anc_filter_length += 1;
+          anc_filter_category_length += 1;
         }
 
         // Scores
@@ -527,9 +531,26 @@ $(document).ready(function() {
                   }
                 }
               }
-              if (pass_anc_filter == stages_list.length){
-                pass_filter += 1;
+              if (anc_filter.length > 0) {
+                // Divide the number of "pass_anc_filter" by the number of stages (i.e. 3) to match the number of filters used
+                // # Example 1:
+                // 1 filter "African": gwas -> pass, dev -> pass, eval -> pass  => 3 "pass"
+                // The task is to divide it by 3 to match the number of filter: 3 pass/3 = 1 pass ==> filter pass successfully!
+                // # Example 2:
+                // 1 filter "African": gwas -> pass, dev -> pass, eval -> FAILED  => 2 "pass"
+                // The task is to divide it by 3 to match the number of filter: 2 pass/3 = 0.66 pass ==> 0.66 < 1 ==> filter pass FAILED!
+                // # Example 3:
+                // 2 filters "African", "non-EUR": gwas -> pass/pass, dev -> pass/pass, eval -> pass/FAILED  => 5 "pass"
+                // The task is to divide it by 3 to match the number of filters: 5 pass/3 = 1.66 pass ==> 1.66 < 2 ==> filter pass FAILED!
+                if (stage == 'all') {
+                  pass_anc_filter = pass_anc_filter/stages_list.length;
+                }
+                // Check that all the filters are matched in the score ancestries
+                if (pass_anc_filter == anc_filter.length){
+                  pass_filter += 1;
+                }
               }
+              // Check that all the required stages are found in the score ancestries
               if (pass_anc_stage == stages_list.length){
                 pass_filter += 1;
               }
@@ -545,7 +566,7 @@ $(document).ready(function() {
             }
 
             // Select scores
-            if (pass_filter == anc_filter_length) {
+            if (pass_filter == anc_filter_category_length) {
               var pgs_td = row['id'];
               var pgs_id = $(pgs_td).text().split('(')[0].trim();
               if (!pgs_ids_list.includes(pgs_id)) {
