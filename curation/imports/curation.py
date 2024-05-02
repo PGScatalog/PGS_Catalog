@@ -136,7 +136,7 @@ class CurationImport():
                 curation_pub = None
                 if study_import.study_publication.doi:
                     try:
-                        curation_pub = CurationPublicationAnnotation.objects.using(curation_tracker).get(doi=study_import.study_publication.doi)
+                        curation_pub = CurationPublicationAnnotation.objects.using(curation_tracker).get(doi__iexact=study_import.study_publication.doi)
                         print("  > Study found using the publication DOI")
                     except CurationPublicationAnnotation.DoesNotExist:
                         print("  ! Study NOT found using the publication DOI")
