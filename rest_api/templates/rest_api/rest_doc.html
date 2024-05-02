@@ -47,7 +47,8 @@
           presets: [ SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset ],
           plugins: [ SwaggerUIBundle.plugins.DownloadUrl ],
           layout: "StandaloneLayout",
-          useUnsafeMarkdown: true
+          useUnsafeMarkdown: true,
+          defaultModelsExpandDepth: 0
         })
         // End Swagger UI call region
         window.ui = ui
@@ -148,7 +149,9 @@
           models_to_remove = ['Pagination','Error_4XX', 'Demographic'];
           for (i=0;i<models_to_remove.length;i++) {
             model_elem = document.getElementById("model-"+models_to_remove[i]);
-            model_elem.parentNode.removeChild(model_elem);
+            if (model_elem) {
+              model_elem.parentNode.removeChild(model_elem);
+            }
           }
 
           document.getElementsByTagName("footer")[0].style.display='block';
