@@ -48,7 +48,10 @@
           plugins: [ SwaggerUIBundle.plugins.DownloadUrl ],
           layout: "StandaloneLayout",
           useUnsafeMarkdown: true,
-          defaultModelsExpandDepth: 0
+          defaultModelsExpandDepth: 0, // Collapse the Schemas section by default (set to 0). Hide the Schemas section if it's set to -1.
+          {% if is_pgs_live_site == False %}
+            validatorUrl: 'none' // Hide the validator badge at the bottom of the page.
+          {% endif %}
         })
         // End Swagger UI call region
         window.ui = ui
