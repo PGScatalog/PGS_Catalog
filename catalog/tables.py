@@ -350,6 +350,35 @@ class Browse_PendingPublicationTable(Browse_PublicationTable):
         template_name = 'catalog/pgs_catalog_django_table.html'
 
 
+class PublicationTable(tables.Table):
+    id = tables.Column(accessor='id', verbose_name=format_html('PGS<br/>Publication/Study<br/>ID <span>(PGP)</span>'))
+    scores_count = tables.Column(accessor='scores_count', verbose_name=format_html('PGS<br/>Developed'), orderable=False)
+    scores_evaluated = tables.Column(accessor='scores_evaluated_count', verbose_name=format_html('PGS<br/>Evaluated'), orderable=False)
+    doi = tables.Column(accessor='doi', verbose_name=format_html('Digital object identifier <span>(doi)</span>'))
+    PMID = tables.Column(accessor='PMID', verbose_name=format_html('PubMed ID<br/><span>(PMID)</span>'))
+    date_publication = tables.Column(accessor='date_publication', verbose_name=format_html('Publication<br/>Date'))
+    class Meta:
+        model = Publication
+        attrs = {
+            "data-show-columns" : "true",
+            "data-sort-name" : "id",
+            "data-page-size" : page_size,
+            "data-export-options" : '{"fileName": "pgs_latest_publications_data"}'
+        }
+        fields  = [
+            'id',
+            'scores_count',
+            'scores_evaluated',
+            'firstauthor',
+            'title',
+            'journal',
+            'date_publication',
+            'doi',
+            'PMID'
+        ]
+        template_name = 'catalog/pgs_catalog_django_table.html'
+
+
 class Browse_TraitTable(tables.Table):
     '''Table to browse Traits in the PGS Catalog'''
     label_link = Column_format_html(accessor='display_label', verbose_name=format_html('Trait <span>(ontology term label)</span>'), orderable=True)
