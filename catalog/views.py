@@ -477,7 +477,7 @@ def latest_release(request):
         publication_defer = ['authors','curation_status','curation_notes']
         publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
         publications = Publication.objects.defer(*publication_defer).filter(date_released=release_date).prefetch_related(*publication_prefetch_related)
-        publications_table = Browse_PublicationTable(publications, order_by="num")
+        publications_table = PublicationTable(publications, order_by="num")
         context['publications_table'] = publications_table
         context['publications_count'] = latest_release['publication_count']
 
