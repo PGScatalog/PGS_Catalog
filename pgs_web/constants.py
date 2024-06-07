@@ -3,7 +3,7 @@
 PGS_CITATION = {
     'title': 'The Polygenic Score Catalog: new functionality and tools to enable FAIR research',
     'doi': '10.1101/2024.05.29.24307783',
-    'PMID': 33692568,  # TODO: This is 2021 pubmed ID. To be updated when 2024 is published. Required in XML link file.
+    'PMID': 33692568,  # /!\ This is 2021 pubmed ID. To be updated when 2024 is published. Required in XML link file.
     'authors': 'Samuel A. Lambert, Benjamin Wingfield, Joel T. Gibson, Laurent Gil, Santhi Ramachandran, Florent Yvon, Shirin Saverimuttu, Emily Tinsley, Elizabeth Lewis, Scott C. Ritchie, Jingqin Wu, Rodrigo Canovas, Aoife McMahon, Laura W. Harris, Helen Parkinson, Michael Inouye',
     'journal': 'medRxiv (Preprint)',
     'year': 2024
