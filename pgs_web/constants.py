@@ -1,13 +1,37 @@
 # Module storing constants used across the website
 
 PGS_CITATION = {
-    'title': 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation',
-    'doi': '10.1038/s41588-021-00783-5',
-    'PMID': 33692568,
-    'authors': 'Samuel A. Lambert, Laurent Gil, Simon Jupp, Scott C. Ritchie, Yu Xu, Annalisa Buniello, Aoife McMahon, Gad Abraham, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A. L. MacArthur and Michael Inouye.',
-    'journal': 'Nature Genetics',
-    'year': 2021
+    'title': 'The Polygenic Score Catalog: new functionality and tools to enable FAIR research',
+    'doi': '10.1101/2024.05.29.24307783',
+    'PMID': 33692568,  # TODO: This is 2021 pubmed ID. To be updated when 2024 is published. Required in XML link file.
+    'authors': 'Samuel A. Lambert, Benjamin Wingfield, Joel T. Gibson, Laurent Gil, Santhi Ramachandran, Florent Yvon, Shirin Saverimuttu, Emily Tinsley, Elizabeth Lewis, Scott C. Ritchie, Jingqin Wu, Rodrigo Canovas, Aoife McMahon, Laura W. Harris, Helen Parkinson, Michael Inouye',
+    'journal': 'medRxiv (Preprint)',
+    'year': 2024
 }
+
+PGS_PUBLICATIONS = [
+    {
+        'title': PGS_CITATION['title'],
+        'authors': 'Lambert, Wingfield et al',
+        'year': PGS_CITATION['year'],
+        'doi': PGS_CITATION['doi'],
+        'journal': PGS_CITATION['journal']
+    },
+    {
+        'title': 'The NHGRI-EBI GWAS Catalog: knowledgebase and deposition resource',
+        'authors': 'Sollis et al',
+        'year': 2023,
+        'doi': '10.1093/nar/gkac1010',
+        'journal': 'Nucleic Acids Research 51(D1):D977-D985'
+    },
+    {
+        'title': 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation',
+        'authors': 'Lambert et al',
+        'year': 2021,
+        'doi': '10.1038/s41588-021-00783-5',
+        'journal': 'Nature Genetics volume 53, pages420–425'
+    }
+]
 
 ENSEMBL_VERSION = 105
 

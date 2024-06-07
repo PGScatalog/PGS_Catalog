@@ -2659,3 +2659,16 @@ $ancestry_labels: (
     }
   }
 }
+
+ul.highlight-first > li:first-child {
+  font-weight: bold;
+}
+
+.more-section {
+  .more-section-title, .moreellipses, .morelink {
+    display:inline-block;
+  }
+  .morelink {
+    margin-left: 0 !important;
+  }
+}
