@@ -15,6 +15,7 @@ PGS_PUBLICATIONS = [
         'authors': 'Lambert, Wingfield et al',
         'year': PGS_CITATION['year'],
         'doi': PGS_CITATION['doi'],
+        'PMID': None,
         'journal': PGS_CITATION['journal']
     },
     {
@@ -22,6 +23,7 @@ PGS_PUBLICATIONS = [
         'authors': 'Sollis et al',
         'year': 2023,
         'doi': '10.1093/nar/gkac1010',
+        'PMID': 36350656,
         'journal': 'Nucleic Acids Research 51(D1):D977-D985'
     },
     {
@@ -29,6 +31,7 @@ PGS_PUBLICATIONS = [
         'authors': 'Lambert et al',
         'year': 2021,
         'doi': '10.1038/s41588-021-00783-5',
+        'PMID': 33692568,
         'journal': 'Nature Genetics volume 53, pages420–425'
     }
 ]
