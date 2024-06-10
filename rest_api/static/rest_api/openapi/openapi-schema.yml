@@ -2359,27 +2359,27 @@ paths:
                       title:
                         type: string
                         description: "Title of the publication"
-                        example: 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation'
+                        example: 'The Polygenic Score Catalog: new functionality and tools to enable FAIR research'
                       doi:
                         type: string
                         description: "doi of the publication"
-                        example: '10.1038/s41588-021-00783-5'
+                        example: '10.1101/2024.05.29.24307783'
                       PMID:
                         type: number
                         description: "PubMed ID"
-                        example: 33692568
+                        example: null
                       authors:
                         type: string
                         description: "List of the publication authors"
-                        example: 'Samuel A. Lambert, ... and Michael Inouye'
+                        example: 'Samuel A. Lambert, ... , Michael Inouye'
                       journal:
                         type: string
                         description: "Name of the journal"
-                        example: 'Nature Genetics'
+                        example: 'medRxiv (Preprint)'
                       year:
                         type: number
                         description: "Year of publication"
-                        example: 2021
+                        example: 2024
                   ensembl_version:
                     type: number
                     description: "Ensembl version used to generate the Harmonized Scoring files"
