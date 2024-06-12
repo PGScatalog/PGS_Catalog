@@ -378,6 +378,25 @@ class PublicationTable(tables.Table):
         ]
         template_name = 'catalog/pgs_catalog_django_table.html'
 
+    def render_id(self, value):
+        return format_html('<a href="'+publication_path+'/{}">{}</a>', value, value)
+
+    def render_journal(self, value):
+        is_preprint = ''
+        for pp_journal in ['bioRxiv','medRxiv','Research Square']:
+            if pp_journal in value:
+                is_preprint = format_html('<span class="badge badge-pgs-small-2 ml-1" data-toggle="tooltip" title="Preprint (manuscript has not undergone peer review)">Pre</span>')
+        return format_html('<i>{}</i>{}', value, is_preprint)
+
+    def render_doi(self, value):
+        return format_html('<a class="pgs_nowrap" href="https://doi.org/{}">{}</a>', value, value)
+
+    def render_PMID(self, value):
+        return format_html('<a href="https://www.ncbi.nlm.nih.gov/pubmed/{}">{}</a>', value, value)
+
+    def render_date_publication(self,value):
+        return value.strftime('%d/%m/%Y')
+
 
 class Browse_TraitTable(tables.Table):
     '''Table to browse Traits in the PGS Catalog'''
