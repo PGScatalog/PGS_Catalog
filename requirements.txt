@@ -20,7 +20,7 @@ django-elasticsearch-dsl==7.3
 #### Version checking library for Django
 django-nine==0.2.7
 #### Others
-requests==2.31.0
+requests==2.32.1
 #### Cloud file storage
 django-storages==1.13.2
 google-auth==2.16.1
