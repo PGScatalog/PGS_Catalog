@@ -47,7 +47,7 @@ class EuropePMCLinkage:
         title = 'Link to the Polygenic Score (PGS) Catalog resource'
         url = self.pgs_url
         source = 'MED'
-        pmid = constants.PGS_CITATION['PMID']
+        pmid = constants.PGS_PUBLICATIONS[-1]['PMID']  # to be restored with constants.CITATION when preprint gets published
         self.create_xml_link(title,url,source,pmid)
 
         # Add PGS Publications
