@@ -23,7 +23,10 @@
     <meta name="ebi:review-cycle" content="30" /> <!-- In days, how often should the content be reviewed -->
     <meta name="ebi:last-review" content="2019-07-25" /> <!-- The last time the content was reviewed -->
     <meta name="ebi:expiry" content="2019-12-31" /> <!-- When this content is no longer relevant -->
-
+    {% if is_pgs_live_site is not True%}
+      <!-- Prevent the indexing of the website -->
+      <meta name="robots" content="noindex, nofollow" />
+    {% endif %}
     <!-- If you link to any other sites frequently, consider optimising performance with a DNS prefetch -->
     <link rel="dns-prefetch" href="//www.ebi.ac.uk/gwas/" />
 
