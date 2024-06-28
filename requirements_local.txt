@@ -21,6 +21,7 @@ google-cloud-storage==2.4.0
 
 #### Data import ####
 pandas==1.5.3
+numpy==1.26.0
 
 #### For webpage testing ####
 django-debug-toolbar==4.2.0
