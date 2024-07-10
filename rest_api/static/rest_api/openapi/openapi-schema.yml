@@ -498,11 +498,31 @@ components:
             class_acc:
               type: array
               description: "List of Classification Metric data"
+              example: [
+                {
+                  "name_long": 'Area Under the Receiver-Operating Characteristic Curve',
+                  "name_short": 'AUROC',
+                  "estimate": 0.63,
+                  "ci_lower": null,
+                  "ci_upper": null,
+                  "se": null
+                }
+              ]
               items:
                 $ref: '#/components/schemas/Metric'
             othermetrics:
               type: array
               description: "Metrics that do not fit into the Effect Size or Classification Metric categories. e.g. R² (proportion of the variance explained), or reclassification metrics."
+              example: [
+                {
+                  "name_long": 'Proportion of the variance explained',
+                  "name_short": 'R2',
+                  "estimate": 0.0011,
+                  "ci_lower": null,
+                  "ci_upper": null,
+                  "se": null
+                }
+              ]
               items:
                 $ref: '#/components/schemas/Metric'
         covariates:
