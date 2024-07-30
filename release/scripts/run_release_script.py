@@ -212,7 +212,7 @@ def update_curation_tracker():
                 curation_pub.save()
             except CurationPublicationAnnotation.DoesNotExist:
                 print(f"Can't find study in Curation Tracker to add the new PGP ID '{pgp_id}'")
-            except CurationPublicationAnnotation.MultipleObjectsReturned as e:
+            except CurationPublicationAnnotation.MultipleObjectsReturned:
                 print(f"DOI '{publication.doi}' is duplicated in the Curation Tracker. It won't be updated ({pgp_id}).")
 
     # Old released entries which are still missing the PubMed ID
