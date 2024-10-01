@@ -1,11 +1,11 @@
 # Module storing constants used across the website
 
 PGS_CITATION = {
-    'title': 'The Polygenic Score Catalog: new functionality and tools to enable FAIR research',
-    'doi': '10.1101/2024.05.29.24307783',
-    'PMID': None,  # To be updated when 2024 is published. (+ Update europePMCLinkage)
+    'title': 'Enhancing the Polygenic Score Catalog with tools for score calculation and ancestry normalization',
+    'doi': '10.1038/s41588-024-01937-x',
+    'PMID': 39327485,
     'authors': 'Samuel A. Lambert, Benjamin Wingfield, Joel T. Gibson, Laurent Gil, Santhi Ramachandran, Florent Yvon, Shirin Saverimuttu, Emily Tinsley, Elizabeth Lewis, Scott C. Ritchie, Jingqin Wu, Rodrigo Canovas, Aoife McMahon, Laura W. Harris, Helen Parkinson, Michael Inouye',
-    'journal': 'medRxiv (Preprint)',
+    'journal': 'Nature Genetics', # TODO: Update volume/page when printed
     'year': 2024
 }
 
