@@ -1,22 +1,32 @@
 # Module storing constants used across the website
 
-PGS_CITATION = {
+PGS_CITATION = [
+    {
     'title': 'Enhancing the Polygenic Score Catalog with tools for score calculation and ancestry normalization',
     'doi': '10.1038/s41588-024-01937-x',
     'PMID': 39327485,
     'authors': 'Samuel A. Lambert, Benjamin Wingfield, Joel T. Gibson, Laurent Gil, Santhi Ramachandran, Florent Yvon, Shirin Saverimuttu, Emily Tinsley, Elizabeth Lewis, Scott C. Ritchie, Jingqin Wu, Rodrigo Canovas, Aoife McMahon, Laura W. Harris, Helen Parkinson, Michael Inouye',
     'journal': 'Nature Genetics', # TODO: Update volume/page when printed
     'year': 2024
-}
+    },
+    {
+    'title': 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation',
+    'doi': '10.1038/s41588-021-00783-5',
+    'PMID': 33692568,
+    'authors': 'Samuel A. Lambert, Laurent Gil, Simon Jupp, Scott C. Ritchie, Yu Xu, Annalisa Buniello, Aoife McMahon, Gad Abraham, Michael Chapman, Helen Parkinson, John Danesh, Jacqueline A. L. MacArthur, Michael Inouye ',
+    'journal': 'Nature Genetics volume 53, pages420–425',
+    'year': 2021
+    }
+]
 
 PGS_PUBLICATIONS = [
     {
-        'title': PGS_CITATION['title'],
+        'title': PGS_CITATION[0]['title'],
         'authors': 'Lambert, Wingfield et al',
-        'year': PGS_CITATION['year'],
-        'doi': PGS_CITATION['doi'],
-        'PMID': PGS_CITATION['PMID'],
-        'journal': PGS_CITATION['journal']
+        'year': PGS_CITATION[0]['year'],
+        'doi': PGS_CITATION[0]['doi'],
+        'PMID': PGS_CITATION[0]['PMID'],
+        'journal': PGS_CITATION[0]['journal']
     },
     {
         'title': 'The NHGRI-EBI GWAS Catalog: knowledgebase and deposition resource',
@@ -27,12 +37,12 @@ PGS_PUBLICATIONS = [
         'journal': 'Nucleic Acids Research 51(D1):D977-D985'
     },
     {
-        'title': 'The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation',
+        'title': PGS_CITATION[1]['title'],
         'authors': 'Lambert et al',
-        'year': 2021,
-        'doi': '10.1038/s41588-021-00783-5',
-        'PMID': 33692568,
-        'journal': 'Nature Genetics volume 53, pages420–425'
+        'year': PGS_CITATION[1]['year'],
+        'doi': PGS_CITATION[1]['doi'],
+        'PMID': PGS_CITATION[1]['PMID'],
+        'journal': PGS_CITATION[1]['journal']
     }
 ]
 
@@ -55,7 +65,7 @@ USEFUL_URLS = {
     'TERMS_OF_USE'      : 'https://www.ebi.ac.uk/about/terms-of-use',
     'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1UEGH0NNuQ8ifbsxIhe8HbnG9XYjsIwSF/edit?usp=sharing',
     'CurationGoogleDoc_URL' : 'https://drive.google.com/file/d/1QYdKBnEqAmhSZIuMux7ifpT3ZBk9gupT/view',
-    'CATALOG_PUBLICATION_URL' : 'https://doi.org/'+PGS_CITATION['doi'],
+    'CATALOG_PUBLICATION_URL' : 'https://doi.org/'+PGS_CITATION[0]['doi'],
     'EPMC_REST_SEARCH'  : 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'
 }
 
