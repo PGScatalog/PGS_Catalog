@@ -1,6 +1,6 @@
 # Module storing constants used across the website
 
-PGS_CITATION = [
+PGS_CITATIONS = [
     {
     'title': 'Enhancing the Polygenic Score Catalog with tools for score calculation and ancestry normalization',
     'doi': '10.1038/s41588-024-01937-x',
@@ -21,12 +21,12 @@ PGS_CITATION = [
 
 PGS_PUBLICATIONS = [
     {
-        'title': PGS_CITATION[0]['title'],
+        'title': PGS_CITATIONS[0]['title'],
         'authors': 'Lambert, Wingfield et al',
-        'year': PGS_CITATION[0]['year'],
-        'doi': PGS_CITATION[0]['doi'],
-        'PMID': PGS_CITATION[0]['PMID'],
-        'journal': PGS_CITATION[0]['journal']
+        'year': PGS_CITATIONS[0]['year'],
+        'doi': PGS_CITATIONS[0]['doi'],
+        'PMID': PGS_CITATIONS[0]['PMID'],
+        'journal': PGS_CITATIONS[0]['journal']
     },
     {
         'title': 'The NHGRI-EBI GWAS Catalog: knowledgebase and deposition resource',
@@ -37,12 +37,12 @@ PGS_PUBLICATIONS = [
         'journal': 'Nucleic Acids Research 51(D1):D977-D985'
     },
     {
-        'title': PGS_CITATION[1]['title'],
+        'title': PGS_CITATIONS[1]['title'],
         'authors': 'Lambert et al',
-        'year': PGS_CITATION[1]['year'],
-        'doi': PGS_CITATION[1]['doi'],
-        'PMID': PGS_CITATION[1]['PMID'],
-        'journal': PGS_CITATION[1]['journal']
+        'year': PGS_CITATIONS[1]['year'],
+        'doi': PGS_CITATIONS[1]['doi'],
+        'PMID': PGS_CITATIONS[1]['PMID'],
+        'journal': PGS_CITATIONS[1]['journal']
     }
 ]
 
@@ -65,7 +65,7 @@ USEFUL_URLS = {
     'TERMS_OF_USE'      : 'https://www.ebi.ac.uk/about/terms-of-use',
     'TEMPLATEGoogleDoc_URL' : 'https://docs.google.com/spreadsheets/d/1UEGH0NNuQ8ifbsxIhe8HbnG9XYjsIwSF/edit?usp=sharing',
     'CurationGoogleDoc_URL' : 'https://drive.google.com/file/d/1QYdKBnEqAmhSZIuMux7ifpT3ZBk9gupT/view',
-    'CATALOG_PUBLICATION_URL' : 'https://doi.org/'+PGS_CITATION[0]['doi'],
+    'CATALOG_PUBLICATION_URL' : 'https://doi.org/' + PGS_CITATIONS[0]['doi'],
     'EPMC_REST_SEARCH'  : 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'
 }
 
