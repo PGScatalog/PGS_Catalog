@@ -568,34 +568,6 @@ components:
           format: date
           example: "2015-04-08"
 
-    PGSCatalogPublication:
-      type: object
-      properties:
-        title:
-          type: string
-          description: "Title of the publication"
-          example: 'Enhancing the Polygenic Score Catalog with tools for score calculation and ancestry normalization'
-        doi:
-          type: string
-          description: "doi of the publication"
-          example: '10.1038/s41588-024-01937-x'
-        PMID:
-          type: number
-          description: "PubMed ID"
-          example: 39327485
-        authors:
-          type: string
-          description: "Publication first author(s)"
-          example: 'Lambert et al'
-        journal:
-          type: string
-          description: "Name of the journal"
-          example: 'Nature Genetics'
-        year:
-          type: number
-          description: "Year of publication"
-          example: 2024
-
     Publication_extended:
       description: "Based on the **Publication** object, with the addition of the '**authors**' and the '**associated_pgs_ids**'."
       allOf:
@@ -2432,34 +2404,32 @@ paths:
                     type: array
                     description: "List of all PGS Catalog publications"
                     items:
-                      $ref: '#/components/schemas/PGSCatalogPublication'
-                    example: [
-                      {
-                        "title": "Enhancing the Polygenic Score Catalog with tools for score calculation and ancestry normalization",
-                        "doi": "10.1038/s41588-024-01937-x",
-                        "PMID": 39327485,
-                        "authors": "Lambert et al",
-                        "journal": "Nature Genetics",
-                        "year": 2024
-                      },
-                      {
-                        "title": "The NHGRI-EBI GWAS Catalog: knowledgebase and deposition resource",
-                        "authors": "Sollis et al",
-                        "year": 2023,
-                        "doi": "10.1093/nar/gkac1010",
-                        "PMID": 36350656,
-                        "journal": "Nucleic Acids Research 51(D1):D977-D985"
-                      },
-                      {
-                        "title": "The Polygenic Score Catalog as an open database for reproducibility and systematic evaluation",
-                        "authors": "Lambert et al",
-                        "year": 2021,
-                        "doi": "10.1038/s41588-021-00783-5",
-                        "PMID": 33692568,
-                        "journal": "Nature Genetics volume 53, pages420–425"
-                      }
-
-                    ]
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                          description: "Title of the publication"
+                          example: 'Enhancing the Polygenic Score Catalog with tools for score calculation and ancestry normalization'
+                        doi:
+                          type: string
+                          description: "doi of the publication"
+                          example: '10.1038/s41588-024-01937-x'
+                        PMID:
+                          type: number
+                          description: "PubMed ID"
+                          example: 39327485
+                        authors:
+                          type: string
+                          description: "Publication first author(s)"
+                          example: 'Lambert et al'
+                        journal:
+                          type: string
+                          description: "Name of the journal"
+                          example: 'Nature Genetics'
+                        year:
+                          type: number
+                          description: "Year of publication"
+                          example: 2024
                   ensembl_version:
                     type: number
                     description: "Ensembl version used to generate the Harmonized Scoring files"
