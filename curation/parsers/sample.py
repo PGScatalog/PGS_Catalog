@@ -72,6 +72,7 @@ class SampleData(GenericData):
                         else:
                             variability = value
                         current_demographic.add_data('variability', variability)
+            current_demographic.update_demographic_data()
         return current_demographic
 
 
