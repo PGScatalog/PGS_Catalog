@@ -173,6 +173,7 @@ PGS_CONTRIBUTORS = [
     {'name': 'Laurent Gil','group': ['hdruk']},
     {'name': 'Benjamin Wingfield','group': ['ebi']},
     {'name': 'Florent Yvon','group': ['inouye']},
+    {'name': 'Joel Gibson','group': ['curators','inouye']},
     {'name': 'Aoife McMahon', 'group': ['curators','nhgri-ebi']},
     {'name': 'Santhi Ramachandran','group': ['nhgri-ebi']},
     {'name': 'Elizabeth Lewis','group': ['nhgri-ebi']},
