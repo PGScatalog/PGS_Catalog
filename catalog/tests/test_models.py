@@ -1155,7 +1155,7 @@ class RetiredScoreTest(TestCase):
 
     def test_retired_score(self):
         score_id = 'PGS000999'
-        score_doi = constants.PGS_CITATION['doi']
+        score_doi = constants.PGS_CITATIONS[0]['doi']
         score_notes = 'This score has been retired'
         retired_score = self.create_retired(score_id, score_doi, score_notes)
         # Instance
