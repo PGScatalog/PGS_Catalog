@@ -133,7 +133,7 @@ class UpdateGwasStudies:
                             old_set = ', '.join(sorted([x.name_short for x in sample.cohorts.all()]))
                             new_set = ', '.join(sorted([x.name_short for x in cohorts_list]))
                             if old_set != new_set:
-                                print(f"\t# {new_sample.source_GWAS_catalog}: replacing cohorts list")
+                                print(f"\t/!\ Replacing cohorts list:")
                                 print(f"\t  - Old set: {old_set}")
                                 print(f"\t  + New set: {new_set}")
                     # Copy the list of cohorts from the existing sample.
