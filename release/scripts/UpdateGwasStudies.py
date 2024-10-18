@@ -128,6 +128,14 @@ class UpdateGwasStudies:
                     # Override the list of cohorts found in the existing sample
                     if cohorts_list:
                         new_sample.cohorts.set(cohorts_list)
+                        # Print a message if the 2 list of cohorts (old & new) are different
+                        if sample.cohorts:
+                            old_set = ', '.join(sorted([x.name_short for x in sample.cohorts.all()]))
+                            new_set = ', '.join(sorted([x.name_short for x in cohorts_list]))
+                            if old_set != new_set:
+                                print(f"\t# {new_sample.source_GWAS_catalog}: replacing cohorts list")
+                                print(f"\t  - Old set: {old_set}")
+                                print(f"\t  + New set: {new_set}")
                     # Copy the list of cohorts from the existing sample.
                     # Need to be added once the new Sample object as been saved,
                     # i.e. when the Sample `id` has been created
