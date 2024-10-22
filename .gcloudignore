@@ -41,6 +41,7 @@
 
 # Virtual env
 /venv/
+.venv
 
 # Other
 /rest_api/fixtures/
