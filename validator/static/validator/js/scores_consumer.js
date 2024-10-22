@@ -66,7 +66,6 @@ async function validation(validateFileHandle) {
             return results;
         } else if (error) {
             validation_out.value = '';
-            console.log(typeof error);
             console.log("pyodideWorker error: ", error);
             appendAlertToElement("error",'Error: '+error,'danger')
         }

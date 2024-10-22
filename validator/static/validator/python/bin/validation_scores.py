@@ -76,4 +76,4 @@ else:
         'response': response
     }
 
-json.dumps(data)
+json.dumps(data)  # Is returned by pyodide.runPythonAsync()

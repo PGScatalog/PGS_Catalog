@@ -18,6 +18,9 @@ class PyodideLogger(Logger):
 
 
 class PyodideConnector(Connector):
+    """This customised connector is necessary as the 'requests' python module is not supported in WebAssembly.
+    Moreover, the requests for EFO traits must be redirected to a proxy to avoid cross-origin errors."""
+
     def __init__(self):
         super().__init__(logger=PyodideLogger())
 
@@ -25,6 +28,7 @@ class PyodideConnector(Connector):
         if payload:
             query = '&'.join([f"{k}={v}" for k, v in payload.items()])
             url = url + '?' + query
+        # Using pyodide open_url instead of python requests.get()
         query_result_io = open_url(url)
         query_result = query_result_io.read()
 

@@ -48,13 +48,13 @@ function report_items_2_html(reports_list) {
       }
       let message = report_item.message;
       // Value highlighting
-      message = message.replace(/\"(.+?)\"/g, "\"<b>$1</b>\"");
+      message = message.replace(/"(.+?)"/g, "\"<b>$1</b>\"");
       // Leading space
-      message = message.replace(/\"<b>\s+/g, "\"<b><span class=\"pgs_color_red\">_</span>");
+      message = message.replace(/"<b>\s+/g, "\"<b><span class=\"pgs_color_red\">_</span>");
       // Trailing space
-      message = message.replace(/\s+<\/b>\"/g, "<span class=\"pgs_color_red\">_</span></b>\"");
+      message = message.replace(/\s+<\/b>"/g, "<span class=\"pgs_color_red\">_</span></b>\"");
       // Column highlighting
-      message = message.replace(/\'(.+?)\'/g, "\'<span class=\"pgs_color_1\">$1</span>\'");
+      message = message.replace(/'(.+?)'/g, "\'<span class=\"pgs_color_1\">$1</span>\'");
       report += "<li>"+lines+message+"</li>";
     });
     report += '</ul>';
@@ -102,7 +102,7 @@ function showResults(results){
 function showSystemError(errors){
     let status_html = '<div><b>File validation:</b> <i class="fa fa-times-circle-o pgs_color_red"></i> Failed</div>';
       $('#check_status').html(status_html);
-      let error_msg = (errors && errors != '') ? errors : 'Internal error';
+      let error_msg = (errors && errors !== '') ? errors : 'Internal error';
       let error_html = '<div class="clearfix">'+
                         '  <div class="mt-3 float_left pgs_note pgs_note_2">'+
                         '    <div><b>Error:</b> '+error_msg+'</div>'+
