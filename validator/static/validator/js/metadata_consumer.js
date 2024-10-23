@@ -1,6 +1,7 @@
 import "https://cdn.datatables.net/2.0.3/js/dataTables.js"
-import { asyncRun } from "./py-worker.js";
 
+const pyworker = await import((on_gae)?'./py-worker.min.js':'py-worker');
+const asyncRun = pyworker.asynRun;
 
 const validate_metadata = await fetch(new URL('../python/bin/validation_metadata.py', import.meta.url, null)).then(response => response.text());
 let dirHandle;

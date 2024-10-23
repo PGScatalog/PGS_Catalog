@@ -4,7 +4,14 @@
 {% block title %}Metadata Template Validation{% endblock %}
 
 {% block desc %}
+  <script type="application/javascript">
+      const on_gae = {{ is_pgs_app_on_gae }};
+  </script>
+  {% if is_pgs_app_on_gae %}
+    <script defer type="module" src="{% static 'validator/js/scores_consumer.min.js' %}"></script>
+  {% else %}
     <script defer type="module" src="{% static 'validator/js/scores_consumer.js' %}"></script>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
