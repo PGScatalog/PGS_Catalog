@@ -1,7 +1,7 @@
 import "https://cdn.datatables.net/2.0.3/js/dataTables.js"
 
 const pyworker = await import((on_gae)?'./py-worker.min.js':'./py-worker.js');
-const asyncRun = pyworker.asynRun;
+const asyncRun = pyworker.asyncRun;
 
 const validate_scores = await fetch(new URL('../python/bin/validation_scores.py', import.meta.url, null)).then(response => response.text());
 
