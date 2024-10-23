@@ -1,5 +1,3 @@
-import "https://cdn.datatables.net/2.0.3/js/dataTables.js"
-
 const pyworker = await import((on_gae)?'./py-worker.min.js':'./py-worker.js');
 const asyncRun = pyworker.asyncRun;
 
