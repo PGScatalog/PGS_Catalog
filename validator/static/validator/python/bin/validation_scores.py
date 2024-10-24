@@ -59,7 +59,7 @@ try:
                 response = response + content + "\n"
 
 except FileNotFoundError as e:
-    error = "Could not read input file. Is the selected file in the in the directory with granted rights?"
+    error = "Could not read input file. Is the selected file in the directory with granted rights?"
 except Exception as e:
     error = str(e)
 
