@@ -97,11 +97,9 @@ async function appendAlertToElement(elementId, message, type) {
 
 document.querySelector('#validate_directory').addEventListener('click', async () => {
     validation_out.value = "Initializing validation...\n";
-    //$('#validate').html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> Validating...');
     startLoading();
     await validation(null);
     finishLoading();
-    //$('#validate').html('<button id="validate" class="btn btn-primary" data-mdb-ripple-init>Validate the selected file</button>');
 });
 
 document.querySelector('#mountvalidate').addEventListener('click', async () => {
@@ -111,8 +109,6 @@ document.querySelector('#mountvalidate').addEventListener('click', async () => {
     }
     else {
         let dirName = await mountLocalDirectory();
-        //appendAlertToElement('validatediv','Nice, you have granted the permission to the local directory '+dirHandle.name,'success' )
-        //document.querySelector('#mount').disabled = true;
         successMount(dirName);
         document.querySelector('#validate_single').disabled = false;
         document.querySelector('#validate_directory').disabled = false;
