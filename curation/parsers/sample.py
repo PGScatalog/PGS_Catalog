@@ -18,7 +18,7 @@ class SampleData(GenericData):
         - val: data value
         Return type: DemographicData object
         '''
-        unit_regex = "([-+]?\d*\.\d+|\d+) ([a-zA-Z]+)"
+        unit_regex = r"([-+]?\d*\.\d+|\d+) ([a-zA-Z]+)"
         current_demographic = DemographicData(field,val,self.spreadsheet_name)
         if type(val) == float:
             current_demographic.add_data('estimate', val)
@@ -129,7 +129,7 @@ class SampleData(GenericData):
                     elif field == 'sample_percent_male':
                         # Remove % character
                         val_str = str(val)
-                        if re.search('\%',val_str):
+                        if re.search(r'\%',val_str):
                             val_str = re.sub(r'\%', r'', val_str)
                             val_str = re.sub(r' ', r'', val_str)
                             val = float(val_str)

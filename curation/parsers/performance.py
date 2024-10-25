@@ -52,7 +52,7 @@ class PerformanceData(GenericData):
         val = self.replace_non_ascii_chars(field,val)
 
         # Estimate with percentage as unit
-        if re.match('^\d+\.?\d*\s*\%$',val):
+        if re.match(r'^\d+\.?\d*\s*\%$',val):
             val = val.replace('%','').strip()
             current_metric.add_data('estimate', val)
             current_metric.add_data('unit', '%')
