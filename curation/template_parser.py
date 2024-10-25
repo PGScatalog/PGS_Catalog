@@ -300,6 +300,7 @@ class CurationTemplate():
         Check that all the required data is available
         > Parameter:
             - gcst_id: GWAS Study ID (e.g. GCST010127)
+            - spreadsheet_cohorts: list of CohortData objects for the current sample, collected from the spreadsheet
             - spreadsheet_name: Spreadsheet name for report (e.g. Sample Descriptions)
         > Return: list of dictionnaries (1 per ancestry)
         """
