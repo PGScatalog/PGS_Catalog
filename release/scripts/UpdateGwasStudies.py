@@ -130,12 +130,18 @@ class UpdateGwasStudies:
                         new_sample.cohorts.set(cohorts_list)
                         # Print a message if the 2 list of cohorts (old & new) are different
                         if sample.cohorts:
-                            old_set = ', '.join(sorted([x.name_short for x in sample.cohorts.all()]))
-                            new_set = ', '.join(sorted([x.name_short for x in cohorts_list]))
-                            if old_set != new_set:
+                            new_set = sorted([x.name_short.upper() for x in cohorts_list])
+
+                            old_set_string = ', '.join(sorted([x.name_short.upper() for x in sample.cohorts.all()]))
+                            new_set_string = ', '.join(new_set)
+                            if old_set_string != new_set_string:
+                                # Add cohorts which are already associated to the sample in the database, but not in the GWAS study
+                                for sample_cohort in sample.cohorts.all():
+                                    if sample_cohort.name_short.upper() not in new_set:
+                                        new_sample.cohorts.add(sample_cohort)
                                 print(f"\t/!\ Replacing cohorts list:")
-                                print(f"\t  - Old set: {old_set}")
-                                print(f"\t  + New set: {new_set}")
+                                print(f"\t  - Old set: {old_set_string}")
+                                print(f"\t  + New set: {', '.join(sorted([x.name_short.upper() for x in new_sample.cohorts.all()]))}")
                     # Copy the list of cohorts from the existing sample.
                     # Need to be added once the new Sample object as been saved,
                     # i.e. when the Sample `id` has been created

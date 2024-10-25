@@ -201,7 +201,10 @@ class CurationTemplate():
             sample_keys = sample_data.data.keys()
             if 'sample_number' not in sample_keys:
                 if 'source_GWAS_catalog' in sample_keys:
-                    gwas_study = self.get_gwas_study(sample_data.data['source_GWAS_catalog'],spreadsheet_name)
+                    spreadsheet_cohorts = []
+                    if 'cohorts' in sample_keys:
+                        spreadsheet_cohorts = sample_data.data['cohorts']
+                    gwas_study = self.get_gwas_study(sample_data.data['source_GWAS_catalog'],spreadsheet_cohorts,spreadsheet_name)
                     if gwas_study:
                         for gwas_ancestry in gwas_study:
                             c_sample = SampleData(spreadsheet_name)
@@ -291,7 +294,7 @@ class CurationTemplate():
         return sample_data
 
 
-    def get_gwas_study(self,gcst_id:str,spreadsheet_name:str) -> dict:
+    def get_gwas_study(self,gcst_id:str,spreadsheet_cohorts:list,spreadsheet_name:str) -> dict:
         """
         Get the GWAS Study information related to the PGS sample.
         Check that all the required data is available
@@ -308,18 +311,25 @@ class CurationTemplate():
             return study_data
         response_data = response.json()
         if response_data:
+            # List the cohorts present in the spreadsheet for this sample
+            spreadsheet_cohorts_names = []
+            if spreadsheet_cohorts:
+                spreadsheet_cohorts_names = [x.name.upper() for x in spreadsheet_cohorts]
+
             try:
                 source_PMID = response_data['publicationInfo']['pubmedId']
-
                 # Create list of cohorts if it exists in the GWAS study
                 # This override the Cohorts found in the cohort column in the spreadsheet
-                cohorts_list = []
+                cohorts_list = spreadsheet_cohorts
                 if 'cohort' in response_data.keys():
                     cohorts = response_data['cohort'].split('|')
                     for cohort in cohorts:
                         cohort_id = cohort.upper()
+                        # Check if cohort in list of cohort references
+                        # # and if the cohort is already in the list provided by th author
                         if cohort_id in self.parsed_cohorts:
-                            cohorts_list.append(self.parsed_cohorts[cohort_id])
+                            if cohort_id not in spreadsheet_cohorts_names:
+                                cohorts_list.append(self.parsed_cohorts[cohort_id])
                         else:
                             self.report_error(spreadsheet_name, f'Error: the GWAS Catalog sample cohort "{cohort}" cannot be found in the Cohort Refr. spreadsheet')
 
