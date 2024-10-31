@@ -3,10 +3,14 @@ import js
 import json
 from pyodide.http import open_url
 from validator.main_validator import PGSMetadataValidator
-from validator.request.connector import Connector, UnknownError, NotFound, Logger
+from validator.request.connector import Connector, UnknownError, NotFound, Logger, ServiceNotWorking
 
 # Need a proxy for OLS as Pyodide causes a cross-origin issue with the OLS url
 OLS_URL = "https://ols-proxy-dot-pgs-catalog.appspot.com/ols-proxy/efo/%s"
+
+# In case of failure to fetch a GWAS, we can try to fetch the following one as positive test to confirm
+# that the error is really due to incorrect id or if the service is down. Both cases will return 404.
+TEST_GCST = 'GCST90132222'
 
 file = io.BytesIO(bytes(js.file_content))
 file_name = js.file_name
@@ -20,6 +24,9 @@ class PyodideLogger(Logger):
 class PyodideConnector(Connector):
     """This customised connector is necessary as the 'requests' python module is not supported in WebAssembly.
     Moreover, the requests for EFO traits must be redirected to a proxy to avoid cross-origin errors."""
+
+    # If a GWAS request returns 404, we will try with a test term. If the test term returns 404 too, this attributes is set to True.
+    gwas_is_down = False
 
     def __init__(self):
         super().__init__(logger=PyodideLogger())
@@ -46,9 +53,21 @@ class PyodideConnector(Connector):
         else:
             raise UnknownError(message="Unexpected response from URL: %s" % url, url=url)
 
+    def get_gwas(self, gcst_id) -> dict:
+        try:
+            return super().get_gwas(gcst_id)
+        except Exception as e:
+            try:
+                super().get_gwas(TEST_GCST)
+            except Exception:
+                self.gwas_is_down = True
+                raise ServiceNotWorking()
+            raise e
+
 
 def validate():
-    metadata_validator = PGSMetadataValidator(file, False, PyodideConnector())
+    pyodide_connector = PyodideConnector()
+    metadata_validator = PGSMetadataValidator(file, False, pyodide_connector)
     metadata_validator.template_columns_schema_file = '/home/pyodide/TemplateColumns2Models.xlsx'
     metadata_validator.parse_spreadsheets()
     metadata_validator.parse_publication()
@@ -87,6 +106,12 @@ def validate():
                 response['warning'][warning_spreadsheet].append(warning_entry)
 
     response['status'] = status
+
+    if pyodide_connector.gwas_is_down:
+        response['messages'] = [
+            'Error: GWAS service seems down. Please retry validation later.'
+        ]
+
     return response
 
 

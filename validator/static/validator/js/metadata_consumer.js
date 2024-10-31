@@ -96,6 +96,14 @@ function showResults(results){
     } else {
         $('#report_warning').html('');
     }
+    // Other messages
+    if (data.messages){
+        let report = '';
+        $.each(data.messages, function (index, message){
+            report = report + '<div class="alert alert-danger alert-dismissible">'+message+'</div>'+"\n";
+        })
+        $('#report_messages').html(report);
+    }
 }
 
 function showSystemError(errors){
