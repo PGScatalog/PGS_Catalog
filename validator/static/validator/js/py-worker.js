@@ -1,3 +1,4 @@
+// Adapted from https://github.com/EBISPOT/gwas-sumstats-tools-ssf-morph
 // This script is setting up a way to run Python scripts asynchronously in a web worker. It sends the Python script to the worker and sets up a callback to handle the result when the worker has finished executing the script.
 const pyodideWorker = new Worker(new URL((on_gae) ? "webworker.min.js" : "webworker.js", import.meta.url, null));
 

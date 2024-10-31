@@ -1,4 +1,5 @@
 // webworker.js
+// Adapted from https://github.com/EBISPOT/gwas-sumstats-tools-ssf-morph
 
 // Setup your project to serve `py-worker.js`. You should also serve
 // `pyodide.js`, and all its associated `.asm.js`, `.json`,
