@@ -319,8 +319,8 @@ class CurationTemplate():
 
             try:
                 source_PMID = response_data['publicationInfo']['pubmedId']
-                # Create list of cohorts if it exists in the GWAS study
-                # This override the Cohorts found in the cohort column in the spreadsheet
+                # Update the Cohorts list found in the cohort column of the spreadsheet by
+                # adding the list of cohorts from the GWAS study (if the list is present)
                 cohorts_list = spreadsheet_cohorts
                 if 'cohort' in response_data.keys():
                     cohorts = response_data['cohort'].split('|')

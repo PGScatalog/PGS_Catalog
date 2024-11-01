@@ -125,7 +125,7 @@ class UpdateGwasStudies:
                 # Cohorts data
                 if cohorts_list or sample.cohorts:
                     # Use the list of cohorts from the GWAS study (if available)
-                    # Override the list of cohorts found in the existing sample
+                    # Update the list of cohorts from the existing sample if new cohorts are found in the GWAS study
                     if cohorts_list:
                         new_sample.cohorts.set(cohorts_list)
                         # Print a message if the 2 list of cohorts (old & new) are different
