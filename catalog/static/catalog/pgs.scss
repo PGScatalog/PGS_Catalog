@@ -2678,3 +2678,12 @@ ul.highlight-first > li:first-child {
     margin-left: 0 !important;
   }
 }
+
+/* Metadata file validator */
+.custom-file-label {
+  border: 1px solid $pgs_petrol;
+}
+.custom-file-label::after {
+    background-color: $pgs_petrol;
+    color: #FFF;
+}
