@@ -34,8 +34,6 @@ self.onmessage = async (event) => {
     }
     // Now is the easy part, the one that is similar to working in the main thread:
     try {
-      let startTime = performance.now();
-
       await self.pyodide.loadPackagesFromImports(python);
       // mount local directory, make the nativefs as a global vaiable.
       if (! self.fsmounted && self.dirHandle){
@@ -50,10 +48,6 @@ self.onmessage = async (event) => {
             await self.nativefs.syncfs();
         }
 
-
-      let endTime = performance.now();
-
-      console.log(`Encryption web worker took ${(endTime - startTime) / 1000} seconds`)
       self.postMessage({ results, id });
     } catch (error) {
         console.log(error);
