@@ -6,14 +6,9 @@ const validate_scores = await fetch(new URL('../python/bin/validation_scores.py'
 let dirHandle;
 let validateFileHandle;
 
-function startLoading(){
+function toggleLoading(on){
     const spinner = document.getElementById('pgs_loading');
-    spinner.style.visibility = "visible";
-}
-
-function finishLoading(){
-    const spinner = document.getElementById('pgs_loading');
-    spinner.style.visibility = "hidden";
+    spinner.style.visibility = on ? "visible" : "hidden";
 }
 
 function successMount(dirName){
@@ -97,9 +92,9 @@ async function appendAlertToElement(elementId, message, type) {
 
 document.querySelector('#validate_directory').addEventListener('click', async () => {
     validation_out.value = "Initializing validation...\n";
-    startLoading();
+    toggleLoading(true);
     await validation(null);
-    finishLoading();
+    toggleLoading(false);
 });
 
 document.querySelector('#mountvalidate').addEventListener('click', async () => {
@@ -117,7 +112,7 @@ document.querySelector('#mountvalidate').addEventListener('click', async () => {
 
 document.querySelector('#validate_single').addEventListener('click', async () => {
     [validateFileHandle] = await window.showOpenFilePicker();
-    startLoading();
+    toggleLoading(true);
     await validation(validateFileHandle);
-    finishLoading();
+    toggleLoading(false);
 });
