@@ -55,10 +55,11 @@ if 'PGS_CURATION_SITE' in os.environ:
 # Application definition #
 #------------------------#
 INSTALLED_APPS = [
-	'catalog.apps.CatalogConfig',
+    'catalog.apps.CatalogConfig',
     'rest_api.apps.RestApiConfig',
     'search.apps.SearchConfig',
     'benchmark.apps.BenchmarkConfig',
+    'validator.apps.ValidatorConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -18,6 +18,7 @@
 /catalog/static/
 /rest_api/static/
 /curation_tracker/static/
+/validator/static/
 
 # Curation and release directories (not needed for the website)
 /curation/
@@ -41,6 +42,7 @@
 
 # Virtual env
 /venv/
+.venv
 
 # Other
 /rest_api/fixtures/

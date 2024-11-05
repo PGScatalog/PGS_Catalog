@@ -1,0 +1,60 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Metadata Template Validation{% endblock %}
+
+{% block desc %}
+  <script type="application/javascript">
+      const on_gae = {{ is_pgs_app_on_gae }};
+  </script>
+  {% if is_pgs_app_on_gae %}
+    <script defer type="module" src="{% static 'validator/js/metadata_consumer.min.js' %}"></script>
+  {% else %}
+    <script defer type="module" src="{% static 'validator/js/metadata_consumer.js' %}"></script>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/curation_tracker/static">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Metadata Template Validation</li>
+      </ol>
+    </nav>
+
+    <h2><i class="fa-solid fa-file-circle-check pgs_color_1 pr-2"></i><span style="color:#222;font-weight:200">Metadata Template Validation</span></h2>
+
+    <div class="mt-4 mb-4">
+        <div class="dropzone d-flex" id="dropzone">
+            <div class="custom-file" style="max-width:275px;z-index:1">
+              <input type="file" class="custom-file-input" id="myfile" name="myfile">
+              <label class="custom-file-label text-truncate" for="myfile" style="z-index:1">Select Template file</label>
+            </div>
+            <span class="pl-3 pr-3" id="upload_arrow" style="display:none;line-height:36px;z-index:2"><i class="fa-solid fa-arrow-circle-right" style="font-size:18px;vertical-align:middle;line-height:36px;color:#00adb5"></i></span>
+            <button class="btn btn-pgs" style="display:none;z-index:2" id="upload_btn"><i class="fa-solid fa-gear"></i> Validate</button>
+        </div>
+        <div class="mt-1" style="margin-left:1px;font-size:12px"><i class="fa-solid fa-info-circle pgs_color_1"></i> More information about the Template file <a href="/submit/">here</a>.</div>
+    </div>
+    
+    <div id="check_status"></div>
+    <div id="report_messages"></div>
+    <!-- Spinner -->
+    <div id="pgs_loading" style="visibility: hidden;">
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border pgs_color_1" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center mt-2">Data validation ...</div>
+    </div>
+    <div id="report_error"></div>
+    <div id="report_warning"></div>
+    <div id="error_file_extension" class="clearfix" style="display:none">
+        <div class="mt-3 float_left pgs_note pgs_note_2">
+          <div>
+            <span></span>The file extension is not <b>xlsx</b>.
+          </div>
+        </div>
+    </div>
+    
+{% endblock %}

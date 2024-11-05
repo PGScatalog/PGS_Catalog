@@ -1,0 +1,52 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Scoring Files Validation{% endblock %}
+
+{% block desc %}
+  <script type="application/javascript">
+      const on_gae = {{ is_pgs_app_on_gae }};
+  </script>
+  {% if is_pgs_app_on_gae %}
+    <script defer type="module" src="{% static 'validator/js/scores_consumer.min.js' %}"></script>
+  {% else %}
+    <script defer type="module" src="{% static 'validator/js/scores_consumer.js' %}"></script>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="You are here:">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/curation_tracker/static">PGS Catalog</a></li>
+        <li class="breadcrumb-item">Scoring Files Validation</li>
+      </ol>
+    </nav>
+
+    <h2><i class="fa-solid fa-file-circle-check pgs_color_1 pr-2"></i><span style="color:#222;font-weight:200">Scoring Files Validation</span><span class="ml-4" style="background-color:#BE4A81;border:2px solid #BE4A81;padding:4px;border-radius:5px;font-size:16px;line-height:37px;vertical-align:middle;color:white"><span>beta</span></span></h2>
+    
+    <div class="mt-4 mb-4">
+        <div>
+            1) Please grant the permission to read your local directory that contains your scores to validate: <button type="button" id="mountvalidate" class="btn btn-pgs">Grant permission</button>
+            <div style="color: #007C82" id="grant_message"></div>
+        </div>
+        <br>
+        <div>
+            2) Then click on <button id="validate_single" class="btn btn-pgs" disabled>Validate One File</button> to select only one file to validate in this directory,
+            or click on <button id="validate_directory" class="btn btn-pgs" disabled>Validate Directory</button> to validate all scoring files located in this directory.
+        </div>
+        <br>
+        <!-- Spinner -->
+        <div id="pgs_loading" style="visibility: hidden;">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border pgs_color_1" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center mt-2">Data validation ...</div>
+        </div>
+        <div id="error"></div>
+        <textarea id="validation_out" style="width: 100%;" rows=10 disabled></textarea>
+    </div>
+
+    
+{% endblock %}

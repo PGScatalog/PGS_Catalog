@@ -20,16 +20,22 @@
   </section>
 
   <section>
-    <!-- "Benchmark" button -->
-    <div class="row no-gutters pgs_section mb-5">
-      <div class="col pgs_benchmark" style="justify-content:left">
+    <div class="row no-gutters pgs_section mb-5" style="gap: 40px">
+      <!-- "Benchmark" button -->
+      <div class="pgs_benchmark" style="justify-content:left">
         <a class="pgs_no_icon_link" href="/labs/benchmarking">
           <div>Benchmarking PGS</div>
-          <div>
-            <span class="pgs_benchmark_logo"></span>
-          </div>
+          <div><span class="pgs_benchmark_logo"></span></div>
+        </a>
+      </div>
+      <!-- "Score Validator" button -->
+      <div class="pgs_benchmark" style="justify-content:left">
+        <a class="pgs_no_icon_link" href="{% url 'scoring_files_validation' %}">
+          <div>Score Validator</div>
+          <div><span class="score_validator_logo"></span></div>
         </a>
       </div>
     </div>
   </section>
+
 {% endblock %}
