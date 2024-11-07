@@ -321,19 +321,26 @@ class CurationTemplate():
                 source_PMID = response_data['publicationInfo']['pubmedId']
                 # Update the Cohorts list found in the cohort column of the spreadsheet by
                 # adding the list of cohorts from the GWAS study (if the list is present)
-                cohorts_list = spreadsheet_cohorts
+                cohorts_list = spreadsheet_cohorts.copy()
                 if 'cohort' in response_data.keys():
                     cohorts = response_data['cohort'].split('|')
                     for cohort in cohorts:
                         cohort_id = cohort.upper()
                         # Check if cohort in list of cohort references
-                        # # and if the cohort is already in the list provided by th author
+                        # and if the cohort is already in the list provided by the author
                         if cohort_id in self.parsed_cohorts:
                             if cohort_id not in spreadsheet_cohorts_names:
                                 cohorts_list.append(self.parsed_cohorts[cohort_id])
                         else:
                             self.report_error(spreadsheet_name, f'Error: the GWAS Catalog sample cohort "{cohort}" cannot be found in the Cohort Refr. spreadsheet')
+                    # Print a message if the list of Cohorts from the spreadsheet and from GWAS Catalog (REST API) have been merged.
+                    if spreadsheet_cohorts and len(spreadsheet_cohorts) != len(cohorts_list):
+                        msg = f'''GWAS study {gcst_id} -> the list of cohorts from the spreadsheet has been merged with the one from GWAS.
+                        \t- Spreadsheet list: {', '.join(sorted(spreadsheet_cohorts_names))}
+                        \t+ Merged GWAS list: {', '.join(sorted([x.name.upper() for x in cohorts_list]))}'''
+                        self.report_warning(spreadsheet_name, msg)
 
+                # Ancestry information
                 for ancestry in response_data['ancestries']:
 
                     if ancestry['type'] != 'initial':
