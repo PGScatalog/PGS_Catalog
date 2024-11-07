@@ -201,12 +201,17 @@ class CurationTemplate():
             sample_keys = sample_data.data.keys()
             if 'sample_number' not in sample_keys:
                 if 'source_GWAS_catalog' in sample_keys:
-                    gwas_study = get_gwas_study(sample_data.data['source_GWAS_catalog'])
+                    spreadsheet_cohorts = []
+                    if 'cohorts' in sample_keys:
+                        spreadsheet_cohorts = sample_data.data['cohorts']
+                    gwas_study = self.get_gwas_study(sample_data.data['source_GWAS_catalog'],spreadsheet_cohorts,spreadsheet_name)
                     if gwas_study:
                         for gwas_ancestry in gwas_study:
                             c_sample = SampleData(spreadsheet_name)
+                            # Spreadsheet sample/cohort data
                             for col, entry in sample_data.data.items():
                                 c_sample.add_data(col, entry)
+                            # GWAS Catalog sample/cohort data
                             for field, val in gwas_ancestry.items():
                                 c_sample.add_data(field, val)
                             self.update_report(c_sample)
@@ -289,6 +294,99 @@ class CurationTemplate():
         return sample_data
 
 
+    def get_gwas_study(self,gcst_id:str,spreadsheet_cohorts:list,spreadsheet_name:str) -> dict:
+        """
+        Get the GWAS Study information related to the PGS sample.
+        Check that all the required data is available
+        > Parameter:
+            - gcst_id: GWAS Study ID (e.g. GCST010127)
+            - spreadsheet_cohorts: list of CohortData objects for the current sample, collected from the spreadsheet
+            - spreadsheet_name: Spreadsheet name for report (e.g. Sample Descriptions)
+        > Return: list of dictionnaries (1 per ancestry)
+        """
+        study_data = []
+        gwas_rest_url = 'https://www.ebi.ac.uk/gwas/rest/api/studies/'
+        response = requests.get(f'{gwas_rest_url}{gcst_id}')
+
+        if not response:
+            return study_data
+        response_data = response.json()
+        if response_data:
+            # List the cohorts present in the spreadsheet for this sample
+            spreadsheet_cohorts_names = []
+            if spreadsheet_cohorts:
+                spreadsheet_cohorts_names = [x.name.upper() for x in spreadsheet_cohorts]
+
+            try:
+                source_PMID = response_data['publicationInfo']['pubmedId']
+                # Update the Cohorts list found in the cohort column of the spreadsheet by
+                # adding the list of cohorts from the GWAS study (if the list is present)
+                cohorts_list = spreadsheet_cohorts.copy()
+                if 'cohort' in response_data.keys():
+                    cohorts = response_data['cohort'].split('|')
+                    for cohort in cohorts:
+                        cohort_id = cohort.upper()
+                        # Check if cohort in list of cohort references
+                        # and if the cohort is already in the list provided by the author
+                        if cohort_id in self.parsed_cohorts:
+                            if cohort_id not in spreadsheet_cohorts_names:
+                                cohorts_list.append(self.parsed_cohorts[cohort_id])
+                        else:
+                            self.report_error(spreadsheet_name, f'Error: the GWAS Catalog sample cohort "{cohort}" cannot be found in the Cohort Refr. spreadsheet')
+                    # Print a message if the list of Cohorts from the spreadsheet and from GWAS Catalog (REST API) have been merged.
+                    if spreadsheet_cohorts and len(spreadsheet_cohorts) != len(cohorts_list):
+                        msg = f'''GWAS study {gcst_id} -> the list of cohorts from the spreadsheet has been merged with the one from GWAS.
+                        \t- Spreadsheet list: {', '.join(sorted(spreadsheet_cohorts_names))}
+                        \t+ Merged GWAS list: {', '.join(sorted([x.name.upper() for x in cohorts_list]))}'''
+                        self.report_warning(spreadsheet_name, msg)
+
+                # Ancestry information
+                for ancestry in response_data['ancestries']:
+
+                    if ancestry['type'] != 'initial':
+                        continue
+
+                    ancestry_data = { 'source_PMID': source_PMID }
+                    # Add cohorts list
+                    if cohorts_list:
+                        ancestry_data['cohorts'] = cohorts_list
+                    ancestry_data['sample_number'] = ancestry['numberOfIndividuals']
+
+                    # ancestry_broad
+                    for ancestralGroup in ancestry['ancestralGroups']:
+                        if not 'ancestry_broad' in ancestry_data:
+                            ancestry_data['ancestry_broad'] = ''
+                        else:
+                            ancestry_data['ancestry_broad'] += ','
+                        ancestry_data['ancestry_broad'] += ancestralGroup['ancestralGroup']
+
+                    # ancestry_free
+                    for countryOfOrigin in ancestry['countryOfOrigin']:
+                        if countryOfOrigin['countryName'] != 'NR':
+                            if not 'ancestry_free' in ancestry_data:
+                                ancestry_data['ancestry_free'] = ''
+                            else:
+                                ancestry_data['ancestry_free'] += ','
+                            ancestry_data['ancestry_free'] += countryOfOrigin['countryName']
+
+                    # ancestry_country
+                    for countryOfRecruitment in ancestry['countryOfRecruitment']:
+                        if countryOfRecruitment['countryName'] != 'NR':
+                            if not 'ancestry_country' in ancestry_data:
+                                ancestry_data['ancestry_country'] = ''
+                            else:
+                                ancestry_data['ancestry_country'] += ','
+                            ancestry_data['ancestry_country'] += countryOfRecruitment['countryName']
+                    # ancestry_additional
+                    # Not found in the REST API
+
+                    study_data.append(ancestry_data)
+            except:
+                print(f'Error: can\'t fetch GWAS results for {gcst_id}')
+        return study_data
+
+
+
     def get_model_field_from_schema(self, col, current_schema):
         '''
         Retrieve the model and field from the Template, that corresponds to the current spreadsheet column.
@@ -369,66 +467,6 @@ class CurationTemplate():
 #=======================#
 #  Independent methods  #
 #=======================#
-
-def get_gwas_study(gcst_id):
-    """
-    Get the GWAS Study information related to the PGS sample.
-    Check that all the required data is available
-    > Parameter:
-        - gcst_id: GWAS Study ID (e.g. GCST010127)
-    > Return: list of dictionnaries (1 per ancestry)
-    """
-    study_data = []
-    gwas_rest_url = 'https://www.ebi.ac.uk/gwas/rest/api/studies/'
-    response = requests.get(f'{gwas_rest_url}{gcst_id}')
-
-    if not response:
-        return study_data
-    response_data = response.json()
-    if response_data:
-        try:
-            source_PMID = response_data['publicationInfo']['pubmedId']
-            for ancestry in response_data['ancestries']:
-
-                if ancestry['type'] != 'initial':
-                    continue
-
-                ancestry_data = { 'source_PMID': source_PMID }
-                ancestry_data['sample_number'] = ancestry['numberOfIndividuals']
-
-                # ancestry_broad
-                for ancestralGroup in ancestry['ancestralGroups']:
-                    if not 'ancestry_broad' in ancestry_data:
-                        ancestry_data['ancestry_broad'] = ''
-                    else:
-                        ancestry_data['ancestry_broad'] += ','
-                    ancestry_data['ancestry_broad'] += ancestralGroup['ancestralGroup']
-
-                # ancestry_free
-                for countryOfOrigin in ancestry['countryOfOrigin']:
-                    if countryOfOrigin['countryName'] != 'NR':
-                        if not 'ancestry_free' in ancestry_data:
-                            ancestry_data['ancestry_free'] = ''
-                        else:
-                            ancestry_data['ancestry_free'] += ','
-                        ancestry_data['ancestry_free'] += countryOfOrigin['countryName']
-
-                # ancestry_country
-                for countryOfRecruitment in ancestry['countryOfRecruitment']:
-                    if countryOfRecruitment['countryName'] != 'NR':
-                        if not 'ancestry_country' in ancestry_data:
-                            ancestry_data['ancestry_country'] = ''
-                        else:
-                            ancestry_data['ancestry_country'] += ','
-                        ancestry_data['ancestry_country'] += countryOfRecruitment['countryName']
-                # ancestry_additional
-                # Not found in the REST API
-
-                study_data.append(ancestry_data)
-        except:
-            print(f'Error: can\'t fetch GWAS results for {gcst_id}')
-    return study_data
-
 
 def next_PSS_num():
     r = SampleSet.objects.last()

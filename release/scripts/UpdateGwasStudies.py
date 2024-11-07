@@ -1,7 +1,5 @@
 import requests
-from catalog.models import Sample, Score
-from pgs_web import constants
-
+from catalog.models import Sample, Score, Cohort
 
 
 class UpdateGwasStudies:
@@ -16,15 +14,15 @@ class UpdateGwasStudies:
         self.verbose = verbose
 
 
-    def get_gwas_info(self,sample):
+    def get_gwas_info(self,sample:Sample) -> dict:
         """
         Get the GWAS Study information related to the PGS sample.
         Check that all the required data is available
         > Parameter:
-            - gcst_id: GWAS Study ID (e.g. GCST010127)
-        > Return: list of dictionnaries (1 per ancestry)
+            - sample: instance of a Sample model
+        > Return: dictionary (cohorts and ancestries)
         """
-        study_data = []
+        study_data = { "ancestries": [] }
         gcst_id = sample.source_GWAS_catalog
         response = requests.get(f'{self.gwas_rest_url}{gcst_id}')
 
@@ -37,6 +35,26 @@ class UpdateGwasStudies:
         if response_data:
             try:
                 source_PMID = response_data['publicationInfo']['pubmedId']
+
+                # Create list of cohorts if it exists in the GWAS study
+                # This override the Cohorts found previously in the cohort column in the spreadsheet
+                cohorts_list = []
+                if 'cohort' in response_data.keys():
+                    cohorts = response_data['cohort'].split('|')
+                    for cohort in cohorts:
+                        cohort_id = cohort.upper()
+                        try:
+                            cohort_model = Cohort.objects.get(name_short__iexact=cohort_id)
+                            cohorts_list.append(cohort_model)
+                        except Cohort.DoesNotExist:
+                            print(f"New cohort found: {cohort_id}")
+                            cohort_model = Cohort(name_short=cohort_id,name_full=cohort_id)
+                            cohort_model.save()
+                            cohorts_list.append(cohort_model)
+                    if cohorts_list:
+                        study_data['cohorts'] = cohorts_list
+
+                # Ancestries
                 for ancestry in response_data['ancestries']:
 
                     if ancestry['type'] != 'initial':
@@ -70,12 +88,12 @@ class UpdateGwasStudies:
                             else:
                                 ancestry_data['ancestry_country'] += self.country_sep
                             ancestry_data['ancestry_country'] += countryOfRecruitment['countryName']
-                    study_data.append(ancestry_data)
+                    study_data["ancestries"].append(ancestry_data)
 
-                if study_data:
-                    print(f'\t{len(study_data)} distinct ancestries')
+                if study_data["ancestries"]:
+                    print(f'\t{len(study_data["ancestries"])} distinct ancestries')
                     if self.verbose:
-                        for anc in study_data:
+                        for anc in study_data["ancestries"]:
                             print(f'\t{anc}')
                 else:
                     print("\tNo ancestry")
@@ -90,7 +108,12 @@ class UpdateGwasStudies:
         for sample in self.samples:
             gwas_study = self.get_gwas_info(sample)
             new_samples = []
-            for gwas_ancestry in gwas_study:
+            cohorts_list = []
+            # List of cohorts
+            if 'cohorts' in gwas_study.keys():
+                cohorts_list = gwas_study['cohorts']
+            # List of ancestry data
+            for gwas_ancestry in gwas_study['ancestries']:
                 new_sample = Sample()
                 new_sample.source_GWAS_catalog = sample.source_GWAS_catalog
                 for field, val in gwas_ancestry.items():
@@ -99,11 +122,32 @@ class UpdateGwasStudies:
                     setattr(new_sample, field, val)
                 new_sample.save()
 
-                # Cohorts - need to be added once the Sample object as been saved,
-                # i.e. when the Sample `id` has been created
-                if sample.cohorts:
-                    for cohort in sample.cohorts.all():
-                        new_sample.cohorts.add(cohort)
+                # Cohorts data
+                if cohorts_list or sample.cohorts:
+                    # Use the list of cohorts from the GWAS study (if available)
+                    # Update the list of cohorts from the existing sample if new cohorts are found in the GWAS study
+                    if cohorts_list:
+                        new_sample.cohorts.set(cohorts_list)
+                        # Print a message if the 2 list of cohorts (old & new) are different
+                        if sample.cohorts:
+                            new_set = sorted([x.name_short.upper() for x in cohorts_list])
+
+                            old_set_string = ', '.join(sorted([x.name_short.upper() for x in sample.cohorts.all()]))
+                            new_set_string = ', '.join(new_set)
+                            if old_set_string != new_set_string:
+                                # Add cohorts which are already associated to the sample in the database, but not in the GWAS study
+                                for sample_cohort in sample.cohorts.all():
+                                    if sample_cohort.name_short.upper() not in new_set:
+                                        new_sample.cohorts.add(sample_cohort)
+                                print(f"\t/!\ Replacing cohorts list:")
+                                print(f"\t  - Old set: {old_set_string}")
+                                print(f"\t  + New set: {', '.join(sorted([x.name_short.upper() for x in new_sample.cohorts.all()]))}")
+                    # Copy the list of cohorts from the existing sample.
+                    # Need to be added once the new Sample object as been saved,
+                    # i.e. when the Sample `id` has been created
+                    elif sample.cohorts:
+                        for cohort in sample.cohorts.all():
+                            new_sample.cohorts.add(cohort)
                     new_sample.save()
 
                 new_samples.append(new_sample)
