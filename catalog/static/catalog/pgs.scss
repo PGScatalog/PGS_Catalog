@@ -547,6 +547,9 @@ h2 {
 .page-link {
   color:$pgs_colour_1;
 }
+.pagination .page-item.disabled {
+  cursor: not-allowed;
+}
 .dropdown-menu-right {
   .dropdown-item  {
     font-size: 14px;
