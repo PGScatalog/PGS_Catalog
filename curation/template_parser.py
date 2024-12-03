@@ -18,6 +18,7 @@ class CurationTemplate():
         self.parsed_publication = None
         self.parsed_scores = {}
         self.parsed_cohorts = {}
+        self.parsed_cohorts_long_names = {}
         self.parsed_samples_scores = []
         self.parsed_samples_testing = []
         self.parsed_performances = []
@@ -89,6 +90,9 @@ class CurationTemplate():
             if cohort_id in self.parsed_cohorts:
                 self.report_warning(spreadsheet_name, f'Ambiguity found in the Cohort spreadsheet: the cohort ID "{cohort_name}" has been found more than once!')
             self.parsed_cohorts[cohort_id] = parsed_cohort
+            if parsed_cohort.name_long:
+                cohort_long_name = parsed_cohort.name_long.upper()
+                self.parsed_cohorts_long_names[cohort_long_name] = cohort_id
             self.update_report(parsed_cohort)
 
 
@@ -275,6 +279,11 @@ class CurationTemplate():
                                 cohort_id = cohort.upper()
                                 if cohort_id in self.parsed_cohorts:
                                     cohorts_list.append(self.parsed_cohorts[cohort_id])
+                                # Check if the cohort name corresponds to a cohort long name on the Cohort Refr. spreadsheet
+                                elif cohort_id in self.parsed_cohorts_long_names.keys():
+                                    new_cohort_id = self.parsed_cohorts_long_names[cohort_id]
+                                    cohorts_list.append(self.parsed_cohorts[new_cohort_id])
+                                    self.report_warning(spreadsheet_name, f'Warning: the sample cohort "{cohort}" has been found in the Cohort Refr. spreadsheet as "{new_cohort_id}"')
                                 else:
                                     self.report_error(spreadsheet_name, f'Error: the sample cohort "{cohort}" cannot be found in the Cohort Refr. spreadsheet')
                             val = cohorts_list
@@ -331,6 +340,12 @@ class CurationTemplate():
                         if cohort_id in self.parsed_cohorts:
                             if cohort_id not in spreadsheet_cohorts_names:
                                 cohorts_list.append(self.parsed_cohorts[cohort_id])
+                        # Check if the cohort name corresponds to a cohort long name on the Cohort Refr. spreadsheet
+                        elif cohort_id in self.parsed_cohorts_long_names.keys():
+                            new_cohort_id = self.parsed_cohorts_long_names[cohort_id]
+                            if new_cohort_id not in spreadsheet_cohorts_names:
+                                cohorts_list.append(self.parsed_cohorts[new_cohort_id])
+                                self.report_warning(spreadsheet_name, f'Warning: the GWAS Catalog sample cohort "{cohort}" has been found in the Cohort Refr. spreadsheet as "{new_cohort_id}"')
                         else:
                             self.report_error(spreadsheet_name, f'Error: the GWAS Catalog sample cohort "{cohort}" cannot be found in the Cohort Refr. spreadsheet')
                     # Print a message if the list of Cohorts from the spreadsheet and from GWAS Catalog (REST API) have been merged.
