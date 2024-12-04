@@ -14,7 +14,7 @@ async function loadPyodideAndPackages() {
     const micropip = pyodide.pyimport("micropip");
     await micropip.install(['openpyxl','requests','httpx==0.26.0','tenacity','pyliftover',
         'xopen==1.8.0','zstandard','tqdm','natsort','pandas','pandas-schema']);
-    await micropip.install(wheels_base_url+"pgs_template_validator-1.1.2-py3-none-any.whl", keep_going=true);
+    await micropip.install(wheels_base_url+"pgs_template_validator-1.1.3-py3-none-any.whl", keep_going=true);
     await micropip.install(wheels_base_url+"pgscatalog_validate-0.1-py3-none-any.whl", keep_going=true)
     await pyodide.FS.createLazyFile('/home/pyodide/', 'TemplateColumns2Models.xlsx',
             '/static/validator/template/TemplateColumns2Models.xlsx', true, false);
