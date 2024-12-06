@@ -77,7 +77,22 @@ class PublicationData(GenericData):
         result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
         result = result.json()
         if 'result' in result['resultList']:
-            return result['resultList']['result'][0]
+            if len(result['resultList']['result']) > 1:
+                # If multiple results, the first one might be a PMC entry, which doesn't contain PMID or DOI, therefore needs to be skipped.
+                if query.startswith('doi:'):
+                    query_id = query.removeprefix('doi:')
+                    id_type = 'doi'
+                elif query.startswith('ext_id:'):
+                    query_id = query.removeprefix('ext_id:')
+                    id_type = 'pmid'
+                else:
+                    raise Exception('Unexpected query format: {}'.format(query))
+                for single_result in result['resultList']['result']:
+                    if id_type in single_result and single_result[id_type] == query_id:
+                        return single_result
+                raise Exception('Results from EuropePMC for {} not in the expected format.'.format(query))
+            else:
+                return result['resultList']['result'][0]
         else:
             raise Exception(f'Can\'t find the paper in EuropePMC! (query:{query})')
 
