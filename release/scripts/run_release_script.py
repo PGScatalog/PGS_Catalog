@@ -2,7 +2,7 @@ import sys, os.path, shutil, glob
 from datetime import date
 from catalog.models import *
 from release.scripts.UpdateGwasStudies import UpdateGwasStudies
-from release.scripts.CreateRelease import CreateRelease
+from release.scripts.CreateRelease import CreateRelease, create_new_release_from_args
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
 from curation_tracker.models import CurationPublicationAnnotation
 
@@ -11,10 +11,12 @@ error_prefix = '  /!\  Error:'
 output_prefix = '  > '
 
 
-def run():
+def run(*args):
     """
         Main method executed by the Django command:
         `python manage.py runscript run_release_script`
+        To choose a particular release date, use the command:
+        `python manage.py runscript run_release_script --script-args date=YYYY-MM-DD`
     """
 
     #-------------#
@@ -45,8 +47,8 @@ def run():
 
     print("\n\n#### Start the database release ####")
 
-    # Create release
-    call_create_release()
+    # Create release (default date is tomorrow, otherwise the value of the runscript argument 'date')
+    call_create_release(args)
 
     # Update Curation Tracker
     update_curation_tracker()
@@ -164,18 +166,16 @@ def update_gwas_studies():
     gwas_studies.update_studies()
 
 
-def call_create_release():
+def call_create_release(args):
     """ Create a new PGS Catalog release """
     report_header("Create a new PGS Catalog release")
 
-    lastest_release = Release.objects.latest('date').date
-
-    release = CreateRelease(release_tomorrow=1)
-    release.update_data_to_release()
+    latest_release = Release.objects.latest('date').date
+    release = create_new_release_from_args(args)
     new_release = release.create_new_release()
 
     # Just a bunch of prints
-    output_report("Latest release: "+str(lastest_release))
+    output_report("Latest release: "+str(latest_release))
     output_report("New release: "+str(new_release.date))
     output_report("Number of new Scores: "+str(new_release.score_count))
     output_report(', '.join(release.new_scores.keys()))
