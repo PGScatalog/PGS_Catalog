@@ -1,8 +1,6 @@
-import sys, os.path, shutil, glob
-from datetime import date
 from catalog.models import *
 from release.scripts.UpdateGwasStudies import UpdateGwasStudies
-from release.scripts.CreateRelease import CreateRelease, create_new_release_from_args
+from release.scripts.CreateRelease import create_new_release_from_args
 from release.scripts.EuropePMCLinkage import EuropePMCLinkage
 from curation_tracker.models import CurationPublicationAnnotation
 
