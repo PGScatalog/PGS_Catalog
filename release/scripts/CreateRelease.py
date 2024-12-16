@@ -1,4 +1,3 @@
-import datetime
 import re
 from catalog.models import *
 from datetime import date, timedelta
@@ -24,7 +23,7 @@ class CreateRelease:
         return cls.on(date.today() + timedelta(days=1))
 
     @classmethod
-    def on(cls, release_date: datetime.date) -> Self:
+    def on(cls, release_date: date) -> Self:
         return cls(release_date=release_date)
 
     def get_release_date(self):
