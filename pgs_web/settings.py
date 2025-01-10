@@ -115,7 +115,7 @@ CSP_BASE_URI = "'self'"
 # frame-ancestors
 CSP_FRAME_ANCESTORS = ("'self'",
                        "https://www.ebi.ac.uk",  # Allowing the PGS Catalog to be shown in an EBI training iframe
-                       "http://0.0.0.0:8001/")  # for testing (TODO: remove)
+                       )
 # style-src
 # We can't include the CSP nonce into style-src as the templates contain a lot of inline styles within attributes.
 # It is therefore necessary to specify all trusted style sources explicitly, including those called from external resources.
