@@ -144,6 +144,9 @@ CSP_IMG_SRC = ("'self'",
 CSP_FONT_SRC = ("'self'",
                 "https://use.fontawesome.com/",
                 "https://ebi.emblstatic.net/")
+# connect-src
+CSP_CONNECT_SRC = ("'self'",
+                   "https://www.ebi.ac.uk/")
 
 # Live middleware
 if PGS_ON_LIVE_SITE:
