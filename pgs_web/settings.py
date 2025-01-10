@@ -69,7 +69,8 @@ INSTALLED_APPS = [
     'django_tables2',
     'compressor',
     'rest_framework',
-    'django_elasticsearch_dsl'
+    'django_elasticsearch_dsl',
+    "csp"
 ]
 # Local app installation
 if PGS_ON_GAE == 0:
@@ -96,8 +97,54 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
+    'catalog.middleware.add_nonce.AddNonceToScriptsMiddleware'
 ]
+
+# ----------------------------- #
+# Content Security Policy (CSP) #
+# ----------------------------- #
+CSP_INCLUDE_NONCE_IN = [
+    'script-src'
+]
+# default-src
+# "strict-dynamic" allows trusted (with nonce) resources to load additional external resources.
+CSP_DEFAULT_SRC = ("'self'", "'strict-dynamic'")
+# base-uri
+CSP_BASE_URI = "'self'"
+# frame-ancestors
+CSP_FRAME_ANCESTORS = ("'self'",
+                       "https://www.ebi.ac.uk",  # Allowing the PGS Catalog to be shown in an EBI training iframe
+                       "http://0.0.0.0:8001/")  # for testing (TODO: remove)
+# style-src
+# We can't include the CSP nonce into style-src as the templates contain a lot of inline styles within attributes.
+# It is therefore necessary to specify all trusted style sources explicitly, including those called from external resources.
+CSP_STYLE_SRC = ("'self'",
+                 "'unsafe-inline'",
+                 "https://cdn.jsdelivr.net/",
+                 "https://use.fontawesome.com/",
+                 "https://code.jquery.com/",
+                 "https://ebi.emblstatic.net/",
+                 "https://unpkg.com/"
+                 )
+# script-src
+CSP_SCRIPT_SRC = ("'self'",
+                  "'strict-dynamic'",
+                  # The following are only here for backward compatibility with old browsers, as they are unsafe.
+                  # Modern brothers support nonce and "strict-dynamic", which makes them ignore the following.
+                  "'unsafe-inline'",
+                  "http:",
+                  "https:"
+                  )
+# img-src
+CSP_IMG_SRC = ("'self'",
+               "data:"  # For SVG images
+               )
+# front-src
+CSP_FONT_SRC = ("'self'",
+                "https://use.fontawesome.com/",
+                "https://ebi.emblstatic.net/")
+
 # Live middleware
 if PGS_ON_LIVE_SITE:
     MIDDLEWARE.insert(2, 'corsheaders.middleware.CorsMiddleware')
