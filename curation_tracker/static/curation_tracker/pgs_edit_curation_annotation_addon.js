@@ -9,7 +9,8 @@ function setError(error){
     }
 }
 
-function goToPGP(new_window){
+function goToPGP(event){
+    var new_window = event.data.new_window;
     setError('');
     var pgp_id = $('#id_pgp_id').val();
     if(pgp_id){
@@ -22,6 +23,7 @@ function goToPGP(new_window){
     } else {
         alert('Please provide a PGP ID first');
     }
+    return false; // To avoid reloading the current page
 }
 
 function goToPublication(){
@@ -35,6 +37,7 @@ function goToPublication(){
     } else {
         alert('Please provide a DOI or PubMed ID');
     }
+    return false; // To avoid reloading the current page
 }
 
 function toggleAuthorSub(){
@@ -113,6 +116,7 @@ function autofillForm(){
     var doi = $('#id_doi').val();
     var pmid = $('#id_PMID').val();
     _getPublicationInfo({doi: doi, pmid: pmid});
+    return false; // To avoid reloading the current page
 }
 
 function requestAuthorData(){
@@ -141,10 +145,17 @@ $(document).ready(function(){
     var pgp_id_div = $('div.form-row.field-pgp_id > div');
     pgp_id_div.addClass('flex-container');
     pgp_id_div.find(">:first-child").addClass('fieldBox');
-    pgp_id_div.append('<div><a title="Go to the PGS Catalog curation publication page" href="" class="extra-field-button external-link" onclick="goToPGP(false); return false;" onauxclick="goToPGP(true); return false;">Go to PGS Catalog publication</a></div>');
+    pgp_id_div.append('<div><a id="go_to_pgp_link" title="Go to the PGS Catalog curation publication page" href="" class="extra-field-button external-link">Go to PGS Catalog publication</a></div>');
 
     // Adding 'go to publication' and 'Autofill' buttons after the DOI and PMID form fields 
-    $('div.form-row.field-doi.field-PMID > div.flex-container').append('<div><div><a title="Go to the publication page using DOI or the Pubmed page if only the PMID is provided" href="" class="extra-field-button external-link" onclick="goToPublication(); return false;">Go to publication</a></div><div style="display: flex;"><div><a title="Fetch the publication data from EPMC and fill in the form automatically (DOI or PMID required)" href="" class="extra-field-button" onclick="autofillForm(); return false;">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div></div>');
+    $('div.form-row.field-doi.field-PMID > div.flex-container').append('<div><div><a id="go_to_publication_link" title="Go to the publication page using DOI or the Pubmed page if only the PMID is provided" href="" class="extra-field-button external-link">Go to publication</a></div><div style="display: flex;"><div><a id="autofill_link" title="Fetch the publication data from EPMC and fill in the form automatically (DOI or PMID required)" href="" class="extra-field-button">Autofill <i class="fa-solid fa-gears"></i></a></div><div id="doi_pmid_error" class="fieldBox errors"><ul class="errorlist"></ul></div></div></div>');
+
+    // Adding actions to the buttons
+    var pgp_link_selector = $('#go_to_pgp_link')
+    pgp_link_selector.click({'new_window': false}, goToPGP);
+    pgp_link_selector.on('auxclick', {'new_window': true}, goToPGP);
+    $('#go_to_publication_link').click(goToPublication);
+    $('#autofill_link').click(autofillForm);
 
     // Adding toggle AuthorSub suffix function
     $('#id_author_submission').click(toggleAuthorSub);
