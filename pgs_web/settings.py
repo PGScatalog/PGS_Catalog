@@ -69,8 +69,7 @@ INSTALLED_APPS = [
     'django_tables2',
     'compressor',
     'rest_framework',
-    'django_elasticsearch_dsl',
-    "csp"
+    'django_elasticsearch_dsl'
 ]
 # Local app installation
 if PGS_ON_GAE == 0:
@@ -96,14 +95,19 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'csp.middleware.CSPMiddleware',
-    'catalog.middleware.add_nonce.AddNonceToScriptsMiddleware'
+    'django.contrib.messages.middleware.MessageMiddleware'
 ]
 
 # ----------------------------- #
 # Content Security Policy (CSP) #
 # ----------------------------- #
+if not DEBUG:
+    INSTALLED_APPS.append('csp')
+    MIDDLEWARE.extend([
+        'csp.middleware.CSPMiddleware',
+        'catalog.middleware.add_nonce.AddNonceToScriptsMiddleware'
+    ])
+
 CSP_INCLUDE_NONCE_IN = [
     'script-src'
 ]
