@@ -4,19 +4,19 @@
 {% endif %}
 
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous" nonce="{{request.csp_nonce}}"></script>
 <!-- jQuery UI -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" nonce="{{request.csp_nonce}}"></script>
 
 
 <!-- Use of GWAS API - Javascript file -->
 {% if use_gwas_api %}
-  <script defer src="{% static 'catalog/pgs_gwas.js' %}"></script>
+  <script defer src="{% static 'catalog/pgs_gwas.js' %}" nonce="{{request.csp_nonce}}"></script>
 {% endif %}
 
 <!-- Use of Release JS - Javascript file -->
 {% if use_release_charts %}
-  <script defer src="{% static 'catalog/pgs_bar_charts.js' %}"></script>
+  <script defer src="{% static 'catalog/pgs_bar_charts.js' %}" nonce="{{request.csp_nonce}}"></script>
 {% endif %}
 
 <!-- Bootstrap bundle include Popper.js and Bootstrap JS -->
