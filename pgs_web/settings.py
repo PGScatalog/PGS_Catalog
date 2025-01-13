@@ -135,7 +135,7 @@ CSP_STYLE_SRC = ("'self'",
 CSP_SCRIPT_SRC = ("'self'",
                   "'strict-dynamic'",
                   # The following are only here for backward compatibility with old browsers, as they are unsafe.
-                  # Modern brothers support nonce and "strict-dynamic", which makes them ignore the following.
+                  # Modern browsers support nonce and "strict-dynamic", which makes them ignore the following.
                   "'unsafe-inline'",
                   "http:",
                   "https:"
