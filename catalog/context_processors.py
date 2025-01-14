@@ -21,6 +21,8 @@ def pgs_urls(request):
         'pgs_github'       : constants.USEFUL_URLS['PGS_GITHUB'],
         'pgs_twitter'      : constants.USEFUL_URLS['PGS_TWITTER'],
         'pgs_twitter_url'  : constants.USEFUL_URLS['PGS_TWITTER_URL'],
+        'pgs_bluesky'      : constants.USEFUL_URLS['PGS_BLUESKY'],
+        'pgs_bluesky_url'  : constants.USEFUL_URLS['PGS_BLUESKY_URL'],
         'uoc_url'          : constants.USEFUL_URLS['UOC_URL'],
         'terms_of_use'     : constants.USEFUL_URLS['TERMS_OF_USE'],
         'catalog_publication_url': constants.USEFUL_URLS['CATALOG_PUBLICATION_URL']
