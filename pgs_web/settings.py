@@ -3,6 +3,16 @@ Django settings for pgs_web project.
 """
 
 import os
+from pgs_web.constants import USEFUL_URLS
+from pgs_web.external_urls import STYLES_URLS
+from urllib.parse import urlparse
+
+
+def get_base_url(full_url):
+    parse_result = urlparse(full_url)
+    base_url = parse_result.scheme + '://' + parse_result.netloc
+    return base_url
+
 
 if not os.getenv('GAE_APPLICATION', None):
     app_settings = os.path.join('./', 'app.yaml')
@@ -118,18 +128,14 @@ CSP_DEFAULT_SRC = ("'self'", "'strict-dynamic'")
 CSP_BASE_URI = "'self'"
 # frame-ancestors
 CSP_FRAME_ANCESTORS = ("'self'",
-                       "https://www.ebi.ac.uk",  # Allowing the PGS Catalog to be shown in an EBI training iframe
+                       USEFUL_URLS['EBI_URL'],  # Allowing the PGS Catalog to be shown in an EBI training iframe
                        )
 # style-src
 # We can't include the CSP nonce into style-src as the templates contain a lot of inline styles within attributes.
 # It is therefore necessary to specify all trusted style sources explicitly, including those called from external resources.
 CSP_STYLE_SRC = ("'self'",
                  "'unsafe-inline'",
-                 "https://cdn.jsdelivr.net/",
-                 "https://use.fontawesome.com/",
-                 "https://code.jquery.com/",
-                 "https://ebi.emblstatic.net/",
-                 "https://unpkg.com/"
+                 *(get_base_url(url) for url in STYLES_URLS.values())
                  )
 # script-src
 CSP_SCRIPT_SRC = ("'self'",
@@ -146,11 +152,11 @@ CSP_IMG_SRC = ("'self'",
                )
 # front-src
 CSP_FONT_SRC = ("'self'",
-                "https://use.fontawesome.com/",
-                "https://ebi.emblstatic.net/")
+                get_base_url(STYLES_URLS['font-awesome']),
+                get_base_url(STYLES_URLS['ebi']))
 # connect-src
 CSP_CONNECT_SRC = ("'self'",
-                   "https://www.ebi.ac.uk/")
+                   USEFUL_URLS['EBI_URL'])
 
 # Live middleware
 if PGS_ON_LIVE_SITE:
