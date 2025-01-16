@@ -1,5 +1,7 @@
 from django.conf import settings
 from pgs_web import constants
+from pgs_web import external_urls
+
 
 def pgs_settings(request):
     return {
@@ -7,6 +9,7 @@ def pgs_settings(request):
         'is_pgs_live_site' : settings.PGS_ON_LIVE_SITE,
         'is_pgs_curation_site': settings.PGS_ON_CURATION_SITE
     }
+
 
 def pgs_urls(request):
     return {
@@ -26,6 +29,17 @@ def pgs_urls(request):
         'catalog_publication_url': constants.USEFUL_URLS['CATALOG_PUBLICATION_URL']
     }
 
+
+def styles_urls(request):
+    return {
+        'bootstrap_style_url': external_urls.STYLES_URLS['bootstrap'],
+        'bootstrap_table_style_url': external_urls.STYLES_URLS['bootstrap-table'],
+        'font_awesome_style_url': external_urls.STYLES_URLS['font-awesome'],
+        'jquery_style_url': external_urls.STYLES_URLS['jquery'],
+        'ebi_style_url': external_urls.STYLES_URLS['ebi'],
+    }
+
+
 def pgs_search_examples(request):
     eg_count = 0
     html = ''
@@ -44,6 +58,7 @@ def pgs_search_examples(request):
         'pgs_search_examples': html
     }
 
+
 def pgs_info(request):
     return {
         'pgs_citation': constants.PGS_CITATIONS[0],
@@ -52,6 +67,7 @@ def pgs_info(request):
         'pgs_table_helper': constants.TABLE_HELPER,
         'ensembl_version': constants.ENSEMBL_VERSION
     }
+
 
 def pgs_contributors(request):
     groups = constants.PGS_GROUPS
