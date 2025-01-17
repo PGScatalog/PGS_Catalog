@@ -32,10 +32,14 @@
             <span class="fas fa-envelope"></span><br/><span>Contact us</span>
           </a>
         </div>
-        <div>
-          <a class="btn btn-pgs pgs_no_icon_link" title="Twitter {{ pgs_twitter }}" href="{{ pgs_twitter_url }}"  target="_blank">
-            <span class="fab fa-twitter"></span> <small>{{ pgs_twitter }}</small><br/><span>Follow us</span>
-          </a>
+        <div class="btn-group">
+          <button class="btn btn-pgs pgs_no_icon_link dropdown-toggle" title="Follow us on social media" data-toggle="dropdown" type="button">
+            <span class="fab fa-x-twitter"></span> <span class="fab fa-bluesky"></span><br/><span>Follow us</span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item pgs_no_icon_link" title="X {{ pgs_twitter }}" href="{{ pgs_twitter_url }}"><span class="fab fa-x-twitter"></span> {{ pgs_twitter }}</a>
+            <a class="dropdown-item pgs_no_icon_link" title="Bluesky {{ pgs_bluesky }}" href="{{ pgs_bluesky_url }}"><span class="fab fa-bluesky"></span> {{ pgs_bluesky }}</a>
+          </div>
         </div>
       </div>
     </div>
