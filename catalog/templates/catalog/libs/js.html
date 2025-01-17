@@ -4,62 +4,62 @@
 {% endif %}
 
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous" nonce="{{request.csp_nonce}}"></script>
 <!-- jQuery UI -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" nonce="{{request.csp_nonce}}"></script>
 
 
 <!-- Use of GWAS API - Javascript file -->
 {% if use_gwas_api %}
-  <script defer src="{% static 'catalog/pgs_gwas.js' %}"></script>
+  <script defer src="{% static 'catalog/pgs_gwas.js' %}" nonce="{{request.csp_nonce}}"></script>
 {% endif %}
 
 <!-- Use of Release JS - Javascript file -->
 {% if use_release_charts %}
-  <script defer src="{% static 'catalog/pgs_bar_charts.js' %}"></script>
+  <script defer src="{% static 'catalog/pgs_bar_charts.js' %}" nonce="{{request.csp_nonce}}"></script>
 {% endif %}
 
 <!-- Bootstrap bundle include Popper.js and Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous" nonce="{{request.csp_nonce}}"></script>
 {% if has_table %}
-  <script defer src="https://unpkg.com/tableexport.jquery.plugin@1.26.0/tableExport.min.js"></script>
-  <script defer src="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.js"></script>
-  <script defer src="https://unpkg.com/bootstrap-table@1.21.3/dist/extensions/export/bootstrap-table-export.min.js"></script>
-  <script defer src="https://unpkg.com/bootstrap-table@1.21.3/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+  <script defer src="https://unpkg.com/tableexport.jquery.plugin@1.26.0/tableExport.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script defer src="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script defer src="https://unpkg.com/bootstrap-table@1.21.3/dist/extensions/export/bootstrap-table-export.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script defer src="https://unpkg.com/bootstrap-table@1.21.3/dist/extensions/filter-control/bootstrap-table-filter-control.min.js" nonce="{{request.csp_nonce}}"></script>
 {% endif %}
 
 <!-- D3 graph library -->
 {% if has_chart %}
-  <script src="https://unpkg.com/d3@7.6.1/dist/d3.min.js"></script>
+  <script src="https://unpkg.com/d3@7.6.1/dist/d3.min.js" nonce="{{request.csp_nonce}}"></script>
 {% endif %}
 
 <!-- Chart.js -->
 {% if has_chart_js %}
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.0.0/chartjs-plugin-datalabels.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.0.0/chartjs-plugin-datalabels.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js" nonce="{{request.csp_nonce}}"></script>
 {% endif %}
 
 <!-- PGS Javascript file -->
 {% if is_pgs_app_on_gae %}
-  <script src="{% static 'catalog/pgs.min.js' %}"></script>
+  <script src="{% static 'catalog/pgs.min.js' %}" nonce="{{request.csp_nonce}}"></script>
 {% else %}
   {% compress js file pgs_min %}
-    <script src="{% static 'catalog/pgs.js' %}"></script>
+    <script src="{% static 'catalog/pgs.js' %}" nonce="{{request.csp_nonce}}"></script>
   {% endcompress %}
 {% endif %}
 
 
 {% if is_benchmark and has_chart %}
   <!-- Benchmark -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
-  <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js" nonce="{{request.csp_nonce}}"></script>
   {% if is_pgs_app_on_gae %}
-    <script defer src="{% static 'benchmark/benchmark.min.js' %}"></script>
+    <script defer src="{% static 'benchmark/benchmark.min.js' %}" nonce="{{request.csp_nonce}}"></script>
   {% else %}
     {% compress js file benchmark_min %}
-      <script defer src="{% static 'benchmark/benchmark.js' %}"></script>
+      <script defer src="{% static 'benchmark/benchmark.js' %}" nonce="{{request.csp_nonce}}"></script>
     {% endcompress %}
   {% endif %}
 {% endif %}

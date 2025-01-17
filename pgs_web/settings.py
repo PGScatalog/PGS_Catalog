@@ -3,6 +3,16 @@ Django settings for pgs_web project.
 """
 
 import os
+from pgs_web.constants import USEFUL_URLS
+from pgs_web.external_urls import STYLES_URLS
+from urllib.parse import urlparse
+
+
+def get_base_url(full_url):
+    parse_result = urlparse(full_url)
+    base_url = parse_result.scheme + '://' + parse_result.netloc
+    return base_url
+
 
 if not os.getenv('GAE_APPLICATION', None):
     app_settings = os.path.join('./', 'app.yaml')
@@ -95,9 +105,59 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware'
 ]
+
+# ----------------------------- #
+# Content Security Policy (CSP) #
+# ----------------------------- #
+if not DEBUG:
+    INSTALLED_APPS.append('csp')
+    MIDDLEWARE.extend([
+        'csp.middleware.CSPMiddleware',
+        'catalog.middleware.add_nonce.AddNonceToScriptsMiddleware'
+    ])
+
+CSP_INCLUDE_NONCE_IN = [
+    'script-src'
+]
+# default-src
+# "strict-dynamic" allows trusted (with nonce) resources to load additional external resources.
+CSP_DEFAULT_SRC = ("'self'", "'strict-dynamic'")
+# base-uri
+CSP_BASE_URI = "'self'"
+# frame-ancestors
+CSP_FRAME_ANCESTORS = ("'self'",
+                       USEFUL_URLS['EBI_URL'],  # Allowing the PGS Catalog to be shown in an EBI training iframe
+                       )
+# style-src
+# We can't include the CSP nonce into style-src as the templates contain a lot of inline styles within attributes.
+# It is therefore necessary to specify all trusted style sources explicitly, including those called from external resources.
+CSP_STYLE_SRC = ("'self'",
+                 "'unsafe-inline'",
+                 *(get_base_url(url) for url in STYLES_URLS.values())
+                 )
+# script-src
+CSP_SCRIPT_SRC = ("'self'",
+                  "'strict-dynamic'",
+                  # The following are only here for backward compatibility with old browsers, as they are unsafe.
+                  # Modern browsers support nonce and "strict-dynamic", which makes them ignore the following.
+                  "'unsafe-inline'",
+                  "http:",
+                  "https:"
+                  )
+# img-src
+CSP_IMG_SRC = ("'self'",
+               "data:"  # For SVG images
+               )
+# front-src
+CSP_FONT_SRC = ("'self'",
+                get_base_url(STYLES_URLS['font-awesome']),
+                get_base_url(STYLES_URLS['ebi']))
+# connect-src
+CSP_CONNECT_SRC = ("'self'",
+                   USEFUL_URLS['EBI_URL'])
+
 # Live middleware
 if PGS_ON_LIVE_SITE:
     MIDDLEWARE.insert(2, 'corsheaders.middleware.CorsMiddleware')
@@ -115,6 +175,7 @@ CONTEXT_PROCESSORS = [
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
     'catalog.context_processors.pgs_urls',
+    'catalog.context_processors.styles_urls',
     'catalog.context_processors.pgs_settings',
     'catalog.context_processors.pgs_search_examples',
     'catalog.context_processors.pgs_info',

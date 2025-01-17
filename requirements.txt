@@ -27,3 +27,5 @@ google-auth==2.16.1
 google-auth-oauthlib==1.0.0
 google-cloud-core==2.3.2
 google-cloud-storage==2.7.0
+#### Content Security Policy (CSP)
+django-csp==3.8

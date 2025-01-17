@@ -4,19 +4,19 @@
 {% endif %}
 
 <!-- Boostrap CSS libraries -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.2/css/all.css" crossorigin="anonymous"/>
+<link rel="stylesheet" href="{{ bootstrap_style_url }}" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ font_awesome_style_url }}" crossorigin="anonymous"/>
 {% if has_table %}
-  <link href="https://unpkg.com/bootstrap-table@1.21.3/dist/bootstrap-table.min.css" rel="stylesheet"/>
+  <link href="{{ bootstrap_table_style_url }}" rel="stylesheet"/>
 {% endif %}
 
 <!-- jQuery UI -->
-<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"/>
+<link rel="stylesheet" href="{{ jquery_style_url }}"/>
 
 <!-- CSS: implied media=all -->
 <!-- CSS concatenated and minified via ant build script -->
 {% if has_ebi_icons %}
-  <link rel="stylesheet" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" type="text/css" media="all">
+  <link rel="stylesheet" href="{{ ebi_style_url }}" type="text/css" media="all">
 {% endif %}
 
 <!-- PGS (S)CSS file -->
