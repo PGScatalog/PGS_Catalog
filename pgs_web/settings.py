@@ -117,6 +117,12 @@ if not DEBUG:
         'csp.middleware.CSPMiddleware',
         'catalog.middleware.add_nonce.AddNonceToScriptsMiddleware'
     ])
+    CACHES = {
+        'default': {
+            # Custom cache class called if cache_page decorator is used
+            'BACKEND': 'catalog.cache.remove_nonce.RemoveNonceFromCacheBackend',
+        }
+    }
 
 CSP_INCLUDE_NONCE_IN = [
     'script-src'
