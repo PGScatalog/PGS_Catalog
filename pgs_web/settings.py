@@ -158,6 +158,7 @@ CSP_IMG_SRC = ("'self'",
                )
 # front-src
 CSP_FONT_SRC = ("'self'",
+                "data:",
                 get_base_url(STYLES_URLS['font-awesome']),
                 get_base_url(STYLES_URLS['ebi']))
 # connect-src
