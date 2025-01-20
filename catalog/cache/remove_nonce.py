@@ -11,7 +11,9 @@ class RemoveNonceFromCacheBackend(LocMemCache):
     def get(self, key, default=None, version=None):
         result = super().get(key, default, version)
         if result is not None:
-            if key.startswith('views.decorators.cache.cache_page') and hasattr(result, 'content'):
+            if (key.startswith('views.decorators.cache.cache_page')
+                    and hasattr(result, 'content')
+                    and 'text/html' in result.get('Content-Type', '')):
                 # Remove every html nonce="..." attribute from cached content
                 result.content = re.sub(
                         r' nonce="[^"]+"',
