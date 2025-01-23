@@ -32,3 +32,4 @@ qc_ref_genome.py [-h] [--scoring_file SCORING_FILE] [--ref {auto,37,38}] [--n_re
 * *ref*: allowed values: **auto**, **37**, **38**. If set to auto, the reference genome found in the header of the scoring file will be used.
 * *n_requests*: maximum number of requests (or number of samples) sent to the Ensembl API. Default: **1**
 * *flip*: default is off. If flip is on, all variants will be tested against the reverse strand if using coordinates without rsID.
+* *use_pos*: enforce using variant coordinates even if rsIDs are present.
