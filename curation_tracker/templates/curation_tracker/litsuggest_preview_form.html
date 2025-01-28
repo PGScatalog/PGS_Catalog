@@ -11,7 +11,7 @@
           {% csrf_token %}
           <div class="submit-row">
             <input type="submit" value="Confirm" class="default" style="float:left; font-weight: bold; margin-right: 5px">
-            <input class="button" type="button" onclick="history.back()" value="Cancel" />
+            <input class="button pgs-admin-cancel" type="button" value="Cancel" />
           </div>
           <div class="help">(Studies with errors and tagged as 'Not PGS' won't be imported)</div>
       </div>
@@ -53,7 +53,7 @@
       </div>
       <div class="submit-row">
         <input type="submit" value="Confirm" class="default" style="float:left; font-weight: bold; margin-right: 5px">
-        <input class="button" type="button" onclick="history.back()" value="Cancel" />
+        <input class="button pgs-admin-cancel" type="button" value="Cancel" />
       </div>
       <div class="help">(Studies with errors and tagged as 'Not PGS' won't be imported)</div>
       {% if skipped_publications %}
