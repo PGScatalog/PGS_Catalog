@@ -627,29 +627,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         return render(
             request, "curation_tracker/csv_form.html", payload
         )
-    
-    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
-    def import_litsuggest_to_table(self,request):
-        '''Deprecated'''
-        if request.method == "POST":
-            litsuggest_file = request.FILES["litsuggest_file"]
-            models = litsuggest_fileupload_to_annotation_imports(litsuggest_file)
-
-            preview_data = list(map(annotation_import_to_dict,models))
-            request.session['preview_data'] = preview_data
-            
-            return render(
-                request, "curation_tracker/litsuggest_preview_table.html", {
-                    'annotations': preview_data,
-                    'form': LitsuggestPreviewTableForm()
-                }
-            )
-
-        form = LitsuggestImportForm()
-        payload = {"form": form}
-        return render(
-            request, "curation_tracker/litsuggest_form.html", payload
-        )
 
     @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def import_litsuggest(self,request):
