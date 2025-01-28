@@ -619,6 +619,9 @@ $(document).ready(function() {
         pgs_tooltip();
       }, 500);
     });
+
+    // Add reset action to traits 'Reset View' button.
+    $('#reset_cat').click(reset_showhide_trait)
 });
 
 
