@@ -10,8 +10,7 @@
 
 {% block object-tools-items %}
     {% if perms.curation_tracker.change_curationpublicationannotation %}
-    <li><a href="" class="historylink" onclick="requestAuthorData(); return false;">Request Author Data</a></li>
+    <li><a id="request_author_data_button" href="" class="historylink">Request Author Data</a></li>
     {% endif %}
     {{ block.super }}
 {% endblock %}
-

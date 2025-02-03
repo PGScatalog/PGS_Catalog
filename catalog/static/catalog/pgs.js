@@ -619,6 +619,9 @@ $(document).ready(function() {
         pgs_tooltip();
       }, 500);
     });
+
+    // Add reset action to traits 'Reset View' button.
+    $('#reset_cat').click(reset_showhide_trait)
 });
 
 
@@ -940,7 +943,8 @@ function display_category_list(data_json) {
     e.setAttribute("data-placement", "left");
     e.setAttribute("data-delay", "800");
     e.setAttribute("title", "Click to display the list of traits related to '"+name+"'");
-    e.setAttribute("onclick", "showhide_trait('"+div_id+"', '"+name+"')");
+    // We are not using direct "onclick" action to make CSP happy.
+    e.addEventListener('click', showhide_trait.bind(null, div_id, name));
     trait_elem.appendChild(e);
 
 

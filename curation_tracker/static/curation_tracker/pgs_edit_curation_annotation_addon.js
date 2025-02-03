@@ -138,6 +138,7 @@ function requestAuthorData(){
         console.error(error);
         alert('Error: '+error.statusText);
     })
+    return false;
 }
 
 $(document).ready(function(){
@@ -159,4 +160,7 @@ $(document).ready(function(){
 
     // Adding toggle AuthorSub suffix function
     $('#id_author_submission').click(toggleAuthorSub);
+
+    // Request Author Data button
+    $('#request_author_data_button').click(requestAuthorData);
 })

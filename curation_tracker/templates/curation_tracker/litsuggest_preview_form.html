@@ -1,9 +1,4 @@
-{% extends 'admin/base.html' %}
-{% load static %}
-
-{% block extrahead %}{{ block.super }}
-<link rel="stylesheet" href="{% static 'curation_tracker/pgs_admin.css' %}">
-{% endblock %}
+{% extends 'curation_tracker/litsuggest_base.html' %}
 
 {% block content %}
   <div id="content-main">
@@ -16,7 +11,7 @@
           {% csrf_token %}
           <div class="submit-row">
             <input type="submit" value="Confirm" class="default" style="float:left; font-weight: bold; margin-right: 5px">
-            <input class="button" type="button" onclick="history.back()" value="Cancel" />
+            <input class="button pgs-admin-cancel" type="button" value="Cancel" />
           </div>
           <div class="help">(Studies with errors and tagged as 'Not PGS' won't be imported)</div>
       </div>
@@ -58,7 +53,7 @@
       </div>
       <div class="submit-row">
         <input type="submit" value="Confirm" class="default" style="float:left; font-weight: bold; margin-right: 5px">
-        <input class="button" type="button" onclick="history.back()" value="Cancel" />
+        <input class="button pgs-admin-cancel" type="button" value="Cancel" />
       </div>
       <div class="help">(Studies with errors and tagged as 'Not PGS' won't be imported)</div>
       {% if skipped_publications %}

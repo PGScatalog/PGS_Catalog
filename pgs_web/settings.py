@@ -163,7 +163,8 @@ CSP_FONT_SRC = ("'self'",
                 get_base_url(STYLES_URLS['ebi']))
 # connect-src
 CSP_CONNECT_SRC = ("'self'",
-                   USEFUL_URLS['EBI_URL'])
+                   USEFUL_URLS['EBI_URL'],
+                   USEFUL_URLS['PGS_WEBSITE_URL'])
 
 # Live middleware
 if PGS_ON_LIVE_SITE:
