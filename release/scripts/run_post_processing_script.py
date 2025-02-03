@@ -1,13 +1,14 @@
 from django.db.models import Count
 from catalog.models import *
 from release.scripts.RemoveDataForRelease import NonReleasedDataToRemove
+from release.scripts.OnlyUpdateEFOAssociations import OnlyUpdateEFOAssociations
 from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
 from release.scripts.UpdateScoreEvaluated import UpdateScoreEvaluated
 from release.scripts.UpdateReleasedCohorts import UpdateReleasedCohorts
 from release.scripts.UpdateEFO import UpdateEFO
 
 
-def run():
+def run(*args):
     """
         Main method executed by the Django command:
         `python manage.py runscript run_post_processing_script`
@@ -30,8 +31,12 @@ def run():
     # Update the cohorts (update the Cohort "released" field)
     update_released_cohorts()
 
-    # Update the trait information and ontology
-    update_efo()
+    if 'update_efo_associations_only' in args:
+        # Simply update trait associations without rebuilding the ontology
+        update_efo_associations_only()
+    else:
+        # Update the trait information and ontology
+        update_efo()
 
     # Display the list of new EFO traits in the catalog
     display_new_efo()
@@ -76,8 +81,11 @@ def update_efo():
     update_efo.launch_efo_updates()
 
 
-def skip_efo():
-    report_header("Skipping EFO rebuilding, just mapping new scores to existing EFO traits.")
+def update_efo_associations_only():
+    """ Skipping EFO rebuilding, just adding scores and traits associations """
+    report_header("kipping EFO rebuilding, just adding scores and traits associations.")
+    update_efo_associations = OnlyUpdateEFOAssociations()
+    update_efo_associations.add_efo_trait_associations()
     
 
 def display_new_efo():
