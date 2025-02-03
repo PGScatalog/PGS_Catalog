@@ -1,4 +1,3 @@
-import sys, os.path, shutil, glob
 from django.db.models import Count
 from catalog.models import *
 from release.scripts.RemoveDataForRelease import NonReleasedDataToRemove
@@ -6,6 +5,7 @@ from release.scripts.UpdateScoreAncestry import UpdateScoreAncestry
 from release.scripts.UpdateScoreEvaluated import UpdateScoreEvaluated
 from release.scripts.UpdateReleasedCohorts import UpdateReleasedCohorts
 from release.scripts.UpdateEFO import UpdateEFO
+
 
 def run():
     """
@@ -75,6 +75,10 @@ def update_efo():
     update_efo = UpdateEFO()
     update_efo.launch_efo_updates()
 
+
+def skip_efo():
+    report_header("Skipping EFO rebuilding, just mapping new scores to existing EFO traits.")
+    
 
 def display_new_efo():
     """ Display the list of new Traits added with the new release """
