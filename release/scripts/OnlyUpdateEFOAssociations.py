@@ -17,12 +17,16 @@ class OnlyUpdateEFOAssociations:
         """Add EFO trait associations to the given score."""
         efo_traits = score.trait_efo.all()
         for efo_trait in efo_traits:
-            efo_trait_ontology = EFOTrait_Ontology.objects.get(id=efo_trait.id)
-            efo_trait_ontology.scores_direct_associations.add(score)
-            efo_trait_ontology.save()
-            for efo_trait_parent in efo_trait_ontology.parent_traits.all():
-                efo_trait_parent.scores_child_associations.add(score)
-                efo_trait_parent.save()
+            try:
+                efo_trait_ontology = EFOTrait_Ontology.objects.get(id=efo_trait.id)
+                efo_trait_ontology.scores_direct_associations.add(score)
+                efo_trait_ontology.save()
+                for efo_trait_parent in efo_trait_ontology.parent_traits.all():
+                    efo_trait_parent.scores_child_associations.add(score)
+                    efo_trait_parent.save()
+            except EFOTrait_Ontology.DoesNotExist as e:
+                print(f'ERROR: {efo_trait.id} is a new trait, UpdateEFO cannot be bypassed.')
+                raise e
 
     def add_efo_trait_associations(self):
         """Main function."""
