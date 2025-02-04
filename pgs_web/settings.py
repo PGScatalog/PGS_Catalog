@@ -154,7 +154,10 @@ CSP_SCRIPT_SRC = ("'self'",
                   )
 # img-src
 CSP_IMG_SRC = ("'self'",
-               "data:"  # For SVG images
+               "data:",  # For SVG images
+               # Google Analytics
+               'https://*.google-analytics.com',
+               'https://*.googletagmanager.com'
                )
 # front-src
 CSP_FONT_SRC = ("'self'",
@@ -164,7 +167,11 @@ CSP_FONT_SRC = ("'self'",
 # connect-src
 CSP_CONNECT_SRC = ("'self'",
                    USEFUL_URLS['EBI_URL'],
-                   USEFUL_URLS['PGS_WEBSITE_URL'])
+                   USEFUL_URLS['PGS_WEBSITE_URL'],
+                   # Google Analytics
+                   'https://*.google-analytics.com',
+                   'https://*.analytics.google.com',
+                   'https://*.googletagmanager.com')
 
 # Live middleware
 if PGS_ON_LIVE_SITE:
