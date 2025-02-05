@@ -1422,3 +1422,32 @@ class PGSPieChartTiny extends PGSPieChart {
       .text(label);
   }
 }
+
+
+/**
+ * This function returns a Promise which resolves when an element matching the given
+ * selector is found in the given parent node.
+ * @param selector A selector for the future wanted element.
+ * @param [parent=document.body] Only monitor within this node and children, or the whole document if not defined.
+ * @returns {Promise<Element>} A Promise which resolves when the element is found.
+ */
+function wait_for_element(selector, parent = document.body) {
+    return new Promise(resolve => {
+        if (parent.querySelector(selector)) {
+            // It's already present, just return it.
+            return resolve(parent.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(mutations => {
+            if (parent.querySelector(selector)) {
+                observer.disconnect();
+                resolve(parent.querySelector(selector));
+            }
+        });
+
+        observer.observe(parent, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
