@@ -63,11 +63,9 @@
         var topbar = document.getElementsByClassName("topbar")[0];
         topbar.parentNode.removeChild(topbar);
 
-        // Remove the list of servers
-        setTimeout(function(){
+        wait_for_element('hgroup', document.getElementById('swagger-ui')).then(function(hgroup){
 
           // Add Swagger logo
-          var hgroup = document.getElementsByTagName("hgroup")[0];
           // Create 'div' class and add it ti the hgroup
           var title_div = document.createElement("div");
           title_div.classList.add('clearfix');
@@ -165,7 +163,10 @@
           });
 
           $('[data-toggle="tooltip"]').tooltip();
-        }, 150);
+        }
+        )
+
+
       }
     </script>
   </head>
