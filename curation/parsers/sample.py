@@ -87,6 +87,9 @@ class SampleData(GenericData):
         for field, val in self.data.items():
             if field == 'cohorts':
                 s_cohorts = '|'.join(sorted([x.name for x in self.data['cohorts']]))
+            elif field == 'ancestry_country':
+                # Adding spaces after commas if missing (separator for multiple countries)
+                sample_data[field] = re.sub(r'(?<=,)(?=\S)', r' ', val)
             elif field not in ['sample_age', 'followup_time']: # 'sample_age' and 'followup_time' not populated by GWAS Catalog
                 sample_data[field] = val
         samples = Sample.objects.filter(**sample_data).order_by('id')
