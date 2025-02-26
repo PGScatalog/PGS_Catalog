@@ -5,22 +5,23 @@ from curation.parsers.generic import GenericData
 from curation.parsers.demographic import DemographicData
 from catalog.models import Sample
 
+
 class SampleData(GenericData):
 
-    def __init__(self,spreadsheet_name,sampleset_name=None):
-        GenericData.__init__(self,spreadsheet_name)
+    def __init__(self, spreadsheet_name, sampleset_name=None):
+        GenericData.__init__(self, spreadsheet_name)
         self.sampleset_name = sampleset_name
 
     def str2demographic(self, field, val):
-        '''
+        """
         Parse the sample_age and followup_time information to store it into the DemographicData object
         - field: data field (from the template schema)
         - val: data value
         Return type: DemographicData object
-        '''
+        """
         unit_regex = r"([-+]?\d*\.\d+|\d+) ([a-zA-Z]+)"
-        current_demographic = DemographicData(field,val,self.spreadsheet_name)
-        if type(val) == float:
+        current_demographic = DemographicData(field, val, self.spreadsheet_name)
+        if type(val) is float:
             current_demographic.add_data('estimate', val)
         else:
             # Split by ; in case of multiple sub-fields
@@ -75,19 +76,21 @@ class SampleData(GenericData):
             current_demographic.update_demographic_data()
         return current_demographic
 
-
     def sample_model_exist(self):
-        '''
+        """
         Check if a Sample model already exists.
         Only to be used for GWAS/Dev samples from existing Scores in the database!
         Return type: Sample object (catalog.models) or None
-        '''
+        """
         sample_data = {}
         s_cohorts = ''
         for field, val in self.data.items():
             if field == 'cohorts':
                 s_cohorts = '|'.join(sorted([x.name for x in self.data['cohorts']]))
-            elif field not in ['sample_age', 'followup_time']: # 'sample_age' and 'followup_time' not populated by GWAS Catalog
+            elif field == 'ancestry_country':
+                # Adding spaces after commas if missing (separator for multiple countries)
+                sample_data[field] = re.sub(r'(?<=,)(?=\S)', r' ', val)
+            elif field not in ['sample_age', 'followup_time']:  # 'sample_age' and 'followup_time' not populated by GWAS Catalog
                 sample_data[field] = val
         samples = Sample.objects.filter(**sample_data).order_by('id')
 
@@ -98,14 +101,13 @@ class SampleData(GenericData):
                     return sample
         return None
 
-
     @transaction.atomic
     def create_sample_model(self):
-        '''
+        """
         Create an instance of the Sample model.
-        It also create instance(s) of the Demographic model (sample_age, followup_time) if needed.
+        It also creates instance(s) of the Demographic model (sample_age, followup_time) if needed.
         Return type: Sample model
-        '''
+        """
         try:
             with transaction.atomic():
                 self.model = Sample()
@@ -121,16 +123,16 @@ class SampleData(GenericData):
                         current_demographic = val.create_demographic_model()
                         setattr(self.model, field, current_demographic)
                         continue
-                    elif field in ['ancestry_broad','ancestry_country','ancestry_free']:
+                    elif field in ['ancestry_broad', 'ancestry_country', 'ancestry_free']:
                         # Add space after each comma (for consistency & comparison)
-                        val = re.sub(r'(?<=[,])(?=[^\s])', r' ', val)
+                        val = re.sub(r'(?<=,)(?=\S)', r' ', val)
                         if field == 'ancestry_broad' and (val == '' or val == 'NR'):
                             val = 'Not reported'
                     elif field == 'sample_percent_male':
                         # Remove % character
                         val_str = str(val)
-                        if re.search(r'\%',val_str):
-                            val_str = re.sub(r'\%', r'', val_str)
+                        if re.search(r'%', val_str):
+                            val_str = re.sub(r'%', r'', val_str)
                             val_str = re.sub(r' ', r'', val_str)
                             val = float(val_str)
                     setattr(self.model, field, val)
