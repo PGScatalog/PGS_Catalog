@@ -29,7 +29,7 @@ class CurationTemplate():
         ''' Mapping between Django catalog models and speadsheet names '''
         for s_name, s_content in self.table_mapschema.iterrows():
             # Fetch model
-            s_model = s_content[1]
+            s_model = s_content.iloc[1]
             if s_model not in self.spreadsheet_names:
                 self.spreadsheet_names[s_model] = s_name
 
@@ -103,7 +103,7 @@ class CurationTemplate():
                 c_doi = c_doi.replace('https://doi.org/','')
             elif c_doi.startswith('http'):
                 c_doi = c_doi.replace('http://doi.org/','')
-        c_PMID = pinfo[0]
+        c_PMID = pinfo.iloc[0]
         publication = None
         new_publication = True
         # If there is a DOI or PMID
