@@ -76,6 +76,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # necessary for redirects
+    'django.contrib.redirects',
     'django_tables2',
     'compressor',
     'rest_framework',
@@ -105,7 +107,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware'
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware'
 ]
 
 # ----------------------------- #
@@ -452,3 +455,11 @@ MIN_UPLOAD_SIZE=1000
 MAX_UPLOAD_SIZE=2000000
 MAX_UPLOAD_SIZE_LABEL="2Mb"
 DATA_UPLOAD_MAX_NUMBER_FILES=10
+
+
+#----------#
+#  Others  #
+#----------#
+
+# Site default ID, necessary for django.contrib.sites.
+SITE_ID = 1
