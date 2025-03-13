@@ -83,7 +83,7 @@ def update_efo():
 
 def update_efo_associations_only():
     """ Skipping EFO rebuilding, just adding scores and traits associations """
-    report_header("kipping EFO rebuilding, just adding scores and traits associations.")
+    report_header("Skipping EFO rebuilding, just adding scores and traits associations.")
     update_efo_associations = OnlyUpdateEFOAssociations()
     update_efo_associations.add_efo_trait_associations()
     
