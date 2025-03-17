@@ -29,7 +29,7 @@ def get_new_release_date(release_date_file):
         with open(release_date_file) as f:
             new_release_date = f.readline()
     except:
-        print(f"Can't open the file '{release_file}'")
+        print(f"Can't open the file '{release_date_file}'")
         exit()
     return new_release_date
 
@@ -53,23 +53,23 @@ def main():
     hm_scores_dir = args.hm_scores_dir
     username = args.username
 
-    release_date_file = f'{new_ftp_dir}/release_date.txt'
-    new_release_date = get_new_release_date(release_date_file)
+    #release_date_file = f'{new_ftp_dir}/release_date.txt'
+    #new_release_date = get_new_release_date(release_date_file)
 
-    md5_sql_filename = f'scores_md5_{new_release_date}.sql'
-    md5_sql_filepath = f'{new_ftp_dir}/{md5_sql_filename}'
+    #md5_sql_filename = f'scores_md5_{new_release_date}.sql'
+    #md5_sql_filepath = f'{new_ftp_dir}/{md5_sql_filename}'
+    md5_sql_filepath = None
 
     copy_scoring_files(new_ftp_dir,staged_scores_dir,scores_dir,md5_sql_filepath,username)
 
     copy_hmpos_scoring_files(new_ftp_dir,hm_staged_scores_dir,hm_scores_dir,md5_sql_filepath,username)
 
     # Move/remove temporary files
-    if os.path.isfile(release_date_file):
-        os.remove(release_date_file)
-    if os.path.isfile(md5_sql_filepath):
-        shutil.move(md5_sql_filepath, f'{new_ftp_dir}/../{md5_sql_filename}')
+    # if os.path.isfile(release_date_file):
+    #     os.remove(release_date_file)
+    # if os.path.isfile(md5_sql_filepath):
+    #     shutil.move(md5_sql_filepath, f'{new_ftp_dir}/../{md5_sql_filename}')
 
 
-
-if __name__== "__main__":
-   main()
+if __name__ == "__main__":
+    main()
