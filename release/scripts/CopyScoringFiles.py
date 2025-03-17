@@ -16,7 +16,7 @@ class CopyScoringFiles:
         'skipped': []
     }
 
-    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir, md5_sql_filepath, username, custom_list_scores=None):
+    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir, md5_sql_filepath, username, custom_list_scores):
         self.new_ftp_scores_dir = new_ftp_scores_dir
         self.new_scoringfiles_dir = staged_scores_dir
         self.scoring_files_dir = scoring_files_dir

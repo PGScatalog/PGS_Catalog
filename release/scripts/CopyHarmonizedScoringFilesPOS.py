@@ -18,7 +18,7 @@ class CopyHarmonizedScoringFilesPOS:
         for gb in genebuilds:
             log_msg[type][gb] = []
 
-    def __init__(self, new_ftp_scores_dir, staged_harmonized_files_dir, harmonized_files_dir, md5_sql_filepath, username, custom_list_scores=None):
+    def __init__(self, new_ftp_scores_dir, staged_harmonized_files_dir, harmonized_files_dir, md5_sql_filepath, username, custom_list_scores):
         self.new_ftp_scores_dir = new_ftp_scores_dir
         self.harmonized_files_staged_dir = staged_harmonized_files_dir
         self.harmonized_files_prod_dir = harmonized_files_dir

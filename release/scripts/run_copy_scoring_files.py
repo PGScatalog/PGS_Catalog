@@ -5,7 +5,7 @@ from release.scripts.CopyScoringFiles import CopyScoringFiles
 from release.scripts.CopyHarmonizedScoringFilesPOS import CopyHarmonizedScoringFilesPOS
 
 
-def copy_scoring_files(new_ftp_dir, staged_scores_dir, scores_dir, md5_sql_filepath, username, custom_list_scores=None):
+def copy_scoring_files(new_ftp_dir, staged_scores_dir, scores_dir, md5_sql_filepath, username, custom_list_scores):
     print("\n#### Copy the new formatted scoring files ####")
     pgs_scoring_files = CopyScoringFiles(new_ftp_dir, staged_scores_dir, scores_dir, md5_sql_filepath, username, custom_list_scores)
     pgs_scoring_files.get_previous_release()
@@ -14,7 +14,7 @@ def copy_scoring_files(new_ftp_dir, staged_scores_dir, scores_dir, md5_sql_filep
     pgs_scoring_files.copy_scoring_files_to_metadata()
 
 
-def copy_hmpos_scoring_files(new_ftp_dir, staged_scores_dir, scores_dir, md5_sql_filepath, username, custom_list_scores=None):
+def copy_hmpos_scoring_files(new_ftp_dir, staged_scores_dir, scores_dir, md5_sql_filepath, username, custom_list_scores):
     print("\n#### Copy the new harmonized position scoring files ####")
     pgs_harmonized_files = CopyHarmonizedScoringFilesPOS(new_ftp_dir, staged_scores_dir, scores_dir, md5_sql_filepath, username, custom_list_scores)
     pgs_harmonized_files.copy_harmonized_files_to_production()
