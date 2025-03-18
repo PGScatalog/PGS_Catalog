@@ -35,7 +35,9 @@ class MappingResults(TypedDict):
     errors: list[str]
 
 
-def report(msg: str, submsgs: list[str] = []):
+def report(msg: str, submsgs=None):
+    if submsgs is None:
+        submsgs = []
     print('# ' + msg)
     for submsg in submsgs:
         print('#    - ' + submsg)
@@ -50,7 +52,11 @@ compl_alleles = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
 
 def flip_alleles(alleles: list[str]):
     """Flip the given alleles for checking for the reverse strand"""
-    return [compl_alleles[a.upper()] for a in alleles]
+    return [reverse_complement(a) for a in alleles]
+
+
+def reverse_complement(seq: str):
+    return ''.join(compl_alleles[n] for n in reversed(seq.upper()))
 
 
 def post_request_with_retry(url, data, retry: int = 0):
@@ -83,8 +89,12 @@ def get_variation_from_ensembl(rsids: list[str], ref_genome):
 
 def get_ref_alleles_from_ensembl(variants: list[Variant], ref_genome):
     url = servers[ref_genome] + ext_seq
-    data = {"regions": ["{}:{}-{}".format(v['chr'], v['pos'], v['pos']) for v in variants]}
+    data = {"regions": ["{}:{}-{}".format(v['chr'], v['pos'], v['pos']+max_variant_length(v)-1) for v in variants]}
     return post_request_with_retry(url, data)
+
+
+def max_variant_length(variant: Variant):
+    return max(len(allele) for allele in variant['alleles'])
 
 
 def map_variants_to_reference_genome(variants: list[Variant], ref_genome) -> MappingResults:
@@ -95,12 +105,12 @@ def map_variants_to_reference_genome(variants: list[Variant], ref_genome) -> Map
     match = 0
     mismatch = 0
     errors = []
-    variants_dict = {"{}:{}-{}".format(v['chr'], v['pos'], v['pos']): v['alleles'] for v in variants}
+    variants_dict = {"{}:{}-{}".format(v['chr'], v['pos'], v['pos']+max_variant_length(v)-1): v['alleles'] for v in variants}
     for resp in response:
         try:
             seq = resp['seq']
             query = resp['query']
-            if seq.upper() in [allele.upper() for allele in variants_dict[query]]:
+            if match_seq_to_variant(seq, variants_dict[query]):
                 match += 1
             else:
                 mismatch += 1
@@ -108,6 +118,10 @@ def map_variants_to_reference_genome(variants: list[Variant], ref_genome) -> Map
             errors.append(str(e))
 
     return {'match': match, 'mismatch': mismatch, 'errors': errors}
+
+
+def match_seq_to_variant(seq: str, alleles: list[str]) -> bool:
+    return True in [seq.upper().startswith(a.upper()) for a in alleles]
 
 
 def map_rsids(variants: list[Variant], ref_genome) -> MappingResults:
@@ -136,7 +150,7 @@ def get_alleles(row, alleles_headers: list[str]):
     alleles = []
     for colname in alleles_headers:
         allele = row[colname]
-        if allele.upper() not in ('A', 'C', 'G', 'T'):
+        if not bool(re.match('^[ATCG]+$', allele.upper())):
             raise Exception("Unexpected allele '{}'.".format(allele))
         alleles.append(allele)
     return alleles
@@ -184,6 +198,7 @@ def main():
     parser.add_argument("--n_requests", type=int, default=1,
                         help="Number of requests of size 50 (maximum allowed per Ensembl POST request). Default: 1")
     parser.add_argument("--flip", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--use_pos", default=False, action=argparse.BooleanOptionalAction)
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -205,6 +220,7 @@ def main():
         ref_genome = args.ref
 
     flip = args.flip
+    use_pos = args.use_pos
 
     # Reading the scoring file
     df = pd.read_csv(scoring_file,
@@ -234,7 +250,7 @@ def main():
     # If rsID, just fetch the variant position and compare it
     max_request_size = None
     map_variants_func = None
-    if 'rsID' in df.columns:
+    if 'rsID' in df.columns and not use_pos:
         report('Using rsIDs to validate variant positions')
         max_request_size = MAX_VARIATION_REQUEST_SIZE
         map_variants_func = map_rsids
