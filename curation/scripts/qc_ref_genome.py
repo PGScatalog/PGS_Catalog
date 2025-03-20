@@ -135,7 +135,10 @@ def map_rsids(variants: list[Variant], ref_genome) -> MappingResults:
     errors = []
     for variant in variants:
         try:
-            mapping = get_variation_mapping(variant['chr'], response[variant['rsID']]['mappings'])
+            rsID = variant['rsID']
+            if rsID not in response:
+                raise Exception('rsID {} not found in response'.format(rsID))
+            mapping = get_variation_mapping(variant['chr'], response[rsID]['mappings'])
             if not mapping:
                 mismatch += 1
             else:
