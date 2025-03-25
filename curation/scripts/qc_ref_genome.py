@@ -110,6 +110,21 @@ def map_variants_to_reference_genome(variants: list[Variant], ref_genome) -> Map
     return {'match': match, 'mismatch': mismatch, 'errors': errors}
 
 
+def get_variation_mapping(chr_name: str, mappings: list) -> dict:
+    """Returns the mapping that matches the variant chromosome. Some SNPs may have different reference positions
+    including scaffold sequences."""
+    if not mappings:
+        return {}
+    if len(mappings) == 1:
+        return mappings[0]
+    else:
+        correct_mappings = list(filter(lambda mapping: mapping['seq_region_name'] == chr_name, mappings))
+        if correct_mappings:
+            return correct_mappings[0]
+        else:
+            return {}
+
+
 def map_rsids(variants: list[Variant], ref_genome) -> MappingResults:
     """Maps the given variants to their reference genome using their rsIDs and the Ensembl Variation API."""
     if len(variants) == 0:
@@ -120,12 +135,19 @@ def map_rsids(variants: list[Variant], ref_genome) -> MappingResults:
     errors = []
     for variant in variants:
         try:
-            mapping = response[variant['rsID']]['mappings'][0]
-            position = mapping['start']
-            if position == variant['pos']:
-                match += 1
-            else:
+            rsID = variant['rsID']
+            if rsID not in response:
+                raise Exception('rsID {} not found in response'.format(rsID))
+            mapping = get_variation_mapping(variant['chr'], response[rsID]['mappings'])
+            if not mapping:
                 mismatch += 1
+            else:
+                ref_position = mapping['start']
+                ref_chr = mapping['seq_region_name']
+                if ref_position == variant['pos'] and ref_chr == variant['chr']:
+                    match += 1
+                else:
+                    mismatch += 1
         except Exception as e:
             errors.append(str(e))
     return {'match': match, 'mismatch': mismatch, 'errors': errors}
