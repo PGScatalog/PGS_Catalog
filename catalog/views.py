@@ -150,6 +150,8 @@ def index(request):
         context['num_pgs_not_released']  = Score.objects.filter(date_released__isnull=True).count()
         context['num_pubs_not_released'] = Publication.objects.filter(date_released__isnull=True).count()
 
+    context['nih_note'] = constants.NIH_NOTE
+
     return render(request, 'catalog/index.html', context)
 
 
