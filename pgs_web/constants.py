@@ -97,6 +97,10 @@ TABLE_HELPER = {
 
 ANNOUNCEMENT = '<div class="mb-1"><h5><i class="fa-solid fa-gears bigger"></i> Available tool: <b>pgsc_calc</b></h5></div>A reproducible workflow to calculate both PGS Catalog and custom polygenic scores.<a class="ml-2 btn btn-pgs-small pgs_no_icon_link" href="https://pgsc-calc.readthedocs.io/en/latest/"><i class="fas fas fa-angle-right"></i> See more information</a></div>'
 
+# NIH compliance note
+NIH_NOTE = """This repository is under review for potential modification in compliance with Administration directives.
+        This resource is part funded by NIH and the US government requires this banner. The resource continues to operate as usual at EMBL-EBI & University of Cambridge."""
+
 TABLE_ROWS_THRESHOLD = 1000
 
 TRAIT_SOURCE_TO_REPLACE = ['Orphanet']

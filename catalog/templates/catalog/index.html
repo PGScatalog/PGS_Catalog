@@ -186,6 +186,13 @@
         <a class="pgs_no_icon_link" href="{{ nhgri_url }}"><img class="img-fluid pgs_big_icons" src="{% static 'catalog/imgs/NHGRI_Logo.png' %}" alt="National Human Genome Research Institute"></a>
       </div>
     </div>
+
+    <!-- NIH compliance note -->
+    <div class="row no-gutters pgs_section">
+      <div class="bordered_content_low_contrast centered_note">
+        {{ nih_note|linebreaksbr|safe }}
+      </div>
+    </div>
   </section>
 </div>
 {% endblock %}
