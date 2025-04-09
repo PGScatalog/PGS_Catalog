@@ -1404,6 +1404,15 @@ a.link-with-btn {
   border-radius: 4px;
   padding:0.5rem;
 }
+.bordered_content_low_contrast {
+    @extend .bordered_content;
+    border: 1px solid $pgs_darkA;
+    color: $pgs_dark5;
+}
+.centered_note {
+  margin: 0 auto;
+  padding:0.5rem 4rem;
+}
 .with_sep_right {
   border-right: 1px solid $pgs_colour_2;
   padding-right: 0.5rem;
