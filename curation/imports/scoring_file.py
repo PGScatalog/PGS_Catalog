@@ -93,10 +93,10 @@ class ScoringFileUpdate():
         for file_path in (Path(file_name), Path(file_name+".gz")):
             if file_path.exists():
                 # Move to local trash can folder. Will be overwritten if already in trash can.
-                deleted_folder = file_path.parent / "trashcan"
-                deleted_folder.mkdir(exist_ok=True)
-                file_path.replace(deleted_folder / file_path.name)
-                print(f"WARNING: The file {file_path} already exists. It has been moved to {deleted_folder}")
+                trashcan_folder = file_path.parent / "trashcan"
+                trashcan_folder.mkdir(exist_ok=True)
+                file_path.replace(trashcan_folder / file_path.name)
+                print(f"WARNING: The file {file_path} already exists. It has been moved to {trashcan_folder}")
 
     def update_scoring_file(self):
         """ Method to fetch the file, read it, add the header and compress it. """
