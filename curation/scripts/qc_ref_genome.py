@@ -262,6 +262,10 @@ def main():
         report('Using rsIDs to validate variant positions')
         max_request_size = MAX_VARIATION_REQUEST_SIZE
         map_variants_func = map_rsids
+        # Keeping only the variants with a defined rsID, otherwise the subsequent requests may fail.
+        df = df.dropna(subset=['rsID'])
+        if df.empty:
+            errors.append('No variant with valid rsID found')
     else:
         max_request_size = MAX_SEQUENCE_REQUEST_SIZE
         map_variants_func = map_variants_to_reference_genome
