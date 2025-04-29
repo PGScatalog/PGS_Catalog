@@ -219,7 +219,9 @@ def main():
     # Getting the reference genome from the scoring file if not defined
     ref_genome = None
     if args.ref == 'auto':
-        grep_output = subprocess.run(['grep', '-m 1', 'genome_build', scoring_file], stdout=subprocess.PIPE).stdout.decode('utf-8').split("\n")[0]
+        grep_output = subprocess.run(['grep', '-m 1', '#genome_build=', scoring_file], stdout=subprocess.PIPE).stdout.decode('utf-8').split("\n")[0]
+        if not grep_output:
+            raise Exception("Could not detect genome build from header. (Argument --ref required for raw files)")
         ref_genome = re.sub("[^0-9]", "", grep_output.split('=')[1])
         if ref_genome == "19":
             ref_genome = "37"
