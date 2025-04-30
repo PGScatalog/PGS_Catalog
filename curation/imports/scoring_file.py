@@ -122,50 +122,46 @@ class ScoringFileUpdate():
                 header = ''  # This is the metadata header, not the column names.
                 if first_chunk:
                     # Check that all columns are in the schema
-                    column_check = True
+                    invalid_columns = []
                     for x in df_scoring.columns:
-                        if x not in self.score_file_schema.index and x != self.weight_type_label:
-                            # Skip custom allele frequency effect columns
-                            if not x.startswith('allelefrequency_effect_'):
-                                column_check = False
-                                print(f'The column "{x}" is not in the Schema index')
-                                break
-                    if column_check:
-                        # Check if weight_type in columns
-                        weight_type_value = None
-                        if self.weight_type_label in df_scoring.columns:
-                            if all(df_scoring[self.weight_type_label]):
-                                val = df_scoring[self.weight_type_label][0]
-                                weight_type_value = val
-                                if val == 'OR':
-                                    df_scoring = df_scoring.rename({'effect_weight': 'OR'}, axis='columns').drop(
-                                        [self.weight_type_label], axis=1)
-                        if 'effect_weight' not in df_scoring.columns:
-                            if 'OR' in df_scoring.columns:
-                                df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['OR']))
-                                weight_type_value = 'log(OR)'
-                            elif 'HR' in df_scoring.columns:
-                                df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['HR']))
-                                weight_type_value = 'log(HR)'
-
-                        # Update Score model with weight_type data
-                        if weight_type_value:
-                            self.score.weight_type = weight_type_value
-                            self.score.save()
-
-                        # Get new header
-                        header = self.create_scoringfileheader()
-                        if len(header) == 0:
-                            failed_update = True
-                            return failed_update
-
-                    else:
-                        badmaps = []
-                        for i, v in enumerate(column_check):
-                            if v == False:
-                                badmaps.append(df_scoring.columns[i])
+                        if all([
+                            x not in self.score_file_schema.index,
+                            x != self.weight_type_label,
+                            not x.startswith('allelefrequency_effect_')
+                        ]):
+                            invalid_columns.append(x)
+                    if invalid_columns:
                         failed_update = True
-                        print(f'ERROR in {raw_scorefile_path} ! bad columns: {badmaps}')
+                        print(f'ERROR in {raw_scorefile_path} ! The column(s) "{str(invalid_columns)}" are not in the Schema index')
+                        return failed_update
+
+                    # Check if weight_type in columns
+                    weight_type_value = None
+                    if self.weight_type_label in df_scoring.columns:
+                        if all(df_scoring[self.weight_type_label]):
+                            val = df_scoring[self.weight_type_label][0]
+                            weight_type_value = val
+                            if val == 'OR':
+                                df_scoring = df_scoring.rename({'effect_weight': 'OR'}, axis='columns').drop(
+                                    [self.weight_type_label], axis=1)
+                    if 'effect_weight' not in df_scoring.columns:
+                        if 'OR' in df_scoring.columns:
+                            df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['OR']))
+                            weight_type_value = 'log(OR)'
+                        elif 'HR' in df_scoring.columns:
+                            df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['HR']))
+                            weight_type_value = 'log(HR)'
+
+                    # Update Score model with weight_type data
+                    if weight_type_value:
+                        self.score.weight_type = weight_type_value
+                        self.score.save()
+
+                    # Get new header
+                    header = self.create_scoringfileheader()
+                    if len(header) == 0:
+                        failed_update = True
+                        return failed_update
 
                     first_chunk = False
 
