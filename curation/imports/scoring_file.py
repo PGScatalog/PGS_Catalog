@@ -65,7 +65,7 @@ class ScoringFileUpdate():
     @classmethod
     def read_csv_in_chunks(cls, file_path, file_format: str) -> Iterator[pd.DataFrame]:
         """ Read the given raw scoring file in chunks to avoid potential OOM error occurring with big files."""
-        chunk_size = 10000
+        chunk_size = 2000000  # Around 2GB memory
         match file_format:
             case ('txt' | 'tsv'):
                 for chunk in pd.read_table(file_path, dtype='str', engine='python', chunksize=chunk_size):
