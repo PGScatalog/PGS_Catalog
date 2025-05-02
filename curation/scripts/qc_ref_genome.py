@@ -237,8 +237,6 @@ def qc_score_ref_genome(scoring_file: str | PathLike[str], ref_genome, n_request
     mismatch = 0
 
     # If rsID, just fetch the variant position and compare it
-    max_request_size = None
-    map_variants_func = None
     if 'rsID' in df.columns:
         report_func('Using rsIDs to validate variant positions')
         max_request_size = MAX_VARIATION_REQUEST_SIZE

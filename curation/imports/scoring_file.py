@@ -172,7 +172,6 @@ class VariantPositionsQC:
         if not genome_build:
             failed_qc = True
             error_func(f'Missing genome build')
-        build_version = None
         if genome_build in ('GRCh37', 'hg19'):
             build_version = '37'
         elif genome_build in ('GRCh38', 'hg38'):
