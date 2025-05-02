@@ -1,4 +1,6 @@
 import sys
+from os import PathLike
+
 import pandas as pd
 import subprocess
 import requests
@@ -6,7 +8,7 @@ from requests.adapters import HTTPAdapter, Retry
 import json
 import argparse
 import re
-from typing import TypedDict
+from typing import TypedDict, Callable
 
 # Ensembl REST server config
 servers = {
@@ -198,6 +200,72 @@ def sample_df(scoring_file_df, n_requests, max_request_size, alleles_headers, fl
     return variants_slices
 
 
+def get_ref_genome_from_scoring_file(scoring_file: str) -> str:
+    grep_output = subprocess.run(['grep', '-m 1', '#genome_build=', scoring_file], stdout=subprocess.PIPE).stdout.decode('utf-8').split("\n")[0]
+    if not grep_output:
+        raise Exception("Could not detect genome build from header. (Argument --ref required for raw files)")
+    ref_genome = re.sub("[^0-9]", "", grep_output.split('=')[1])
+    if ref_genome == "19":
+        ref_genome = "37"
+    return ref_genome
+
+
+def qc_score_ref_genome(scoring_file: str | PathLike[str], ref_genome, n_requests: int, flip=False, report_func: Callable = print) -> MappingResults:
+    # Reading the scoring file
+    df = pd.read_csv(scoring_file,
+                     sep="\t",
+                     comment='#',
+                     usecols=lambda c: c in usecols,
+                     dtype={"rsID": 'string', "chr_name": 'string', "chr_position": 'Int64', "effect_allele": 'string',
+                            "other_allele": 'string'})
+
+    # Ending if the scoring file does not contain positions (rsIDs)
+    if 'chr_position' not in df.columns:
+        report_func('No position')
+        quit()
+
+    # Headers for alleles. other_allele is optional, but should be tested if exists as we don't know which allele is the reference one.
+    alleles_headers = ['effect_allele']
+    if 'other_allele' in df.columns:
+        alleles_headers.append('other_allele')
+
+    if len(alleles_headers) == 1:
+        report_func('Warning: Only 1 allele column, expect low match rate.')
+
+    errors = []
+    match = 0
+    mismatch = 0
+
+    # If rsID, just fetch the variant position and compare it
+    max_request_size = None
+    map_variants_func = None
+    if 'rsID' in df.columns:
+        report_func('Using rsIDs to validate variant positions')
+        max_request_size = MAX_VARIATION_REQUEST_SIZE
+        map_variants_func = map_rsids
+        # Keeping only the variants with a defined rsID, otherwise the subsequent requests may fail.
+        df = df.dropna(subset=['rsID'])
+        if df.empty:
+            errors.append('No variant with valid rsID found')
+    else:
+        max_request_size = MAX_SEQUENCE_REQUEST_SIZE
+        map_variants_func = map_variants_to_reference_genome
+
+    variant_slices = sample_df(df, n_requests, max_request_size, alleles_headers, flip, errors)
+
+    for variants in variant_slices:
+        results = map_variants_func(variants, ref_genome)
+        match += results['match']
+        mismatch += results['mismatch']
+        errors = errors + results['errors']
+
+    return {
+        'match': match,
+        'mismatch': mismatch,
+        'errors': errors
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("--scoring_file", help="An unzipped scoring file")
@@ -219,64 +287,16 @@ def main():
     # Getting the reference genome from the scoring file if not defined
     ref_genome = None
     if args.ref == 'auto':
-        grep_output = subprocess.run(['grep', '-m 1', '#genome_build=', scoring_file], stdout=subprocess.PIPE).stdout.decode('utf-8').split("\n")[0]
-        if not grep_output:
-            raise Exception("Could not detect genome build from header. (Argument --ref required for raw files)")
-        ref_genome = re.sub("[^0-9]", "", grep_output.split('=')[1])
-        if ref_genome == "19":
-            ref_genome = "37"
+        ref_genome = get_ref_genome_from_scoring_file(scoring_file)
     else:
         ref_genome = args.ref
 
     flip = args.flip
 
-    # Reading the scoring file
-    df = pd.read_csv(scoring_file,
-                     sep="\t",
-                     comment='#',
-                     usecols=lambda c: c in usecols,
-                     dtype={"rsID": 'string', "chr_name": 'string', "chr_position": 'Int64', "effect_allele": 'string',
-                            "other_allele": 'string'})
-
-    # Ending if the scoring file does not contain positions (rsIDs)
-    if 'chr_position' not in df.columns:
-        report('No position')
-        quit()
-
-    # Headers for alleles. other_allele is optional, but should be tested if exists as we don't know which allele is the reference one.
-    alleles_headers = ['effect_allele']
-    if 'other_allele' in df.columns:
-        alleles_headers.append('other_allele')
-
-    if len(alleles_headers) == 1:
-        report('Warning: Only 1 allele column, expect low match rate.')
-
-    errors = []
-    match = 0
-    mismatch = 0
-
-    # If rsID, just fetch the variant position and compare it
-    max_request_size = None
-    map_variants_func = None
-    if 'rsID' in df.columns:
-        report('Using rsIDs to validate variant positions')
-        max_request_size = MAX_VARIATION_REQUEST_SIZE
-        map_variants_func = map_rsids
-        # Keeping only the variants with a defined rsID, otherwise the subsequent requests may fail.
-        df = df.dropna(subset=['rsID'])
-        if df.empty:
-            errors.append('No variant with valid rsID found')
-    else:
-        max_request_size = MAX_SEQUENCE_REQUEST_SIZE
-        map_variants_func = map_variants_to_reference_genome
-
-    variant_slices = sample_df(df, n_requests, max_request_size, alleles_headers, flip, errors)
-
-    for variants in variant_slices:
-        results = map_variants_func(variants, ref_genome)
-        match += results['match']
-        mismatch += results['mismatch']
-        errors = errors + results['errors']
+    results = qc_score_ref_genome(scoring_file=scoring_file, n_requests=n_requests, ref_genome=ref_genome, flip=flip, report_func=report)
+    match = results['match']
+    mismatch = results['mismatch']
+    errors = results['errors']
 
     report(scoring_file)
     report("Ref genome: " + ref_genome)
