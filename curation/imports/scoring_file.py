@@ -1,6 +1,13 @@
-import os, re, gzip
-import pandas as pd
+import gzip
+import os
+import re
+import shutil
+from pathlib import Path
+from typing import Iterator
+
 import numpy as np
+import pandas as pd
+
 from catalog.models import Score
 from curation.scripts.qc_ref_genome import sample_df, map_rsids, map_variants_to_reference_genome, usecols
 
@@ -10,9 +17,7 @@ class ScoringFileUpdate():
 
     value_separator = '|'
     weight_type_label = 'weight_type'
-    txt_ext = '.txt'
-    tsv_ext = '.tsv'
-    xls_ext = '.xlsx'
+    extensions = ('txt', 'tsv', 'xlsx')
 
     def __init__(self, score, study_path, new_scoring_dir, score_file_schema, score_file_format_version):
         self.score = score
@@ -57,72 +62,116 @@ class ScoringFileUpdate():
             print(f'Header creation issue: {e}')
         return lines
 
+    @classmethod
+    def read_csv_in_chunks(cls, file_path, file_format: str) -> Iterator[pd.DataFrame]:
+        """ Read the given raw scoring file in chunks to avoid potential OOM error occurring with big files."""
+        chunk_size = 2000000  # Around 2GB memory
+        match file_format:
+            case ('txt' | 'tsv'):
+                for chunk in pd.read_table(file_path, dtype='str', engine='python', chunksize=chunk_size):
+                    yield chunk
+            case ('xls'):
+                # Chunk reading not possible with spreadsheets. If too big, it might be preferable to convert them
+                # to text files.
+                yield pd.read_excel(file_path, dtype='str')
+            case _:
+                raise ValueError(f'Unsupported file format: {file_format}')
+
+    @classmethod
+    def compress_file(cls, file_name):
+        """ Compress the input file and append '.gz' extension. """
+        file_path = Path(file_name)
+        gzipped_path = Path(file_name + '.gz')
+        with open(file_path, 'rb') as f_in, gzip.open(gzipped_path, 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+        file_path.unlink()
+
+    @classmethod
+    def check_file_exists(cls, file_name: str):
+        """Checks if the given file exists. If yes, it is moved to a temporary directory (<output_dir>/trashcan) for review.
+        Checks for both uncompressed and compressed versions."""
+        for file_path in (Path(file_name), Path(file_name+".gz")):
+            if file_path.exists():
+                # Move to local trash can folder. Will be overwritten if already in trash can.
+                trashcan_folder = file_path.parent / "trashcan"
+                trashcan_folder.mkdir(exist_ok=True)
+                file_path.replace(trashcan_folder / file_path.name)
+                print(f"WARNING: The file {file_path} already exists. It has been moved to {trashcan_folder}")
+
     def update_scoring_file(self):
-        ''' Method to fetch the file, read it, add the header and compress it. '''
+        """ Method to fetch the file, read it, add the header and compress it. """
         failed_update = False
         score_id = self.score.id
         score_name = self.score.name
         raw_scorefile_path = f'{self.score_file_path}/{score_name}'
+        new_score_file = f'{self.new_score_file_path}/{score_id}.txt'
+        self.check_file_exists(new_score_file)
         try:
-            raw_scorefile_txt = f'{raw_scorefile_path}{self.txt_ext}'
-            raw_scorefile_tsv = f'{raw_scorefile_path}{self.tsv_ext}'
-            raw_scorefile_xls = f'{raw_scorefile_path}{self.xls_ext}'
-            if os.path.exists(raw_scorefile_txt):
-                df_scoring = pd.read_table(raw_scorefile_txt, dtype='str', engine='python')
-            elif os.path.exists(raw_scorefile_tsv):
-                df_scoring = pd.read_table(raw_scorefile_tsv, dtype='str', engine='python')
-            elif os.path.exists(raw_scorefile_xls):
-                df_scoring = pd.read_excel(raw_scorefile_xls, dtype='str')
+            for extension in self.extensions:
+                file_path = f'{raw_scorefile_path}.{extension}'
+                if os.path.exists(file_path):
+                    df_chunks = self.read_csv_in_chunks(file_path=file_path, file_format=extension)
+                    break
             else:
                 failed_update = True
-                print(f"ERROR can't find the scorefile {raw_scorefile_path} (trying with the extensions '{self.txt_ext}' and '{self.xls_ext}')\n")
+                print(f"ERROR can't find the score file {raw_scorefile_path}.{str(self.extensions)})\n")
                 return failed_update
 
-            # Remove empty columns
-            df_scoring.replace("", float("NaN"), inplace=True)
-            df_scoring.dropna(how='all', axis=1, inplace=True)
+            first_chunk = True
+            for df_scoring in df_chunks:
+                header = ''  # This is the metadata header, not the column names.
+                if first_chunk:
+                    # Check that all columns are in the schema
+                    invalid_columns = []
+                    for x in df_scoring.columns:
+                        if all([
+                            x not in self.score_file_schema.index,
+                            x != self.weight_type_label,
+                            not x.startswith('allelefrequency_effect_')
+                        ]):
+                            invalid_columns.append(x)
+                    if invalid_columns:
+                        failed_update = True
+                        print(f'ERROR in {raw_scorefile_path} ! The column(s) "{str(invalid_columns)}" are not in the Schema index')
+                        return failed_update
 
-            # Rename reference_allele column
-            if 'other_allele' not in df_scoring.columns and 'reference_allele' in df_scoring.columns:
-                df_scoring.rename(columns={'reference_allele': 'other_allele'}, inplace=True)
+                    # Check if weight_type in columns
+                    weight_type_value = None
+                    if self.weight_type_label in df_scoring.columns:
+                        if all(df_scoring[self.weight_type_label]):
+                            val = df_scoring[self.weight_type_label][0]
+                            weight_type_value = val
+                            if val == 'OR':
+                                df_scoring = df_scoring.rename({'effect_weight': 'OR'}, axis='columns').drop(
+                                    [self.weight_type_label], axis=1)
+                    if 'effect_weight' not in df_scoring.columns:
+                        if 'OR' in df_scoring.columns:
+                            df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['OR']))
+                            weight_type_value = 'log(OR)'
+                        elif 'HR' in df_scoring.columns:
+                            df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['HR']))
+                            weight_type_value = 'log(HR)'
 
-            # Check that all columns are in the schema
-            column_check = True
-            for x in df_scoring.columns:
-                if not x in self.score_file_schema.index and x != self.weight_type_label:
-                    # Skip custom allele frequency effect columns
-                    if not x.startswith('allelefrequency_effect_'):
-                        column_check = False
-                        print(f'The column "{x}" is not in the Schema index')
-                        break
+                    # Update Score model with weight_type data
+                    if weight_type_value:
+                        self.score.weight_type = weight_type_value
+                        self.score.save()
 
-            if column_check == True:
-                # Check if weight_type in columns
-                weight_type_value = None
-                if self.weight_type_label in df_scoring.columns:
-                    if all(df_scoring[self.weight_type_label]):
-                        val = df_scoring[self.weight_type_label][0]
-                        weight_type_value = val
-                        if val == 'OR':
-                            df_scoring = df_scoring.rename({'effect_weight' : 'OR'}, axis='columns').drop([self.weight_type_label], axis=1)
-                if 'effect_weight' not in df_scoring.columns:
-                    if 'OR' in df_scoring.columns:
-                        df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['OR']))
-                        weight_type_value = 'log(OR)'
-                    elif 'HR' in df_scoring.columns:
-                        df_scoring['effect_weight'] = np.log(pd.to_numeric(df_scoring['HR']))
-                        weight_type_value = 'log(HR)'
+                    # Get new header
+                    header = self.create_scoringfileheader()
+                    if len(header) == 0:
+                        failed_update = True
+                        return failed_update
 
-                # Update Score model with weight_type data
-                if weight_type_value:
-                    self.score.weight_type = weight_type_value
-                    self.score.save()
+                    first_chunk = False
 
-                # Get new header
-                header = self.create_scoringfileheader()
-                if len(header) == 0:
-                    failed_update = True
-                    return failed_update
+                # Remove empty columns
+                df_scoring.replace("", float("NaN"), inplace=True)
+                df_scoring.dropna(how='all', axis=1, inplace=True)
+
+                # Rename reference_allele column
+                if 'other_allele' not in df_scoring.columns and 'reference_allele' in df_scoring.columns:
+                    df_scoring.rename(columns={'reference_allele': 'other_allele'}, inplace=True)
 
                 # Reorganize columns according to schema
                 col_order = []
@@ -131,7 +180,7 @@ class ScoringFileUpdate():
                         col_order.append(x)
 
                 df_scoring = df_scoring[col_order]
-                df_csv = df_scoring.to_csv(sep='\t', index=False)
+                df_csv = df_scoring.to_csv(sep='\t', index=False, header=bool(header))  # Header (column names) only if first chunk
                 # Cleanup the file by removing empty lines
                 new_df_csv = []
                 for row in df_csv.split('\n'):
@@ -139,18 +188,18 @@ class ScoringFileUpdate():
                         new_df_csv.append(row)
                 df_csv = '\n'.join(new_df_csv)
 
-                new_score_file = f'{self.new_score_file_path}/{score_id}.txt.gz'
-                with gzip.open(new_score_file, 'w') as outf:
-                    outf.write('\n'.join(header).encode('utf-8'))
-                    outf.write('\n'.encode('utf-8'))
-                    outf.write(df_csv.encode('utf-8'))
-            else:
-                badmaps = []
-                for i, v in enumerate(column_check):
-                    if v == False:
-                        badmaps.append(df_scoring.columns[i])
-                failed_update = True
-                print(f'ERROR in {raw_scorefile_path} ! bad columns: {badmaps}')
+                # Opening the output file in 'append' mode as we print by chunks. The file should not exist
+                # already as we check that previously.
+                with open(new_score_file, 'a', encoding='utf-8') as output_file:
+                    if header:  # Only first chunk
+                        output_file.write('\n'.join(header))
+                        output_file.write('\n')
+                    output_file.write(df_csv)
+                    output_file.write('\n')
+
+            # Compressing only at the end as the file is written in chunks.
+            self.compress_file(new_score_file)
+
         except Exception as e:
             failed_update = True
             print(f'ERROR reading scorefile: {raw_scorefile_path}\n-> {e}')
