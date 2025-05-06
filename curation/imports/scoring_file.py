@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from catalog.models import Score
-from curation.scripts.qc_ref_genome import sample_df, map_rsids, map_variants_to_reference_genome, usecols
+from curation.scripts.qc_ref_genome import qc_score_ref_genome
 
 
 class ScoringFileUpdate():
@@ -221,7 +221,6 @@ class VariantPositionsQC:
         if not genome_build:
             failed_qc = True
             error_func(f'Missing genome build')
-        build_version = None
         if genome_build in ('GRCh37', 'hg19'):
             build_version = '37'
         elif genome_build in ('GRCh38', 'hg38'):
@@ -237,46 +236,11 @@ class VariantPositionsQC:
         new_score_file = f'{self.new_score_file_path}/{score.id}.txt.gz'
 
         # Reading the scoring file
-        df = pd.read_csv(new_score_file,
-                         sep="\t",
-                         comment='#',
-                         usecols=lambda c: c in usecols,
-                         dtype={"rsID": 'string', "chr_name": 'string', "chr_position": 'Int64',
-                                "effect_allele": 'string', "other_allele": 'string'})
-
-        if 'chr_position' not in df.columns:
-            report_func('No chr_position column. Variant position QC will be skipped')
-            return failed_qc
-
-        # Headers for alleles. other_allele is optional, but should be tested if exists as we don't know which allele is the reference one.
-        alleles_headers = ['effect_allele']
-        if 'other_allele' in df.columns:
-            alleles_headers.append('other_allele')
-
         n_requests = self.variant_positions_qc_config['n_requests']
+        results = qc_score_ref_genome(scoring_file=new_score_file, ref_genome=build_version, n_requests=n_requests, report_func=report_func)
 
-        if 'rsID' in df.columns:
-            max_request_size = self.variant_positions_qc_config['ensembl_max_variation_req_size']
-            map_variants_func = map_rsids
-        else:
-            if len(alleles_headers) == 1:
-                # 1 allele column is not enough for sequence-based validation, as we don't know if the allele is ref or alt.
-                report_func('Only 1 allele column with no rsID. Variant position QC will be skipped')
-                return failed_qc
-            max_request_size = self.variant_positions_qc_config['ensembl_max_sequence_req_size']
-            map_variants_func = map_variants_to_reference_genome
-
-        errors = []
-        variant_slices = sample_df(df, n_requests, max_request_size, alleles_headers, False, errors)
-
-        match = 0
-        mismatch = 0
-        for variants in variant_slices:
-            results = map_variants_func(variants, build_version)
-            match += results['match']
-            mismatch += results['mismatch']
-            errors = errors + results['errors']
-
+        match = results['match']
+        mismatch = results['mismatch']
         final_report = '''Results:
          - Matches: {0}
          - Mismatches: {1}'''
