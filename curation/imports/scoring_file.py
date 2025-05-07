@@ -70,7 +70,7 @@ class ScoringFileUpdate():
             case ('txt' | 'tsv'):
                 for chunk in pd.read_table(file_path, dtype='str', engine='python', chunksize=chunk_size):
                     yield chunk
-            case ('xls'):
+            case ('xls' | 'xlsx'):
                 # Chunk reading not possible with spreadsheets. If too big, it might be preferable to convert them
                 # to text files.
                 yield pd.read_excel(file_path, dtype='str')
