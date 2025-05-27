@@ -332,28 +332,32 @@ class CurationTemplate():
                 # adding the list of cohorts from the GWAS study (if the list is present)
                 cohorts_list = spreadsheet_cohorts.copy()
                 if 'cohort' in response_data.keys():
-                    cohorts = response_data['cohort'].split('|')
-                    for cohort in cohorts:
-                        cohort_id = cohort.upper()
-                        # Check if cohort in list of cohort references
-                        # and if the cohort is already in the list provided by the author
-                        if cohort_id in self.parsed_cohorts:
-                            if cohort_id not in spreadsheet_cohorts_names:
-                                cohorts_list.append(self.parsed_cohorts[cohort_id])
-                        # Check if the cohort name corresponds to a cohort long name on the Cohort Refr. spreadsheet
-                        elif cohort_id in self.parsed_cohorts_long_names.keys():
-                            new_cohort_id = self.parsed_cohorts_long_names[cohort_id]
-                            if new_cohort_id not in spreadsheet_cohorts_names:
-                                cohorts_list.append(self.parsed_cohorts[new_cohort_id])
-                                self.report_warning(spreadsheet_name, f'Warning: the GWAS Catalog sample cohort "{cohort}" has been found in the Cohort Refr. spreadsheet as "{new_cohort_id}"')
-                        else:
-                            self.report_error(spreadsheet_name, f'Error: the GWAS Catalog sample cohort "{cohort}" cannot be found in the Cohort Refr. spreadsheet')
-                    # Print a message if the list of Cohorts from the spreadsheet and from GWAS Catalog (REST API) have been merged.
-                    if spreadsheet_cohorts and len(spreadsheet_cohorts) != len(cohorts_list):
-                        msg = f'''GWAS study {gcst_id} -> the list of cohorts from the spreadsheet has been merged with the one from GWAS.
-                        \t- Spreadsheet list: {', '.join(sorted(spreadsheet_cohorts_names))}
-                        \t+ Merged GWAS list: {', '.join(sorted([x.name.upper() for x in cohorts_list]))}'''
-                        self.report_warning(spreadsheet_name, msg)
+                    if response_data['cohort'] == 'multiple':
+                        self.report_warning(spreadsheet_name, 'Multiple cohorts for {} (too many to report)'.format(gcst_id))
+                        cohorts_list.append(CohortData(name='Multiple', name_long='Multiple cohorts (see publication)', name_others=None, spreadsheet_name=None))
+                    else:
+                        cohorts = response_data['cohort'].split('|')
+                        for cohort in cohorts:
+                            cohort_id = cohort.upper()
+                            # Check if cohort in list of cohort referencesF
+                            # and if the cohort is already in the list provided by the author
+                            if cohort_id in self.parsed_cohorts:
+                                if cohort_id not in spreadsheet_cohorts_names:
+                                    cohorts_list.append(self.parsed_cohorts[cohort_id])
+                            # Check if the cohort name corresponds to a cohort long name on the Cohort Refr. spreadsheet
+                            elif cohort_id in self.parsed_cohorts_long_names.keys():
+                                new_cohort_id = self.parsed_cohorts_long_names[cohort_id]
+                                if new_cohort_id not in spreadsheet_cohorts_names:
+                                    cohorts_list.append(self.parsed_cohorts[new_cohort_id])
+                                    self.report_warning(spreadsheet_name, f'Warning: the GWAS Catalog sample cohort "{cohort}" has been found in the Cohort Refr. spreadsheet as "{new_cohort_id}"')
+                            else:
+                                self.report_error(spreadsheet_name, f'Error: the GWAS Catalog sample cohort "{cohort}" cannot be found in the Cohort Refr. spreadsheet')
+                        # Print a message if the list of Cohorts from the spreadsheet and from GWAS Catalog (REST API) have been merged.
+                        if spreadsheet_cohorts and len(spreadsheet_cohorts) != len(cohorts_list):
+                            msg = f'''GWAS study {gcst_id} -> the list of cohorts from the spreadsheet has been merged with the one from GWAS.
+                            \t- Spreadsheet list: {', '.join(sorted(spreadsheet_cohorts_names))}
+                            \t+ Merged GWAS list: {', '.join(sorted([x.name.upper() for x in cohorts_list]))}'''
+                            self.report_warning(spreadsheet_name, msg)
 
                 # Ancestry information
                 for ancestry in response_data['ancestries']:
