@@ -46,9 +46,9 @@ class GenericData():
         """ Remove/replace some of the non-ascii characters """
         for char in self.non_ascii_chars.keys():
             if char in value:
-                self.parsing_report_warning(f'Found non-ascii character "{char}" for "{field}": "{value}".')
+                self.parsing_report_warning(f'Found non-ascii character "{repr(char)}" for "{field}": "{repr(value)}".')
                 value = value.replace(char, self.non_ascii_chars[char])
-                self.parsing_report_warning(f'  -> The non-ascii character "{char}" has been fixed/replaced in the import.')
+                self.parsing_report_warning(f'  -> The non-ascii character "{repr(char)}" has been fixed/replaced in the import.')
         return value
 
 
