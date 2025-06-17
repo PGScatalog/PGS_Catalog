@@ -175,6 +175,9 @@ CSP_CONNECT_SRC = ("'self'",
                    'https://*.google-analytics.com',
                    'https://*.analytics.google.com',
                    'https://*.googletagmanager.com')
+# frame-src
+CSP_FRAME_SRC = ("'self'",
+                 'https://*.google.com')
 
 # Live middleware
 if PGS_ON_LIVE_SITE:
