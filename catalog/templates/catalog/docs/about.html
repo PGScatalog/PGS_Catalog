@@ -142,8 +142,9 @@
         <li class="mb-2">
           <b>A completed PGS Catalog Curation Template</b> - <i class="pgs_color_2">Optional</i>.
           <ol>
-            <li class="mt-1">Download the current <a class="btn btn-pgs-small pgs_no_icon_link" href="/template/current" target="_blank"><span class="fas fa-download"></span> PGS Catalog Curation Template <span class="badge badge-pgs-white ml-1">.xlsx</span></a> on GoogleDocs - this template forms the basis of our curation pipeline and future PGS deposition framework.
-            <li class="mt-1">Fill out the downloaded PGS Catalog curation template with your study metadata. We provide a set of <a class="btn btn-pgs-small pgs_no_icon_link" href="/docs/curation" target="_blank"><span class="fas fa-download"></span> PGS Catalog Curation Guidelines <span class="badge badge-pgs-white ml-1">.docx</span></a> with detailed instructions, and examples of how to record your data in the PGS Catalog template.
+            <li class="mt-1">Download the current <a class="btn btn-pgs-small pgs_no_icon_link" href="/template/current" target="_blank"><span class="fas fa-download"></span> PGS Catalog Curation Template <span class="badge badge-pgs-white ml-1">.xlsx</span></a> on GoogleDocs - this template forms the basis of our curation pipeline and future PGS deposition framework.</li>
+            <li class="mt-1">Fill out the downloaded PGS Catalog curation template with your study metadata. We provide a set of <a class="btn btn-pgs-small pgs_no_icon_link" href="/docs/curation" target="_blank"><span class="fas fa-download"></span> PGS Catalog Curation Guidelines <span class="badge badge-pgs-white ml-1">.docx</span></a> with detailed instructions, and examples of how to record your data in the PGS Catalog template.</li>
+            <li class="mt-1"><i class="pgs_color_2">(Optional)</i> Validate the filled out PGS Catalog curation template using the <a href="/validate_metadata/"><span class="fas fa-gears pgs_color_1"></span> PGS Curation Template Validator</a>.</li>
           </ol>
         </li>
       </ul>
@@ -169,19 +170,26 @@
       </p>
       <ul>
         <li class="mb-2">
-          <a href="{{ pgs_github }}pgsc_calc"><b>pgsc_calc</b></a>: a reproducible workflow to calculate both PGS Catalog and custom polygenic scores. The workflow automates PGS downloads from the Catalog, reading custom scoring files, variant matching between scoring files and target genotyping samplesets, and the parallel calculation of multiple PGS. See the full documentation <a href="https://pgsc-calc.readthedocs.io/en/latest/">here</a>.
-          <div><span class="pgs_color_2">&rarr;</span> Features in development:</div>
+          <a href="{{ pgs_github }}pgsc_calc"><b>pgsc_calc</b></a>: a reproducible workflow to calculate both PGS Catalog and custom polygenic scores.
+          The workflow automates PGS downloads from the Catalog, variant matching between scoring files and target genotyping samplesets,
+          and the parallel calculation of multiple PGS. Genetic ancestry assignment and PGS normalisation methods are also supported.
           <ul>
             <li>
-              <i>Genetic Ancestry</i>: calculate similarity of target samples to populations in a reference dataset (e.g. <a href="http://www.nature.com/nature/journal/v526/n7571/full/nature15393.html">1000 Genomes (1000G)</a>, <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7115999/">Human Genome Diversity Project (HGDP)</a>) using principal components analysis (PCA).
+              See the full documentation <a href="{{ pgs_calc_doc_url }}">here</a>.
             </li>
             <li>
-              <i>PGS Normalization</i>: using reference population data and/or PCA projections to report individual-level PGS predictions (e.g. percentiles, z-scores) that account for genetic ancestry.
+              You can also find more information about the calculator from our recent webinar:
+              <a href="https://www.ebi.ac.uk/training/events/calculating-polygenic-scores-polygenic-score-catalog-calculator/">
+                Calculating polygenic scores with the Polygenic Score Catalog Calculator
+              </a>.
             </li>
           </ul>
         </li>
-        <li>
+        <li class="mb-2">
           <a href="{{ pgs_github }}pgscatalog_utils"><b>pgscatalog_utils</b></a>: python package providing a collection of useful tools for working with data from the PGS Catalog, such as scoring files download, combining multiple scoring files or matching target variants against scoring files. More information on <a href="https://pypi.org/project/pgscatalog-utils/"><i class="fa-brands fa-python pgs_color_1"></i> PyPi</a>.
+        </li>
+        <li>
+          <a href="/validate_metadata/"><b>PGS Catalog Curation Template Validator</b></a>: web tool for validating PGS Catalog curation templates.
         </li>
       </ul>
     </section>
