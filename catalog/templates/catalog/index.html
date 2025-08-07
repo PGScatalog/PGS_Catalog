@@ -110,21 +110,29 @@
       <div class="col-xs-10 col-md-6">
         <div>What is a <span>PGS</span>?</div>
         <p>
-            <b>A polygenic score (PGS)</b> aggregates the effects of many genetic variants into a single number which predicts genetic predisposition for a phenotype.
-            <b>PGS</b> are typically composed of hundreds-to-millions of genetic variants (usually <span title="SNPs" data-content="Single Nucleotide Polymorphisms" class="pgs_helpover">SNPs</span>) which are combined using a weighted sum of allele dosages multiplied by their corresponding effect sizes, as estimated from a relevant genome-wide association study (<span title="GWAS" data-content="Genome-wide association studies" class="pgs_helpover">GWAS</span>).
+            <b>A polygenic score (PGS)</b> aggregates the effects of many genetic variants into a single number
+            which predicts genetic predisposition for a phenotype. <b>PGS</b> are typically composed of hundreds-to-millions
+            of genetic variants (usually <span title="SNPs" data-content="Single Nucleotide Polymorphisms" class="pgs_helpover">SNPs</span>)
+            which are combined using a weighted sum of allele dosages multiplied by their corresponding effect sizes,
+            as estimated from a relevant genome-wide association study (<span title="GWAS" data-content="Genome-wide association studies" class="pgs_helpover">GWAS</span>).
         </p>
         <p class="mb-0">
-            <b>PGS</b> nomenclature is heterogeneous: they can also be referred to as <b>genetic scores</b> or <b>genomic scores</b>, and as <b>polygenic risk scores (PRS)</b> or <b>genomic risk scores (GRS)</b> if they predict a discrete phenotype, such as a disease.
+          <b>PGS</b> nomenclature is heterogeneous: they can also be referred to as <b>genetic scores</b>, or as
+          <b>genomic risk scores (GRS)</b> or <b>polygenic risk scores (PRS)</b> if they predict a discrete phenotype, such as a disease.
         </p>
       </div>
       <div class="col-xs-10 col-md-6">
         <div>About the <span>PGS Catalog</span></div>
         <p>
-          The <span title="PGS Catalog" data-content="Polygenic Score (PGS) Catalog" class="pgs_helpover"><b>PGS Catalog</b></span> is an open database of published <b>polygenic scores (PGS)</b>.
-            Each <b>PGS</b> in the <b>Catalog</b> is consistently annotated with relevant metadata; including scoring files (variants, effect alleles/weights), annotations of how the PGS was developed and applied, and evaluations of their predictive performance.
+          The <span title="PGS Catalog" data-content="Polygenic Score (PGS) Catalog" class="pgs_helpover"><b>PGS Catalog</b></span>
+          is an open database of published <b>polygenic scores (PGS)</b>. Each <b>PGS</b> in the <b>Catalog</b> is consistently
+          annotated with relevant metadata; including scoring files (variants, effect alleles/weights),
+          annotations of how the PGS was developed and applied, and evaluations of their predictive performance.
+          See our <a href="https://www.ebi.ac.uk/training/online/courses/polygenic-scores-pgs-catalog/"><b>tutorial</b></a> for a comprehensive introduction.
         </p>
         <p class="mb-0">
-          More about the PGS Catalog project, descriptions of the data, and publication eligibility criteria can be found in our <a href="/about"><b>documentation</b></a> and recent <a href="{{catalog_publication_url}}"><b>publication</b></a>.
+          More about the PGS Catalog project, descriptions of the data, and publication eligibility criteria
+          can be found in our <a href="/about"><b>documentation</b></a> and recent <a href="{{catalog_publication_url}}"><b>publication</b></a>.
         </p>
       </div>
     </div>
@@ -132,9 +140,10 @@
 
     <div class="row pgs_desc">
       <div class="col-xs-10 col-md-6">
-        <div>Downloads</div>
+        <div>Downloads & Access</div>
         <p>
-          Bulk <b>downloads</b> of PGS metadata and scoring files (variants, effect alleles/weights) needed to calculate PGS on your own data are available from the website and FTP.
+          Bulk <b>downloads</b> of PGS metadata and scoring files (variants, effect alleles/weights)
+          needed to calculate PGS on your own data are available from the website and FTP.
         </p>
         <p class="mb-2">
           <a class="link-with-btn" href="/downloads/">
@@ -146,19 +155,26 @@
             <i class="fas fa-code"></i><span>Programmatic access to the Catalog metadata through our <b>REST API</b>.</span>
           </a>
         </p>
-        <p class="mb-0">
+        <p class="mb-2">
           <a class="link-with-btn" href="https://pypi.org/project/pgscatalog-utils/">
             <i class="fa-brands fa-python"></i><span>Command line download via the <b>pgscatalog_utils</b> Python package.</span>
           </a>
         </p>
+        <p class="mb-0">
+          We also provide software for <a href="https://pgsc-calc.readthedocs.io/">reproducible calculation of PGS Catalog and custom polygenic scores (pgsc_calc)</a>.
+        </p>
       </div>
       <div class="col-xs-10 col-md-6">
-        <div>Feedback & Contact</div>
-        <p>
-          To <b>submit a PGS to the catalog</b>, <b>provide feedback</b>, or <b>ask questions</b>: contact the PGS Catalog team at <a href="mailto:{{ pgs_contact }}">{{ pgs_contact }}</a>!
+        <div>Submissions & Contact</div>
+        <p class="mb-2">
+          You can <b>submit your data to the PGS catalog</b> at the publication, preprint, or pre-release/embargo stages
+          <span class="text-nowrap">(<a href="/submit"><i class="fas fa-book pgs_color_1"></i> <b>instructions</b></a>).</span>
+        </p>
+        <p class="mb-2">
+          <b>Recommend missing PGS publications and scores</b> for inclusion in the Catalog using this <a href="/report_study"><i class="fas fa-clipboard-list pgs_color_1"></i> <b>form</b></a>.
         </p>
         <p class="mb-0">
-          <b>Recommend missing PGS publications and scores</b> for inclusion in the Catalog using this <a href="/report_study"><i class="fas fa-clipboard-list pgs_color_1"></i> <b>form</b></a>.
+          To <b>provide feedback</b>, or <b>ask questions</b>: contact the PGS Catalog team at <a href="mailto:pgs-info@ebi.ac.uk">pgs-info@ebi.ac.uk</a>.
         </p>
       </div>
     </div>
