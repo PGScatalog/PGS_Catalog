@@ -54,6 +54,7 @@ USEFUL_URLS = {
     'EBI_URL'           : 'https://www.ebi.ac.uk',
     'HDR_UK_CAM_URL'    : 'https://www.hdruk.ac.uk/about-us/our-locations/health-data-research-uk-hdr-uk-cambridge/',
     'OLS_ROOT_URL'      : 'https://www.ebi.ac.uk/ols4',
+    'PGS_CALC_DOC_URL'  : 'https://pgsc-calc.readthedocs.io',
     'PGS_CONTACT'       : 'pgs-info@ebi.ac.uk',
     'PGS_FTP_ROOT'      : 'ftp://ftp.ebi.ac.uk/pub/databases/spot/pgs',
     'PGS_FTP_HTTP_ROOT' : 'https://ftp.ebi.ac.uk/pub/databases/spot/pgs',
@@ -95,7 +96,7 @@ TABLE_HELPER = {
     'pgs_eval_ext': 'A list of PGS that were developed in other publications and re-evaluated in the current study'
 }
 
-ANNOUNCEMENT = '<div class="mb-1"><h5><i class="fa-solid fa-gears bigger"></i> Available tool: <b>pgsc_calc</b></h5></div>A reproducible workflow to calculate both PGS Catalog and custom polygenic scores.<a class="ml-2 btn btn-pgs-small pgs_no_icon_link" href="https://pgsc-calc.readthedocs.io/en/latest/"><i class="fas fas fa-angle-right"></i> See more information</a></div>'
+ANNOUNCEMENT = '<div class="mb-1"><h5><i class="fa-solid fa-gears bigger"></i> Available tool: <b>pgsc_calc</b></h5></div>A reproducible workflow to calculate both PGS Catalog and custom polygenic scores.<a class="ml-2 btn btn-pgs-small pgs_no_icon_link" href="' + USEFUL_URLS['PGS_CALC_DOC_URL'] + '"><i class="fas fas fa-angle-right"></i> See more information</a></div>'
 
 # NIH compliance note
 NIH_NOTE = """This repository is under review for potential modification in compliance with Administration directives.

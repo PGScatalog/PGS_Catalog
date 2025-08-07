@@ -17,6 +17,7 @@ def pgs_urls(request):
         'baker_url'        : constants.USEFUL_URLS['BAKER_URL'],
         'ebi_url'          : constants.USEFUL_URLS['EBI_URL'],
         'hdr_uk_cam_url'   : constants.USEFUL_URLS['HDR_UK_CAM_URL'],
+        'pgs_calc_doc_url' : constants.USEFUL_URLS['PGS_CALC_DOC_URL'],
         'pgs_contact'      : constants.USEFUL_URLS['PGS_CONTACT'],
         'pgs_ftp_root'     : constants.USEFUL_URLS['PGS_FTP_ROOT'],
         'pgs_ftp_http_root': constants.USEFUL_URLS['PGS_FTP_HTTP_ROOT'],
