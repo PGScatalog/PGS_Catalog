@@ -6,21 +6,11 @@ from pathlib import Path
 
 from js import outputFileName
 # from pgscatalog.validate.cli.validate_scorefile import validate_scorefile
-from pgscatalog.validate.cli.validate_scorefile import _check_args, _validate_scorefile
+from pgscatalog.validate.cli.validate_cli import _run_validator
 
 
 # local file system is mounted in /data
 #input_path = Path("/data") / outputFileName
-
-
-class Args:
-    dir: str
-    log_dir: str
-    t: str
-    f: str
-    score_dir: str
-    check_filename: bool
-
 
 response = ''
 error = None
@@ -30,25 +20,19 @@ try:
     # At the moment the results of score validation are stored in individual log files in log_dir
     with tempfile.TemporaryDirectory() as log_dir:
 
-        args = Args()
-        args.t = 'formatted'
-        args.check_filename = False
-        args.dir = None
-        args.f = None
-        args.log_dir = Path(log_dir)
-        args.score_dir = None
-
+        filenames = []
         if outputFileName:
             filename = str(Path("/data") / outputFileName)
             if not os.path.exists(filename):
                 raise FileNotFoundError(filename)
-            args.f = filename
+            filenames.append(filename)
         else:
-            args.dir = str(Path("/data"))
+            for score_file in glob.glob("/data/*"):
+                filenames.append(score_file)
 
         # Unconventional use of private functions but temporary
-        _check_args(args)
-        _validate_scorefile(args)
+        for filename in filenames:
+            _run_validator(filename, Path(log_dir), None, False, False)
 
         # Getting the validation results from the log files
         for log_file in glob.glob(str(log_dir)+'/*_log.txt'):
