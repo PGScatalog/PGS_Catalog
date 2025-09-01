@@ -11,12 +11,15 @@ const wheels_base_url = "/static/validator/python/wheels/";
 
 async function loadPyodideAndPackages() {
     self.pyodide = await loadPyodide();
-    await pyodide.loadPackage("micropip");
+    // Loading pyodide distributed packages. Those include compiled binary files and can't be installed with pip.
+    // pydantic is installed here to ensure the version works with distributed pydantic-core
+    // lzma is required by xopen from pgscatalog.core
+    await pyodide.loadPackage(["micropip","pydantic","pydantic-core","lzma"]);
+
     const micropip = pyodide.pyimport("micropip");
-    await micropip.install(['openpyxl','requests','httpx==0.26.0','tenacity','pyliftover',
-        'xopen==1.8.0','zstandard','tqdm','natsort','pandas','pandas-schema']);
+    await micropip.install(['openpyxl','requests','pgscatalog.core==1.0.1']);
     await micropip.install(wheels_base_url+"pgs_template_validator-1.1.3-py3-none-any.whl", keep_going=true);
-    await micropip.install(wheels_base_url+"pgscatalog_validate-0.1-py3-none-any.whl", keep_going=true)
+    await micropip.install(wheels_base_url+"pgscatalog_validate-0.2-py3-none-any.whl", keep_going=true)
     await pyodide.FS.createLazyFile('/home/pyodide/', 'TemplateColumns2Models.xlsx',
             '/static/validator/template/TemplateColumns2Models.xlsx', true, false);
 }
