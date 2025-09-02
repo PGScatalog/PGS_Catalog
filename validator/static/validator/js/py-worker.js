@@ -12,9 +12,8 @@ pyodideWorker.onmessage = (event) => {
 };
 //This id is incremented each time the function is invoked and is kept within the safe integer limit.
 
-
+let id = 0; // identify a Promise
 const asyncRun = (() => {
-  let id = 0; // identify a Promise
   return (script, context) => {
     // the id could be generated more carefully
     id = (id + 1) % Number.MAX_SAFE_INTEGER;
