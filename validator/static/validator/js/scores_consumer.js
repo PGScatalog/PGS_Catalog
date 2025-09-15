@@ -4,6 +4,7 @@ const asyncRun = pyworker.asyncRun;
 const validate_scores = await fetch(new URL('../python/bin/validation_scores.py', import.meta.url, null)).then(response => response.text());
 
 let dirHandle;
+let webkitFiles;
 let validateFileHandle;
 
 function successMount(dirName){
@@ -95,7 +96,7 @@ async function displayResults(response, score_report){
 
 async function validation(validateFileHandle) {
     let contexts = [];
-    if (!validateFileHandle) {
+    if (!validateFileHandle && dirHandle) {
         console.log('Validating multiple files in selected directory');
 
         for await (const [name, handle] of dirHandle.entries()) {
@@ -106,11 +107,18 @@ async function validation(validateFileHandle) {
                 })
             }
         }
-    } else {
+    } else if (validateFileHandle && dirHandle) {
         contexts.push({
             dirHandle: dirHandle,
             outputFileName: validateFileHandle.name,
         });
+    } else if (webkitFiles) {
+        for (const file of webkitFiles) {
+            contexts.push({
+                webkitfile: file,
+                outputFileName: file.name,
+            })
+        }
     }
 
     try {
@@ -168,26 +176,52 @@ async function appendAlertToElement(elementId, message, type) {
     alertPlaceholder.append(wrapper);
 }
 
+// Adding event listeners to all buttons
 document.querySelector('#validate_directory').addEventListener('click', async () => {
     console.log("Initializing validation");
     await validation(null);
 });
 
 document.querySelector('#mountvalidate').addEventListener('click', async () => {
-    if (!('showDirectoryPicker' in window)) {
-        alert('Your browser does not support the File System Access API. Please use a supported browser.');
-        return; // Stop execution if the API is not supported
-    }
-    else {
-        let dirHandle = await mountLocalDirectory();
-        let dirName = dirHandle.name;
-        successMount(dirName);
-        document.querySelector('#validate_single').disabled = false;
-        document.querySelector('#validate_directory').disabled = false;
-    }
+    let dirHandle = await mountLocalDirectory();
+    let dirName = dirHandle.name;
+    successMount(dirName);
+    document.querySelector('#validate_single').disabled = false;
+    document.querySelector('#validate_directory').disabled = false;
 });
 
 document.querySelector('#validate_single').addEventListener('click', async () => {
     [validateFileHandle] = await window.showOpenFilePicker();
     await validation(validateFileHandle);
 });
+
+// The following event listeners just forward a click from buttons to hidden input elements,
+// that way we can still use our button styles.
+document.querySelector('#validate_single_webkit').addEventListener('click', async () => {
+    document.getElementById('webkitFilePicker').click();
+});
+
+document.querySelector('#validate_directory_webkit').addEventListener('click', async () => {
+    document.getElementById('webkitDirPicker').click();
+});
+
+function validateWebkitFiles(e){
+     for (const file of e.target.files) {
+          console.log(file.webkitRelativePath, file);
+        }
+        webkitFiles = e.target.files;
+        validation(null).then(function(){
+            console.log("Validation done");
+        });
+}
+
+// Showing File System Access form if Chromium-based browser, otherwise using webkit files input.
+if ('showDirectoryPicker' in window) {
+    console.log("Browser compatible with File System Access API.");
+    document.getElementById("fsaForm").style.display = "block";
+} else {
+    console.log("Browser not compatible with File System Access API. Using webkit files instead.");
+    document.getElementById("webkitForm").style.display = "block";
+    document.getElementById('webkitFilePicker').addEventListener("change", validateWebkitFiles);
+    document.getElementById('webkitDirPicker').addEventListener("change", validateWebkitFiles);
+}

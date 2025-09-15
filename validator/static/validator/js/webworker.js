@@ -38,23 +38,37 @@ self.onmessage = async (event) => {
     }
     // Now is the easy part, the one that is similar to working in the main thread:
     try {
-      await self.pyodide.loadPackagesFromImports(python);
-      // mount local directory, make the nativefs as a global vaiable.
-      if (! self.fsmounted && self.dirHandle){
-        self.nativefs = await self.pyodide.mountNativeFS("/data", self.dirHandle);
-        self.fsmounted = true;
-      }
-      // run python script
-      self.pyodide.globals.set('print', s => console.log(s))
-      let results = await self.pyodide.runPythonAsync(python);
-      // flush new files to disk
+        await self.pyodide.loadPackagesFromImports(python);
+        // mount local directory, make the nativefs as a global vaiable.
+        if (! self.fsmounted && self.dirHandle){
+            self.nativefs = await self.pyodide.mountNativeFS("/data", self.dirHandle);
+            self.fsmounted = true;
+        }
+        else if(self.webkitfile){
+            // Copy the file into pyodide virtual FS
+            if(!self.fsmounted){
+                self.pyodide.FS.mkdir("/data");
+                self.fsmounted = true
+            }
+            // Copy file into Pyodide FS so Python can access it
+            const buffer = await self.webkitfile.arrayBuffer();
+            self.pyodide.FS.writeFile("/data/"+self.webkitfile.name, new Uint8Array(buffer));
+        }
+        // Run python script
+        self.pyodide.globals.set('print', s => console.log(s))
+        let results = await self.pyodide.runPythonAsync(python);
+        // Flush new files to disk
         if(self.nativefs){
             await self.nativefs.syncfs();
         }
+        // Cleaning virtual file. Don't do this if using mounted native FS!
+        if(self.webkitfile){
+            self.pyodide.FS.unlink("/data/"+self.webkitfile.name);
+        }
 
-      self.postMessage({ results, id });
+        self.postMessage({ results, id });
     } catch (error) {
         console.log(error);
-      self.postMessage({ error: error.message, id });
+        self.postMessage({ error: error.message, id });
     }
   };
