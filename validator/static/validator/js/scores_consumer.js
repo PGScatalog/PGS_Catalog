@@ -7,6 +7,8 @@ let dirHandle;
 let webkitFiles;
 let validateFileHandle;
 
+const MAX_ERRORS_PER_FILE = 50;
+
 function successMount(dirName){
     document.getElementById('grant_message').innerHTML = 'Authorization granted on directory \"'+dirName+"\".";
 }
@@ -65,15 +67,21 @@ class ScoreReport {
     }
 
     addReportTable(scoring_file_errors, items_header) {
-        //TODO: limit displayed errors number
         let table_html = '<table class="table table-bordered" style="width:auto"><thead class="thead-light">' +
             '<tr><th>Row</th><th>' + items_header + '</th></tr>' +
             '</thead><tbody>';
-        $.each(scoring_file_errors, function (index, validation_error) {
-            table_html += "<tr><td><b>" + validation_error.row + "</b></td><td>";
-            table_html += report_items_2_html(validation_error.messages);
-            table_html += '</td></tr>';
-        });
+        // Looping through the errors up the maximum allowed
+        for(let i = 0 ; i < scoring_file_errors.length ; i++){
+            if (i < MAX_ERRORS_PER_FILE){
+                let validation_error = scoring_file_errors[i];
+                table_html += "<tr><td><b>" + validation_error.row + "</b></td><td>";
+                table_html += report_items_2_html(validation_error.messages);
+                table_html += '</td></tr>';
+            } else {
+                table_html += "<tr><td colspan=\"2\">Over "+MAX_ERRORS_PER_FILE+" errors found. Showing first "+MAX_ERRORS_PER_FILE+" only.</td></tr>";
+                break;
+            }
+        }
         table_html += '</tbody></table>';
         this.root_node.append(table_html);
     }
