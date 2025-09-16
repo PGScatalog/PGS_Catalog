@@ -41,9 +41,10 @@ class ScoreReport {
     constructor(score_name) {
         let validation_output_div = $("#validation_out");
         this.status_icon = $("<i title=\"Queuing\" class=\"fa fa-clock\"></i>"); // Queuing status
-        this.root_node = $("<div></div>");
-        this.title = $("<h5 class=\"mt-4\">"+score_name+" </h5>");
+        this.root_node = $("<div class=\"mt-4\"></div>");
+        this.title = $("<h5>"+score_name+" </h5>");
         this.title.append(this.status_icon);
+        this.title.wrap("<div></div>");
         this.root_node.append(this.title);
         validation_output_div.append(this.root_node);
     }
@@ -67,7 +68,7 @@ class ScoreReport {
     }
 
     addReportTable(scoring_file_errors, items_header) {
-        let table_html = '<table class="table table-bordered" style="width:auto"><thead class="thead-light">' +
+        let table_html = '<div class="ml-5"><table class="table table-bordered" style="width:auto"><thead class="thead-light">' +
             '<tr><th>Row</th><th>' + items_header + '</th></tr>' +
             '</thead><tbody>';
         // Looping through the errors up the maximum allowed
@@ -82,7 +83,7 @@ class ScoreReport {
                 break;
             }
         }
-        table_html += '</tbody></table>';
+        table_html += '</tbody></table></div>';
         this.root_node.append(table_html);
     }
 
