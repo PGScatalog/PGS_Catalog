@@ -4,7 +4,7 @@ const asyncRun = pyworker.asyncRun;
 const validate_scores = await fetch(new URL('../python/bin/validation_scores.py', import.meta.url, null)).then(response => response.text());
 
 let dirHandle;
-let webkitFiles;
+let webkitFiles = [];
 let validateFileHandle;
 
 const MAX_ERRORS_PER_FILE = 50;
@@ -224,12 +224,15 @@ document.querySelector('#validate_directory_webkit').addEventListener('click', a
 
 function validateWebkitFiles(e){
      for (const file of e.target.files) {
-          console.log(file.webkitRelativePath, file);
-        }
-        webkitFiles = e.target.files;
-        validation(null).then(function(){
-            console.log("Validation done");
-        });
+         // Only selecting files in toplevel selected directory
+         if(file.webkitRelativePath.split("/").length === 2){
+             console.log(file.webkitRelativePath, file);
+             webkitFiles.push(file);
+         }
+     }
+     validation(null).then(function(){
+        console.log("Validation done");
+     });
 }
 
 // Showing File System Access form if Chromium-based browser, otherwise using webkit files input.
