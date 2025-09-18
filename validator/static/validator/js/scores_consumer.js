@@ -38,13 +38,14 @@ function report_items_2_html(messages) {
 
 /** Class responsible on injecting report HTML code into the output div of the template. */
 class ScoreReport {
-    constructor(score_name) {
+    constructor(score_name, id) {
         let validation_output_div = $("#validation_out");
+        this.id = id;
         this.status_icon = $("<i title=\"Queuing\" class=\"fa fa-clock\"></i>"); // Queuing status
         this.root_node = $("<div class=\"mt-4\"></div>");
         this.title = $("<h5>"+score_name+" </h5>");
         this.title.append(this.status_icon);
-        this.title.wrap("<div></div>");
+        this.title.wrap("<div></div>"); //TODO: check if this works
         this.root_node.append(this.title);
         validation_output_div.append(this.root_node);
     }
@@ -68,7 +69,7 @@ class ScoreReport {
     }
 
     addReportTable(scoring_file_errors, items_header) {
-        let table_html = '<div class="ml-5"><table class="table table-bordered" style="width:auto"><thead class="thead-light">' +
+        let table_html = '<div class="ml-5" id="result_'+this.id+'"><table class="table table-bordered" style="width:auto"><thead class="thead-light">' +
             '<tr><th>Row</th><th>' + items_header + '</th></tr>' +
             '</thead><tbody>';
         // Looping through the errors up the maximum allowed
@@ -84,7 +85,14 @@ class ScoreReport {
             }
         }
         table_html += '</tbody></table></div>';
-        this.root_node.append(table_html);
+        this.table = $(table_html);
+        this.root_node.append(this.table);
+
+        // Expand/Collapse
+        this.title.append("<i class=\"fa fa-chevron-right ml-2 expand-collapse-rotate\"></i>\n");
+        this.title.wrap("<span role=\"button\" data-toggle=\"collapse\" data-target=\"#result_"+this.id+"\" " +
+            "aria-expanded=\"true\" aria-controls=\"result_"+this.id+"\"></span>")
+        this.table.addClass("collapse show");
     }
 
 }
@@ -136,7 +144,7 @@ async function validation(validateFileHandle) {
         let reports = [];
         // Adding one or multiple validation reports as placeholders
         for(let i= 0; i < contexts.length; i++) {
-            reports.push(new ScoreReport(contexts[i].outputFileName));
+            reports.push(new ScoreReport(contexts[i].outputFileName, i));
         }
         // Starting a worker for each score so results are displayed progressively
         for(let i= 0; i < contexts.length; i++){
