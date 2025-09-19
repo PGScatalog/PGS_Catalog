@@ -45,8 +45,7 @@ class ScoreReport {
         this.root_node = $("<div class=\"mt-4\"></div>");
         this.title = $("<h5>"+score_name+" </h5>");
         this.title.append(this.status_icon);
-        this.title.wrap("<div></div>"); //TODO: check if this works
-        this.root_node.append(this.title);
+        this.root_node.append(this.title.wrap("<div></div>").parent());
         validation_output_div.append(this.root_node);
     }
 
