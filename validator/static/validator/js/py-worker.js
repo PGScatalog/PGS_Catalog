@@ -13,33 +13,29 @@ pyodideWorker.onmessage = (event) => {
 //This id is incremented each time the function is invoked and is kept within the safe integer limit.
 
 let id = 0; // identify a Promise
-const asyncRun = (() => {
-  return (script, context) => {
-    // the id could be generated more carefully
-    id = (id + 1) % Number.MAX_SAFE_INTEGER;
-    return new Promise((onSuccess) => {
-      callbacks[id] = onSuccess;
-      pyodideWorker.postMessage({
-        ...context,
-        python: script,
-        id,
-      });
+const asyncRun = async (script, context) => {
+  // Runs the given Python script through the Pyodide worker.
+  id = (id + 1) % Number.MAX_SAFE_INTEGER;
+  return new Promise((onSuccess) => {
+    callbacks[id] = onSuccess;
+    pyodideWorker.postMessage({
+      ...context,
+      python: script,
+      id,
     });
-  };
-})();
+  });
+};
 
-const resetWorker = (() => {
+const resetWorker = async () => {
   // Send a reset message to the worker.
-  return () => {
-    id = (id + 1) % Number.MAX_SAFE_INTEGER;
-    return new Promise((onSuccess) => {
-      callbacks[id] = onSuccess;
-      pyodideWorker.postMessage({
-        "reset": true,
-        id,
-      });
+  id = (id + 1) % Number.MAX_SAFE_INTEGER;
+  return new Promise((onSuccess) => {
+    callbacks[id] = onSuccess;
+    pyodideWorker.postMessage({
+      "reset": true,
+      id,
     });
-  }
-})();
+  });
+};
 
 export { asyncRun, resetWorker };
