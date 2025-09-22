@@ -28,4 +28,18 @@ const asyncRun = (() => {
   };
 })();
 
-export { asyncRun };
+const resetWorker = (() => {
+  // Send a reset message to the worker.
+  return () => {
+    id = (id + 1) % Number.MAX_SAFE_INTEGER;
+    return new Promise((onSuccess) => {
+      callbacks[id] = onSuccess;
+      pyodideWorker.postMessage({
+        "reset": true,
+        id,
+      });
+    });
+  }
+})();
+
+export { asyncRun, resetWorker };

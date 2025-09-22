@@ -15,16 +15,16 @@ function successMount(dirName){
 
 async function mountLocalDirectory() {
     // use the same ID crypt4gh to open pickers in the same directory
-    dirHandle = await showDirectoryPicker();
+    let newDirHandle = await showDirectoryPicker();
 
-    if ((await dirHandle.queryPermission({ mode: "read" })) !== "granted") {
+    if ((await newDirHandle.queryPermission({ mode: "read" })) !== "granted") {
         if (
             (await dirHandle.requestPermission({ mode: "read" })) !== "granted"
         ) {
             throw Error("Unable to read and write directory");
         }
     }
-    return dirHandle;
+    return newDirHandle;
 }
 
 function report_items_2_html(messages) {
@@ -199,11 +199,23 @@ document.querySelector('#validate_directory').addEventListener('click', async ()
 });
 
 document.querySelector('#mountvalidate').addEventListener('click', async () => {
-    let dirHandle = await mountLocalDirectory();
-    let dirName = dirHandle.name;
-    successMount(dirName);
-    document.querySelector('#validate_single').disabled = false;
-    document.querySelector('#validate_directory').disabled = false;
+    mountLocalDirectory().then(async(newDirHandle) => {
+        // If a directory was previously selected, reset the worker to unmount that directory
+        if (dirHandle){
+            await pyworker.resetWorker();
+        }
+        dirHandle = newDirHandle;
+        let dirName = newDirHandle.name;
+        successMount(dirName);
+        document.querySelector('#validate_single').disabled = false;
+        document.querySelector('#validate_directory').disabled = false;
+    }).catch(err => {
+        if (err.name === 'AbortError') {
+          console.log("User canceled directory selection.");
+        } else {
+          console.error("Something went wrong:", err);
+        }
+  });
 });
 
 document.querySelector('#validate_single').addEventListener('click', async () => {
