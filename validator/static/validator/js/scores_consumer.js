@@ -232,7 +232,14 @@ document.querySelector('#validate_directory_webkit').addEventListener('click', a
     document.getElementById('webkitDirPicker').click();
 });
 
-function validateWebkitFiles(e){
+function  validateWebkitSingleFile(e){
+    const file = e.target.files[0];
+    validation(null, [file]).then(function(){
+        console.log("Validation done");
+     });
+}
+
+function validateWebkitMultipleFiles(e){
     let webkitFiles = [];
      for (const file of e.target.files) {
          // Only selecting files in toplevel selected directory
@@ -253,6 +260,6 @@ if ('showDirectoryPicker' in window) {
 } else {
     console.log("Browser not compatible with File System Access API. Using webkit files instead.");
     document.getElementById("webkitForm").style.display = "block";
-    document.getElementById('webkitFilePicker').addEventListener("change", validateWebkitFiles);
-    document.getElementById('webkitDirPicker').addEventListener("change", validateWebkitFiles);
+    document.getElementById('webkitFilePicker').addEventListener("change", validateWebkitSingleFile);
+    document.getElementById('webkitDirPicker').addEventListener("change", validateWebkitMultipleFiles);
 }
