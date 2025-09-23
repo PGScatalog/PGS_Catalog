@@ -69,6 +69,7 @@ class PGSSearch:
         self.display_fields = ['label','synonyms_list']
         suggest_fields = ['label','synonyms_list']
         self.query_fields = ['label_ngram','synonyms_list']
+        query_length = len(self.query)
 
         ## Suggests ##
 
@@ -94,16 +95,21 @@ class PGSSearch:
 
         # Response - ES score - fetch best score
         best_score = 0
+        score_threshold = 2 if query_length < 5 else 4
         for entry in response:
             es_score = entry.meta.score
-            if best_score == 0:
-                best_score = es_score
+            score_per_letter = es_score/query_length
+            if score_per_letter >= score_threshold:
+                # Best score is returned first
+                if best_score == 0:
+                    best_score = es_score
+                    break
 
         # Extract information from the ES results
         for entry in response:
             es_score = entry.meta.score
             # Skip if the ES score is low compared to the best ES score
-            if es_score < (best_score/2):
+            if best_score == 0 or es_score < (best_score/2) or score_per_letter < score_threshold:
                 continue
 
             suggested_term = str(entry.label)
