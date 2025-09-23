@@ -4,7 +4,6 @@ const asyncRun = pyworker.asyncRun;
 const validate_scores = await fetch(new URL('../python/bin/validation_scores.py', import.meta.url, null)).then(response => response.text());
 
 let dirHandle;
-let webkitFiles = [];
 let validateFileHandle;
 
 const MAX_ERRORS_PER_FILE = 50;
@@ -110,7 +109,7 @@ async function displayResults(response, score_report){
 }
 
 
-async function validation(validateFileHandle) {
+async function validation(validateFileHandle, webkitFiles) {
     let contexts = [];
     if (!validateFileHandle && dirHandle) {
         console.log('Validating multiple files in selected directory');
@@ -234,6 +233,7 @@ document.querySelector('#validate_directory_webkit').addEventListener('click', a
 });
 
 function validateWebkitFiles(e){
+    let webkitFiles = [];
      for (const file of e.target.files) {
          // Only selecting files in toplevel selected directory
          if(file.webkitRelativePath.split("/").length === 2){
@@ -241,7 +241,7 @@ function validateWebkitFiles(e){
              webkitFiles.push(file);
          }
      }
-     validation(null).then(function(){
+     validation(null, webkitFiles).then(function(){
         console.log("Validation done");
      });
 }
