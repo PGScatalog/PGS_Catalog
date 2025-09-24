@@ -184,7 +184,9 @@ async function appendAlertToElement(elementId, message, type) {
         `<div class="alert alert-${type} alert-dismissible" role="alert">`,
         `   <div>${message}</div>`,
         '   <div>Please contact the PGS-Catalog support if the problem persists.</div>',
-        '   <button type="button" data-bs-dismiss="alert" aria-label="Close"></button>',
+        '   <button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+        '    <span aria-hidden="true">&times;</span>' +
+        '  </button>',
         '</div>'
     ].join('');
 
