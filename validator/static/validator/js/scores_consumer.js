@@ -216,8 +216,9 @@ document.querySelector('#mountvalidate').addEventListener('click', async () => {
         dirHandle = newDirHandle;
         let dirName = newDirHandle.name;
         successMount(dirName);
-        document.querySelector('#validate_single').disabled = false;
-        document.querySelector('#validate_directory').disabled = false;
+        document.getElementById('fsaForm_2').style.display = "block";
+        document.getElementById('validate_single').disabled = false;
+        document.getElementById('validate_directory').disabled = false;
     }).catch(err => {
         if (err.name === 'AbortError') {
           console.log("User canceled directory selection.");

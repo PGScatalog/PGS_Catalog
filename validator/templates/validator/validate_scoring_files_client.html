@@ -27,11 +27,11 @@
     <div class="mt-4 mb-4">
     <!-- Conditional display of the forms depending on browser compatibility -->
       <div id="fsaForm" style="display: none;">
-        <div class="mb-3">
+        <div id="fsaForm_1" class="mb-3">
             1) Please grant the permission to read your local directory that contains your scores to validate: <button type="button" id="mountvalidate" class="btn btn-pgs">Grant permission</button>
             <div style="color: #007C82" id="grant_message"></div>
         </div>
-        <div>
+        <div id="fsaForm_2" style="display: none;">
             2) Then click on <button id="validate_single" class="btn btn-pgs" disabled>Validate One File</button> to select only one file to validate in this directory,
             or click on <button id="validate_directory" class="btn btn-pgs" disabled>Validate Directory</button> to validate all scoring files located in this directory.
         </div>
