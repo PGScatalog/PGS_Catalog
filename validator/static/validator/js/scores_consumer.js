@@ -66,6 +66,12 @@ class ScoreReport {
         this.status_icon.prop("title", "Not valid");
     }
 
+    set_status_error(){
+        this.status_icon.removeClass();
+        this.status_icon.addClass("fa fa-triangle-exclamation pgs_color_amber");
+        this.status_icon.prop("title", "Error");
+    }
+
     addReportTable(scoring_file_errors, items_header) {
         let table_html = '<div class="ml-5" id="result_'+this.id+'"><table class="table table-bordered" style="width:auto"><thead class="thead-light">' +
             '<tr><th>Row</th><th>' + items_header + '</th></tr>' +
@@ -157,10 +163,12 @@ async function validation(validateFileHandle, webkitFiles) {
                     //console.log("pyodideWorker return results: ", data.response);
                 } else if (data.status === 'error'){
                     console.error("pyodideWorker returned error: ", data.error);
+                    score_report.set_status_error();
                     await appendAlertToElement("error",'Error: '+data.error,'danger')
                 }
             } else if (error) {
                 console.log("pyodideWorker error: ", error);
+                score_report.set_status_error();
                 await appendAlertToElement("error",'Error: '+error,'danger')
             }
         }
