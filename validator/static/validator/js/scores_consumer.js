@@ -7,6 +7,7 @@ let dirHandle;
 let validateFileHandle;
 
 const MAX_ERRORS_PER_FILE = 50;
+const ALLOWED_FILE_EXTENSIONS = ['.txt','.txt.gz','.tsv','.tsv.gz','.csv','.csv.gz','.xlsx'];
 
 function successMount(dirName){
     document.getElementById('grant_message').innerHTML = 'Authorization granted on directory \"'+dirName+"\".";
@@ -114,6 +115,13 @@ async function displayResults(response, score_report){
     }
 }
 
+function filename_is_valid(filename){
+    // Only considering files with proper extension
+    return ALLOWED_FILE_EXTENSIONS.some(ext => filename.endsWith(ext))
+        // And not hidden
+        && !filename.startsWith('.');
+}
+
 
 async function validation(validateFileHandle, webkitFiles) {
     let contexts = [];
@@ -121,11 +129,13 @@ async function validation(validateFileHandle, webkitFiles) {
         console.log('Validating multiple files in selected directory');
 
         for await (const [name, handle] of dirHandle.entries()) {
-            if(handle.kind === 'file'){
+            if(handle.kind === 'file' && filename_is_valid(name)){
                 contexts.push({
                     dirHandle: dirHandle,
                     outputFileName: name,
                 })
+            } else {
+                console.log("Ignored file '"+name+"'");
             }
         }
     } else if (validateFileHandle && dirHandle) {
@@ -135,10 +145,14 @@ async function validation(validateFileHandle, webkitFiles) {
         });
     } else if (webkitFiles) {
         for (const file of webkitFiles) {
-            contexts.push({
-                webkitfile: file,
-                outputFileName: file.name,
-            })
+            if(filename_is_valid(file.name)){
+                contexts.push({
+                    webkitfile: file,
+                    outputFileName: file.name,
+                })
+            } else {
+                console.log("Ignored file '"+file.name+"'");
+            }
         }
     }
 
@@ -274,3 +288,6 @@ if ('showDirectoryPicker' in window) {
     document.getElementById('webkitFilePicker').addEventListener("change", validateWebkitSingleFile);
     document.getElementById('webkitDirPicker').addEventListener("change", validateWebkitMultipleFiles);
 }
+
+// Injecting the list of allowed file extensions in the page.
+$('.allowed_extensions').html(ALLOWED_FILE_EXTENSIONS.join(", "));
