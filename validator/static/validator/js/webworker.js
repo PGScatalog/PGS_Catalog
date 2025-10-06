@@ -5,7 +5,7 @@
 // `pyodide.js`, and all its associated `.asm.js`, `.json`,
 // and `.wasm` files as well:
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js");
-// pgscatalog.core 1.0.1 and pyodide 0.28.2 both work with pyodide 2.10.6
+// pyodide 0.28.2 built-in packages include pydantic 2.10.6, which is the version used by pgscatalog.core 1.0.1
 
 const wheels_base_url = "/static/validator/python/wheels/";
 
