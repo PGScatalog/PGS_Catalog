@@ -49,28 +49,26 @@ class ScoreReport {
         validation_output_div.append(this.root_node);
     }
 
-    set_status_validating(){
+    _set_status(icon_class, icon_title){
         this.status_icon.removeClass();
-        this.status_icon.addClass("spinner-border spinner-border-sm pgs_color_1");
-        this.status_icon.prop("title", "Validating...");
+        this.status_icon.addClass(icon_class);
+        this.status_icon.prop("title", icon_title);
+    }
+
+    set_status_validating(){
+        this._set_status("spinner-border spinner-border-sm pgs_color_1", "Validating...")
     }
 
     set_status_valid(){
-        this.status_icon.removeClass();
-        this.status_icon.addClass("fa fa-check-circle pgs_color_green");
-        this.status_icon.prop("title", "Valid");
+        this._set_status("fa fa-check-circle pgs_color_green", "Valid");
     }
 
     set_status_invalid(){
-        this.status_icon.removeClass();
-        this.status_icon.addClass("fa fa-times-circle pgs_color_red");
-        this.status_icon.prop("title", "Not valid");
+        this._set_status("fa fa-times-circle pgs_color_red", "Not valid");
     }
 
     set_status_error(){
-        this.status_icon.removeClass();
-        this.status_icon.addClass("fa fa-triangle-exclamation pgs_color_amber");
-        this.status_icon.prop("title", "Error");
+        this._set_status("fa fa-triangle-exclamation pgs_color_amber", "Error");
     }
 
     addReportTable(scoring_file_errors, items_header) {
