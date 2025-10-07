@@ -81,9 +81,8 @@ class ScoreReport {
         for(let i = 0 ; i < scoring_file_errors.length ; i++){
             if (i < MAX_ERRORS_PER_FILE){
                 let validation_error = scoring_file_errors[i];
-                table_html += "<tr><td><b>" + validation_error.row + "</b></td><td>";
-                table_html += report_items_2_html(validation_error.messages);
-                table_html += '</td></tr>';
+                table_html += "<tr><td><b>" + validation_error.row + "</b></td><td>"
+                 + report_items_2_html(validation_error.messages) + '</td></tr>';
             } else {
                 table_html += "<tr><td colspan=\"2\">Over "+MAX_ERRORS_PER_FILE+" errors found. Showing first "+MAX_ERRORS_PER_FILE+" only.</td></tr>";
                 break;
