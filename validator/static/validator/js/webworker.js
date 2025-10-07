@@ -28,15 +28,14 @@ let pyodideReadyPromise = loadPyodideAndPackages();
 
 //This event is fired when the worker receives a message from the main thread via the postMessage method.
 self.onmessage = async (event) => {
-    // make sure loading is done
+    // Make sure loading is done
     await pyodideReadyPromise;
-    // Don't bother yet with this line, suppose our API is built in such a way:
     const { id, python, ...context } = event.data;
-    // The worker copies the context in its own "memory" (an object mapping name to values)
+    // Copying the context into the worker
     for (const key of Object.keys(context)) {
       self[key] = context[key];
     }
-    // Now is the easy part, the one that is similar to working in the main thread:
+
     try {
         if(context["reset"]){ // Reset needed if changing File System Access directory
             console.log("Resetting worker");
@@ -45,9 +44,9 @@ self.onmessage = async (event) => {
             self.fsmounted = false;
             self.nativefs = null;
             self.postMessage({ "reset": true, id });
-        } else {
+        } else { // Preparing files and filesystem before running the Python script.
             await self.pyodide.loadPackagesFromImports(python);
-            // mount local directory, make the nativefs as a global vaiable.
+            // Mount local directory, make the nativefs as a global variable.
             if (!self.fsmounted && self.dirHandle) {
                 self.nativefs = await self.pyodide.mountNativeFS("/data", self.dirHandle);
                 self.fsmounted = true;
@@ -68,7 +67,7 @@ self.onmessage = async (event) => {
             if (self.nativefs) {
                 await self.nativefs.syncfs();
             }
-            // Cleaning virtual file. Don't do this if using mounted native FS!
+            // Cleaning virtual file. Don't do this if using mounted native FS! (Read-only access should already protect against this)
             if (self.webkitfile) {
                 self.pyodide.FS.unlink("/data/" + self.webkitfile.name);
             }
