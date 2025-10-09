@@ -5,32 +5,44 @@
 // `pyodide.js`, and all its associated `.asm.js`, `.json`,
 // and `.wasm` files as well:
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js");
-// pyodide 0.28.2 built-in packages include pydantic 2.10.6, which is the version used by pgscatalog.core 1.0.1
 
-const wheels_base_url = "/static/validator/python/wheels/";
-
-async function loadPyodideAndPackages() {
+async function init(dependencies){
+    const pyodide_packages = dependencies['pyodide_packages'];
+    const pip_packages = dependencies['pip_packages'];
+    const static_files = dependencies['static_files']
     self.pyodide = await loadPyodide();
-    // Loading pyodide distributed packages. Those include compiled binary files and can't be installed with pip.
-    // pydantic is installed here to ensure the version works with distributed pydantic-core
-    // lzma is required by xopen from pgscatalog.core
-    await pyodide.loadPackage(["micropip","pydantic","pydantic-core","lzma"]);
 
-    const micropip = pyodide.pyimport("micropip");
-    await micropip.install(['openpyxl','requests','pgscatalog.core==1.0.1']);
-    await micropip.install(wheels_base_url+"pgs_template_validator-1.1.3-py3-none-any.whl", keep_going=true);
-    await micropip.install(wheels_base_url+"pgscatalog_validate-0.2-py3-none-any.whl", keep_going=true)
-    await pyodide.FS.createLazyFile('/home/pyodide/', 'TemplateColumns2Models.xlsx',
-            '/static/validator/template/TemplateColumns2Models.xlsx', true, false);
+    if(pyodide_packages){
+        await pyodide.loadPackage(pyodide_packages);
+    }
+    if(pip_packages){
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install(pip_packages);
+    }
+    if(static_files){
+        for (const static_file of static_files){
+            await pyodide.FS.createLazyFile('/home/pyodide/', static_file['name'],
+            static_file['url'], true, false);
+        }
+    }
+    self.is_initiated = true;
 }
-let pyodideReadyPromise = loadPyodideAndPackages();
 
 
 //This event is fired when the worker receives a message from the main thread via the postMessage method.
 self.onmessage = async (event) => {
+    const { id, type, python, ...context } = event.data;
+
+    if(type === "init"){
+        await init(context['dependencies']);
+        self.postMessage({status: 'success', id});
+        return;
+    }
     // Make sure loading is done
-    await pyodideReadyPromise;
-    const { id, python, ...context } = event.data;
+    if(!self.is_initiated){
+        self.postMessage({error: 'Worker is not initiated', id})
+    }
+
     // Copying the context into the worker
     for (const key of Object.keys(context)) {
       self[key] = context[key];
@@ -45,7 +57,6 @@ self.onmessage = async (event) => {
             self.nativefs = null;
             self.postMessage({ "reset": true, id });
         } else { // Preparing files and filesystem before running the Python script.
-            await self.pyodide.loadPackagesFromImports(python);
             // Mount local directory, make the nativefs as a global variable.
             if (!self.fsmounted && self.dirHandle) {
                 self.nativefs = await self.pyodide.mountNativeFS("/data", self.dirHandle);

@@ -1,7 +1,14 @@
 const pyworker = await import((on_gae)?'./py-worker.min.js':'./py-worker.js');
-const asyncRun = pyworker.asyncRun;
 
 const validate_scores = await fetch(new URL('../python/bin/validation_scores.py', import.meta.url, null)).then(response => response.text());
+const dependencies = {
+    // pyodide 0.28.2 built-in packages include pydantic 2.10.6, which is the version used by pgscatalog.core 1.0.1
+    pyodide_packages: ["micropip","pydantic","pydantic-core","lzma"],
+    pip_packages: ['openpyxl','pgscatalog.core==1.0.1','/static/validator/python/wheels/pgscatalog_validate-0.2-py3-none-any.whl'],
+    static_files: [],
+}
+// Init worker
+pyworker.initWorker(dependencies)
 
 let dirHandle;
 let validateFileHandle;
@@ -166,7 +173,7 @@ async function validation(validateFileHandle, webkitFiles) {
             let context = contexts[i];
             let score_report = reports[i];
             score_report.set_status_validating();
-            const { results, error } = await asyncRun(validate_scores, context);
+            const { results, error } = await pyworker.asyncRun(validate_scores, context);
             if (results) {
                 let data = JSON.parse(results);
                 if(data.status === 'success'){
