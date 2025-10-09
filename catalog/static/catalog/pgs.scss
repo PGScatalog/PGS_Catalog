@@ -2699,3 +2699,14 @@ ul.highlight-first > li:first-child {
     background-color: $pgs_petrol;
     color: #FFF;
 }
+
+/* Scoring file validator */
+.expand-collapse-rotate {
+  transition: transform 0.2s;
+}
+span[aria-expanded="true"] .expand-collapse-rotate {
+  transform: rotate(90deg);
+}
+.intext-message {
+  color: $pgs_colour_1;
+}
