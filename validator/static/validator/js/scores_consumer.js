@@ -8,7 +8,7 @@ const dependencies = {
     static_files: [],
 }
 // Init worker
-pyworker.initWorker(dependencies)
+pyworker.initWorker(dependencies);
 
 let dirHandle;
 let validateFileHandle;

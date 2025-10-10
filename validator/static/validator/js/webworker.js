@@ -26,6 +26,7 @@ async function init(dependencies){
         }
     }
     self.is_initiated = true;
+    console.log("Worker initiated.");
 }
 
 
