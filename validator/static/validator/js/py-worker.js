@@ -121,6 +121,7 @@ const asyncRun = async (script, context) => {
   return postMessage({
     ...context,
     python: script,
+    type: "run",
   });
 };
 
@@ -146,7 +147,7 @@ const asyncRun = async (script, context) => {
  */
 const resetWorker = async () => {
   await initPromise; // wait until initWorker is done
-  return postMessage({ reset: true });
+  return postMessage({ type: "reset" });
 };
 
 export { asyncRun, resetWorker, initWorker };

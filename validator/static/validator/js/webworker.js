@@ -50,7 +50,7 @@ self.onmessage = async (event) => {
     }
 
     try {
-        if(context["reset"]){ // Reset needed if changing File System Access directory
+        if(type === "reset"){ // Reset needed if changing File System Access directory
             console.log("Resetting worker");
             self.pyodide.FS.unmount("/data");
             self.pyodide.FS.rmdir("/data");
