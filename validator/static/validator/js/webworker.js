@@ -1,7 +1,7 @@
 // webworker.js
 // Adapted from https://github.com/EBISPOT/gwas-sumstats-tools-ssf-morph
 
-// Setup your project to serve `py-worker.js`. You should also serve
+// Set up your project to serve `py-worker.js`. You should also serve
 // `pyodide.js`, and all its associated `.asm.js`, `.json`,
 // and `.wasm` files as well:
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js");
@@ -25,8 +25,8 @@ async function init(dependencies){
             static_file['url'], true, false);
         }
     }
-    self.is_initiated = true;
-    console.log("Worker initiated.");
+    self.is_initialized = true;
+    console.log("Worker initialized.");
 }
 
 
@@ -40,8 +40,8 @@ self.onmessage = async (event) => {
         return;
     }
     // Make sure loading is done
-    if(!self.is_initiated){
-        self.postMessage({error: 'Worker is not initiated', id})
+    if(!self.is_initialized){
+        self.postMessage({error: 'Worker is not initialized', id})
     }
 
     // Copying the context into the worker
@@ -66,7 +66,7 @@ self.onmessage = async (event) => {
                 // Copy the file into pyodide virtual FS
                 if (!self.fsmounted) {
                     self.pyodide.FS.mkdir("/data");
-                    self.fsmounted = true
+                    self.fsmounted = true;
                 }
                 // Copy file into Pyodide FS so Python can access it
                 const buffer = await self.webkitfile.arrayBuffer();
