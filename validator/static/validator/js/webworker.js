@@ -9,7 +9,7 @@ importScripts("https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js");
 async function init(dependencies){
     const pyodide_packages = dependencies['pyodide_packages'];
     const pip_packages = dependencies['pip_packages'];
-    const static_files = dependencies['static_files']
+    const static_files = dependencies['static_files'];
     self.pyodide = await loadPyodide();
 
     if(pyodide_packages){
@@ -41,7 +41,7 @@ self.onmessage = async (event) => {
     }
     // Make sure loading is done
     if(!self.is_initialized){
-        self.postMessage({error: 'Worker is not initialized', id})
+        self.postMessage({error: 'Worker is not initialized', id});
     }
 
     // Copying the context into the worker
@@ -73,7 +73,7 @@ self.onmessage = async (event) => {
                 self.pyodide.FS.writeFile("/data/" + self.webkitfile.name, new Uint8Array(buffer));
             }
             // Run python script
-            self.pyodide.globals.set('print', s => console.log(s))
+            self.pyodide.globals.set('print', s => console.log(s));
             let results = await self.pyodide.runPythonAsync(python);
             // Flush new files to disk
             if (self.nativefs) {

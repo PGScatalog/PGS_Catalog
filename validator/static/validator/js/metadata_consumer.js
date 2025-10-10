@@ -110,7 +110,7 @@ function showResults(results){
         let report = '';
         $.each(data.messages, function (index, message){
             report = report + '<div class="alert alert-danger alert-dismissible">'+message+'</div>'+"\n";
-        })
+        });
         $('#report_messages').html(report);
     }
 }
