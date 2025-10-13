@@ -1,7 +1,14 @@
 const pyworker = await import((on_gae)?'./py-worker.min.js':'./py-worker.js');
-const asyncRun = pyworker.asyncRun;
 
 const validate_scores = await fetch(new URL('../python/bin/validation_scores.py', import.meta.url, null)).then(response => response.text());
+const dependencies = {
+    // pyodide 0.28.2 built-in packages include pydantic 2.10.6, which is the version used by pgscatalog.core 1.0.1
+    pyodide_packages: ["micropip","pydantic","pydantic-core","lzma"],
+    pip_packages: ['openpyxl','pgscatalog.core==1.0.1','/static/validator/python/wheels/pgscatalog_validate-0.2-py3-none-any.whl'],
+    static_files: [],
+}
+// Init worker
+pyworker.initWorker(dependencies);
 
 let dirHandle;
 let validateFileHandle;
@@ -56,7 +63,7 @@ class ScoreReport {
     }
 
     set_status_validating(){
-        this._set_status("spinner-border spinner-border-sm pgs_color_1", "Validating...")
+        this._set_status("spinner-border spinner-border-sm pgs_color_1", "Validating...");
     }
 
     set_status_valid(){
@@ -93,7 +100,7 @@ class ScoreReport {
         // Expand/Collapse
         this.title.append("<i class=\"fa fa-chevron-right ml-2 expand-collapse-rotate\"></i>\n");
         this.title.wrap("<span role=\"button\" data-toggle=\"collapse\" data-target=\"#result_"+this.id+"\" " +
-            "aria-expanded=\"true\" aria-controls=\"result_"+this.id+"\"></span>")
+            "aria-expanded=\"true\" aria-controls=\"result_"+this.id+"\"></span>");
         this.table.addClass("collapse show");
     }
 
@@ -130,7 +137,7 @@ async function validation(validateFileHandle, webkitFiles) {
                 contexts.push({
                     dirHandle: dirHandle,
                     outputFileName: name,
-                })
+                });
             } else {
                 console.log("Ignored file '"+name+"'");
             }
@@ -166,7 +173,7 @@ async function validation(validateFileHandle, webkitFiles) {
             let context = contexts[i];
             let score_report = reports[i];
             score_report.set_status_validating();
-            const { results, error } = await asyncRun(validate_scores, context);
+            const { results, error } = await pyworker.asyncRun(validate_scores, context);
             if (results) {
                 let data = JSON.parse(results);
                 if(data.status === 'success'){
@@ -175,16 +182,16 @@ async function validation(validateFileHandle, webkitFiles) {
                 } else if (data.status === 'error'){
                     console.error("pyodideWorker returned error: ", data.error);
                     score_report.set_status_error();
-                    await appendAlertToElement("error",'Error: '+data.error,'danger')
+                    await appendAlertToElement("error",'Error: '+data.error,'danger');
                 }
             } else if (error) {
                 console.log("pyodideWorker error: ", error);
                 score_report.set_status_error();
-                await appendAlertToElement("error",'Error: '+error,'danger')
+                await appendAlertToElement("error",'Error: '+error,'danger');
             }
         }
     } catch (e) {
-        await appendAlertToElement("error",`Error in pyodideWorker at ${e.filename}, Line: ${e.lineno}, ${e.message}`,'danger')
+        await appendAlertToElement("error",`Error in pyodideWorker at ${e.filename}, Line: ${e.lineno}, ${e.message}`,'danger');
         console.error(
             `Error in pyodideWorker at ${e.filename}, Line: ${e.lineno}, ${e.message}`,
         );

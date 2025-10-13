@@ -1,9 +1,18 @@
 const pyworker = await import((on_gae)?'./py-worker.min.js':'./py-worker.js');
-const asyncRun = pyworker.asyncRun;
 
 const validate_metadata = await fetch(new URL('../python/bin/validation_metadata.py', import.meta.url, null)).then(response => response.text());
-let dirHandle;
+const dependencies = {
+    pyodide_packages: ["micropip"],
+    pip_packages: ['openpyxl','requests','/static/validator/python/wheels/pgs_template_validator-1.1.3-py3-none-any.whl'],
+    static_files: [{
+        name: 'TemplateColumns2Models.xlsx',
+        url: '/static/validator/template/TemplateColumns2Models.xlsx',
+    }],
+}
+// Init worker
+pyworker.initWorker(dependencies);
 
+let dirHandle;
 
 async function validateFile() {
     const fileInput = document.getElementById('myfile');
@@ -21,7 +30,7 @@ async function validateFile() {
                 file_name: file.name,
                 dirHandle: dirHandle
             }
-            const { results, error } = await asyncRun(validate_metadata, context);
+            const { results, error } = await pyworker.asyncRun(validate_metadata, context);
             if(results){
                 console.log(results);
                 spinner.style.visibility = "hidden";
@@ -101,7 +110,7 @@ function showResults(results){
         let report = '';
         $.each(data.messages, function (index, message){
             report = report + '<div class="alert alert-danger alert-dismissible">'+message+'</div>'+"\n";
-        })
+        });
         $('#report_messages').html(report);
     }
 }
