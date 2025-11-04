@@ -12,6 +12,7 @@ class CohortData(GenericData):
         self.name_others = name_others
         if self.name_others:
             self.name_others = self.name_others.strip()
+            self.name_others_list = [x.strip() for x in self.name_others.split(',')]
         self.cohort_tuple = (self.name,self.name_long,self.name_others)
 
     def check_cohort(self):
