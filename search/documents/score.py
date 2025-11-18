@@ -9,7 +9,7 @@ INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
 # See Elasticsearch Indices API reference for available settings
 INDEX.settings(
     number_of_shards=1,
-    number_of_replicas=1
+    number_of_replicas=0
 )
 
 # PGS index analyzer
@@ -30,21 +30,21 @@ class ScoreDocument(Document):
     )
     publication = fields.ObjectField(
         properties={
-            'id': fields.TextField()
+            'id': fields.TextField(index=False)
         }
     )
     trait_reported = fields.TextField(
         fields={
-            'raw': fields.KeywordField()
+            'raw': fields.KeywordField(index=False)
         }
     )
     trait_efo = fields.ObjectField(
         properties={
-            'id': fields.TextField(),
-            'label': fields.TextField()
+            'id': fields.TextField(index=False),
+            'label': fields.TextField(index=False)
         }
     )
-    variants_number = fields.IntegerField()
+    variants_number = fields.IntegerField(index=False)
 
     class Django(object):
         """Inner nested class Django."""

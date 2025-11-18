@@ -9,7 +9,7 @@ INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
 # See Elasticsearch Indices API reference for available settings
 INDEX.settings(
     number_of_shards=1,
-    number_of_replicas=1,
+    number_of_replicas=0,
     max_ngram_diff=7
 )
 
@@ -33,7 +33,7 @@ class EFOTraitDocument(Document):
         }
     )
     label_ngram = fields.TextField(analyzer=ngram_analyzer)
-    description = fields.TextField(analyzer=html_strip)
+    description = fields.TextField(index=False)
     synonyms = fields.TextField(analyzer=name_delimiter)
     synonyms_list = fields.TextField(
         analyzer=ngram_analyzer,
