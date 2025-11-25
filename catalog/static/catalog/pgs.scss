@@ -450,27 +450,30 @@ h2 {
   vertical-align: middle;
   border-radius: 50%;
 }
-.result_facet_type_1 {
-  background-color:$pgs_facet_1;
+// Search result icon for Score
+.pgs_facet_icon.pgs_facet_1_letter {
   &::before {
+    @extend .result_facet_type;
+    background-color:$pgs_facet_1;
     content:"S";
   }
 }
-.result_facet_type_2 {
-  background-color:$pgs_facet_2;
-  padding-left:8px !important;
-  padding-right:8px !important;
+// Search result icon for Trait
+.pgs_facet_icon.pgs_facet_2_letter {
   &::before {
+    @extend .result_facet_type;
+    background-color:$pgs_facet_2;
     content:"T";
   }
 }
-.result_facet_type_3 {
-  background-color:$pgs_facet_3;
+// Search result icon for Publication
+.pgs_facet_icon.pgs_facet_3_letter {
   &::before {
+    @extend .result_facet_type;
+    background-color:$pgs_facet_3;
     content:"P";
   }
 }
-
 
 
 /* Dropdown menu */
