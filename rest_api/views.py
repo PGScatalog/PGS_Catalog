@@ -443,8 +443,8 @@ class RestEFOTraitSearch(generics.ListAPIView):
             if include_children:
                 if exact_term:
                     queryset = queryset.filter(
-                        Q(id=term) | Q(label=term) | Q(synonyms__regex='(^|\| )'+term+'( \||$)') |
-                        Q(mapped_terms__regex='(^|\| )'+term+'( \||$)') | Q(traitcategory__label=term) |
+                        Q(id=term) | Q(label=term) | Q(synonyms__regex=r'(^|\| )'+term+r'( \||$)') |
+                        Q(mapped_terms__regex=r'(^|\| )'+term+r'( \||$)') | Q(traitcategory__label=term) |
                         Q(parent_traits__id=term) | Q(parent_traits__label=term)
                     )
                 else:
@@ -455,8 +455,8 @@ class RestEFOTraitSearch(generics.ListAPIView):
             else:
                 if exact_term:
                     queryset = queryset.filter(
-                        Q(id=term) | Q(label=term) | Q(synonyms__regex='(^|\| )'+term+'( \||$)') |
-                        Q(mapped_terms__regex='(^|\| )'+term+'( \||$)') | Q(traitcategory__label=term)
+                        Q(id=term) | Q(label=term) | Q(synonyms__regex=r'(^|\| )'+term+r'( \||$)') |
+                        Q(mapped_terms__regex=r'(^|\| )'+term+r'( \||$)') | Q(traitcategory__label=term)
                     )
                 else:
                     queryset = queryset.filter(
