@@ -464,6 +464,8 @@ h2 {
     @extend .result_facet_type;
     background-color:$pgs_facet_2;
     content:"T";
+    padding-left:8px !important; // The icon is smaller than the others if parent class values are used.
+    padding-right:8px !important;
   }
 }
 // Search result icon for Publication
