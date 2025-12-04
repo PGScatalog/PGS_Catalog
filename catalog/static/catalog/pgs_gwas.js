@@ -19,11 +19,11 @@ function get_gwas_publication(pubmed_id){
 }
 
 $(document).ready(function() {
-  var gwas_id = $('#gwas_id').html();
+  const gwas_id = $('#gwas_id').html();
   if (gwas_id) {
     get_gwas_study(gwas_id)
     .done(function (data) {
-      var ext_link = 'class="external-link" target="_blank"';
+      const ext_link = 'class="external-link" target="_blank"';
 
       // Description
       const data_desc = (data.initial_sample_size) ? data.initial_sample_size : '-';
@@ -77,8 +77,9 @@ $(document).ready(function() {
         $('#gwas_pub_title').html('No publication data');
       }
       $('#gwas_link').html('<a '+ext_link+' href="https://www.ebi.ac.uk/gwas/studies/'+gwas_id+'">https://www.ebi.ac.uk/gwas/studies/'+gwas_id+'</a>');
-      $('#pgs_loading').hide();
-      $('#pgs_loading').html("");
+      const $pgs_loading = $('#pgs_loading');
+      $pgs_loading.hide();
+      $pgs_loading.html("");
       $('#gwas_table').show();
     })
     .fail(function (xhRequest, ErrorText, thrownError) {
