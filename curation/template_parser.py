@@ -314,7 +314,7 @@ class CurationTemplate():
         > Return: list of dictionaries (1 per ancestry)
         """
         study_data = []
-        gwas_rest_url = 'https://www.ebi.ac.uk/gwas/rest/api/studies/'
+        gwas_rest_url = 'https://www.ebi.ac.uk/gwas/rest/api/v2/studies/'
         response = requests.get(f'{gwas_rest_url}{gcst_id}')
 
         if not response:
@@ -327,7 +327,7 @@ class CurationTemplate():
                 spreadsheet_cohorts_names = [x.name.upper() for x in spreadsheet_cohorts]
 
             try:
-                source_PMID = response_data['publicationInfo']['pubmedId']
+                source_PMID = response_data['pubmed_id']
                 # Update the Cohorts list found in the cohort column of the spreadsheet by
                 # adding the list of cohorts from the GWAS study (if the list is present)
                 cohorts_list = spreadsheet_cohorts.copy()
@@ -336,7 +336,7 @@ class CurationTemplate():
                         self.report_warning(spreadsheet_name, 'Multiple cohorts for {} (too many to report)'.format(gcst_id))
                         cohorts_list.append(CohortData(name='Multiple', name_long='Multiple cohorts (see publication)', name_others=None, spreadsheet_name=None))
                     else:
-                        cohorts = response_data['cohort'].split('|')
+                        cohorts = response_data['cohort']
                         for cohort in cohorts:
                             cohort_id = cohort.upper()
                             # Check if cohort in list of cohort referencesF
@@ -360,42 +360,47 @@ class CurationTemplate():
                             self.report_warning(spreadsheet_name, msg)
 
                 # Ancestry information
-                for ancestry in response_data['ancestries']:
+                ancestry_response = requests.get(f'{gwas_rest_url}{gcst_id}/ancestries')
+                ancestry_response_data = ancestry_response.json()
+                if '_embedded' in ancestry_response_data:
+                    ancestry_response_data = ancestry_response_data['_embedded']
+
+                for ancestry in ancestry_response_data['ancestries']:
 
                     if ancestry['type'] != 'initial':
                         continue
 
-                    ancestry_data = { 'source_PMID': source_PMID }
+                    ancestry_data = {'source_PMID': source_PMID}
                     # Add cohorts list
                     if cohorts_list:
                         ancestry_data['cohorts'] = cohorts_list
-                    ancestry_data['sample_number'] = ancestry['numberOfIndividuals']
+                    ancestry_data['sample_number'] = ancestry['number_of_individuals']
 
                     # ancestry_broad
-                    for ancestralGroup in ancestry['ancestralGroups']:
-                        if not 'ancestry_broad' in ancestry_data:
+                    for ancestralGroup in ancestry['ancestral_groups']:
+                        if 'ancestry_broad' not in ancestry_data:
                             ancestry_data['ancestry_broad'] = ''
                         else:
                             ancestry_data['ancestry_broad'] += ','
-                        ancestry_data['ancestry_broad'] += ancestralGroup['ancestralGroup']
+                        ancestry_data['ancestry_broad'] += ancestralGroup['ancestral_group']
 
                     # ancestry_free
-                    for countryOfOrigin in ancestry['countryOfOrigin']:
-                        if countryOfOrigin['countryName'] != 'NR':
-                            if not 'ancestry_free' in ancestry_data:
+                    for countryOfOrigin in ancestry['country_of_origin']:
+                        if countryOfOrigin['country_name'] != 'NR':
+                            if 'ancestry_free' not in ancestry_data:
                                 ancestry_data['ancestry_free'] = ''
                             else:
                                 ancestry_data['ancestry_free'] += ','
-                            ancestry_data['ancestry_free'] += countryOfOrigin['countryName']
+                            ancestry_data['ancestry_free'] += countryOfOrigin['country_name']
 
                     # ancestry_country
-                    for countryOfRecruitment in ancestry['countryOfRecruitment']:
-                        if countryOfRecruitment['countryName'] != 'NR':
-                            if not 'ancestry_country' in ancestry_data:
+                    for countryOfRecruitment in ancestry['country_of_recruitment']:
+                        if countryOfRecruitment['country_name'] != 'NR':
+                            if 'ancestry_country' not in ancestry_data:
                                 ancestry_data['ancestry_country'] = ''
                             else:
                                 ancestry_data['ancestry_country'] += ','
-                            ancestry_data['ancestry_country'] += countryOfRecruitment['countryName']
+                            ancestry_data['ancestry_country'] += countryOfRecruitment['country_name']
                     # ancestry_additional
                     # Not found in the REST API
 
