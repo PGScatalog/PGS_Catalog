@@ -52,8 +52,12 @@ $(document).ready(function() {
     });
 
     // GWAS AJAX calls from GWAS REST API
-    find_gwas_publication();
-    find_gwas_trait();
+    if($('#gwas_pmid_url').length > 0){
+        find_gwas_publication();
+    }
+    if($('#gwas_efo_url').length > 0){
+        find_gwas_trait();
+    }
 
     // Draw ancestry charts
     if ($('.anc_chart').length) {
