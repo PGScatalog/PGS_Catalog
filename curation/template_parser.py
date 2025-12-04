@@ -303,7 +303,7 @@ class CurationTemplate():
         return sample_data
 
 
-    def get_gwas_study(self,gcst_id:str,spreadsheet_cohorts:list,spreadsheet_name:str) -> dict:
+    def get_gwas_study(self,gcst_id:str,spreadsheet_cohorts:list,spreadsheet_name:str) -> list :
         """
         Get the GWAS Study information related to the PGS sample.
         Check that all the required data is available
@@ -311,7 +311,7 @@ class CurationTemplate():
             - gcst_id: GWAS Study ID (e.g. GCST010127)
             - spreadsheet_cohorts: list of CohortData objects for the current sample, collected from the spreadsheet
             - spreadsheet_name: Spreadsheet name for report (e.g. Sample Descriptions)
-        > Return: list of dictionnaries (1 per ancestry)
+        > Return: list of dictionaries (1 per ancestry)
         """
         study_data = []
         gwas_rest_url = 'https://www.ebi.ac.uk/gwas/rest/api/studies/'
