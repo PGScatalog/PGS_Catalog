@@ -1035,51 +1035,41 @@ function display_category_list(data_json) {
  * Functions to retrieve GWAS Catalog information via AJAX calls
  */
 var gwas_url_root = 'https://www.ebi.ac.uk/gwas';
-var gwas_rest_url_root = gwas_url_root+'/rest/api';
+var gwas_rest_url_root = gwas_url_root+'/rest/api/v2';
 var gwas_btn_classes = 'class="btn btn-pgs-small pgs_no_icon_link" target="_blank"';
 
 // GWAS Catalog REST API - Publication
 function find_gwas_publication() {
   var pmid = $('#pubmed_id').html();
-  if (pmid && pmid != '') {
-    var gwas_rest_url = gwas_rest_url_root+'/studies/search/findByPublicationIdPubmedId?pubmedId=';
+  if (pmid && pmid !== '') {
+    var gwas_rest_url = gwas_rest_url_root+'/publications/';
     $.ajax({
         url: gwas_rest_url+pmid,
         method: "GET",
         contentType: "application/json",
         dataType: 'json'
     })
-    .done(function (data) {
-      if (data._embedded) {
-        studies = data._embedded.studies;
-        if (studies.length > 0) {
-          $('#gwas_pmid_url').html('<a '+gwas_btn_classes+' href="'+gwas_url_root+'/publications/'+pmid+'"><span class="gwas_icon"></span>View in NHGRI-EBI GWAS Catalog</a>');
-          $('#gwas_pmid_url').addClass('mb-2');
-        }
-      }
+    .done(function () {  // If successful, the publication exists (otherwise returns 404)
+      const $gwas_pmid_url = $('#gwas_pmid_url');
+      $gwas_pmid_url.html('<a '+gwas_btn_classes+' href="'+gwas_url_root+'/publications/'+pmid+'"><span class="gwas_icon"></span>View in NHGRI-EBI GWAS Catalog</a>');
+      $gwas_pmid_url.addClass('mb-2');
     });
   }
 }
 
 // GWAS Catalog REST API - Trait
 function find_gwas_trait() {
-  var trait_id = $('#trait_id').html();
-  var trait_label = $('#trait_label').html();
-  if (trait_label && trait_label != '') {
-    var gwas_rest_url = gwas_rest_url_root+'/efoTraits/search/findByEfoTrait?trait=';
+  const trait_id = $('#trait_id').html();
+  if (trait_id && trait_id !== '') {
+    const gwas_rest_url = gwas_rest_url_root+'/efo-traits/';
     $.ajax({
-        url: gwas_rest_url+trait_label,
+        url: gwas_rest_url+trait_id,
         method: "GET",
         contentType: "application/json",
         dataType: 'json'
     })
-    .done(function (data) {
-      if (data._embedded) {
-        efotraits = data._embedded.efoTraits;
-        if (efotraits.length > 0) {
-          $('#gwas_efo_url').html('<a '+gwas_btn_classes+' href="'+gwas_url_root+'/efotraits/'+trait_id+'"><span class="gwas_icon"></span> View in NHGRI-EBI GWAS Catalog</a></div>');
-        }
-      }
+    .done(function () {  // If successful, the trait exists (otherwise returns 404)
+        $('#gwas_efo_url').html('<a '+gwas_btn_classes+' href="'+gwas_url_root+'/efotraits/'+trait_id+'"><span class="gwas_icon"></span> View in NHGRI-EBI GWAS Catalog</a></div>');
     });
   }
 }
