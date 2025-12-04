@@ -1034,15 +1034,15 @@ function display_category_list(data_json) {
 /*
  * Functions to retrieve GWAS Catalog information via AJAX calls
  */
-var gwas_url_root = 'https://www.ebi.ac.uk/gwas';
-var gwas_rest_url_root = gwas_url_root+'/rest/api/v2';
-var gwas_btn_classes = 'class="btn btn-pgs-small pgs_no_icon_link" target="_blank"';
+const gwas_url_root = 'https://www.ebi.ac.uk/gwas';
+const gwas_rest_url_root = gwas_url_root+'/rest/api/v2';
+const gwas_btn_classes = 'class="btn btn-pgs-small pgs_no_icon_link" target="_blank"';
 
 // GWAS Catalog REST API - Publication
 function find_gwas_publication() {
-  var pmid = $('#pubmed_id').html();
+  const pmid = $('#pubmed_id').html();
   if (pmid && pmid !== '') {
-    var gwas_rest_url = gwas_rest_url_root+'/publications/';
+    const gwas_rest_url = gwas_rest_url_root+'/publications/';
     $.ajax({
         url: gwas_rest_url+pmid,
         method: "GET",
