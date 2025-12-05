@@ -10,7 +10,7 @@ from curation.parsers.publication import PublicationData
 from curation.parsers.score import ScoreData
 from curation.parsers.sample import SampleData
 from curation.parsers.performance import PerformanceData
-from services.gwas_rest_client import GwasRestClient
+from services.gwas_rest_client import GwasRestClient, NotFoundError
 
 
 class CurationTemplate():
@@ -316,85 +316,84 @@ class CurationTemplate():
         """
         study_data = []
 
-        gwas_study = GwasRestClient.fetch_study(gcst_id)
+        # List the cohorts present in the spreadsheet for this sample
+        sample_cohorts_names = []
+        if sample_cohorts:
+            sample_cohorts_names = [x.name.upper() for x in sample_cohorts]
 
-        if not gwas_study:
-            return study_data
-        else:
-            # List the cohorts present in the spreadsheet for this sample
-            sample_cohorts_names = []
-            if sample_cohorts:
-                sample_cohorts_names = [x.name.upper() for x in sample_cohorts]
-
-            try:
-                source_PMID = gwas_study.get_pmid()
-                # Update the Cohorts list found in the cohort column of the spreadsheet by
-                # adding the list of cohorts from the GWAS study (if the list is present)
-                merged_cohorts_list = sample_cohorts.copy()
-                for gwas_cohort in gwas_study.get_cohorts():
-                    if gwas_cohort == 'multiple':
-                        self.report_warning(spreadsheet_name, 'Multiple cohorts for {} (too many to report)'.format(gcst_id))
-                        merged_cohorts_list.append(CohortData(name='Multiple', name_long='Multiple cohorts (see publication)', name_others=None, spreadsheet_name=None))
+        try:
+            gwas_study = GwasRestClient.fetch_study(gcst_id)
+            source_PMID = gwas_study.get_pmid()
+            # Update the Cohorts list found in the cohort column of the spreadsheet by
+            # adding the list of cohorts from the GWAS study (if the list is present)
+            merged_cohorts_list = sample_cohorts.copy()
+            for gwas_cohort in gwas_study.get_cohorts():
+                if gwas_cohort == 'multiple':
+                    self.report_warning(spreadsheet_name, 'Multiple cohorts for {} (too many to report)'.format(gcst_id))
+                    merged_cohorts_list.append(CohortData(name='Multiple', name_long='Multiple cohorts (see publication)', name_others=None, spreadsheet_name=None))
+                else:
+                    gwas_cohort_id = gwas_cohort.upper()
+                    # Check if cohort in list of cohort references
+                    # and if the cohort is already in the list provided by the author
+                    if gwas_cohort_id in self.parsed_cohorts:
+                        if gwas_cohort_id not in sample_cohorts_names:
+                            merged_cohorts_list.append(self.parsed_cohorts[gwas_cohort_id])
+                    # Check if the cohort name corresponds to a cohort long name on the Cohort Refr. spreadsheet
+                    elif gwas_cohort_id in self.parsed_cohorts_long_names.keys():
+                        new_cohort_id = self.parsed_cohorts_long_names[gwas_cohort_id]
+                        if new_cohort_id not in sample_cohorts_names:
+                            merged_cohorts_list.append(self.parsed_cohorts[new_cohort_id])
+                            self.report_warning(spreadsheet_name, f'Warning: the GWAS Catalog sample cohort "{gwas_cohort}" has been found in the Cohort Refr. spreadsheet as "{new_cohort_id}"')
                     else:
-                        gwas_cohort_id = gwas_cohort.upper()
-                        # Check if cohort in list of cohort references
-                        # and if the cohort is already in the list provided by the author
-                        if gwas_cohort_id in self.parsed_cohorts:
-                            if gwas_cohort_id not in sample_cohorts_names:
-                                merged_cohorts_list.append(self.parsed_cohorts[gwas_cohort_id])
-                        # Check if the cohort name corresponds to a cohort long name on the Cohort Refr. spreadsheet
-                        elif gwas_cohort_id in self.parsed_cohorts_long_names.keys():
-                            new_cohort_id = self.parsed_cohorts_long_names[gwas_cohort_id]
-                            if new_cohort_id not in sample_cohorts_names:
-                                merged_cohorts_list.append(self.parsed_cohorts[new_cohort_id])
-                                self.report_warning(spreadsheet_name, f'Warning: the GWAS Catalog sample cohort "{gwas_cohort}" has been found in the Cohort Refr. spreadsheet as "{new_cohort_id}"')
-                        else:
-                            self.report_error(spreadsheet_name, f'Error: the GWAS Catalog sample cohort "{gwas_cohort}" cannot be found in the Cohort Refr. spreadsheet')
+                        self.report_error(spreadsheet_name, f'Error: the GWAS Catalog sample cohort "{gwas_cohort}" cannot be found in the Cohort Refr. spreadsheet')
 
-                # Print a message if the list of Cohorts from the samples spreadsheet and from GWAS Catalog (REST API) have been merged.
-                if sample_cohorts and len(sample_cohorts) != len(merged_cohorts_list):
-                    msg = f'''GWAS study {gcst_id} -> the list of cohorts from the spreadsheet has been merged with the one from GWAS.
-                    \t- Spreadsheet list: {', '.join(sorted(sample_cohorts_names))}
-                    \t+ Merged GWAS list: {', '.join(sorted([x.name.upper() for x in merged_cohorts_list]))}'''
-                    self.report_warning(spreadsheet_name, msg)
+            # Print a message if the list of Cohorts from the samples spreadsheet and from GWAS Catalog (REST API) have been merged.
+            if sample_cohorts and len(sample_cohorts) != len(merged_cohorts_list):
+                msg = f'''GWAS study {gcst_id} -> the list of cohorts from the spreadsheet has been merged with the one from GWAS.
+                \t- Spreadsheet list: {', '.join(sorted(sample_cohorts_names))}
+                \t+ Merged GWAS list: {', '.join(sorted([x.name.upper() for x in merged_cohorts_list]))}'''
+                self.report_warning(spreadsheet_name, msg)
 
-                # Ancestry information
-                for gwas_ancestry in gwas_study.get_ancestries():
+            # Ancestry information
+            for gwas_ancestry in gwas_study.get_ancestries():
 
-                    if gwas_ancestry.get_type() != 'initial':
-                        continue
+                if gwas_ancestry.get_type() != 'initial':
+                    continue
 
-                    ancestry_data = {'source_PMID': source_PMID}
-                    # Add cohorts list
-                    if merged_cohorts_list:
-                        ancestry_data['cohorts'] = merged_cohorts_list
-                    ancestry_data['sample_number'] = gwas_ancestry.get_number_of_individuals()
+                ancestry_data = {'source_PMID': source_PMID}
+                # Add cohorts list
+                if merged_cohorts_list:
+                    ancestry_data['cohorts'] = merged_cohorts_list
+                ancestry_data['sample_number'] = gwas_ancestry.get_number_of_individuals()
 
-                    # ancestry_broad
-                    ancestral_groups = gwas_ancestry.get_ancestral_groups()
-                    if ancestral_groups:
-                        ancestry_data['ancestry_broad'] = ','.join(ancestral_groups)
+                # ancestry_broad
+                ancestral_groups = gwas_ancestry.get_ancestral_groups()
+                if ancestral_groups:
+                    ancestry_data['ancestry_broad'] = ','.join(ancestral_groups)
 
-                    # ancestry_free
-                    countries_of_origin = gwas_ancestry.get_country_of_origin()
-                    if countries_of_origin:
-                        ancestry_data['ancestry_free'] = ','.join(country.get_country_name()
-                                                                  for country in countries_of_origin
-                                                                  if country.get_country_name() != 'NR')
+                # ancestry_free
+                countries_of_origin = gwas_ancestry.get_country_of_origin()
+                if countries_of_origin:
+                    ancestry_data['ancestry_free'] = ','.join(country.get_country_name()
+                                                              for country in countries_of_origin
+                                                              if country.get_country_name() != 'NR')
 
-                    # ancestry_country
-                    countries_of_recruitment = gwas_ancestry.get_country_of_recruitment()
-                    if countries_of_recruitment:
-                        ancestry_data['ancestry_country'] = ','.join(country.get_country_name()
-                                                                     for country in countries_of_recruitment
-                                                                     if country.get_country_name() != 'NR')
+                # ancestry_country
+                countries_of_recruitment = gwas_ancestry.get_country_of_recruitment()
+                if countries_of_recruitment:
+                    ancestry_data['ancestry_country'] = ','.join(country.get_country_name()
+                                                                 for country in countries_of_recruitment
+                                                                 if country.get_country_name() != 'NR')
 
-                    # ancestry_additional
-                    # Not found in the REST API
+                # ancestry_additional
+                # Not found in the REST API
 
-                    study_data.append(ancestry_data)
-            except:
-                print(f'Error: can\'t fetch GWAS results for {gcst_id}')
+                study_data.append(ancestry_data)
+
+        except NotFoundError as e:
+            print(str(e))
+        except:
+            print(f'Error: can\'t fetch GWAS results for {gcst_id}')
 
         return study_data
 
