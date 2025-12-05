@@ -372,18 +372,16 @@ class CurationTemplate():
                     ancestry_data['ancestry_broad'] = ','.join(ancestral_groups)
 
                 # ancestry_free
-                countries_of_origin = gwas_ancestry.get_country_of_origin()
+                countries_of_origin = [country.get_country_name() for country in gwas_ancestry.get_country_of_origin()
+                                       if country.get_country_name() != 'NR']
                 if countries_of_origin:
-                    ancestry_data['ancestry_free'] = ','.join(country.get_country_name()
-                                                              for country in countries_of_origin
-                                                              if country.get_country_name() != 'NR')
+                    ancestry_data['ancestry_free'] = ','.join(countries_of_origin)
 
                 # ancestry_country
-                countries_of_recruitment = gwas_ancestry.get_country_of_recruitment()
+                countries_of_recruitment = [country.get_country_name() for country in gwas_ancestry.get_country_of_recruitment()
+                                            if country.get_country_name() != 'NR']
                 if countries_of_recruitment:
-                    ancestry_data['ancestry_country'] = ','.join(country.get_country_name()
-                                                                 for country in countries_of_recruitment
-                                                                 if country.get_country_name() != 'NR')
+                    ancestry_data['ancestry_country'] = ','.join(countries_of_recruitment)
 
                 # ancestry_additional
                 # Not found in the REST API
