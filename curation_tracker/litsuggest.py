@@ -43,12 +43,13 @@ class CurationPublicationAnnotationImport:
             assigned = CurationPublicationAnnotation.objects.using(curation_tracker_db).latest().pk + 1
         return assigned
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args, **kwargs) -> CurationPublicationAnnotation:
         """Set the identifiers and save the contained CurationPublicationAnnotation object"""
         annotation = self.annotation
         if annotation.num == None:
             annotation.set_annotation_ids(self.__next_id_number())
-        return annotation.save(*args, **kwargs)
+        annotation.save(*args, **kwargs)
+        return annotation
 
 
 class ImportException(Exception):
@@ -176,6 +177,8 @@ def dict_to_annotation_import(d: dict) -> CurationPublicationAnnotationImport:
     if 'skip_reason' in d:
         model_import.skip_reason = d['skip_reason']
         del d['skip_reason']
+    if 'triage_info' in d:
+        model_import.triage_info = d['triage_info']
     model_dict = d['model']
     for k in model_dict.keys():
         setattr(model, k, model_dict[k])

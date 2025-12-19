@@ -5,7 +5,9 @@ from typing import List
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin import DateFieldListFilter
+from django.contrib.admin.models import LogEntry
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Model
@@ -65,6 +67,25 @@ def next_id_number(model: Model) -> int:
     if len(model.objects.using(curation_tracker_db).all()) != 0:
         assigned = model.objects.using(curation_tracker_db).latest().pk + 1
     return assigned
+
+
+def log_litsuggest_import(annotation_import: CurationPublicationAnnotationImport, user) -> None:
+    """ Add a log entry in the django_admin_log table to a newly created annotation from Litsuggest import."""
+    annotation = annotation_import.annotation
+    triage_decision = annotation_import.triage_info['triage_decision']
+    user_id = user.id
+    ct = ContentType.objects.get_for_model(CurationPublicationAnnotation)
+    LogEntry.objects.log_action(user_id=user_id,
+                                content_type_id=ct.pk,
+                                object_id=annotation.num,
+                                object_repr=repr(annotation),
+                                action_flag=1,  # 1 for "Adding"
+                                # The change_message is either str or a valid JSON structure.
+                                # "added" is key expected by django-admin, with a value either undefined or a dictionary
+                                # with the mandatory keys "name" and "object" (or error will happen). We have to accommodate
+                                # the Litsuggest import note to this format, so it is displayed properly in "History".
+                                change_message=[{"added": {"name": "from Litsuggest with decision", "object": triage_decision}}]
+                                )
 
 
 #### Custom Form classes ####
@@ -692,10 +713,12 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 for f in formset:
                     data = f.cleaned_data
                     data['comment'] = comment
-                    annotation_import = dict_to_annotation_import({'model': data})
+                    annotation_import = dict_to_annotation_import({'model': data, 'triage_info': f.triage_info})
                     annotation_imports.append(annotation_import)
                 with transaction.atomic():
-                    [annotation_import.save() for annotation_import in annotation_imports]
+                    for annotation_import in annotation_imports:
+                        annotation_import.save()
+                        log_litsuggest_import(annotation_import, request.user)
             else:
                 has_errors = True
 
