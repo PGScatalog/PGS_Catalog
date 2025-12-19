@@ -496,7 +496,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         my_urls = [
             path('import-csv/', login_required(self.import_csv, login_url='/admin/login/')),
             path('import-litsuggest/', login_required(self.import_litsuggest, login_url='/admin/login/')),
-            path('import-litsuggest/confirm_preview', login_required(self.confirm_litsuggest_preview, login_url='/admin/login/')),
             path('import-litsuggest/confirm_formset', login_required(self.confirm_litsuggest_formset, login_url='/admin/login/')),
             path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/')),
             path('by_pgp_id/<path:pgp_id>', login_required(self.by_pgp_id, login_url='/admin/login/'))
@@ -674,24 +673,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             return render(
                 request, "curation_tracker/litsuggest_form.html", payload
             )
-
-    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
-    def confirm_litsuggest_preview(self, request):
-        """Deprecated"""
-        if request.method == "POST":
-            form = LitsuggestPreviewTableForm(request.POST)
-            comment = None
-            if form.is_valid():
-                comment = form.cleaned_data['comment']
-            preview_data = request.session['preview_data']
-            del request.session['preview_data']
-            annotations = list(map(dict_to_annotation_import, preview_data))
-            with transaction.atomic():
-                for annotation in annotations:
-                    if annotation.is_valid() and annotation.is_importable():
-                        annotation.annotation.comment = comment
-                        annotation.save(using=curation_tracker_db)
-            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
 
     @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def confirm_litsuggest_formset(self, request):
