@@ -101,7 +101,7 @@ class LitsuggestImportForm(forms.Form):
 
 
 class LitsuggestCommentForm(forms.Form):
-    '''Unique form for applying a comment to all litsuggest studies of a single import'''
+    """Unique form for applying a comment to all litsuggest studies of a single import"""
     comment = forms.CharField(label='Comment',
                               help_text=format_html('<div class="help">eg: Litsuggest Automatic Weekly Digest (Sep 24 2023 To Sep 30 2023)</div>'),
                               required=True,
@@ -152,10 +152,10 @@ class LitsuggestPreviewForm(forms.ModelForm):
 
 
 class LitsuggestPreviewFormSet(forms.BaseFormSet):
-    '''Formset for litsuggest imports bulk editing (requires LitsuggestPreviewForm)'''
+    """Formset for litsuggest imports bulk editing (requires LitsuggestPreviewForm)"""
 
     def get_form_kwargs(self, index):
-        ''' Redefined so each form of the set can have different triage infos '''
+        """ Redefined so each form of the set can have different triage infos """
         kwargs = super().get_form_kwargs(index)
         ti = None
         if 'triage_info' in kwargs:
@@ -274,17 +274,17 @@ class PublicationDateFilter(DateFieldListFilter):
         super().__init__(*args, **kwargs)
 
         today = dt.date.today()
-        twoweeksago = today - dt.timedelta(days=14)
+        two_weeks_ago = today - dt.timedelta(days=14)
 
         self.links = list(self.links)
         self.links.insert(3, ('Past 2 weeks', {
-            self.lookup_kwarg_since: str(twoweeksago),
+            self.lookup_kwarg_since: str(two_weeks_ago),
             self.lookup_kwarg_until: str(today),
         }))
 
         # Past years
-        for date in CurationPublicationAnnotation.objects.exclude(publication_date__year=today.year).dates('publication_date', 'year', order='ASC'):
-            year = date.year
+        for publication_date in CurationPublicationAnnotation.objects.exclude(publication_date__year=today.year).dates('publication_date', 'year', order='ASC'):
+            year = publication_date.year
             year_start = dt.date(year, 1, 1)
             year_end = dt.date(year, 12, 31)
             self.links.insert(6, (year, {
@@ -591,12 +591,12 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 'cc': cc
             }
 
-        except EmailTemplate.DoesNotExist as e:
+        except EmailTemplate.DoesNotExist:
             data = {
                 'error': 'No template found for author data request.'
             }
 
-        except CurationPublicationAnnotation.DoesNotExist as e:
+        except CurationPublicationAnnotation.DoesNotExist:
             data = {
                 'error': 'No annotation found with this ID.'
             }
@@ -706,7 +706,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             else:
                 has_errors = True
 
-            triage_info = request.session.get('triage_info', []) # fetching triage infos for the formset in case it needs to be provided to the context again in case of error
+            triage_info = request.session.get('triage_info', [])  # fetching triage infos for the formset in case it needs to be provided to the context again in case of error
             formset = CurationPublicationAnnotationFormSet(request.POST, form_kwargs={'triage_info': triage_info})
             annotation_imports: List[CurationPublicationAnnotationImport] = []
             if formset.is_valid() and not has_errors:

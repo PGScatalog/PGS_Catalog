@@ -32,10 +32,10 @@ class CurationPublicationAnnotationImport:
 
     def is_valid(self) -> bool:
         """Should be used before saving"""
-        return self.error == None
+        return self.error is None
 
     def is_importable(self) -> bool:
-        return self.skip_reason == None
+        return self.skip_reason is None
 
     def __next_id_number(self) -> int:
         assigned = 1
@@ -46,7 +46,7 @@ class CurationPublicationAnnotationImport:
     def save(self, *args, **kwargs) -> CurationPublicationAnnotation:
         """Set the identifiers and save the contained CurationPublicationAnnotation object"""
         annotation = self.annotation
-        if annotation.num == None:
+        if annotation.num is None:
             annotation.set_annotation_ids(self.__next_id_number())
         annotation.save(*args, **kwargs)
         return annotation
