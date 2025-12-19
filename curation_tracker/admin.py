@@ -78,7 +78,7 @@ def log_litsuggest_import(annotation_import: CurationPublicationAnnotationImport
     LogEntry.objects.log_action(user_id=user_id,
                                 content_type_id=ct.pk,
                                 object_id=annotation.num,
-                                object_repr=repr(annotation),
+                                object_repr=str(annotation),
                                 action_flag=1,  # 1 for "Adding"
                                 # The change_message is either str or a valid JSON structure.
                                 # "added" is key expected by django-admin, with a value either undefined or a dictionary
