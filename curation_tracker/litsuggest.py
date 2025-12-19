@@ -3,7 +3,7 @@ import requests
 from pgs_web import constants
 from catalog.models import Publication
 from curation_tracker.models import CurationPublicationAnnotation
-from typing import List
+from typing import List, Iterator, Dict
 from io import TextIOWrapper
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
@@ -201,7 +201,7 @@ def check_study_name(study_name: str, imported_study_names: list[str]) -> str:
 
 def _litsuggest_IO_to_annotation_imports(litsuggest_file) -> List[CurationPublicationAnnotationImport]:
     models = []
-    reader = csv.DictReader(litsuggest_file, delimiter='\t')
+    reader: Iterator[Dict[str, str]] = csv.DictReader(litsuggest_file, delimiter='\t')
     imported_study_names = []
     for row in reader:
         if not row['pmid']:
