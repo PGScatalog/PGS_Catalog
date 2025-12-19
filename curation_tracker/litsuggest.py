@@ -169,8 +169,7 @@ def annotation_to_dict(model: CurationPublicationAnnotation) -> dict:
 
 
 def dict_to_annotation_import(d: dict) -> CurationPublicationAnnotationImport:
-    model = CurationPublicationAnnotation()
-    model_import = CurationPublicationAnnotationImport()
+    model_import = CurationPublicationAnnotationImport(CurationPublicationAnnotation())
     if 'error' in d:
         model_import.error = d['error']
         del d['error']
@@ -181,8 +180,7 @@ def dict_to_annotation_import(d: dict) -> CurationPublicationAnnotationImport:
         model_import.triage_info = d['triage_info']
     model_dict = d['model']
     for k in model_dict.keys():
-        setattr(model, k, model_dict[k])
-    model_import.annotation = model
+        setattr(model_import.annotation, k, model_dict[k])
     return model_import
 
 
