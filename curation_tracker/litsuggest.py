@@ -11,10 +11,10 @@ pgs_db = 'default'
 curation_tracker_db = 'curation_tracker'
 
 
-class CurationPublicationAnnotationImport():
+class CurationPublicationAnnotationImport:
     """Wrapper class for CurationPublicationAnnotation for providing additional transient attributes"""
-    error: str
-    skip_reason: str
+    error: str | None
+    skip_reason: str | None
     annotation: CurationPublicationAnnotation
     triage_info: dict
 

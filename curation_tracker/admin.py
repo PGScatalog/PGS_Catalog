@@ -8,6 +8,7 @@ from django.contrib.admin import DateFieldListFilter
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Model
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import path
@@ -58,7 +59,7 @@ def check_study_name(study_name: str, num: int = 0) -> str:
     return study_name
 
 
-def next_id_number(model: object) -> int:
+def next_id_number(model: Model) -> int:
     """ Generate the new primary key value """
     assigned = 1
     if len(model.objects.using(curation_tracker_db).all()) != 0:
