@@ -18,8 +18,8 @@ class CurationPublicationAnnotationImport:
     annotation: CurationPublicationAnnotation
     triage_info: dict
 
-    def __init__(self, model: CurationPublicationAnnotation = CurationPublicationAnnotation()):
-        self.annotation = model  # if model else CurationPublicationAnnotation()
+    def __init__(self, model: CurationPublicationAnnotation | None = None):
+        self.annotation = model or CurationPublicationAnnotation()
         self.error = None
         self.skip_reason = None
         self.triage_info = {}
