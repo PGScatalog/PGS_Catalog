@@ -1,15 +1,15 @@
 #### Extension for command lines
-django-extensions==3.2.1
+django-extensions==4.1
 
 #### Compress SCSS/SASS files in CSS
 django-libsass==0.9
-django-sass-processor==1.2.1
+django-sass-processor==1.4.2
 
 #### Version checking library for Django
 django-nine==0.2.7
 
 #### Other ###
-PyYAML==6.0
+PyYAML==6.0.3
 numerize==0.12
 
 #### Cloud file storage
@@ -25,4 +25,4 @@ numpy==2.2.0
 openpyxl==3.1.4
 
 #### For webpage testing ####
-django-debug-toolbar==4.2.0
+django-debug-toolbar==6.1.0
