@@ -1,5 +1,5 @@
 import os, re, subprocess
-import psycopg2
+import psycopg
 
 
 #=============#
@@ -33,9 +33,9 @@ def run():
     #print(db_settings)
 
     # DB connection
-    conn = psycopg2.connect(
+    conn = psycopg.connect(
         host=db_settings['host'],
-        database=db_settings['name'],
+        dbname=db_settings['name'],
         user=db_settings['user'],
         password=db_settings['password'],
         port=db_settings['port']
@@ -50,7 +50,7 @@ def run():
     try:
         cur.execute(f'DROP DATABASE {db_new};')
         print(f'\t> Existing database {db_new} has been deleted')
-    except psycopg2.errors.InvalidCatalogName as e:
+    except psycopg.errors.InvalidCatalogName as e:
         print(f'\t> No pre-existing {db_new} has been found. Skip deletion.')
         print(f'\t> {e}')
     except:
@@ -72,7 +72,7 @@ def run():
         else:
             print(f'\t> Database \'{db_new}\' has been created')
             new_db_is_created = 1
-    except psycopg2.DatabaseError as e:
+    except psycopg.DatabaseError as e:
         print(f'\t> Error: can\'t create the database {db_new}.\n{e}')
 
     if not new_db_is_created:
@@ -92,7 +92,7 @@ def run():
         else:
             print(f'\t> Dump of the database \'{db_settings["name"]}\' has been created')
             db_dump_created = 1
-    except psycopg2.DatabaseError as e:
+    except psycopg.DatabaseError as e:
         print(f'\t> Error: can\'t dump the database {db_settings["name"]}.\n{e}')
 
     if not db_dump_created:
@@ -118,7 +118,7 @@ def run():
                 print("\t> Error: "+str(stderr_c))
             else:
                 print(f'\t> The dump file \'{tmp_sql_dump}\' has been removed')
-    except psycopg2.DatabaseError as e:
+    except psycopg.DatabaseError as e:
         print(f'\t> Error: can\'t populate the database {db_new}.\n{e}')
 
     reset_password()

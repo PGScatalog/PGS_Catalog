@@ -1,5 +1,5 @@
 import re
-from psycopg2.extras import NumericRange
+from psycopg.types.range import NumericRange
 from django.db import IntegrityError, transaction
 from curation.parsers.generic import GenericData
 from curation.parsers.metric import MetricData
