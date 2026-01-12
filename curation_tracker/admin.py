@@ -5,9 +5,12 @@ from typing import List
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin import DateFieldListFilter
+from django.contrib.admin.models import LogEntry
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Model
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import path
@@ -58,12 +61,31 @@ def check_study_name(study_name: str, num: int = 0) -> str:
     return study_name
 
 
-def next_id_number(model: object) -> int:
+def next_id_number(model: Model) -> int:
     """ Generate the new primary key value """
     assigned = 1
     if len(model.objects.using(curation_tracker_db).all()) != 0:
         assigned = model.objects.using(curation_tracker_db).latest().pk + 1
     return assigned
+
+
+def log_litsuggest_import(annotation_import: CurationPublicationAnnotationImport, user) -> None:
+    """ Add a log entry in the django_admin_log table to a newly created annotation from Litsuggest import."""
+    annotation = annotation_import.annotation
+    triage_decision = annotation_import.triage_info['triage_decision']
+    user_id = user.id
+    ct = ContentType.objects.get_for_model(CurationPublicationAnnotation)
+    LogEntry.objects.log_action(user_id=user_id,
+                                content_type_id=ct.pk,
+                                object_id=annotation.num,
+                                object_repr=str(annotation),
+                                action_flag=1,  # 1 for "Adding"
+                                # The change_message is either str or a valid JSON structure.
+                                # "added" is key expected by django-admin, with a value either undefined or a dictionary
+                                # with the mandatory keys "name" and "object" (or error will happen). We have to accommodate
+                                # the Litsuggest import note to this format, so it is displayed properly in "History".
+                                change_message=[{"added": {"name": "from Litsuggest with decision", "object": triage_decision}}]
+                                )
 
 
 #### Custom Form classes ####
@@ -79,7 +101,7 @@ class LitsuggestImportForm(forms.Form):
 
 
 class LitsuggestCommentForm(forms.Form):
-    '''Unique form for applying a comment to all litsuggest studies of a single import'''
+    """Unique form for applying a comment to all litsuggest studies of a single import"""
     comment = forms.CharField(label='Comment',
                               help_text=format_html('<div class="help">eg: Litsuggest Automatic Weekly Digest (Sep 24 2023 To Sep 30 2023)</div>'),
                               required=True,
@@ -130,10 +152,10 @@ class LitsuggestPreviewForm(forms.ModelForm):
 
 
 class LitsuggestPreviewFormSet(forms.BaseFormSet):
-    '''Formset for litsuggest imports bulk editing (requires LitsuggestPreviewForm)'''
+    """Formset for litsuggest imports bulk editing (requires LitsuggestPreviewForm)"""
 
     def get_form_kwargs(self, index):
-        ''' Redefined so each form of the set can have different triage infos '''
+        """ Redefined so each form of the set can have different triage infos """
         kwargs = super().get_form_kwargs(index)
         ti = None
         if 'triage_info' in kwargs:
@@ -252,17 +274,17 @@ class PublicationDateFilter(DateFieldListFilter):
         super().__init__(*args, **kwargs)
 
         today = dt.date.today()
-        twoweeksago = today - dt.timedelta(days=14)
+        two_weeks_ago = today - dt.timedelta(days=14)
 
         self.links = list(self.links)
         self.links.insert(3, ('Past 2 weeks', {
-            self.lookup_kwarg_since: str(twoweeksago),
+            self.lookup_kwarg_since: str(two_weeks_ago),
             self.lookup_kwarg_until: str(today),
         }))
 
         # Past years
-        for date in CurationPublicationAnnotation.objects.exclude(publication_date__year=today.year).dates('publication_date', 'year', order='ASC'):
-            year = date.year
+        for publication_date in CurationPublicationAnnotation.objects.exclude(publication_date__year=today.year).dates('publication_date', 'year', order='ASC'):
+            year = publication_date.year
             year_start = dt.date(year, 1, 1)
             year_end = dt.date(year, 12, 31)
             self.links.insert(6, (year, {
@@ -495,7 +517,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         my_urls = [
             path('import-csv/', login_required(self.import_csv, login_url='/admin/login/')),
             path('import-litsuggest/', login_required(self.import_litsuggest, login_url='/admin/login/')),
-            path('import-litsuggest/confirm_preview', login_required(self.confirm_litsuggest_preview, login_url='/admin/login/')),
             path('import-litsuggest/confirm_formset', login_required(self.confirm_litsuggest_formset, login_url='/admin/login/')),
             path('<path:object_id>/contact-author/', login_required(self.contact_author, login_url='/admin/login/')),
             path('by_pgp_id/<path:pgp_id>', login_required(self.by_pgp_id, login_url='/admin/login/'))
@@ -570,12 +591,12 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                 'cc': cc
             }
 
-        except EmailTemplate.DoesNotExist as e:
+        except EmailTemplate.DoesNotExist:
             data = {
                 'error': 'No template found for author data request.'
             }
 
-        except CurationPublicationAnnotation.DoesNotExist as e:
+        except CurationPublicationAnnotation.DoesNotExist:
             data = {
                 'error': 'No annotation found with this ID.'
             }
@@ -675,24 +696,6 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             )
 
     @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
-    def confirm_litsuggest_preview(self, request):
-        """Deprecated"""
-        if request.method == "POST":
-            form = LitsuggestPreviewTableForm(request.POST)
-            comment = None
-            if form.is_valid():
-                comment = form.cleaned_data['comment']
-            preview_data = request.session['preview_data']
-            del request.session['preview_data']
-            annotations = list(map(dict_to_annotation_import, preview_data))
-            with transaction.atomic():
-                for annotation in annotations:
-                    if annotation.is_valid() and annotation.is_importable():
-                        annotation.annotation.comment = comment
-                        annotation.save(using=curation_tracker_db)
-            return HttpResponseRedirect('/admin/curation_tracker/curationpublicationannotation')
-
-    @method_decorator(permission_required('curation_tracker.add_curationpublicationannotation', raise_exception=True))
     def confirm_litsuggest_formset(self, request):
         if request.method == "POST":
             has_errors = False
@@ -703,17 +706,19 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             else:
                 has_errors = True
 
-            triage_info = request.session.get('triage_info', []) # fetching triage infos for the formset in case it needs to be provided to the context again in case of error
+            triage_info = request.session.get('triage_info', [])  # fetching triage infos for the formset in case it needs to be provided to the context again in case of error
             formset = CurationPublicationAnnotationFormSet(request.POST, form_kwargs={'triage_info': triage_info})
             annotation_imports: List[CurationPublicationAnnotationImport] = []
             if formset.is_valid() and not has_errors:
                 for f in formset:
                     data = f.cleaned_data
                     data['comment'] = comment
-                    annotation_import = dict_to_annotation_import({'model': data})
+                    annotation_import = dict_to_annotation_import({'model': data, 'triage_info': f.triage_info})
                     annotation_imports.append(annotation_import)
                 with transaction.atomic():
-                    [annotation_import.save() for annotation_import in annotation_imports]
+                    for annotation_import in annotation_imports:
+                        annotation_import.save()
+                        log_litsuggest_import(annotation_import, request.user)
             else:
                 has_errors = True
 

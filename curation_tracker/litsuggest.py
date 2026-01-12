@@ -3,7 +3,7 @@ import requests
 from pgs_web import constants
 from catalog.models import Publication
 from curation_tracker.models import CurationPublicationAnnotation
-from typing import List
+from typing import List, Iterator, Dict
 from io import TextIOWrapper
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
@@ -11,15 +11,15 @@ pgs_db = 'default'
 curation_tracker_db = 'curation_tracker'
 
 
-class CurationPublicationAnnotationImport():
+class CurationPublicationAnnotationImport:
     """Wrapper class for CurationPublicationAnnotation for providing additional transient attributes"""
-    error: str
-    skip_reason: str
+    error: str | None
+    skip_reason: str | None
     annotation: CurationPublicationAnnotation
     triage_info: dict
 
-    def __init__(self, model: CurationPublicationAnnotation = CurationPublicationAnnotation()):
-        self.annotation = model  # if model else CurationPublicationAnnotation()
+    def __init__(self, model: CurationPublicationAnnotation | None = None):
+        self.annotation = model or CurationPublicationAnnotation()
         self.error = None
         self.skip_reason = None
         self.triage_info = {}
@@ -32,10 +32,10 @@ class CurationPublicationAnnotationImport():
 
     def is_valid(self) -> bool:
         """Should be used before saving"""
-        return self.error == None
+        return self.error is None
 
     def is_importable(self) -> bool:
-        return self.skip_reason == None
+        return self.skip_reason is None
 
     def __next_id_number(self) -> int:
         assigned = 1
@@ -43,12 +43,13 @@ class CurationPublicationAnnotationImport():
             assigned = CurationPublicationAnnotation.objects.using(curation_tracker_db).latest().pk + 1
         return assigned
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args, **kwargs) -> CurationPublicationAnnotation:
         """Set the identifiers and save the contained CurationPublicationAnnotation object"""
         annotation = self.annotation
-        if annotation.num == None:
+        if annotation.num is None:
             annotation.set_annotation_ids(self.__next_id_number())
-        return annotation.save(*args, **kwargs)
+        annotation.save(*args, **kwargs)
+        return annotation
 
 
 class ImportException(Exception):
@@ -168,18 +169,18 @@ def annotation_to_dict(model: CurationPublicationAnnotation) -> dict:
 
 
 def dict_to_annotation_import(d: dict) -> CurationPublicationAnnotationImport:
-    model = CurationPublicationAnnotation()
-    model_import = CurationPublicationAnnotationImport()
+    model_import = CurationPublicationAnnotationImport(CurationPublicationAnnotation())
     if 'error' in d:
         model_import.error = d['error']
         del d['error']
     if 'skip_reason' in d:
         model_import.skip_reason = d['skip_reason']
         del d['skip_reason']
+    if 'triage_info' in d:
+        model_import.triage_info = d['triage_info']
     model_dict = d['model']
     for k in model_dict.keys():
-        setattr(model, k, model_dict[k])
-    model_import.annotation = model
+        setattr(model_import.annotation, k, model_dict[k])
     return model_import
 
 
@@ -200,7 +201,7 @@ def check_study_name(study_name: str, imported_study_names: list[str]) -> str:
 
 def _litsuggest_IO_to_annotation_imports(litsuggest_file) -> List[CurationPublicationAnnotationImport]:
     models = []
-    reader = csv.DictReader(litsuggest_file, delimiter='\t')
+    reader: Iterator[Dict[str, str]] = csv.DictReader(litsuggest_file, delimiter='\t')
     imported_study_names = []
     for row in reader:
         if not row['pmid']:
