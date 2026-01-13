@@ -108,7 +108,7 @@ class DemographicTest(TestCase):
         self.assertIsNone(demographic_a.format_variability())
         self.assertEqual(demographic_a.format_unit(),'unit:'+a_unit)
         self.assertEqual(demographic_a.variability_type_desc(), 'Standard Error')
-        regex_range_a = a_range_string.replace('[','\[').replace(']','\]')
+        regex_range_a = a_range_string.replace('[', r'\[').replace(']', r'\]')
         demo_value_a =  r'^<ul><li>'+a_type.title()+r' : '+str(a_estimate)+r' '+a_unit
         demo_value_a += r'</li><li>'+a_range_type.title()+r' : '+regex_range_a+r' '+a_unit+r'.+$'
         self.assertRegex(demographic_a.display_value(), demo_value_a)
@@ -163,7 +163,7 @@ class DemographicTest(TestCase):
         self.assertEqual(demographic_c.estimate_type,c_type)
         # Other methods
         self.assertEqual(demographic_c.range_type_desc(), 'Interquartile range')
-        regex_range_c = c_range_string.replace('[','\[').replace(']','\]')
+        regex_range_c = c_range_string.replace('[', r'\[').replace(']', r'\]')
         demo_value_c =  r'^<ul><li>'+c_type.title()+r' : '+str(c_estimate)+r' '+c_unit
         demo_value_c += r'</li><li><span.+>'+c_range_type.title()+r'</span> : '+regex_range_c+r' '+c_unit+r'.+$'
         self.assertRegex(demographic_c.display_value(), demo_value_c)
@@ -184,8 +184,8 @@ class DemographicTest(TestCase):
         # Other methods
         self.assertIsNone(demographic_d.format_estimate())
         self.assertEqual(demographic_d.format_range(),d_range_type+':'+d_range)
-        regex_range_d = d_range.replace('[','\[').replace(']','\]')
-        demo_value_d =  r'^'+d_range_type.title()+r' : '+regex_range_d+r' '+d_unit+r'$'
+        regex_range_d = d_range.replace('[', r'\[').replace(']', r'\]')
+        demo_value_d = r'^'+d_range_type.title()+r' : '+regex_range_d+r' '+d_unit+r'$'
         self.assertRegex(demographic_d.display_value(), demo_value_d)
 
 
@@ -205,8 +205,8 @@ class DemographicTest(TestCase):
         # Instance
         self.assertTrue(isinstance(demographic_e, Demographic))
         # Other methods
-        regex_range_e = e_range_string.replace('[','\[').replace(']','\]')
-        demo_value_e =  r'^<ul><li>'+e_type.title()+r' : '+str(e_estimate)+r' '+regex_range_e+r' '+e_unit
+        regex_range_e = e_range_string.replace('[', r'\[').replace(']', r'\]')
+        demo_value_e = r'^<ul><li>'+e_type.title()+r' : '+str(e_estimate)+r' '+regex_range_e+r' '+e_unit
         demo_value_e += r'</li><li>'+e_variability_type.title()+r' : '+str(e_variability)+r' '+e_unit+r'</li></ul>$'
         self.assertRegex(demographic_e.display_value(), demo_value_e)
         values_dict_e = demographic_e.display_values_dict()
@@ -1081,7 +1081,7 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertEqual(len(efo_trait_1.scores_child_associations.all()), len(associated_pgs_2))
         self.assertEqual(efo_trait_1.scores_child_associations.all()[0].num, default_num+1)
         self.assertEqual(efo_trait_1.child_associated_pgs_ids, [x.id for x in associated_pgs_2])
-        display_child = r'^\<a\s.*href=".+'+efo_id_2+'"\s*>'+efo_name_2+r'</a>$'
+        display_child = r'^\<a\s.*href=".+'+efo_id_2+r'"\s*>'+efo_name_2+r'</a>$'
         self.assertRegex(efo_trait_1.display_child_traits_list[0], display_child)
 
 
