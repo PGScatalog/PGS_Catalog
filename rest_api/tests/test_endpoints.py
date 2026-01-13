@@ -1,7 +1,8 @@
-from rest_framework.test import APITestCase
+import re
+
 from django.conf import settings
-import os, re, time
-from catalog.models import *
+from rest_framework.test import APITestCase
+
 
 class BrowseEndpointTest(APITestCase):
     """ Test the REST endpoints """

@@ -1,7 +1,6 @@
 from django.test import TestCase
-import datetime as dt
 from psycopg.types.range import NumericRange
-from pgs_web import constants
+
 from catalog.models import *
 
 test_sample_number = 5
