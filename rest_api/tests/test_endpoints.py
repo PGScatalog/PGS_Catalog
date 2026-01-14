@@ -1,7 +1,8 @@
-from rest_framework.test import APITestCase
+import re
+
 from django.conf import settings
-import os, re, time
-from catalog.models import *
+from rest_framework.test import APITestCase
+
 
 class BrowseEndpointTest(APITestCase):
     """ Test the REST endpoints """
@@ -176,9 +177,9 @@ class BrowseEndpointTest(APITestCase):
                         ex = ex_content[1]
 
                 if ex:
-                    if re.match("^\d+$",ex):
+                    if re.match(r"^\d+$",ex):
                         url_endpoint += self.fake_examples['integer']
-                    elif re.match("^\d{4}-\d{2}-\d{2}$", ex):
+                    elif re.match(r"^\d{4}-\d{2}-\d{2}$", ex):
                         url_endpoint += self.fake_examples['date']
                     else:
                         url_endpoint += self.fake_examples['string']

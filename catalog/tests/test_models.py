@@ -1,7 +1,6 @@
 from django.test import TestCase
-import datetime as dt
 from psycopg.types.range import NumericRange
-from pgs_web import constants
+
 from catalog.models import *
 
 test_sample_number = 5
@@ -108,10 +107,10 @@ class DemographicTest(TestCase):
         self.assertIsNone(demographic_a.format_variability())
         self.assertEqual(demographic_a.format_unit(),'unit:'+a_unit)
         self.assertEqual(demographic_a.variability_type_desc(), 'Standard Error')
-        regex_range_a = a_range_string.replace('[','\[').replace(']','\]')
+        regex_range_a = a_range_string.replace('[', r'\[').replace(']', r'\]')
         demo_value_a =  r'^<ul><li>'+a_type.title()+r' : '+str(a_estimate)+r' '+a_unit
         demo_value_a += r'</li><li>'+a_range_type.title()+r' : '+regex_range_a+r' '+a_unit+r'.+$'
-        self.assertRegexpMatches(demographic_a.display_value(), demo_value_a)
+        self.assertRegex(demographic_a.display_value(), demo_value_a)
         values_dict_a = demographic_a.display_values_dict()
         self.assertEqual(values_dict_a['estimate_type'], a_type)
         self.assertEqual(values_dict_a['estimate'], a_estimate)
@@ -138,7 +137,7 @@ class DemographicTest(TestCase):
         self.assertEqual(demographic_b.format_variability(), '{}:{}'.format(b_variability_type,b_variability))
         demo_value_b =  r'^<ul><li>'+b_type.title()+r' : '+str(b_estimate)+r' '+b_unit
         demo_value_b += r'</li><li><span.+>'+b_variability_type.title()+r'</span> : '+str(b_variability)+r' '+b_unit+r'.+$'
-        self.assertRegexpMatches(demographic_b.display_value(), demo_value_b)
+        self.assertRegex(demographic_b.display_value(), demo_value_b)
         values_dict_b = demographic_b.display_values_dict()
         self.assertEqual(values_dict_b['variability_type'], b_variability_type)
         self.assertEqual(values_dict_b['variability'], b_variability)
@@ -163,10 +162,10 @@ class DemographicTest(TestCase):
         self.assertEqual(demographic_c.estimate_type,c_type)
         # Other methods
         self.assertEqual(demographic_c.range_type_desc(), 'Interquartile range')
-        regex_range_c = c_range_string.replace('[','\[').replace(']','\]')
+        regex_range_c = c_range_string.replace('[', r'\[').replace(']', r'\]')
         demo_value_c =  r'^<ul><li>'+c_type.title()+r' : '+str(c_estimate)+r' '+c_unit
         demo_value_c += r'</li><li><span.+>'+c_range_type.title()+r'</span> : '+regex_range_c+r' '+c_unit+r'.+$'
-        self.assertRegexpMatches(demographic_c.display_value(), demo_value_c)
+        self.assertRegex(demographic_c.display_value(), demo_value_c)
 
 
     def test_demographic_d(self):
@@ -184,9 +183,9 @@ class DemographicTest(TestCase):
         # Other methods
         self.assertIsNone(demographic_d.format_estimate())
         self.assertEqual(demographic_d.format_range(),d_range_type+':'+d_range)
-        regex_range_d = d_range.replace('[','\[').replace(']','\]')
-        demo_value_d =  r'^'+d_range_type.title()+r' : '+regex_range_d+r' '+d_unit+r'$'
-        self.assertRegexpMatches(demographic_d.display_value(), demo_value_d)
+        regex_range_d = d_range.replace('[', r'\[').replace(']', r'\]')
+        demo_value_d = r'^'+d_range_type.title()+r' : '+regex_range_d+r' '+d_unit+r'$'
+        self.assertRegex(demographic_d.display_value(), demo_value_d)
 
 
     def test_demographic_e(self):
@@ -205,10 +204,10 @@ class DemographicTest(TestCase):
         # Instance
         self.assertTrue(isinstance(demographic_e, Demographic))
         # Other methods
-        regex_range_e = e_range_string.replace('[','\[').replace(']','\]')
-        demo_value_e =  r'^<ul><li>'+e_type.title()+r' : '+str(e_estimate)+r' '+regex_range_e+r' '+e_unit
+        regex_range_e = e_range_string.replace('[', r'\[').replace(']', r'\]')
+        demo_value_e = r'^<ul><li>'+e_type.title()+r' : '+str(e_estimate)+r' '+regex_range_e+r' '+e_unit
         demo_value_e += r'</li><li>'+e_variability_type.title()+r' : '+str(e_variability)+r' '+e_unit+r'</li></ul>$'
-        self.assertRegexpMatches(demographic_e.display_value(), demo_value_e)
+        self.assertRegex(demographic_e.display_value(), demo_value_e)
         values_dict_e = demographic_e.display_values_dict()
         self.assertEqual(values_dict_e['estimate'], f'{e_estimate} {e_range_string}')
 
@@ -247,9 +246,9 @@ class EFOTraitTest(TestCase):
         # Other methods
         self.assertEqual(efo_trait_1.__str__(), efo_id+' | '+efo_name+' ')
         label_url =  r'^\<a\s.*href=.+\/trait\/'+efo_id+r'.*\>'+efo_name+r'\<\/a\>$'
-        self.assertRegexpMatches(efo_trait_1.display_label, label_url)
+        self.assertRegex(efo_trait_1.display_label, label_url)
         id_url = r'^\<a\s.*href=.+\>'+efo_id+r'\<\/a\>$'
-        self.assertRegexpMatches(efo_trait_1.display_ext_url, id_url)
+        self.assertRegex(efo_trait_1.display_ext_url, id_url)
         efo_trait_1.parse_api()
         self.assertEqual(efo_trait_1.label, efo_name)
         self.assertTrue(efo_trait_1.description.startswith(efo_desc))
@@ -459,7 +458,7 @@ class PerformanceTest(TestCase):
         self.assertEqual(performance.id, self.perf_id)
         self.assertEqual(len(performance.samples()), test_sample_count)
         # Other methods
-        self.assertRegexpMatches(performance.__str__(), r'^'+self.perf_id+r' \| PGS\d+ -> PSS\d+$')
+        self.assertRegex(performance.__str__(), r'^'+self.perf_id+r' \| PGS\d+ -> PSS\d+$')
         self.assertEqual(performance.publication_withexternality, 'E')
         sampleset = performance.sampleset
         self.assertEqual(sampleset.count_performances, 1)
@@ -666,7 +665,7 @@ class SampleTest(TestCase):
         self.assertEqual(sample_1.sample_number, test_sample_number)
         self.assertIsNotNone(sample_1.display_samples)
         # Other methods
-        self.assertRegexpMatches(sample_1.__str__(), r'^Sample\s\d+')
+        self.assertRegex(sample_1.__str__(), r'^Sample\s\d+')
         self.assertIsNone(sample_1.sample_cases_percent)
         self.assertIsNone(sample_1.display_sampleset)
 
@@ -756,7 +755,7 @@ class SampleSetTest(TestCase):
         # Create samples objects
         for i in range(1,len(ancestry_list)+1):
             sample = sampletest.create_sample_ancestry(sample_number=i,broad=ancestry_list[i-1])
-            self.assertRegexpMatches(sample.__str__(), r'\s\-\s'+ancestry_list[i-1])
+            self.assertRegex(sample.__str__(), r'\s\-\s'+ancestry_list[i-1])
             samples.append(sample)
 
         # Create SampleSet object and add list of Samples
@@ -782,7 +781,7 @@ class SampleSetTest(TestCase):
         self.assertEqual(sampleset.__str__(),  self.sample_set_id)
         self.assertEqual(sampleset.count_samples, test_sample_count)
         sample_1 = sampleset.samples.all()[0]
-        self.assertRegexpMatches(sample_1.__str__(), r'^Sample\s\d+')
+        self.assertRegex(sample_1.__str__(), r'^Sample\s\d+')
         self.assertTrue(isinstance(sample_1.display_sampleset, SampleSet))
         self.assertEqual(sample_1.display_sampleset, sampleset)
         count_ind = 0
@@ -918,12 +917,12 @@ class ScoreTest(TestCase):
 
         # Other methods
         self.assertEqual(score.__str__(),  score.id+" | "+score.name+" | ("+score.publication.__str__()+")")
-        self.assertRegexpMatches(score.link_filename, r'^PGS\d+\.txt\.gz$')
-        self.assertRegexpMatches(score.ftp_scoring_file, r'^http.+PGS\d+.*$')
+        self.assertRegex(score.link_filename, r'^PGS\d+\.txt\.gz$')
+        self.assertRegex(score.ftp_scoring_file, r'^http.+PGS\d+.*$')
         ftp_hm_files = score.ftp_harmonized_scoring_files
         self.assertEqual(len(ftp_hm_files.keys()), 2)
         genomebuild = constants.GENEBUILDS[0]
-        self.assertRegexpMatches(ftp_hm_files[genomebuild]['positions'], r'^http.+PGS\d+.*$')
+        self.assertRegex(ftp_hm_files[genomebuild]['positions'], r'^http.+PGS\d+.*$')
 
         # Fetch publication object and number of associated score(s)
         pub = Publication.objects.get(num=id)
@@ -947,10 +946,10 @@ class ScoreTest(TestCase):
         # Test sample/score association
         self.assertEqual(len(score.samples_variants.all()), 1)
         sample_v = score.samples_variants.all()[0]
-        self.assertRegexpMatches(sample_v.__str__(), r'^Sample\s\d+')
+        self.assertRegex(sample_v.__str__(), r'^Sample\s\d+')
         self.assertEqual(len(score.samples_training.all()), 1)
         sample_t = score.samples_training.all()[0]
-        self.assertRegexpMatches(sample_t.__str__(), r'^Sample\s\d+')
+        self.assertRegex(sample_t.__str__(), r'^Sample\s\d+')
         # Add ancestry data to the Score instance
         score.ancestries = self.s_ancestries
         score.save()
@@ -998,7 +997,7 @@ class TraitCategoryTest(TestCase):
         self.assertEqual(trait.category_labels, trait_category.label)
         self.assertNotEqual(trait.display_category_labels, '')
         category_label =  r'^<div>.*'+trait_category.label+r'.*</div>$'
-        self.assertRegexpMatches(trait.display_category_labels, category_label)
+        self.assertRegex(trait.display_category_labels, category_label)
         self.assertEqual(trait.category_list, [trait_category])
         self.assertEqual(trait.category_labels_list, [trait_category.label])
         self.assertNotEqual(trait.display_category_labels,'')
@@ -1052,9 +1051,9 @@ class EFOTrait_OntologyTest(TestCase):
         # Other methods
         self.assertEqual(efo_trait_1.__str__(), efo_id+' | '+efo_name+' ')
         label_url =  r'^\<a\s.*href=.+\/trait\/'+efo_id+r'.*\>'+efo_name+r'\<\/a\>$'
-        self.assertRegexpMatches(efo_trait_1.display_label, label_url)
+        self.assertRegex(efo_trait_1.display_label, label_url)
         id_url = r'^\<a\s.*href=.+\>'+efo_id+r'\<\/a\>$'
-        self.assertRegexpMatches(efo_trait_1.display_ext_url, id_url)
+        self.assertRegex(efo_trait_1.display_ext_url, id_url)
 
 
         # Test empty synonyms & mapped_terms
@@ -1081,8 +1080,8 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertEqual(len(efo_trait_1.scores_child_associations.all()), len(associated_pgs_2))
         self.assertEqual(efo_trait_1.scores_child_associations.all()[0].num, default_num+1)
         self.assertEqual(efo_trait_1.child_associated_pgs_ids, [x.id for x in associated_pgs_2])
-        display_child = r'^\<a\s.*href=".+'+efo_id_2+'"\s*>'+efo_name_2+r'</a>$'
-        self.assertRegexpMatches(efo_trait_1.display_child_traits_list[0], display_child)
+        display_child = r'^\<a\s.*href=".+'+efo_id_2+r'"\s*>'+efo_name_2+r'</a>$'
+        self.assertRegex(efo_trait_1.display_child_traits_list[0], display_child)
 
 
 class EmbargoedPublicationTest(TestCase):

@@ -125,7 +125,7 @@ class BM_DemographicTest(TestCase):
         regex_range_a = a_range.replace('[','\[').replace(']','\]')
         demo_value_a =  r'^<ul><li>'+a_type.title()+r' : '+str(a_estimate)+r' '+a_unit
         demo_value_a += r'</li><li>'+a_range_type.title()+r' : '+regex_range_a+r' '+a_unit+r'.+$'
-        self.assertRegexpMatches(bm_demographic_a.display_value(), demo_value_a)
+        self.assertRegex(bm_demographic_a.display_value(), demo_value_a)
         values_dict_a = bm_demographic_a.display_values_dict()
         self.assertEqual(values_dict_a[a_type], str(a_estimate))
         self.assertEqual(values_dict_a[a_range_type], a_range)
@@ -147,7 +147,7 @@ class BM_DemographicTest(TestCase):
         self.assertEqual(bm_demographic_b.format_variability(), '{}:{}'.format(b_variability_type,b_variability))
         demo_value_b =  r'^<ul><li>'+b_type.title()+r' : '+str(b_estimate)+r' '+b_unit
         demo_value_b += r'</li><li><span.+>'+b_variability_type.title()+r'</span> : '+str(b_variability)+r' '+b_unit+r'.+$'
-        self.assertRegexpMatches(bm_demographic_b.display_value(), demo_value_b)
+        self.assertRegex(bm_demographic_b.display_value(), demo_value_b)
         values_dict_b = bm_demographic_b.display_values_dict()
         self.assertEqual(values_dict_b[b_variability_type], b_variability)
 
@@ -169,7 +169,7 @@ class BM_DemographicTest(TestCase):
         regex_range_c = c_range.replace('[','\[').replace(']','\]')
         demo_value_c =  r'^<ul><li>'+c_type.title()+r' : '+str(c_estimate)+r' '+c_unit
         demo_value_c += r'</li><li><span.+>'+c_range_type.title()+r'</span> : '+regex_range_c+r' '+c_unit+r'.+$'
-        self.assertRegexpMatches(bm_demographic_c.display_value(), demo_value_c)
+        self.assertRegex(bm_demographic_c.display_value(), demo_value_c)
 
         # Type "mean" - no estimate
         d_type = 'mean'
@@ -187,7 +187,7 @@ class BM_DemographicTest(TestCase):
         self.assertEqual(demographic_d.format_range(),d_range_type+':'+d_range)
         regex_range_d = d_range.replace('[','\[').replace(']','\]')
         demo_value_d =  r'^'+d_range_type.title()+r' : '+regex_range_d+r' '+d_unit+r'$'
-        self.assertRegexpMatches(demographic_d.display_value(), demo_value_d)
+        self.assertRegex(demographic_d.display_value(), demo_value_d)
 
 
 class BM_EFOTraitTest(TestCase):
@@ -231,11 +231,11 @@ class BM_EFOTraitTest(TestCase):
         # Other methods
         self.assertEqual(bm_efo_trait_1.__str__(), efo_id+' | '+efo_name+' ')
         label_url =  r'^\<a\s.*href=.+\/benchmark\/'+efo_id+r'.*\>'+efo_name+r'\<\/a\>$'
-        self.assertRegexpMatches(bm_efo_trait_1.display_label, label_url)
+        self.assertRegex(bm_efo_trait_1.display_label, label_url)
         #label_url =  r'^\<a\s.*href=.+\/trait\/'+self.efo_id+r'.*\>'+self.efo_name+r'\<\/a\>$'
-        #self.assertRegexpMatches(bm_efo_trait_1.display_label, label_url)
+        #self.assertRegex(bm_efo_trait_1.display_label, label_url)
         #id_url = r'^\<a\s.*href=.+\>'+self.efo_id+r'</a>.+$'
-        #self.assertRegexpMatches(bm_efo_trait_1.display_id_url(), id_url)
+        #self.assertRegex(bm_efo_trait_1.display_id_url(), id_url)
         self.assertEqual(bm_efo_trait_1.label, efo_name)
         self.assertEqual(bm_efo_trait_1.description, efo_desc)
         #self.assertIsNotNone(bm_efo_trait_1.url)
@@ -247,7 +247,7 @@ class BM_EFOTraitTest(TestCase):
         icd_data = bm_efo_trait_1.display_phenotype_structured
         self.assertTrue(isinstance(bm_efo_trait_1.phenotype_structured.all()[0], BM_Coding))
         coding_display = r'^\<b\>'+icd_id+'\<\/b\>\:\s'+icd_label+'$'
-        self.assertRegexpMatches(bm_efo_trait_1.display_phenotype_structured[0], coding_display)
+        self.assertRegex(bm_efo_trait_1.display_phenotype_structured[0], coding_display)
 
 
         # Test empty synonyms & mapped_terms
@@ -399,7 +399,7 @@ class BM_PerformanceTest(TestCase):
         self.assertTrue(isinstance(bm_performance.cohort, BM_Cohort))
         self.assertTrue(isinstance(bm_performance.efotrait, BM_EFOTrait))
         # Other methods
-        self.assertRegexpMatches(bm_performance.__str__(), r'^'+efo_id+' | '+score_id+' | '+cohort_name+'$')
+        self.assertRegex(bm_performance.__str__(), r'^'+efo_id+' | '+score_id+' | '+cohort_name+'$')
 
         # EFOTrait tests
         bm_efotrait.count_scores
@@ -471,7 +471,7 @@ class BM_SampleTest(TestCase):
         # Variables
         self.assertEqual(bm_sample_1.sample_number, test_sample_number)
         # Other methods
-        self.assertRegexpMatches(bm_sample_1.__str__(), r'^Sample:\s\d+$')
+        self.assertRegex(bm_sample_1.__str__(), r'^Sample:\s\d+$')
         self.assertIsNotNone(bm_sample_1.display_samples_for_table)
 
         ## Sample object with numbers
