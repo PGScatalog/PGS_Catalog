@@ -59,7 +59,7 @@ class CopyHarmonizedScoringFilesPOS:
                 staged_dir_gb += '/'
             staged_dir_gb += gb
 
-            harmonized_files = [f for f in os.listdir(staged_dir_gb) if os.path.isfile('/'.join([staged_dir_gb, f])) and re.match('^PGS\d+_hmPOS_.+\.txt\.gz$',f)]
+            harmonized_files = [f for f in os.listdir(staged_dir_gb) if os.path.isfile('/'.join([staged_dir_gb, f])) and re.match(r'^PGS\d+_hmPOS_.+\.txt\.gz$', f)]
 
             # Check if corresponding ID in the list of scores to be published.
             # If so checks if it exists and if it needs to be copied (new/update)

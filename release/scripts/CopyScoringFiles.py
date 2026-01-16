@@ -96,7 +96,7 @@ class CopyScoringFiles:
         count_updated_pgs = 0
         count_skipped_pgs = 0
         # Extract list of files on private FTP
-        scoring_files = [f for f in os.listdir(self.new_scoringfiles_dir) if os.path.isfile('/'.join([self.new_scoringfiles_dir, f])) and re.match('^PGS\d+\.txt\.gz$',f)]
+        scoring_files = [f for f in os.listdir(self.new_scoringfiles_dir) if os.path.isfile('/'.join([self.new_scoringfiles_dir, f])) and re.match(r'^PGS\d+\.txt\.gz$', f)]
         # Check if corresponding ID in the list of scores to be published.
         # If so checks if it exists and if it needs to be copied (new/update)
         for scoring_file in scoring_files:
