@@ -69,17 +69,15 @@ class PGSFTPChecks:
 
 
     def count_scores(self):
-        ext = '\.txt\.gz'
         for score in os.listdir(self.local_scores_dir):
             if os.path.isfile(self.local_scores_dir+score):
-                if re.match( r'^PGS0+\d+'+ext+'$', score):
+                if re.match(r'^PGS0+\d+\.txt\.gz$', score):
                     self.local_pgs_ids_count += 1
 
 
     def check_directories(self):
-
         for pgs_id in os.listdir(self.ftp_scores_path):
-            if re.match('^PGS\d+$',pgs_id):
+            if re.match(r'^PGS\d+$', pgs_id):
                 ftp_pgs_dir = self.ftp_scores_path+pgs_id
                 if not os.path.isdir(ftp_pgs_dir):
                     continue
