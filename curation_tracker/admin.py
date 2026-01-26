@@ -452,7 +452,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
             # First level curation
             if obj.first_level_curation_status and (not db_obj or db_obj.first_level_curation_status != obj.first_level_curation_status):
                 if obj.first_level_curation_status.startswith('Curation'):
-                    if not (obj.second_level_curation_status and obj.second_level_curation_status.startswith('Curation')):
+                    if not obj.second_level_curation_status:
                         obj.second_level_curation_status = 'Awaiting curation'
                         obj.curation_status = 'Awaiting L2'
                     else:  # if for some reason L2 was already done
