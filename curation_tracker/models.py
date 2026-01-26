@@ -61,12 +61,13 @@ class CurationPublicationAnnotation(models.Model):
     first_level_comment = models.TextField('First Level Curation Comment', default='', null=True, blank=True)
     # Second level
     CURATION_STATUS_LEVEL_2_CHOICES = [
-        ('Awaiting curation','Awaiting curation'),
-        ('Curation done','Curation done'),
-        ('Determined ineligible','Determined ineligible'),
-        ('Outstanding curation query','Outstanding curation query'),
+        ('Awaiting curation', 'Awaiting curation'),
+        ('Curation done', 'Curation done'),
+        ('Determined ineligible', 'Determined ineligible'),
+        ('Outstanding curation query', 'Outstanding curation query'),
         ('Pending author response', 'Pending author response'),
-        ('Undergoing curation','Undergoing curation')
+        ('Skipped', 'Skipped'),
+        ('Undergoing curation', 'Undergoing curation')
     ]
     second_level_curator = models.ForeignKey(CurationCurator, on_delete=models.PROTECT, related_name='curator_level2_name', verbose_name='Second Level Curator Name', null=True, blank=True)
     second_level_curation_status = models.CharField(choices=CURATION_STATUS_LEVEL_2_CHOICES, default=None, max_length=50, verbose_name='Second Level Curation Status', null=True, blank=True)

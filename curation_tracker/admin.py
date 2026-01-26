@@ -477,6 +477,8 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
                         obj.curation_status = 'Abandoned/Ineligible'
                     case 'Awaiting curation':
                         obj.curation_status = 'Awaiting L2'
+                    case 'Skipped':
+                        obj.curation_status = 'Curated - Awaiting Import'
 
             # Disembargo the study
             if not obj.embargoed and (not db_obj or db_obj.embargoed):
