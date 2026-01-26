@@ -451,30 +451,32 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
 
             # First level curation
             if obj.first_level_curation_status and (not db_obj or db_obj.first_level_curation_status != obj.first_level_curation_status):
-                if obj.first_level_curation_status.startswith('Curation'):
-                    if not obj.second_level_curation_status:
-                        obj.second_level_curation_status = 'Awaiting curation'
-                        obj.curation_status = 'Awaiting L2'
-                    else:  # if for some reason L2 was already done
-                        obj.curation_status = 'Curated - Awaiting Import'
-                elif obj.first_level_curation_status.startswith('Pending'):
-                    obj.curation_status = 'Pending author response'
-                elif obj.first_level_curation_status == 'Determined ineligible':
-                    obj.curation_status = 'Abandoned/Ineligible'
-                elif obj.first_level_curation_status.startswith('Awaiting curation'):
-                    obj.curation_status = 'Awaiting L1'
+                match obj.first_level_curation_status:
+                    case s if s.startswith('Curation'):
+                        if not obj.second_level_curation_status:
+                            obj.second_level_curation_status = 'Awaiting curation'
+                            obj.curation_status = 'Awaiting L2'
+                        else:  # if for some reason L2 was already done
+                            obj.curation_status = 'Curated - Awaiting Import'
+                    case 'Pending':
+                        obj.curation_status = 'Pending author response'
+                    case 'Determined ineligible':
+                        obj.curation_status = 'Abandoned/Ineligible'
+                    case 'Awaiting curation':
+                        obj.curation_status = 'Awaiting L1'
 
             # Second level curation
             if obj.second_level_curation_status and (not db_obj or db_obj.second_level_curation_status != obj.second_level_curation_status) and not (obj.first_level_curation_status and obj.first_level_curation_status.startswith('Awaiting curation')):
-                # Should always be 'Awaiting L1' if L1='Awaitng curation'
-                if obj.second_level_curation_status.startswith('Curation'):
-                    obj.curation_status = 'Curated - Awaiting Import'
-                elif obj.second_level_curation_status == 'Pending author response':
-                    obj.curation_status = 'Pending author response'
-                elif obj.second_level_curation_status == 'Determined ineligible':
-                    obj.curation_status = 'Abandoned/Ineligible'
-                elif obj.second_level_curation_status == 'Awaiting curation':
-                    obj.curation_status = 'Awaiting L2'
+                # Should always be 'Awaiting L1' if L1='Awaiting curation'
+                match obj.second_level_curation_status:
+                    case 'Curation done':
+                        obj.curation_status = 'Curated - Awaiting Import'
+                    case 'Pending author response':
+                        obj.curation_status = 'Pending author response'
+                    case 'Determined ineligible':
+                        obj.curation_status = 'Abandoned/Ineligible'
+                    case 'Awaiting curation':
+                        obj.curation_status = 'Awaiting L2'
 
             # Disembargo the study
             if not obj.embargoed and (not db_obj or db_obj.embargoed):
