@@ -96,13 +96,12 @@ class CurationTemplate():
                 self.parsed_cohorts_long_names[cohort_long_name] = cohort_id
             self.update_report(parsed_cohort)
 
-
     def extract_publication(self,curation_status=None):
         ''' Extract publication information, fetch extra information via EuropePMC REST API and store it into a PublicationData object. '''
         spreadsheet_name = self.spreadsheet_names['Publication']
         pinfo = self.table_publication.iloc[0]
         c_doi = pinfo['doi'] if not pd.isnull(pinfo['doi']) else None  # Getting rid of potential NaN
-        if type(c_doi) == str:
+        if type(c_doi) is str:
             c_doi = c_doi.strip()
             if c_doi.startswith('https'):
                 c_doi = c_doi.replace('https://doi.org/','')
@@ -112,8 +111,8 @@ class CurationTemplate():
         publication = None
         new_publication = True
         # If there is a DOI or PMID
-        if type(c_doi) == str or type(c_PMID) == int:
-            if type(c_doi) == str:
+        if type(c_doi) is str or type(c_PMID) is int:
+            if type(c_doi) is str:
                 # Check if this is already in the DB
                 try:
                     publication = Publication.objects.get(doi__iexact=c_doi)
@@ -123,7 +122,7 @@ class CurationTemplate():
                     print("  > Existing publication found in the database\n")
                 except Publication.DoesNotExist:
                     print(f'  > New publication ({c_doi}) for the Catalog\n')
-            elif type(c_PMID) == int:
+            elif type(c_PMID) is int:
                 # Check if this is already in the DB
                 try:
                     publication = Publication.objects.get(PMID=c_PMID)
@@ -134,7 +133,7 @@ class CurationTemplate():
                 except Publication.DoesNotExist:
                     print(f'  > New publication (PMID:{c_PMID}) for the Catalog\n')
 
-            parsed_publication = PublicationData(self.table_publication,spreadsheet_name,c_doi,c_PMID,publication)
+            parsed_publication = PublicationData(self.table_publication, spreadsheet_name, c_doi, c_PMID, publication)
 
             # Fetch the publication information from EuropePMC
             if not publication:
@@ -142,29 +141,14 @@ class CurationTemplate():
 
         # Create the object from the Spreadsheet only
         else:
-            parsed_publication = PublicationData(self.table_publication,spreadsheet_name)
-            current_schema = self.table_mapschema.loc[spreadsheet_name].set_index('Column')
-            previous_field = None
-            # Loop throught the columns
-            for col, val in pinfo.items():
-                if val and col in current_schema.index:
-                    field = current_schema.loc[col][1]
-                    if type(val) == str or type(val) == int:
-                        # Add first author initials
-                        if previous_field == 'firstauthor':
-                            parsed_publication.data['firstauthor'] = parsed_publication.data['firstauthor']+' '+val
-                        else:
-                            parsed_publication.add_data(field, val)
-                    previous_field = field
-            if 'date_publication' not in parsed_publication.data:
-                parsed_publication.add_data('date_publication',date.today())
+            parsed_publication = PublicationData(self.table_publication, spreadsheet_name)
+            parsed_publication.fetch_publication_info_from_table()
 
-        if new_publication == True:
+        if new_publication:
             parsed_publication.add_curation_notes()
             parsed_publication.add_curation_status(curation_status)
         self.parsed_publication = parsed_publication
         self.update_report(self.parsed_publication)
-
 
     def extract_scores(self, license=None):
         ''' Extract score information and store it into one or several ScoreData objects. '''

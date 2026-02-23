@@ -1,4 +1,7 @@
+import pandas as pd
 import requests
+from datetime import date, datetime as dt
+
 from pgs_web import constants
 from curation.parsers.generic import GenericData
 from catalog.models import Publication
@@ -21,11 +24,11 @@ class PublicationData(GenericData):
         '''
         try:
             result = self.rest_api_call_to_epmc(f'doi:{self.doi}')
-        except:
-            if self.PMID:
+            if not result and self.PMID:
                 result = self.rest_api_call_to_epmc(f'ext_id:{self.PMID}')
-            else:
-                print(f'Can\'t find a match on EuropePMC for the publication: {self.doi}')
+        except Exception as e:
+            print('Something went wrong while getting the publication information from EuropePMC.')
+            raise e
 
         if result:
             data_result = {
@@ -45,9 +48,15 @@ class PublicationData(GenericData):
             self.add_curation_notes()
 
             for field, value in data_result.items():
-                self.add_data(field,value)
+                self.add_data(field, value)
         else:
-            print(f'Can\'t find a result on EuropePMC for the publication: {self.doi}')
+            print(f'Can\'t find a result on EuropePMC for the publication; doi:{self.doi}, pmid:{self.PMID}.')
+            print('Trying to get the publication information from the Publication spreadsheet instead...')
+            # Attempt to get info from spreadsheet.
+            # Make sure at least the publication date is present.
+            self.fetch_publication_info_from_table()
+
+
 
 
     def add_curation_notes(self):
@@ -67,12 +76,13 @@ class PublicationData(GenericData):
             self.add_data('curation_status',curation_status)
 
 
-    def rest_api_call_to_epmc(self,query):
-        '''
+    def rest_api_call_to_epmc(self,query) -> dict | None:
+        """
         REST API call to EuropePMC
         - query: the search query
         Return type: JSON
-        '''
+        Returns None if no publication is found.
+        """
         payload = {'format': 'json', 'query': query}
         result = requests.get(constants.USEFUL_URLS['EPMC_REST_SEARCH'], params=payload)
         result = result.json()
@@ -86,16 +96,53 @@ class PublicationData(GenericData):
                     query_id = query.removeprefix('ext_id:')
                     id_type = 'pmid'
                 else:
-                    raise Exception('Unexpected query format: {}'.format(query))
+                    raise ValueError('Unexpected query format: {}'.format(query))
                 for single_result in result['resultList']['result']:
                     if id_type in single_result and single_result[id_type] == query_id:
                         return single_result
-                raise Exception('Results from EuropePMC for {} not in the expected format.'.format(query))
-            else:
+                raise ValueError('Results from EuropePMC for {} not in the expected format.'.format(query))
+            elif len(result['resultList']['result']) == 1:
                 return result['resultList']['result'][0]
+            else:  # Empty list returned
+                return None
         else:
-            raise Exception(f'Can\'t find the paper in EuropePMC! (query:{query})')
+            return None
 
+    def fetch_publication_info_from_table(self) -> None:
+        """
+        Retrieve the publication information from the Publication spreadsheet. If the publication date is not present,
+        today's date is used instead.
+        """
+
+        def to_date(date_str: str) -> dt:
+            return dt.strptime(date_str, "%d-%m-%Y")
+
+        row = self.table_publication.iloc[0]
+        data = {
+            key: value
+            for key, value in {
+                'PMID': row.iloc[0],
+                'doi': row.iloc[1],
+                'journal': row.iloc[2],
+                'date_publication': to_date(row.iloc[3]),
+                'firstauthor': row.iloc[4],
+            }.items()
+            if not pd.isna(value) and value != "nan"
+        }
+
+        # Adding first author initials
+        if 'firstauthor' in data:
+            fa_initials = row.iloc[5]
+            if not pd.isna(fa_initials) and fa_initials != "nan":
+                data['firstauthor'] = f"{data['firstauthor']} {fa_initials}"
+
+        # If the publication date is not present, use today's date.
+        # This is not-null value in the Publication model.
+        if 'date_publication' not in data:
+            self.add_data('date_publication', date.today())
+
+        for field, value in data.items():
+            self.add_data(field, value)
 
     def create_publication_model(self):
         '''
