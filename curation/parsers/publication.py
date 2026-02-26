@@ -114,8 +114,14 @@ class PublicationData(GenericData):
         today's date is used instead.
         """
 
-        def to_date(date_str: str) -> dt:
-            return dt.strptime(date_str, "%d-%m-%Y")
+        def to_date(date_str: str) -> dt | str:
+            """Convert a date string in the format "dd-mm-yyyy" to a datetime object.
+            If the date string is not given, return "nan".
+            """
+            if pd.isna(date_str) or str(date_str) != "nan":
+                return "nan"
+            else:
+                return dt.strptime(str(date_str), "%d-%m-%Y")
 
         row = self.table_publication.iloc[0]
         data = {
@@ -127,7 +133,7 @@ class PublicationData(GenericData):
                 'date_publication': to_date(row.iloc[3]),
                 'firstauthor': row.iloc[4],
             }.items()
-            if not pd.isna(value) and value != "nan"
+            if not pd.isna(value) and str(value) != "nan"
         }
 
         # Adding first author initials
