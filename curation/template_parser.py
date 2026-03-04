@@ -1,8 +1,4 @@
-from cmath import nan
 import pandas as pd
-import numpy as np
-import requests
-import re
 from datetime import date
 from catalog.models import *
 from curation.parsers.cohort import CohortData

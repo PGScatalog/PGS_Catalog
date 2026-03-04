@@ -46,6 +46,7 @@ class GwasStudy:
         self.gcst_id = gcst_id
         self.data = data
         self.ancestries = None
+        self.gwas_rest_client = gwas_rest_client if gwas_rest_client else GwasRestClient()
 
     def get_pmid(self) -> str:
         return self.data['pubmed_id']
