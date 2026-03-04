@@ -41,12 +41,11 @@ class GwasAncestry:
 
 
 class GwasStudy:
-    data = {}
-    ancestries = None
 
     def __init__(self, gcst_id, data):
         self.gcst_id = gcst_id
         self.data = data
+        self.ancestries = None
 
     def get_pmid(self) -> str:
         return self.data['pubmed_id']
