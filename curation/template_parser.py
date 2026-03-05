@@ -22,6 +22,7 @@ class CurationTemplate():
         self.table_mapschema = None
         self.spreadsheet_names = {}
         self.report = { 'error': {}, 'warning': {}, 'import': {} }
+        self.gwas_rest_client = GwasRestClient()
 
     def get_spreadsheet_names(self):
         ''' Mapping between Django catalog models and speadsheet names '''
@@ -318,7 +319,7 @@ class CurationTemplate():
             sample_cohorts_names = [x.name.upper() for x in sample_cohorts]
 
         try:
-            gwas_study = GwasRestClient.fetch_study(gcst_id)
+            gwas_study = self.gwas_rest_client.fetch_study(gcst_id)
             source_PMID = gwas_study.get_pmid()
             # Update the Cohorts list found in the cohort column of the spreadsheet by
             # adding the list of cohorts from the GWAS study (if the list is present)
