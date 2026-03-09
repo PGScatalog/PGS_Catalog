@@ -3,7 +3,7 @@ import js
 import json
 from pyodide.http import open_url
 from validator.main_validator import PGSMetadataValidator
-from validator.request.connector import Connector, UnknownError, NotFound, Logger, ServiceNotWorking
+from validator.request.connector import Connector, CashedConnector, UnknownError, NotFound, Logger, ServiceNotWorking
 
 # Need a proxy for OLS as Pyodide causes a cross-origin issue with the OLS url
 OLS_URL = "https://ols-proxy-dot-pgs-catalog.appspot.com/ols-proxy/efo/%s"
@@ -21,7 +21,7 @@ class PyodideLogger(Logger):
         print(f'ERROR: {message}')
 
 
-class PyodideConnector(Connector):
+class PyodideConnector(CashedConnector):
     """This customised connector is necessary as the 'requests' python module is not supported in WebAssembly.
     Moreover, the requests for EFO traits must be redirected to a proxy to avoid cross-origin errors."""
 
@@ -31,7 +31,8 @@ class PyodideConnector(Connector):
     def __init__(self):
         super().__init__(logger=PyodideLogger())
 
-    def request(self, url, payload=None) -> dict:
+    def __do_request(self, url, payload=None) -> dict:
+        """Override the default implementation to use pyodide open_url instead of python requests.get()."""
         if payload:
             query = '&'.join([f"{k}={v}" for k, v in payload.items()])
             url = url + '?' + query
@@ -66,8 +67,8 @@ class PyodideConnector(Connector):
 
 
 def validate():
-    pyodide_connector = PyodideConnector()
-    metadata_validator = PGSMetadataValidator(file, False, pyodide_connector)
+    connector = PyodideConnector()
+    metadata_validator = PGSMetadataValidator(file, False, connector)
     metadata_validator.template_columns_schema_file = '/home/pyodide/TemplateColumns2Models.xlsx'
     metadata_validator.parse_spreadsheets()
     metadata_validator.parse_publication()
@@ -107,7 +108,7 @@ def validate():
 
     response['status'] = status
 
-    if pyodide_connector.gwas_is_down:
+    if connector.gwas_is_down:
         response['messages'] = [
             'Error: GWAS service seems down. Please retry validation later.'
         ]

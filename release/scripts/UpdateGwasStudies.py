@@ -11,6 +11,7 @@ class UpdateGwasStudies:
     def __init__(self,verbose=None):
         self.samples = Sample.objects.filter(source_GWAS_catalog__isnull=False,sample_number__isnull=True,sample_cases__isnull=True,sample_controls__isnull=True)
         self.verbose = verbose
+        self.gwas_rest_client = GwasRestClient()
 
 
     def get_gwas_info(self, sample:Sample) -> dict:
@@ -26,7 +27,7 @@ class UpdateGwasStudies:
         print(f"\n# {gcst_id}:")
 
         try:
-            gwas_study = GwasRestClient.fetch_study(gcst_id)
+            gwas_study = self.gwas_rest_client.fetch_study(gcst_id)
             source_PMID = gwas_study.get_pmid()
 
             # Create list of cohorts if it exists in the GWAS study

@@ -3,7 +3,7 @@ const pyworker = await import((on_gae)?'./py-worker.min.js':'./py-worker.js');
 const validate_metadata = await fetch(new URL('../python/bin/validation_metadata.py', import.meta.url, null)).then(response => response.text());
 const dependencies = {
     pyodide_packages: ["micropip"],
-    pip_packages: ['openpyxl','requests','/static/validator/python/wheels/pgs_template_validator-1.1.3-py3-none-any.whl'],
+    pip_packages: ['openpyxl','requests','/static/validator/python/wheels/pgs_template_validator-1.1.5-py3-none-any.whl'],
     static_files: [{
         name: 'TemplateColumns2Models.xlsx',
         url: '/static/validator/template/TemplateColumns2Models.xlsx',
