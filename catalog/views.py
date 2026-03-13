@@ -764,7 +764,7 @@ def efo(request, efo_id):
 
 def gwas_gcst(request, gcst_id):
     # If ID in lower case, redirect with the ID in upper case
-    if not gcst_id.isupper():
+    if not gcst_id.isdigit() and not gcst_id.isupper():
         return redirect_with_upper_case_id(request, '/gwas/', gcst_id)
 
     samples = Sample.objects.filter(source_GWAS_catalog__exact=gcst_id).distinct()
