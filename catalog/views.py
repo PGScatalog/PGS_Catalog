@@ -493,6 +493,9 @@ def latest_release(request):
 
 
 def pgs(request, pgs_id):
+    # If ID just a number, convert it to PGS format
+    if pgs_id.isdigit():
+        return redirect_with_formatted_id('/score/', 'PGS', pgs_id)
     # If ID in lower case, redirect with the ID in upper case
     if not pgs_id.isupper():
         return redirect_with_upper_case_id(request, '/score/', pgs_id)
@@ -572,7 +575,17 @@ def redirect_pgs_to_score(request, pgs_id):
     return response
 
 
+def redirect_with_formatted_id(dir: str, prefix: str, id: str):
+    """Redirect to a URL with the ID following the PGS-Catalog format"""
+    formatted_id = prefix + id.zfill(6)
+    return redirect(dir+formatted_id+'/', permanent=True)
+
+
 def pgp(request, pub_id):
+    # If ID just a number, convert it to PGS format
+    if pub_id.isdigit():
+        return redirect_with_formatted_id('/publication/', 'PGP', pub_id)
+
     # If ID in lower case, redirect with the ID in upper case
     if not pub_id.isupper():
         return redirect_with_upper_case_id(request, '/publication/', pub_id)
@@ -788,6 +801,9 @@ def gwas_gcst(request, gcst_id):
 
 
 def pss(request, pss_id):
+    # If ID just a number, convert it to PGS format
+    if pss_id.isdigit():
+        return redirect_with_formatted_id('/sampleset/', 'PSS', pss_id)
     # If ID in lower case, redirect with the ID in upper case
     if not pss_id.isupper():
         return redirect_with_upper_case_id(request, '/sampleset/', pss_id)
