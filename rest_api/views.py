@@ -1,3 +1,4 @@
+from django.shortcuts import redirect
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -119,6 +120,9 @@ class RestPublication(generics.RetrieveAPIView):
     """
 
     def get(self, request, pgp_id):
+        if pgp_id.isdigit():
+            pgp_id = 'PGP'+pgp_id.zfill(6)
+            return redirect('getPublication', pgp_id=pgp_id, permanent=True)
         pgp_id = pgp_id.upper()
         try:
             queryset = Publication.objects.defer(*related_dict['publication_defer']).get(id=pgp_id)
@@ -194,6 +198,9 @@ class RestScore(generics.RetrieveAPIView):
     """
 
     def get(self, request, pgs_id):
+        if pgs_id.isdigit():
+            pgs_id = 'PGS'+pgs_id.zfill(6)
+            return redirect('getScore', pgs_id=pgs_id, permanent=True)
         pgs_id = pgs_id.upper()
         try:
             queryset = Score.objects.defer(*related_dict['score_defer']).select_related('publication').prefetch_related(*related_dict['score_prefetch']).get(id=pgs_id)
@@ -311,6 +318,9 @@ class RestPerformance(generics.RetrieveAPIView):
     """
 
     def get(self, request, ppm_id):
+        if ppm_id.isdigit():
+            ppm_id = 'PPM'+ppm_id.zfill(6)
+            return redirect('getPerformanceMetric', ppm_id=ppm_id, permanent=True)
         ppm_id = ppm_id.upper()
         try:
             queryset = Performance.objects.defer(*related_dict['perf_defer']).select_related(*related_dict['perf_select']).prefetch_related('sampleset__samples',*related_dict['sampleset_samples_cohorts_prefetch'],'performance_metric').get(id=ppm_id)
@@ -505,6 +515,9 @@ class RestSampleSet(generics.RetrieveAPIView):
     """
 
     def get(self, request, pss_id):
+        if pss_id.isdigit():
+            pss_id = 'PSS'+pss_id.zfill(6)
+            return redirect('getSampleSet', pss_id=pss_id, permanent=True)
         pss_id = pss_id.upper()
         try:
             queryset = SampleSet.objects.prefetch_related('samples', 'samples__cohorts').get(id=pss_id)
