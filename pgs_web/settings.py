@@ -473,24 +473,3 @@ DATA_UPLOAD_MAX_NUMBER_FILES=10
 
 # Site default ID, necessary for django.contrib.sites.
 SITE_ID = 1
-
-if PGS_ON_CURATION_SITE:
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "standard": {
-                "format": "[%(levelname)s] %(asctime)s %(name)s: %(message)s",
-            },
-        },
-        "handlers": {
-            "console": {
-                "class": "logging.StreamHandler",
-                "formatter": "standard",
-            },
-        },
-        "root": {
-            "handlers": ["console"],
-            "level": "INFO",
-        },
-    }
