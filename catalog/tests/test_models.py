@@ -8,7 +8,7 @@ test_sample_count  = 7
 
 default_num = 1
 
-efo_id = 'EFO_0000305'
+efo_id = 'MONDO_0004989'
 efo_id_colon = efo_id.replace('_',':')
 efo_name = 'breast carcinoma'
 efo_desc_list = ['A carcinoma that arises from epithelial cells of the breast']
@@ -18,7 +18,7 @@ efo_synonyms = ' | '.join(efo_synonyms_list)
 efo_mapped_terms_list = ['OMIM:615554','NCIT:C4872','UMLS:C0678222']
 efo_mapped_terms = ' | '.join(efo_mapped_terms_list)
 
-efo_id_2   = 'EFO_1000649'
+efo_id_2   = 'MONDO_0006512'
 efo_name_2 = 'estrogen-receptor positive breast cancer'
 efo_desc_2 = 'a subtype of breast cancer that is estrogen-receptor positive [EFO: 1000649]'
 
