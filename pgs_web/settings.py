@@ -95,7 +95,10 @@ if PGS_ON_LIVE_SITE:
     INSTALLED_APPS.append('corsheaders')
 # Curation app installation
 if PGS_ON_CURATION_SITE:
-    INSTALLED_APPS.append('curation_tracker.apps.CurationTrackerConfig')
+    INSTALLED_APPS.extend([
+        'curation_tracker.apps.CurationTrackerConfig',
+        'auditlog',
+    ])
 # Debug helper
 if DEBUG == True:
     INSTALLED_APPS.append('debug_toolbar') # Debug SQL queries
@@ -108,8 +111,12 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.contrib.redirects.middleware.RedirectFallbackMiddleware'
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
 ]
+
+if PGS_ON_CURATION_SITE:
+    MIDDLEWARE.append('auditlog.middleware.AuditlogMiddleware')
+
 
 # ----------------------------- #
 # Content Security Policy (CSP) #
@@ -466,3 +473,24 @@ DATA_UPLOAD_MAX_NUMBER_FILES=10
 
 # Site default ID, necessary for django.contrib.sites.
 SITE_ID = 1
+
+if PGS_ON_CURATION_SITE:
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "standard": {
+                "format": "[%(levelname)s] %(asctime)s %(name)s: %(message)s",
+            },
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "standard",
+            },
+        },
+        "root": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+    }
