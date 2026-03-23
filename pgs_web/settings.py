@@ -97,7 +97,6 @@ if PGS_ON_LIVE_SITE:
 if PGS_ON_CURATION_SITE:
     INSTALLED_APPS.extend([
         'curation_tracker.apps.CurationTrackerConfig',
-        'auditlog',
     ])
 # Debug helper
 if DEBUG == True:
@@ -113,9 +112,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
 ]
-
-if PGS_ON_CURATION_SITE:
-    MIDDLEWARE.append('auditlog.middleware.AuditlogMiddleware')
 
 
 # ----------------------------- #
@@ -473,3 +469,12 @@ DATA_UPLOAD_MAX_NUMBER_FILES=10
 
 # Site default ID, necessary for django.contrib.sites.
 SITE_ID = 1
+
+if 'AUDITLOG_ENABLED' in os.environ:
+    AUDITLOG_ENABLED = os.environ['AUDITLOG_ENABLED'] in ['True', True]
+else:
+    AUDITLOG_ENABLED = PGS_ON_CURATION_SITE
+
+if AUDITLOG_ENABLED:
+    INSTALLED_APPS.append('auditlog')
+    MIDDLEWARE.append('auditlog.middleware.AuditlogMiddleware')
