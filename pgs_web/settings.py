@@ -470,6 +470,10 @@ DATA_UPLOAD_MAX_NUMBER_FILES=10
 # Site default ID, necessary for django.contrib.sites.
 SITE_ID = 1
 
+
+#---------------------#
+#  Auditlog Settings  #
+#---------------------#
 if 'AUDITLOG_ENABLED' in os.environ:
     AUDITLOG_ENABLED = os.environ['AUDITLOG_ENABLED'] in ['True', True]
 else:
