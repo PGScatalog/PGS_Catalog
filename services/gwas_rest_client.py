@@ -57,7 +57,7 @@ class GwasStudy:
 
     def get_cohorts(self) -> list[str]:
         if 'cohort' in self.data:
-            return self.data['cohort']
+            return [c.strip() for c in self.data['cohort']]
         else:
             return []
 
