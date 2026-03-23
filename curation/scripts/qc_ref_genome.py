@@ -67,7 +67,6 @@ def post_request_with_retry(url, data, retry: int = 0):
 
     if not r.ok:
         r.raise_for_status()
-        quit()
 
     result = r.json()
     if retry and not result:  # Sometimes Ensembl returns an empty response (although status 200)
@@ -222,7 +221,11 @@ def qc_score_ref_genome(scoring_file: str | PathLike[str], ref_genome, n_request
     # Ending if the scoring file does not contain positions (rsIDs)
     if 'chr_position' not in df.columns:
         report_func('No position')
-        quit()
+        return {
+            'match': 0,
+            'mismatch': 0,
+            'errors': ['No position column found in the scoring file']
+        }
 
     # Headers for alleles. other_allele is optional, but should be tested if exists as we don't know which allele is the reference one.
     alleles_headers = ['effect_allele']
