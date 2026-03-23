@@ -177,7 +177,7 @@ class CurationPublicationAnnotation(models.Model):
 
     def get_epmc_data(self, keep_study_name = False):
         payload = {'format': 'json'}
-        if self.PMID and re.match('^\d+$', str(self.PMID)):
+        if self.PMID and re.match(r'^\d+$', str(self.PMID)):
             query = f'ext_id:{self.PMID}'
         else:
             query = f'doi:{self.doi}'
