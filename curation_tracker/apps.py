@@ -12,7 +12,7 @@ class CurationTrackerConfig(AppConfig):
         if settings.AUDITLOG_ENABLED:
             # Registering models with auditlog for change tracking
             # Although it would be recommended to register models in catalog/models.py, it is safer to do it here as
-            # the auditlog table in located in the curation_tracker DB
+            # the auditlog table is located in the curation_tracker DB
             self.register_models_with_auditlog()
 
     def register_models_with_auditlog(self):
