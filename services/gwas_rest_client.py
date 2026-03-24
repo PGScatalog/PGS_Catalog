@@ -1,13 +1,8 @@
 import requests
-
+from services.errors import NotFoundError
 
 gwas_rest_root_url = "https://www.ebi.ac.uk/gwas/rest/api/v2"
 study_url = gwas_rest_root_url + '/studies'
-
-
-class NotFoundError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
 
 
 class GwasCountry:
