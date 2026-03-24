@@ -4,6 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import DecimalRangeField
 from pgs_web import constants
 from catalog import common
+from services.ols_rest_client import OLSRestClient
 
 
 class Publication(models.Model):
@@ -179,27 +180,23 @@ class EFOTrait_Base(models.Model):
         abstract = True
 
     def parse_api(self):
-        import requests
-        response = requests.get(constants.USEFUL_URLS['OLS_ROOT_URL']+'/api/ontologies/efo/terms?obo_id=%s'%self.id.replace('_', ':'))
-        response = response.json()['_embedded']['terms']
-        if len(response) == 1:
-            response = response[0]
-            self.label = response['label']
-            self.url = response['iri']
+        response = OLSRestClient().get_term(self.id)
+        self.label = response['label']
+        self.url = response['iri']
 
-            # Make description
-            try:
-                desc = response['obo_definition_citation'][0]
-                str_desc = desc['definition']
-                for x in desc['oboXrefs']:
-                    if x['database'] != None:
-                        if x['id'] != None:
-                            str_desc += ' [{}: {}]'.format(x['database'], x['id'])
-                        else:
-                            str_desc += ' [{}]'.format(x['database'])
-                self.description = str_desc
-            except:
-                self.description = response['description']
+        # Make description
+        try:
+            desc = response['obo_definition_citation'][0]
+            str_desc = desc['definition']
+            for x in desc['oboXrefs']:
+                if x['database'] != None:
+                    if x['id'] != None:
+                        str_desc += ' [{}: {}]'.format(x['database'], x['id'])
+                    else:
+                        str_desc += ' [{}]'.format(x['database'])
+            self.description = str_desc
+        except:
+            self.description = response['description']
 
 
     def __str__(self):
