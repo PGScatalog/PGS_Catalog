@@ -95,9 +95,7 @@ if PGS_ON_LIVE_SITE:
     INSTALLED_APPS.append('corsheaders')
 # Curation app installation
 if PGS_ON_CURATION_SITE:
-    INSTALLED_APPS.extend([
-        'curation_tracker.apps.CurationTrackerConfig',
-    ])
+    INSTALLED_APPS.append('curation_tracker.apps.CurationTrackerConfig')
 # Debug helper
 if DEBUG == True:
     INSTALLED_APPS.append('debug_toolbar') # Debug SQL queries
