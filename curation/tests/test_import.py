@@ -1,6 +1,9 @@
 import os
 from contextlib import redirect_stdout
+
 from catalog.models import *
+from core.testing import PGSTestCase
+from curation.imports.curation import CurationImport
 from curation.imports.reported_trait_cleaner import ReportedTraitCleaner
 
 # Configuration
@@ -58,7 +61,6 @@ class ImportTest(PGSTestCase):
         with open(os.devnull, 'w') as devnull:
             with redirect_stdout(devnull):
                 curation_import.run_curation_import()
-
 
     def test_import(self):
         ## Run the import ##
