@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import DecimalRangeField
 from pgs_web import constants
 from catalog import common
-from services.ols_rest_client import OLSRestClient
+from core.services.ols_rest_client import OLSRestClient
 
 
 class Publication(models.Model):

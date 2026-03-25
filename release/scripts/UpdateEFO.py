@@ -1,8 +1,6 @@
-import requests
 from catalog.models import EFOTrait, TraitCategory, EFOTrait_Ontology, Score
 from django.db import connections
-from pgs_web import constants
-from services.ols_rest_client import OLSRestClient
+from core.services.ols_rest_client import OLSRestClient
 
 
 class UpdateEFO:

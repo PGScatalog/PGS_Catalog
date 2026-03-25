@@ -1,5 +1,5 @@
 from catalog.models import Sample, Score, Cohort
-from services.gwas_rest_client import GwasRestClient, NotFoundError
+from core.services.gwas_rest_client import GwasRestClient, NotFoundError
 
 
 class UpdateGwasStudies:

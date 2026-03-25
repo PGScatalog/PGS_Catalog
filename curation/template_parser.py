@@ -1,12 +1,11 @@
 import pandas as pd
-from datetime import date
 from catalog.models import *
 from curation.parsers.cohort import CohortData
 from curation.parsers.publication import PublicationData
 from curation.parsers.score import ScoreData
 from curation.parsers.sample import SampleData
 from curation.parsers.performance import PerformanceData
-from services.gwas_rest_client import GwasRestClient, NotFoundError
+from core.services.gwas_rest_client import GwasRestClient, NotFoundError
 
 
 class CurationTemplate():

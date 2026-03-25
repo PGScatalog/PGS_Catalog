@@ -2,7 +2,7 @@ import requests
 from pgs_web import constants
 import logging
 
-from services.errors import NotFoundError
+from core.services.errors import NotFoundError
 
 ols_root_url = constants.USEFUL_URLS['OLS_ROOT_URL'] + '/api/ontologies/efo'
 logger = logging.getLogger(__name__)
