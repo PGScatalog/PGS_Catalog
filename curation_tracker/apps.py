@@ -20,7 +20,13 @@ class CurationTrackerConfig(AppConfig):
         import logging
         logging.getLogger(__name__).info("Registering models with auditlog for change tracking.")
         print("Registering models with auditlog for change tracking.")
-        from auditlog.registry import auditlog
+        try:
+            from auditlog.registry import auditlog
+        except RuntimeError:
+            raise RuntimeError("Auditlog is not properly configured. Ensure that AUDITLOG_ENABLED is set to True, "
+                               "'auditlog' is included in INSTALLED_APPS,"
+                               " and 'auditlog.middleware.AuditlogMiddleware' is included in MIDDLEWARE settings.")
+
         from catalog.models import Publication, Score
 
         auditlog.register(Score, m2m_fields={"trait_efo"}, exclude_fields={"ancestries"})
