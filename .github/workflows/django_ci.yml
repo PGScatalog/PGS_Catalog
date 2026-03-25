@@ -12,6 +12,7 @@ env:
   ALLOWED_HOSTS: 'localhost'
   PGS_LIVE_SITE: 'False'
   PGS_CURATION_SITE: 'True'
+  AUDITLOG_ENABLED: 'True'
   DATABASE_NAME: 'db_test'
   DATABASE_USER: 'postgres'
   DATABASE_PASSWORD: 'postgres'
