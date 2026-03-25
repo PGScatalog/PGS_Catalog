@@ -1,5 +1,5 @@
-from django.test import TestCase
-from curation.imports.curation import CurationImport
+import os
+from contextlib import redirect_stdout
 from catalog.models import *
 from curation.imports.reported_trait_cleaner import ReportedTraitCleaner
 
@@ -43,7 +43,8 @@ data_counts = {
     'sampleset': 5
 }
 
-class ImportTest(TestCase):
+
+class ImportTest(PGSTestCase):
 
     def run_import(self):
         # Main script
@@ -53,7 +54,10 @@ class ImportTest(TestCase):
             scoringfiles_format_version=scoringfiles_format_version, skip_scoringfiles=skip_scorefiles,
             skip_curationtracker=skip_curationtracker, variant_positions_qc_config=variant_positions_qc_config,
             reported_traits_cleaner=reported_trait_cleaner)
-        curation_import.run_curation_import()
+        # Running import without printing all the report to stdout
+        with open(os.devnull, 'w') as devnull:
+            with redirect_stdout(devnull):
+                curation_import.run_curation_import()
 
 
     def test_import(self):
