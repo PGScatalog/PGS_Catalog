@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 
-from core.testing import PGSTestCase
+from core.testing import CurationTestCase
 
 
 class ErrorRestTest(TestCase):
@@ -12,7 +12,7 @@ class ErrorRestTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class PublicationRestTest(PGSTestCase):
+class PublicationRestTest(CurationTestCase):
 
     # Load data in DB - Must live in the rest_api/fixtures/ directory
     fixtures = ['db_test.json']
@@ -33,7 +33,7 @@ class PublicationRestTest(PGSTestCase):
         self.assertEqual(len(response.data['results']), 2)
 
 
-class ScoreRestTest(PGSTestCase):
+class ScoreRestTest(CurationTestCase):
 
     # Load data in DB - Must live in the rest_api/fixtures/ directory
     fixtures = ['db_test.json']
@@ -54,7 +54,7 @@ class ScoreRestTest(PGSTestCase):
         self.assertEqual(len(response.data['results']), 2)
 
 
-class GCSTRestTest(PGSTestCase):
+class GCSTRestTest(CurationTestCase):
 
     # Load data in DB - Must live in the rest_api/fixtures/ directory
     fixtures = ['db_test.json']

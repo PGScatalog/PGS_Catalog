@@ -1,4 +1,4 @@
-from core.testing import PGSTestCase
+from core.testing import CurationTestCase
 
 try:
     from auditlog.models import LogEntry
@@ -11,7 +11,7 @@ except RuntimeError:
 from catalog.models import Publication, Score, EFOTrait
 
 
-class ConfigTest(PGSTestCase):
+class ConfigTest(CurationTestCase):
 
     def test_settings(self):
         from django.conf import settings
@@ -24,7 +24,7 @@ class ConfigTest(PGSTestCase):
         self.assertTrue(auditlog.contains(Score))
 
 
-class AuditLogPublicationTest(PGSTestCase):
+class AuditLogPublicationTest(CurationTestCase):
 
     def setUp(self):
         self.publication = Publication.objects.create(num=1, date_publication='2026-01-01',
@@ -55,7 +55,7 @@ class AuditLogPublicationTest(PGSTestCase):
         self.assertEqual(new_value, 'C')
 
 
-class AuditLogScoreTest(PGSTestCase):
+class AuditLogScoreTest(CurationTestCase):
 
     def setUp(self):
         self.publication = Publication.objects.create(num=2, date_publication='2026-01-01',

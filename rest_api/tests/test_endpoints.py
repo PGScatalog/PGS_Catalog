@@ -3,10 +3,10 @@ import re
 from django.conf import settings
 from rest_framework.test import APITestCase
 
-from core.testing import PGSTestCase
+from core.testing import CurationTestCase
 
 
-class BrowseEndpointTest(APITestCase, PGSTestCase):
+class BrowseEndpointTest(APITestCase, CurationTestCase):
     """ Test the REST endpoints """
 
     # Load data in DB - Must live in the rest_api/fixtures/ directory

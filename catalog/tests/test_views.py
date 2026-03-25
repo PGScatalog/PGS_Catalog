@@ -3,7 +3,7 @@ from catalog.views import *
 from catalog.models import *
 from datetime import datetime
 
-from core.testing import PGSTestCase
+from core.testing import CurationTestCase
 
 
 class SimpleContentTest(TestCase):
@@ -14,7 +14,7 @@ class SimpleContentTest(TestCase):
         self.assertIsNotNone(score_disclaimer('test'))
 
 
-class EFOTraitDataTest(PGSTestCase):
+class EFOTraitDataTest(CurationTestCase):
     """ Test the fetch of the EFO traits data """
     def test_efo_traits_data(self):
         d_pub = datetime(2020,3,10)

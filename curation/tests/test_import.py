@@ -2,7 +2,7 @@ import os
 from contextlib import redirect_stdout
 
 from catalog.models import *
-from core.testing import PGSTestCase
+from core.testing import CurationTestCase
 from curation.imports.curation import CurationImport
 from curation.imports.reported_trait_cleaner import ReportedTraitCleaner
 
@@ -47,7 +47,7 @@ data_counts = {
 }
 
 
-class ImportTest(PGSTestCase):
+class ImportTest(CurationTestCase):
 
     def run_import(self):
         # Main script
