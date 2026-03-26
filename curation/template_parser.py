@@ -1,12 +1,11 @@
 import pandas as pd
-from datetime import date
 from catalog.models import *
 from curation.parsers.cohort import CohortData
 from curation.parsers.publication import PublicationData
 from curation.parsers.score import ScoreData
 from curation.parsers.sample import SampleData
 from curation.parsers.performance import PerformanceData
-from services.gwas_rest_client import GwasRestClient, NotFoundError
+from core.services.gwas_rest_client import GwasRestClient, NotFoundError
 
 
 class CurationTemplate():
@@ -47,13 +46,26 @@ class CurationTemplate():
             self.table_samples = pd.read_excel(loc_excel, sheet_name=self.spreadsheet_names['Sample'], header=0)
 
             # GWAS and Dev/Training Samples
-            self.table_samples_scores = self.table_samples[[x.startswith('Test') is False for x in self.table_samples.iloc[:, 1]]]
-            # Index on columns "Score Name(s)" & "Study Stage"
-            self.table_samples_scores.set_index(list(self.table_samples_scores.columns[[0, 1]]), inplace = True)
+            self.table_samples_scores = pd.DataFrame(columns=self.table_samples.columns)
+            # Testing samples
+            self.table_samples_testing = pd.DataFrame(columns=self.table_samples.columns)
 
-            # Testing (Evaluation) Samples
-            self.table_samples_testing = self.table_samples[[x.startswith('Test') for x in self.table_samples.iloc[:, 1]]]
+            for index, row in self.table_samples.iterrows():
+                value = row.iloc[1]
+                if not isinstance(value, str):
+                    self.report_error(self.spreadsheet_names['Sample'], f'Row {index} with missing/invalid value as Study Stage')
+                    continue
+                if value.startswith('Test'):
+                    self.table_samples_testing = pd.concat([self.table_samples_testing, row.to_frame().T])
+                else:
+                    self.table_samples_scores = pd.concat([self.table_samples_scores, row.to_frame().T])
+
+            # Index on columns "Score Name(s)" & "Study Stage"
+            self.table_samples_scores.reset_index(drop=True, inplace=True)
+            self.table_samples_scores.set_index(list(self.table_samples_scores.columns[[0, 1]]), inplace=True)
+
             # Index on column "Sample Set ID"
+            self.table_samples_testing.reset_index(drop=True, inplace=True)
             self.table_samples_testing.set_index(list(self.table_samples_testing.columns[[2]]), inplace=True)
 
             self.table_performances = pd.read_excel(loc_excel, sheet_name=self.spreadsheet_names['Performance'], header=[0,1], index_col=[0, 1])

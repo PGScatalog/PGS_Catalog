@@ -1,7 +1,6 @@
-import requests
 from catalog.models import EFOTrait, TraitCategory, EFOTrait_Ontology, Score
 from django.db import connections
-from pgs_web import constants
+from core.services.ols_rest_client import OLSRestClient
 
 
 class UpdateEFO:
@@ -17,8 +16,6 @@ class UpdateEFO:
     efo_key = 'efo_ids'
     direct_pgs_ids_key = 'direct_pgs_ids'
     child_pgs_ids_key = 'child_pgs_ids'
-
-    ols_url_root = constants.USEFUL_URLS['OLS_ROOT_URL']+'/api/ontologies/efo'
 
     categories_info = {
         'Biological process': { colour_key: '#BEBADA', parent_key: 'biological process', efo_key: ['GO_0008150'] },
@@ -82,6 +79,7 @@ class UpdateEFO:
         self.trait_categories = set()
         self.warnings = []
         self.build_efo_category_labels_dict()
+        self.ols_rest_client = OLSRestClient()
 
 
     def build_efo_category_labels_dict(self):
@@ -137,42 +135,39 @@ class UpdateEFO:
     def update_efo_info(self, trait):
         ''' Fetch EFO information from an EFO ID, using the OLS REST API '''
         trait_id = trait.id
-        obo_id = trait_id.replace('_',':')
-        ols_url = f'{self.ols_url_root}/terms?obo_id={obo_id}'
-        response = requests.get(ols_url)
-        response = response.json()['_embedded']['terms']
-        if len(response) == 1:
-            response = response[0]
-            new_label = response['label']
+        try:
+            response = self.ols_rest_client.get_term(trait_id)
+        except Exception as e:
+            print(f"ERROR: Can't retrieve EFO information for the trait '{trait_id}'! {e}")
+            return
+        new_label = response['label']
 
-            if response['is_obsolete']:
-                obsolete_msg = f'The trait "{new_label}" ({trait_id}) is labelled as obsolete by EFO!'
-                print(f'WARNING: {obsolete_msg}')
-                self.warnings.append(obsolete_msg)
+        if response['is_obsolete']:
+            obsolete_msg = f'The trait "{new_label}" ({trait_id}) is labelled as obsolete by EFO!'
+            print(f'WARNING: {obsolete_msg}')
+            self.warnings.append(obsolete_msg)
 
-            # Synonyms, Mapped terms and description
-            efo_formatted_data = self.format_data(response)
+        # Synonyms, Mapped terms and description
+        efo_formatted_data = self.format_data(response)
 
-            trait_has_changed = 0
-            if new_label != trait.label:
-                trait_has_changed = 1
-                trait.label = new_label
-            if efo_formatted_data['description'] != trait.description:
-                trait_has_changed = 1
-                trait.description = efo_formatted_data['description']
-            if efo_formatted_data['synonyms'] != trait.synonyms and efo_formatted_data['synonyms'] != '':
-                trait_has_changed = 1
-                trait.synonyms = efo_formatted_data['synonyms']
-            if efo_formatted_data['mapped_terms'] != trait.mapped_terms and efo_formatted_data['mapped_terms'] != '':
-                trait_has_changed = 1
-                trait.mapped_terms = efo_formatted_data['mapped_terms']
-            if efo_formatted_data['iri'] != trait.url:
-                trait_has_changed = 1
-                trait.url = efo_formatted_data['iri']
-            if trait_has_changed == 1:
-                trait.save()
-        else:
-            print("The script can't update the trait '"+trait.label+"' ("+trait_id+"): the API returned "+str(len(response))+" results.")
+        trait_has_changed = 0
+        if new_label != trait.label:
+            trait_has_changed = 1
+            trait.label = new_label
+        if efo_formatted_data['description'] != trait.description:
+            trait_has_changed = 1
+            trait.description = efo_formatted_data['description']
+        if efo_formatted_data['synonyms'] != trait.synonyms and efo_formatted_data['synonyms'] != '':
+            trait_has_changed = 1
+            trait.synonyms = efo_formatted_data['synonyms']
+        if efo_formatted_data['mapped_terms'] != trait.mapped_terms and efo_formatted_data['mapped_terms'] != '':
+            trait_has_changed = 1
+            trait.mapped_terms = efo_formatted_data['mapped_terms']
+        if efo_formatted_data['iri'] != trait.url:
+            trait_has_changed = 1
+            trait.url = efo_formatted_data['iri']
+        if trait_has_changed == 1:
+            trait.save()
 
 
     def add_efo_trait_to_efotrait_ontology(self, trait):
@@ -218,35 +213,11 @@ class UpdateEFO:
 
 
     def get_parents(self,trait):
-        ols_url = f'{self.ols_url_root}/ancestors?id={trait.id}'
-        response = requests.get(ols_url)
-        response_json = response.json()
-        ols_embedded = '_embedded'
-        ols_links = '_links'
-        ols_next  = 'next'
-        if ols_embedded in response_json:
-            response = response_json[ols_embedded]['terms']
-            # Fetch parent data and store it
-            if len(response) > 0:
-                if ols_links in response_json:
-                    total_terms_count = response_json['page']['totalElements']
-
-                    while ols_next in response_json[ols_links]:
-                        next_url = response_json[ols_links][ols_next]['href']
-                        response_next = requests.get(next_url)
-                        response_json = response_next.json()
-                        response_terms = response_json[ols_embedded]['terms']
-                        response = response + response_terms
-
-                    if total_terms_count != len(response):
-                        print(f'The number of ancestors of "{trait.label}" retrieved doesn\'t match the number of ancestors declared by the REST API: {total_terms_count} vs {len(response)}')
-                        response = None
-                else:
-                    print("The script can't retrieve the parents of the trait '"+trait.label+"' ("+trait.id+"): the API returned "+str(len(response))+" results.")
-                    response = None
-            else:
-                print("  >> WARNING: Can't find parents for the trait '"+trait.id+"'.")
-                response = None
+        try:
+            response = self.ols_rest_client.get_ancestors(trait.id)
+        except Exception as e:
+            print(f"ERROR: Can't retrieve parents for the trait '{trait.name}'! {e}")
+            response = None
         return response
 
 
