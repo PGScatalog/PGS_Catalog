@@ -84,4 +84,7 @@ jobs:
       run: python manage.py migrate
 
     - name: Run Tests
-      run: python manage.py test catalog/tests curation/tests rest_api/tests
+      run: python manage.py test catalog/tests curation/tests
+
+    - name: Run REST API Tests
+      run: AUDITLOG_ENABLED='False' python manage.py test rest_api/tests
