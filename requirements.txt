@@ -23,3 +23,5 @@ google-cloud-core==2.3.2
 google-cloud-storage==2.7.0
 #### Content Security Policy (CSP)
 django-csp==3.8
+#### Audit log
+django-auditlog==3.4.1

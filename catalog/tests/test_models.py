@@ -1,7 +1,7 @@
-from django.test import TestCase
 from psycopg.types.range import NumericRange
 
 from catalog.models import *
+from core.testing import CurationTestCase
 
 test_sample_number = 5
 test_sample_count  = 7
@@ -35,7 +35,7 @@ def format_date(date_list):
     return dt.date(int(date_list[0]),int(date_list[1]),int(date_list[2]))
 
 
-class CohortTest(TestCase):
+class CohortTest(CurationTestCase):
     ''' Test the Cohort model '''
 
     def create_cohort(self, name_short=cohort_name,name_full=cohort_desc,name_others=cohort_others):
@@ -63,7 +63,7 @@ class CohortTest(TestCase):
         cohort.save()
         self.assertTrue(cohort.released)
 
-class DemographicTest(TestCase):
+class DemographicTest(CurationTestCase):
     ''' Test the Demographic model '''
 
     def create_demographic(self, estimate, estimate_type, unit, range, range_type, variability, variability_type):
@@ -212,7 +212,7 @@ class DemographicTest(TestCase):
         self.assertEqual(values_dict_e['estimate'], f'{e_estimate} {e_range_string}')
 
 
-class EFOTraitTest(TestCase):
+class EFOTraitTest(CurationTestCase):
     ''' Test the EFOTrait model '''
 
     def create_efo_trait(self, efo_id=efo_id,label=efo_name, desc=efo_desc, syn=efo_synonyms, terms=efo_mapped_terms):
@@ -266,7 +266,7 @@ class EFOTraitTest(TestCase):
         self.assertEqual(efo_trait_2.mapped_terms_list, [])
 
 
-class MetricTest(TestCase):
+class MetricTest(CurationTestCase):
     ''' Test the Metric model '''
 
     def create_performance(self, num):
@@ -405,7 +405,7 @@ class MetricTest(TestCase):
         self.assertEqual(perf_dict['othermetrics'], [{ 'name_long': o_name, 'name_short': o_name, **o_metrics_dict }])
 
 
-class PerformanceTest(TestCase):
+class PerformanceTest(CurationTestCase):
     ''' Test the Performance model '''
     perf_id = 'PPM000001'
     phenotype_reported = 'New reported phenotype'
@@ -485,7 +485,7 @@ class PerformanceTest(TestCase):
         self.assertEqual(performance_2.publication_withexternality, 'D')
 
 
-class PublicationTest(TestCase):
+class PublicationTest(CurationTestCase):
     ''' Test the Publication model '''
     first_author = "Smith J"
 
@@ -539,7 +539,7 @@ class PublicationTest(TestCase):
         self.assertEqual(pub_pmid.PMID, pmid)
 
 
-class ReleaseTest(TestCase):
+class ReleaseTest(CurationTestCase):
     ''' Test the Release model '''
 
     date_list = ['2020','03','20']
@@ -602,7 +602,7 @@ class ReleaseTest(TestCase):
         self.assertEqual(release.__str__(), self.date_string)
 
 
-class SampleTest(TestCase):
+class SampleTest(CurationTestCase):
     ''' Test the Sample model '''
     number = 10
     cases = 6
@@ -726,7 +726,7 @@ class SampleTest(TestCase):
         self.assertEqual(sources['DOI'], self.doi)
 
 
-class SampleSetTest(TestCase):
+class SampleSetTest(CurationTestCase):
     ''' Test the SampleSet model '''
     sampleset_name="Test_SampleSet"
     sample_set_id = 'PSS000001'
@@ -815,7 +815,7 @@ class SampleSetTest(TestCase):
         self.assertEqual(anc_key, 'MAO')
 
 
-class ScoreTest(TestCase):
+class ScoreTest(CurationTestCase):
     ''' Test the Score model '''
     name = 'PGS_name_1'
     score_id = 'PGS000001'
@@ -968,7 +968,7 @@ class ScoreTest(TestCase):
         self.assertEqual(score_2.display_ancestry_html,'')
 
 
-class TraitCategoryTest(TestCase):
+class TraitCategoryTest(CurationTestCase):
     ''' Test the Trait Category '''
     trait_label = 'Cancer'
     trait_colour = '#BC80BD'
@@ -1013,7 +1013,7 @@ class TraitCategoryTest(TestCase):
         self.assertEqual(trait_category.count_scores, score_range)
 
 
-class EFOTrait_OntologyTest(TestCase):
+class EFOTrait_OntologyTest(CurationTestCase):
     ''' Test the EFOTrait_Ontology model '''
 
     def create_efo_trait_ontology(self, efo_id ,label, desc, syn, terms):
@@ -1084,7 +1084,7 @@ class EFOTrait_OntologyTest(TestCase):
         self.assertRegex(efo_trait_1.display_child_traits_list[0], display_child)
 
 
-class EmbargoedPublicationTest(TestCase):
+class EmbargoedPublicationTest(CurationTestCase):
     def create_embargoed_publication(self, publication_id, author_name, publication_title):
         return EmbargoedPublication.objects.create(id=publication_id, firstauthor=author_name, title=publication_title)
 
@@ -1100,7 +1100,7 @@ class EmbargoedPublicationTest(TestCase):
         self.assertEqual(e_publication.title, publication_title)
 
 
-class EmbargoedScoreTest(TestCase):
+class EmbargoedScoreTest(CurationTestCase):
     def create_embargoed_score(self, score_id, author_name, reported_trait):
         return EmbargoedScore.objects.create(id=score_id, firstauthor=author_name, trait_reported=reported_trait)
 
@@ -1116,7 +1116,7 @@ class EmbargoedScoreTest(TestCase):
         self.assertEqual(e_score.trait_reported, trait)
 
 
-class EvaluatedScoreTest(TestCase):
+class EvaluatedScoreTest(CurationTestCase):
     ''' Test the EvaluatedScore model '''
 
     def create_evaluatedscore(self, publication, scores):
@@ -1147,7 +1147,7 @@ class EvaluatedScoreTest(TestCase):
         self.assertEqual(evaluatedscore.evaluated_scores_ids,score_ids)
 
 
-class RetiredScoreTest(TestCase):
+class RetiredScoreTest(CurationTestCase):
     ''' Test the Retired model '''
     def create_retired(self, data_id, pub_doi, retirement_notes):
         return Retired.objects.create(id=data_id, doi=pub_doi, notes=retirement_notes)
