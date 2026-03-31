@@ -52,11 +52,9 @@ def main():
     ols_client = OLSRestClient()
     obsolete_traits: list[EFOTrait] = []
     updated_score_ids: set[str] = set()
-    test_counter = 0
     for trait_efo in EFOTrait.objects.all():
         ols_term = ols_client.get_term(trait_efo.id)
         if 'is_obsolete' in ols_term and ols_term['is_obsolete']:
-            test_counter += 1
             print(f'The trait "{ols_term['label']}" ({trait_efo.id}) is labelled as obsolete by EFO.')
             obsolete_traits.append(trait_efo)
             replacement_term_id = ols_term['term_replaced_by'] if 'term_replaced_by' in ols_term else None
@@ -66,10 +64,6 @@ def main():
             replacement_term_id = replacement_term_id.split('/')[-1]
             replacement_efo_trait = get_or_make_efo_trait(replacement_term_id)
             updated_score_ids.update(replace_score_trait_in_scores(trait_efo, replacement_efo_trait))
-
-            if test_counter >= 10:
-                print('Test limit of 10 obsolete traits reached. Stopping further processing.')
-                break
 
     print(f'Finished processing. {len(obsolete_traits)} obsolete traits were found and updated with their replacements where applicable.')
 
