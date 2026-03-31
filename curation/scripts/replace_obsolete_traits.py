@@ -4,6 +4,7 @@ import sys
 from catalog.models import EFOTrait
 from core.services.ols_rest_client import OLSRestClient
 import curation.services.efo_trait_service as efo_trait_service
+import curation.services.user_service as user_service
 from auditlog.context import set_extra_data
 
 # Note: This script is intended to be run via Django's manage.py shell, e.g.:
@@ -13,12 +14,15 @@ from auditlog.context import set_extra_data
 
 EXPORTED_SCORE_IDS_FILENAME = 'updated_score_ids.txt'
 
+# Get current user id from environment variable (if set) to include in auditlog extra data for traceability (optional)
+current_user_id = user_service.get_current_user_id()
+
 
 def replace_score_trait_in_scores(obsolete_efo_trait: EFOTrait, replacement_efo_trait: EFOTrait) -> set[str]:
     """Replaces the obsolete EFO trait with the replacement EFO trait in all associated scores.
     Returns a set of updated score IDs for reference."""
     print(f'Replacing obsolete trait {obsolete_efo_trait.id} with {replacement_efo_trait.id} in:')
-    with set_extra_data({'additional_data': {'reason': 'Obsolete trait replacement'}}):  # extra auditlog info
+    with set_extra_data({'additional_data': {'reason': 'Obsolete trait replacement'}, 'actor_id': current_user_id}):  # extra auditlog info
         updated_score_ids = efo_trait_service.replace_score_trait_in_scores(obsolete_efo_trait, replacement_efo_trait)
     print(f'  - {len(updated_score_ids)} scores: {", ".join(sorted(updated_score_ids))}')
     return updated_score_ids
