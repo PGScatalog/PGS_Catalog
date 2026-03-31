@@ -1,7 +1,7 @@
 import os
 import sys
 
-from catalog.models import EFOTrait, EFOTrait_Ontology
+from catalog.models import EFOTrait
 from core.services.ols_rest_client import OLSRestClient
 import curation.services.efo_trait_service as efo_trait_service
 from auditlog.context import set_extra_data
