@@ -29,5 +29,5 @@ class CurationTrackerConfig(AppConfig):
 
         from catalog.models import Publication, Score
 
-        auditlog.register(Score, m2m_fields={"trait_efo"}, exclude_fields={"ancestries"})
+        auditlog.register(Score, m2m_fields={"trait_efo", "samples_variants", "samples_training"}, exclude_fields={"ancestries"})
         auditlog.register(Publication)
