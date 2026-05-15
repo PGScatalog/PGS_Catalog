@@ -4,7 +4,7 @@ const validate_scores = await fetch(new URL('../python/bin/validation_scores.py'
 const dependencies = {
     // pyodide 0.28.2 built-in packages include pydantic 2.10.6, which is the version used by pgscatalog.core 1.0.1
     pyodide_packages: ["micropip","pydantic","pydantic-core","lzma"],
-    pip_packages: ['openpyxl','pgscatalog.core==1.0.1','/static/validator/python/wheels/pgscatalog_validate-0.2-py3-none-any.whl'],
+    pip_packages: ['openpyxl','pgscatalog.core==1.0.1','/static/validator/python/wheels/pgscatalog_validate-0.3-py3-none-any.whl'],
     static_files: [],
 }
 // Init worker
@@ -137,6 +137,7 @@ async function validation(validateFileHandle, webkitFiles) {
                 contexts.push({
                     dirHandle: dirHandle,
                     outputFileName: name,
+                    max_errors: MAX_ERRORS_PER_FILE,
                 });
             } else {
                 console.log("Ignored file '"+name+"'");
@@ -146,6 +147,7 @@ async function validation(validateFileHandle, webkitFiles) {
         contexts.push({
             dirHandle: dirHandle,
             outputFileName: validateFileHandle.name,
+            max_errors: MAX_ERRORS_PER_FILE,
         });
     } else if (webkitFiles) {
         for (const file of webkitFiles) {
@@ -153,6 +155,7 @@ async function validation(validateFileHandle, webkitFiles) {
                 contexts.push({
                     webkitfile: file,
                     outputFileName: file.name,
+                    max_errors: MAX_ERRORS_PER_FILE,
                 })
             } else {
                 console.log("Ignored file '"+file.name+"'");

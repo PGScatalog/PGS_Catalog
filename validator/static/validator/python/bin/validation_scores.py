@@ -3,7 +3,10 @@ import json
 import os.path
 from pathlib import Path
 
-from js import outputFileName
+# Variables taken from the context of the pyodide.runPythonAsync() call in validator/static/validator/python/validation_scores.js
+from js import outputFileName, max_errors
+
+# From the pgscatalog_validate wheel
 from pgscatalog.validate.lib.validation import ScoringFileValidation
 
 response = []
@@ -23,12 +26,19 @@ try:
 
     for filename in filenames:
         validation = ScoringFileValidation(filename, header=False)
-        file_response = {"filename": os.path.basename(filename), "valid": not bool(validation.errors), "errors": []}
-        for validation_error in validation.errors:
+        file_response = {"filename": os.path.basename(filename), "errors": []}
+        for validation_error in validation.get_errors():
             file_response['errors'].append({
                 "row": validation_error.row,
-                "messages": list(map(lambda err: err['msg'], validation_error.error.errors()))
+                "messages": list(map(lambda err: (f"[{err.attr}] " if err.attr else '') + err.msg, validation_error.errors))
             })
+            if len(file_response['errors']) >= max_errors:
+                file_response['errors'].append({
+                    "row": None,
+                    "messages": [f"Too many errors, stopping validation and showing only the first {max_errors} errors."]
+                })
+                break
+        file_response['valid'] = len(file_response['errors']) == 0
         response.append(file_response)
 
 
