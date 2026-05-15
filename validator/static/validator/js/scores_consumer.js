@@ -89,7 +89,7 @@ class ScoreReport {
                 table_html += "<tr><td><b>" + validation_error.row + "</b></td><td>"
                  + report_items_2_html(validation_error.messages) + '</td></tr>';
             } else {
-                table_html += "<tr><td colspan=\"2\">Over "+MAX_ERRORS_PER_FILE+" errors found. Showing first "+MAX_ERRORS_PER_FILE+" only.</td></tr>";
+                table_html += "<tr><td colspan=\"2\"><i class=\"fa fa-triangle-exclamation pgs_color_amber\"></i> Over "+MAX_ERRORS_PER_FILE+" errors found. Showing first "+MAX_ERRORS_PER_FILE+" only.</td></tr>";
                 break;
             }
         }
