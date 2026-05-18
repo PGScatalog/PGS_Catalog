@@ -4,7 +4,7 @@ const validate_scores = await fetch(new URL('../python/bin/validation_scores.py'
 const dependencies = {
     // pyodide 0.28.2 built-in packages include pydantic 2.10.6, which is the version used by pgscatalog.core 1.0.1
     pyodide_packages: ["micropip","pydantic","pydantic-core","lzma"],
-    pip_packages: ['openpyxl','pgscatalog.core==1.0.1','/static/validator/python/wheels/pgscatalog_validate-0.2-py3-none-any.whl'],
+    pip_packages: ['openpyxl','pgscatalog.core==1.0.1','/static/validator/python/wheels/pgscatalog_validate-0.3-py3-none-any.whl'],
     static_files: [],
 }
 // Init worker
@@ -89,7 +89,7 @@ class ScoreReport {
                 table_html += "<tr><td><b>" + validation_error.row + "</b></td><td>"
                  + report_items_2_html(validation_error.messages) + '</td></tr>';
             } else {
-                table_html += "<tr><td colspan=\"2\">Over "+MAX_ERRORS_PER_FILE+" errors found. Showing first "+MAX_ERRORS_PER_FILE+" only.</td></tr>";
+                table_html += "<tr><td colspan=\"2\"><i class=\"fa fa-triangle-exclamation pgs_color_amber\"></i> Over "+MAX_ERRORS_PER_FILE+" errors found. Showing first "+MAX_ERRORS_PER_FILE+" only.</td></tr>";
                 break;
             }
         }
@@ -137,6 +137,7 @@ async function validation(validateFileHandle, webkitFiles) {
                 contexts.push({
                     dirHandle: dirHandle,
                     outputFileName: name,
+                    max_errors: MAX_ERRORS_PER_FILE,
                 });
             } else {
                 console.log("Ignored file '"+name+"'");
@@ -146,6 +147,7 @@ async function validation(validateFileHandle, webkitFiles) {
         contexts.push({
             dirHandle: dirHandle,
             outputFileName: validateFileHandle.name,
+            max_errors: MAX_ERRORS_PER_FILE,
         });
     } else if (webkitFiles) {
         for (const file of webkitFiles) {
@@ -153,6 +155,7 @@ async function validation(validateFileHandle, webkitFiles) {
                 contexts.push({
                     webkitfile: file,
                     outputFileName: file.name,
+                    max_errors: MAX_ERRORS_PER_FILE,
                 })
             } else {
                 console.log("Ignored file '"+file.name+"'");

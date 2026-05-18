@@ -73,7 +73,7 @@ const postMessage = (message) => {
  *   pip_packages: [
  *     "openpyxl",
  *     "pgscatalog.core==1.0.1",
- *     "/static/validator/python/wheels/pgscatalog_validate-0.2-py3-none-any.whl",
+ *     "/static/validator/python/wheels/pgscatalog_validate-0.3-py3-none-any.whl",
  *   ],
  *   static_files: [],
  * };
