@@ -50,7 +50,7 @@ class ScoreReport {
         this.id = id;
         this.status_icon = $("<i title=\"Queuing\" class=\"fa fa-clock\"></i>"); // Queuing status
         this.root_node = $("<div class=\"mt-4\"></div>");
-        this.title = $("<h5>"+score_name+" </h5>");
+        this.title = $("<h5></h5>").text(score_name + " ");
         this.title.append(this.status_icon);
         this.root_node.append(this.title.wrap("<div></div>").parent());
         validation_output_div.append(this.root_node);

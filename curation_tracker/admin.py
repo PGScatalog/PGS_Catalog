@@ -608,7 +608,7 @@ class CurationPublicationAnnotationAdmin(MultiDBModelAdmin):
         except Exception as e:
             print(e, file=sys.stderr)
             data = {
-                'error': str(e)
+                'error': 'An internal error has occurred.'
             }
 
         return JsonResponse(data)

@@ -282,7 +282,7 @@ $(document).ready(function() {
     $(".custom-file-input").on("change", function() {
       var fileName = $(this).val().split("\\").pop();
       // Display file label
-      $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+      $(this).siblings(".custom-file-label").addClass("selected").text(fileName);
       // Check file extension
       fileExt = fileName.split("\.").pop();
       if (fileExt != 'xlsx') {
