@@ -1669,6 +1669,6 @@ function set_ancestryNames() {
 function resize_select(id){
   select_id = '#'+id;
   $('body').append('<select id="width_tmp_select" style="display:none"><option id="width_tmp_option"></option></select>');
-  $("#width_tmp_option").html($(select_id+' option:selected').text());
+  $("#width_tmp_option").text($(select_id+' option:selected').text());
   $(select_id).width($("#width_tmp_select").width());
 }

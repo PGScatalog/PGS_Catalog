@@ -14,7 +14,12 @@ function goToPGP(event){
     setError('');
     var pgp_id = $('#id_pgp_id').val();
     if(pgp_id){
-        var url = '/publication/'+pgp_id;
+        pgp_id = $.trim(pgp_id);
+        if(!/^PGP[0-9]+$/.test(pgp_id)){
+            setError('Invalid PGP ID format');
+            return false;
+        }
+        var url = '/publication/' + encodeURIComponent(pgp_id);
         if(new_window){
             window.open(url);
         } else {
