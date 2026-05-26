@@ -6,7 +6,12 @@
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous" nonce="{{request.csp_nonce}}"></script>
 <!-- jQuery UI -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js" nonce="{{request.csp_nonce}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"
+        integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+        nonce="{{request.csp_nonce}}">
+</script>
 
 
 <!-- Use of GWAS API - Javascript file -->
@@ -35,10 +40,30 @@
 
 <!-- Chart.js -->
 {% if has_chart_js %}
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" nonce="{{request.csp_nonce}}"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" nonce="{{request.csp_nonce}}"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.0.0/chartjs-plugin-datalabels.min.js" nonce="{{request.csp_nonce}}"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+          integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+          nonce="{{request.csp_nonce}}">
+  </script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"
+          integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+          nonce="{{request.csp_nonce}}">
+  </script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.0.0/chartjs-plugin-datalabels.min.js"
+          integrity="sha512-R/QOHLpV1Ggq22vfDAWYOaMd5RopHrJNMxi8/lJu8Oihwi4Ho4BRFeiMiCefn9rasajKjnx9/fTQ/xkWnkDACg=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+          nonce="{{request.csp_nonce}}">
+  </script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.0/chartjs-adapter-moment.min.js"
+          integrity="sha512-oh5t+CdSBsaVVAvxcZKy3XJdP7ZbYUBSRCXDTVn0ODewMDDNnELsrG9eDm8rVZAQg7RsDD/8K3MjPAFB13o6eA=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+          nonce="{{request.csp_nonce}}">
+  </script>
 {% endif %}
 
 <!-- PGS Javascript file -->
@@ -53,7 +78,12 @@
 
 {% if is_benchmark and has_chart %}
   <!-- Benchmark -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js" nonce="{{request.csp_nonce}}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"
+          integrity="sha512-cLuyDTDg9CSseBSFWNd4wkEaZ0TBEpclX0zD3D6HjI19pO39M58AgJ1SjHp6c7ZOp0/OCRcC2BCvvySU9KJaGw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+          nonce="{{request.csp_nonce}}">
+  </script>
   <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js" nonce="{{request.csp_nonce}}"></script>
   {% if is_pgs_app_on_gae %}
     <script defer src="{% static 'benchmark/benchmark.min.js' %}" nonce="{{request.csp_nonce}}"></script>
