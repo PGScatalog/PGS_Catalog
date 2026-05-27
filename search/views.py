@@ -9,7 +9,8 @@ all_results_scores = {}
 def search(request):
     global all_results_scores
 
-    q = request.GET.get('q')
+    # Limiting query size to avoid Elasticsearch crash
+    q = request.GET.get('q', '').strip()[:200]
     score_count = 0
     efo_trait_count = 0
     publication_count = 0
