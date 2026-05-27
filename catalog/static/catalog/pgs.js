@@ -79,7 +79,13 @@ $(document).ready(function() {
         var type = $(this).attr('data-type');
         var type_letter = anc_types[type];
         var data_chart_string = $(this).attr('data-chart');
-        var data_chart = JSON.parse(data_chart_string);
+        var data_chart;
+        try {
+            data_chart = JSON.parse(data_chart_string);
+        } catch(e) {
+            console.error('Invalid data-chart JSON:', e);
+            return;
+        }
 
         // Add tooltip attributes
         $(this).attr('data-toggle','tooltip');
