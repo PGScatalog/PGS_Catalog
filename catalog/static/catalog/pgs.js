@@ -704,17 +704,22 @@ var moretext = 'Show more';
 var lesstext = 'Show less';
 
 function shorten_displayed_content() {
-  $('.more').each(function() {
-      var content = $(this).html();
-      if (content.length > showChar ){
-        if (content.search('.moreellipses') == -1) {
-          var c = content.substr(0, showChar);
-          var h = content.substr(showChar, content.length - showChar);
-          var html = c + '<span class="moreellipses">' + ellipsestext+ '&nbsp;</span><span class="morecontent">' + h + '</span><span class="morelink link_more">' + moretext + '</span>';
-          $(this).html(html);
+    $('.more').each(function() {
+        var $el = $(this);
+        var content = $el.html();
+        if (content.length > showChar && $el.find('.moreellipses').length === 0) {
+            var c = content.substring(0, showChar);
+            var h = content.substring(showChar);
+
+            $el.html(c).append(
+                $('<span>').addClass('moreellipses')
+                           .text(ellipsestext + '\u00A0'),
+                $('<span>').addClass('morecontent').html(h),
+                $('<span>').addClass('morelink link_more')
+                           .text(moretext)
+            );
         }
-      }
-  });
+    });
 }
 
 // Add external link icon and taget blank for external links
@@ -1040,40 +1045,55 @@ function display_category_list(data_json) {
  */
 const gwas_url_root = 'https://www.ebi.ac.uk/gwas';
 const gwas_rest_url_root = gwas_url_root+'/rest/api/v2';
-const gwas_btn_classes = 'class="btn btn-pgs-small pgs_no_icon_link" target="_blank"';
+const gwas_btn_classes = 'btn btn-pgs-small pgs_no_icon_link';
 
 // GWAS Catalog REST API - Publication
 function find_gwas_publication() {
-  const pmid = $('#pubmed_id').html();
+  const pmid = $('#pubmed_id').text();
   if (pmid && pmid !== '') {
+    if (!/^\d+$/.test(pmid)) {
+      console.error('Unexpected pubmed_id format:', pmid);
+      return;
+    }
     const gwas_rest_url = gwas_rest_url_root+'/publications/';
     $.ajax({
-        url: gwas_rest_url+pmid,
+        url: gwas_rest_url+encodeURIComponent(pmid),
         method: "GET",
         contentType: "application/json",
         dataType: 'json'
     })
     .done(function () {  // If successful, the publication exists (otherwise returns 404)
-      const $gwas_pmid_url = $('#gwas_pmid_url');
-      $gwas_pmid_url.html('<a '+gwas_btn_classes+' href="'+gwas_url_root+'/publications/'+pmid+'"><span class="gwas_icon"></span>View in NHGRI-EBI GWAS Catalog</a>');
-      $gwas_pmid_url.addClass('mb-2');
+      $('#gwas_pmid_url').empty().append(
+          $('<a>')
+            .attr('href', gwas_url_root + '/publications/' + encodeURIComponent(pmid))
+            .attr('target', '_blank')
+            .addClass(gwas_btn_classes)
+            .append($('<span>').addClass('gwas_icon'))
+            .append(document.createTextNode('View in NHGRI-EBI GWAS Catalog'))
+      ).addClass('mb-2');
     });
   }
 }
 
 // GWAS Catalog REST API - Trait
 function find_gwas_trait() {
-  const trait_id = $('#trait_id').html();
+  const trait_id = $('#trait_id').text();
   if (trait_id && trait_id !== '') {
     const gwas_rest_url = gwas_rest_url_root+'/efo-traits/';
     $.ajax({
-        url: gwas_rest_url+trait_id,
+        url: gwas_rest_url+encodeURIComponent(trait_id),
         method: "GET",
         contentType: "application/json",
         dataType: 'json'
     })
     .done(function () {  // If successful, the trait exists (otherwise returns 404)
-        $('#gwas_efo_url').html('<a '+gwas_btn_classes+' href="'+gwas_url_root+'/efotraits/'+trait_id+'"><span class="gwas_icon"></span> View in NHGRI-EBI GWAS Catalog</a></div>');
+        $('#gwas_efo_url').empty().append(
+            $('<a>').addClass(gwas_btn_classes)
+                    .attr('href', gwas_url_root + '/efotraits/' + encodeURIComponent(trait_id))
+                    .attr('target', '_blank')
+                    .append($('<span>').addClass('gwas_icon'))
+                    .append(document.createTextNode(' View in NHGRI-EBI GWAS Catalog'))
+        )
     });
   }
 }

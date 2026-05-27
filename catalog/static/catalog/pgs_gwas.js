@@ -2,7 +2,7 @@ const gwas_rest_url = 'https://www.ebi.ac.uk/gwas/rest/api/v2/'
 
 function get_gwas_study(gwas_id){
   return $.ajax({
-        url: gwas_rest_url+'studies/'+gwas_id,
+        url: gwas_rest_url+'studies/'+encodeURIComponent(gwas_id),
         method: "GET",
         contentType: "application/json",
         dataType: 'json'
@@ -11,7 +11,7 @@ function get_gwas_study(gwas_id){
 
 function get_gwas_publication(pubmed_id){
   return $.ajax({
-        url: gwas_rest_url+'publications/'+pubmed_id,
+        url: gwas_rest_url+'publications/'+encodeURIComponent(pubmed_id),
         method: "GET",
         contentType: "application/json",
         dataType: 'json'
@@ -19,7 +19,7 @@ function get_gwas_publication(pubmed_id){
 }
 
 $(document).ready(function() {
-  const gwas_id = $('#gwas_id').html();
+  const gwas_id = $('#gwas_id').text();
   if (gwas_id) {
     get_gwas_study(gwas_id)
     .done(function (data) {
@@ -27,10 +27,10 @@ $(document).ready(function() {
 
       // Description
       const data_desc = (data.initial_sample_size) ? data.initial_sample_size : '-';
-      $('#gwas_desc').html(data_desc);
+      $('#gwas_desc').text(data_desc);
       // Trait
       const data_trait = (data.disease_trait) ? data.disease_trait : '-';
-      $('#gwas_trait').html(data_trait);
+      $('#gwas_trait').text(data_trait);
 
       let pub_title = '-';
       let pub_author = '';
@@ -39,13 +39,17 @@ $(document).ready(function() {
 
       if (data.pubmed_id){
         const pubmed_id = data.pubmed_id;
+        if (!/^\d+$/.test(pubmed_id)) {
+            console.error('Unexpected pubmed_id format:', pubmed_id);
+            return;
+        }
         get_gwas_publication(pubmed_id)
             .done(function(data_pub){
               if (data_pub.title){
                 pub_title = data_pub.title;
               }
               if (data_pub.first_author) {
-                pub_author = '<i class="fa fa-angle-double-right"></i> '+data_pub.first_author.full_name+' <i>et al.</i> ';
+                pub_author = data_pub.first_author.full_name;
               }
               if (data_pub.journal) {
                 pub_journal = data_pub.journal;
@@ -66,17 +70,57 @@ $(document).ready(function() {
               pub_title = 'Could not fetch publication information.'
             })
             .always(function(){
-              $('#pub_loading').hide();
-              const pubmed_id_html = '<span class="pl-2 ml-2 pgs_v_separator_left"><a '+ext_link+' href="https://www.ncbi.nlm.nih.gov/pubmed/'+pubmed_id+'">PMID:'+pubmed_id+'</a></span>';
-              $('#gwas_pub_title').html(pub_title);
-              $('#gwas_pub_info').html('<span>'+pub_author+' '+pub_journal+' '+pub_date+'</span>'+pubmed_id_html);
+                // Building the publication information DOM
+                $('#pub_loading').hide();
+
+                // --- pub title ---
+                $('#gwas_pub_title').text(pub_title);
+
+                // --- pub info ---
+                const $info = $('<span>');
+
+                if (pub_author) {
+                    $info.append(
+                        $('<i>').addClass('fa fa-angle-double-right'),
+                        ' ',
+                        document.createTextNode(pub_author),
+                        ' ',
+                        $('<i>').text('et al.'),
+                        ' '
+                    );
+                }
+                if (pub_journal) {
+                    $info.append(document.createTextNode(pub_journal + ' '));
+                }
+                if (pub_date) {
+                    $info.append(document.createTextNode(pub_date));
+                }
+
+                // --- pubmed link ---
+                const safe_pubmed_id = encodeURIComponent(pubmed_id);
+                const $pubmedLink = $('<a>')
+                    .attr('href', 'https://www.ncbi.nlm.nih.gov/pubmed/' + safe_pubmed_id)
+                    .attr('target', '_blank')
+                    .text('PMID:' + pubmed_id);
+
+                const $pubmedSpan = $('<span>')
+                    .addClass('pl-2 ml-2 pgs_v_separator_left')
+                    .append($pubmedLink);
+
+                $('#gwas_pub_info').empty().append($info, $pubmedSpan);
 
             })
       } else {
         $('#pub_loading').hide();
         $('#gwas_pub_title').html('No publication data');
       }
-      $('#gwas_link').html('<a '+ext_link+' href="https://www.ebi.ac.uk/gwas/studies/'+gwas_id+'">https://www.ebi.ac.uk/gwas/studies/'+gwas_id+'</a>');
+      const $link = $('<a>')
+          .attr('class', 'external-link')
+          .attr('target', '_blank')
+          .attr('href', 'https://www.ebi.ac.uk/gwas/studies/' + gwas_id)
+          .text('https://www.ebi.ac.uk/gwas/studies/' + gwas_id);
+      $('#gwas_link').empty().append($link);
+
       const $pgs_loading = $('#pgs_loading');
       $pgs_loading.hide();
       $pgs_loading.html("");
