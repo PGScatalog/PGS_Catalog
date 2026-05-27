@@ -1,5 +1,7 @@
 import csv
 import requests
+
+from core.validation import validate_pmid
 from pgs_web import constants
 from catalog.models import Publication
 from curation_tracker.models import CurationPublicationAnnotation
@@ -208,6 +210,10 @@ def _litsuggest_IO_to_annotation_imports(litsuggest_file) -> List[CurationPublic
             break  # litsuggest files might contain a lot of empty rows after the relevant ones
         pmid = str(int(row['pmid']))
         try:
+            try:
+                pmid = validate_pmid(pmid)
+            except ValueError:
+                raise ImportException(f"Invalid PMID: {pmid}")
             triage_decision = row['triage.decision']
             if not triage_decision:
                 raise ImportException(f'Missing triage decision for {pmid}')

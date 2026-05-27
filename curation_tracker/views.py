@@ -48,31 +48,6 @@ def browse_release_ready(request):
     return render(request, 'curation_tracker/release_ready.html', context)
 
 
-def validate_metadata_template(request):
-    context = {}
-    from django.core.files.storage import default_storage
-    if request.method == 'POST' and request.FILES['myfile']:
-        if settings.MIN_UPLOAD_SIZE <= request.FILES['myfile'].size <= settings.MAX_UPLOAD_SIZE:
-            file_name = request.FILES['myfile'].name
-            file_content = request.FILES['myfile'].read()
-            file = default_storage.open(file_name, 'w')
-            file.write(file_content)
-            file.close()
-            context['uploaded_file'] = True
-            context['filename'] = file_name
-        else:
-            error_msg = 'There is an issue regarding the uploaded file size'
-            # File too big
-            if request.FILES['myfile'].size > settings.MAX_UPLOAD_SIZE:
-                error_msg = 'The uploaded file size is too big (>'+settings.MAX_UPLOAD_SIZE_LABEL+')'
-            # File too small
-            elif request.FILES['myfile'].size < settings.MIN_UPLOAD_SIZE:
-                error_msg = 'The uploaded file size looks too small ('+str(request.FILES['myfile'].size)+'b)'
-            context['size_error'] = error_msg
-    context['max_upload_size_label'] = settings.MAX_UPLOAD_SIZE_LABEL
-    return render(request, 'curation_tracker/validate_metadata.html', context)
-
-
 def stats(request):
     context = {}
 

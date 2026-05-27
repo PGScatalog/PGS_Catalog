@@ -1,6 +1,6 @@
 import operator
 from functools import reduce
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import render,redirect
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
@@ -207,6 +207,12 @@ def browse_scores(request):
     anc_include_multi = form_data['browse_anc_cb_multi']
     browse_search = form_data['browse_search']
 
+    # Control if the ancestry filter value is correct (for security, as it is used as a lookup key in the ORM filtering).
+    # 'anc_step' is already checked further downstream for specific values. 'anc_include_*' are treated as booleans.
+    # 'browse_search' will be parameterised by Django's ORM filtering, so no need to escape before.
+    if anc_value and anc_value not in constants.ANCESTRY_LABELS.keys():
+        return HttpResponseBadRequest('Invalid ancestry filter parameter')
+
     # Study step (gwas,development,evaluation) and ancestry dropdown selection
     # [G | D | E]
     if not anc_step or anc_step == 'any':
@@ -407,6 +413,7 @@ def browse_publications(request):
     publication_prefetch_related = [pgs_prefetch['publication_score'], pgs_prefetch['publication_performance']]
     queryset = Publication.objects.defer(*publication_defer).all().prefetch_related(*publication_prefetch_related)
 
+    # The only input used here is browse_search, safely parameterised by Django ORM filters.
     browse_search = form_data['browse_search']
 
     ## Filter by search ##

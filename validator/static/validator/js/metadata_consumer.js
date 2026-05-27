@@ -115,16 +115,25 @@ function showResults(results){
     }
 }
 
-function showSystemError(errors){
-    let status_html = '<div><b>File validation:</b> <i class="fa fa-times-circle-o pgs_color_red"></i> Failed</div>';
-      $('#check_status').html(status_html);
-      let error_msg = (errors && errors !== '') ? errors : 'Internal error';
-      let error_html = '<div class="clearfix">'+
-                        '  <div class="mt-3 float_left pgs_note pgs_note_2">'+
-                        '    <div><b>Error:</b> '+error_msg+'</div>'+
-                        '  </div>'+
-                        '</div>';
-      $('#report_error').html(error_html);
+function showSystemError(errors) {
+    $('#check_status').empty().append(
+        $('<div>').append(
+            $('<b>').text('File validation: '),
+            $('<i>').addClass('fa fa-times-circle-o pgs_color_red'),
+            ' Failed'
+        )
+    );
+    const error_msg = (errors && errors !== '') ? errors : 'Internal error';
+    $('#report_error').empty().append(
+        $('<div>').addClass('clearfix').append(
+            $('<div>').addClass('mt-3 float_left pgs_note pgs_note_2').append(
+                $('<div>').append(
+                    $('<b>').text('Error: '),
+                    document.createTextNode(error_msg)
+                )
+            )
+        )
+    );
 }
 
 document.querySelector('#upload_btn').addEventListener('click', async () => {
