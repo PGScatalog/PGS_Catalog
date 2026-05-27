@@ -15,50 +15,44 @@ bg_hover_colours = {
   'new_entry': '#FFD700'
 };
 
-$('.get_pgs_ids').click(function() {
-  id = $(this).attr('id');
-  type = id.match(/^release_(\w+)_/)[1];
-  if ($('#list_'+id).is(':empty')) {
-    date = id.replace('release_'+type+'_','');
-    $.ajax({
-      url: rest_url+date,
-      contentType: "application/json",
-      dataType: 'json'
-    })
-    .done(function (result) {
-        // Scores
-        list_score_id = '#list_'+id.replace(type,'score');
-        html_score = "<ul>";
-        $.each(result.released_score_ids, function(index, pgs_id) {
-          html_score += '<li><a href="/pgs/'+pgs_id+'/">'+pgs_id+'</a></li>';
-        });
-        html_score += '</ul>';
-        $(list_score_id).html(html_score);
-
-        list_pub_id = '#list_'+id.replace(type,'pub');
-        html_pub = "<ul>";
-        $.each(result.released_publication_ids, function(index, pgs_id) {
-          html_pub += '<li><a href="/publication/'+pgs_id+'/">'+pgs_id+'</a></li>';
-        });
-        html_pub += '</ul>';
-        $(list_pub_id).html(html_pub);
-        $('#list_'+id).show();
-
-        list_trait_id = '#list_'+id.replace(type,'trait');
-        html_trait = "<ul>";
-        $.each(result.released_new_trait_ids, function(index, trait_id) {
-          html_trait += '<li><a href="/trait/'+trait_id+'/">'+trait_id+'</a></li>';
-        });
-        html_trait += '</ul>';
-        $(list_trait_id).html(html_trait);
-        $('#list_'+id).show();
-    })
-    .fail(function (xhRequest, ErrorText, thrownError) {
-      console.log(xhRequest);
-      console.log(ErrorText);
-      console.log(thrownError);
+function build_id_list(selector, items, url_prefix) {
+  console.log(items);
+    const $ul = $('<ul>');
+    $.each(items, function(index, id) {
+        $ul.append(
+            $('<li>').append(
+                $('<a>').attr('href', '/' + url_prefix + '/' + encodeURIComponent(id) + '/')
+                        .text(id)
+            )
+        );
     });
-  }
+    $(selector).html($ul);
+}
+
+$('.get_pgs_ids').click(function() {
+    const id = $(this).attr('id');
+    const type = id.match(/^release_(\w+)_/)[1];
+
+    if ($('#list_' + id).is(':empty')) {
+        const date = id.replace('release_' + type + '_', '');
+
+        $.ajax({
+            url: rest_url + encodeURIComponent(date),
+            contentType: "application/json",
+            dataType: 'json'
+        })
+        .done(function(result) {
+            build_id_list('#list_' + id.replace(type, 'score'), result.released_score_ids, 'pgs');
+            build_id_list('#list_' + id.replace(type, 'pub'),   result.released_publication_ids, 'publication');
+            build_id_list('#list_' + id.replace(type, 'trait'), result.released_new_trait_ids, 'trait');
+            $('#list_' + id).show();
+        })
+        .fail(function (xhRequest, ErrorText, thrownError) {
+          console.log(xhRequest);
+          console.log(ErrorText);
+          console.log(thrownError);
+        });
+    }
 });
 
 
