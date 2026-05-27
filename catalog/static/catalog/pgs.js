@@ -229,22 +229,17 @@ $(document).ready(function() {
     });
 
     // Update to the scientific notation (1x10-1 and 1e-1)
-    if ($('#pgs_params').length) {
-      var pgs_param = $('#pgs_params').html();
-      var matches = pgs_param.match(/\d+(x10|e)(-?\d+)/);
-      if (matches && matches.length > 2) {
-        for(var i=2; i<matches.length; i++) {
-          if (matches[i] == 'x10' || matches[i] == 'e') {
-            continue;
-          }
-          var chars = (matches[i-1] == 'x10') ? 'x10' : 'e';
-          var pgs_param_sup = pgs_param.replace(chars+matches[i], chars+"<sup>"+matches[i]+"</sup>");
-          $('#pgs_params').html(pgs_param_sup);
-          pgs_param = pgs_param_sup;
-        }
-      }
-      // Update rsquare notation (r2)
-      $('#pgs_params').html(pgs_param.replace("r2", "r<sup>2</sup>"));
+    var $pgs_params = $('#pgs_params');
+    if ($pgs_params.length) {
+        var pgs_param = $pgs_params.html();
+
+        // Scientific notation: 1x10-4 → 1x10<sup>-4</sup>, 1e-4 → 1e<sup>-4</sup>
+        pgs_param = pgs_param.replace(/(x10|e)(-?\d+)/g, '$1<sup>$2</sup>');
+
+        // r2 → r<sup>2</sup>
+        pgs_param = pgs_param.replace(/r2/g, 'r<sup>2</sup>');
+
+        $pgs_params.html(pgs_param);
     }
 
 
