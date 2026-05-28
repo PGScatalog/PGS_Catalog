@@ -15,7 +15,7 @@ function goToPGP(event){
     var pgp_id = $('#id_pgp_id').val();
     if(pgp_id){
         pgp_id = $.trim(pgp_id);
-        if(!/^PGP[0-9]+$/.test(pgp_id)){
+        if(!/^PGP\d{6}$/.test(pgp_id)){
             setError('Invalid PGP ID format');
             return false;
         }

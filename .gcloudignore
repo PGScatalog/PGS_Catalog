@@ -14,6 +14,9 @@
 .github/
 .gitignore
 
+# Gitlab
+.gitlab-ci.yml
+
 # Static directories (GAE uses the ones in /static instead)
 /catalog/static/
 /rest_api/static/
