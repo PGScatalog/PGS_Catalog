@@ -1,5 +1,11 @@
 const gwas_rest_url = 'https://www.ebi.ac.uk/gwas/rest/api/v2/'
 
+function validate_gwas_id(gwas_id) {
+    // Maximum length of 16 digits, more than enough, but we want to avoid potential issues with very long IDs.
+    // (Matches the DB varchar(20) anyway)
+    return /^GCST\d{1,16}$/.test(gwas_id);
+}
+
 function get_gwas_study(gwas_id){
   return $.ajax({
         url: gwas_rest_url+'studies/'+encodeURIComponent(gwas_id),
@@ -21,6 +27,10 @@ function get_gwas_publication(pubmed_id){
 $(document).ready(function() {
   const gwas_id = $('#gwas_id').text();
   if (gwas_id) {
+    if (!validate_gwas_id(gwas_id)) {
+      $('#pgs_loading').html('<h4><i class="fa fa-exclamation-triangle pgs_color_2 pr-3"></i>Error: invalid GWAS ID format</h4>');
+      return;
+    }
     get_gwas_study(gwas_id)
     .done(function (data) {
       const ext_link = 'class="external-link" target="_blank"';
@@ -117,7 +127,8 @@ $(document).ready(function() {
       const $link = $('<a>')
           .attr('class', 'external-link')
           .attr('target', '_blank')
-          .attr('href', 'https://www.ebi.ac.uk/gwas/studies/' + gwas_id)
+          .attr('rel', 'noopener noreferrer')
+          .attr('href', 'https://www.ebi.ac.uk/gwas/studies/' + encodeURIComponent(gwas_id))
           .text('https://www.ebi.ac.uk/gwas/studies/' + gwas_id);
       $('#gwas_link').empty().append($link);
 
