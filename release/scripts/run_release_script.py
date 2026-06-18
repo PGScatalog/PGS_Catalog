@@ -104,7 +104,18 @@ def check_efotrait_associations():
             traits_list.append(trait_id)
 
     if len(traits_list) > 0:
-        error_report("The following PGS EFO Traits are not associated to a Score or a Performance Metric:\n"+'\n'.join(traits_list))
+        output_report(
+            "The following PGS EFO Traits are not associated to a Score or a Performance Metric:\n" + ', '.join(
+                traits_list))
+        print("Delete those traits? (y/N)")
+        answer = input().lower()
+        if answer == 'y':
+            for trait_id in traits_list:
+                trait = EFOTrait.objects.get(id=trait_id)
+                trait.delete()
+            output_report("Deleted the unassociated traits from the database!")
+        else:
+            error_report("Please check the traits associations before release.")
     else:
         output_report("EFOTrait associations - OK: All the traits are associated to a Score or a Performance Metric!")
 
