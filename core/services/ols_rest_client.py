@@ -20,7 +20,7 @@ class OLSRestClient:
         the expected keys. If not, it raises an Exception with the unexpected response."""
         if term_id not in self.cached_terms:
             try:
-                response = requests.get(ols_root_url + '/terms?obo_id=' + term_id.replace('_', ':'))
+                response = requests.get(ols_root_url + '/terms?obo_id=' + term_id)
                 response.raise_for_status()
                 if '_embedded' not in response.json() and 'terms' not in response.json()['_embedded']:
                     raise ValueError(f"Unexpected response for term {term_id}: {response.json()}")

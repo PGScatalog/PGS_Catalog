@@ -624,7 +624,7 @@ def pgp(request, pub_id):
 
         # Very large study
         if count_perf >= constants.TABLE_ROWS_THRESHOLD:
-            context['perf_count'] = count_perf
+            context['perf_count'] = format_model_numbers(count_perf)
 
             # Get externally developped scores
             external_scores = set()
@@ -675,7 +675,7 @@ def pgp(request, pub_id):
             table = EmbargoedScoreTable(embargoed_scores)
             embargoed_scores_count = EmbargoedScore.objects.filter(firstauthor=embargoed_pub.firstauthor).count()
             template_html_file = 'embargoed/'+template_html_file
-            context = { 'publication' : embargoed_pub, 'scores_count': embargoed_scores_count, 'scores_table': table, 'has_table': 1}
+            context = { 'publication' : embargoed_pub, 'scores_count': embargoed_scores_count, 'scores_count_formatted': format_model_numbers(embargoed_scores_count), 'scores_table': table, 'has_table': 1}
         except EmbargoedPublication.DoesNotExist:
             try:
                 retired_publication = Retired.objects.get(id=pub_id)

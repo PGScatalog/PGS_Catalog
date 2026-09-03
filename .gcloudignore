@@ -56,3 +56,4 @@ LICENSE.md
 README.md
 requirements_local.txt
 **/.DS_Store
+app_*

@@ -180,6 +180,7 @@ class EFOTrait_Base(models.Model):
         abstract = True
 
     def parse_api(self):
+        self.id = self.id.upper()
         response = OLSRestClient().get_term(self.id)
         self.label = response['label']
         self.url = response['iri']

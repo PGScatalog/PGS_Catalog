@@ -20,21 +20,21 @@ class UpdateEFO:
     categories_info = {
         'Biological process': { colour_key: '#BEBADA', parent_key: 'biological process', efo_key: ['GO_0008150'] },
         'Body measurement': { colour_key: '#66CCFF', parent_key: 'body weights and measures', efo_key: ['EFO_0004324'] },
-        'Cancer': { colour_key: '#BC80BD', parent_key: 'neoplasm', efo_key: ['EFO_0000616'] },
-        'Cardiovascular disease': { colour_key: '#B33232', parent_key: 'cardiovascular disease', efo_key: ['EFO_0000319', 'HP_0001626'] },
+        'Cancer': { colour_key: '#BC80BD', parent_key: 'neoplasm', efo_key: ['EFO_0000616','MONDO:0005070'] },
+        'Cardiovascular disease': { colour_key: '#B33232', parent_key: 'cardiovascular disease', efo_key: ['MONDO_0004995', 'HP_0001626'] },
         'Cardiovascular measurement': { colour_key: '#80B1D3', parent_key: 'cardiovascular measurement', efo_key: ['EFO_0004298'] },
-        'Digestive system disorder': { colour_key: '#B7704C', parent_key: 'digestive system disease', efo_key: ['EFO_0000405'] },
+        'Digestive system disorder': { colour_key: '#B7704C', parent_key: 'digestive system disease', efo_key: ['MONDO_0004335'] },
         'Hematological measurement': { colour_key: '#8DD3C7', parent_key: 'hematological measurement', efo_key: ['EFO_0004503'] },
-        'Immune system disorder': { colour_key: '#FFED6F', parent_key: 'immune system disease', efo_key: ['EFO_0000540'] },
+        'Immune system disorder': { colour_key: '#FFED6F', parent_key: 'immune system disease', efo_key: ['MONDO_0005046'] },
         'Inflammatory measurement': { colour_key: '#CCEBC5', parent_key: 'inflammatory biomarker measurement', efo_key: ['EFO_0004872'] },
         'Lipid or lipoprotein measurement': { colour_key: '#B3DE69', parent_key: 'lipid or lipoprotein measurement', efo_key: ['EFO_0004529','EFO_0004732','EFO_0005105'] },
-        'Liver enzyme measurement': { colour_key: '#669900', parent_key: 'liver enzyme measurement', efo_key: ['EFO_0004582'] },
-        'Metabolic disorder': { colour_key: '#FDB462', parent_key: 'metabolic disease', efo_key: ['EFO_0000589'] },
-        'Neurological disorder': { colour_key: '#FFFFB3', parent_key: 'nervous system disease', efo_key: ['EFO_0000618', 'HP_0000707'] },
-        'Other disease': { colour_key: '#FF3399', parent_key: 'disease', efo_key: ['EFO_0000408'] },
+        'Liver enzyme measurement': { colour_key: '#669900', parent_key: 'liver enzyme measurement', efo_key: ['OBA_VT0005584'] },
+        'Metabolic disorder': { colour_key: '#FDB462', parent_key: 'metabolic disease', efo_key: ['MONDO_0005066'] },
+        'Neurological disorder': { colour_key: '#FFFFB3', parent_key: 'nervous system disease', efo_key: ['MONDO_0005071', 'HP_0000707'] },
+        'Other disease': { colour_key: '#FF3399', parent_key: 'disease', efo_key: ['MONDO_0000001'] },
         'Other measurement': { colour_key: '#006699', parent_key: 'measurement', efo_key: ['EFO_0001444'] },
         'Other trait': { colour_key: '#FB8072', parent_key: 'experimental factor', efo_key: ['EFO_0000001'] },
-        'Response to drug': { colour_key: '#FCCDE5', parent_key: 'response to drug', efo_key: ['GO_0042493'] },
+        'Response to drug': { colour_key: '#FCCDE5', parent_key: 'response to drug', efo_key: ['GO_0009410'] },
         'Sex-specific PGS': { colour_key: '#00adb5', parent_key: 'sex_specific_pgs', efo_key: ['PATO_0000383','PATO_0000384'] } #,'PATO_0001894','PATO_0000047'}
     }
 
@@ -132,9 +132,13 @@ class UpdateEFO:
         return data
 
 
+    def get_trait_id(self, trait:EFOTrait) -> str:
+        return trait.id
+
+
     def update_efo_info(self, trait):
         ''' Fetch EFO information from an EFO ID, using the OLS REST API '''
-        trait_id = trait.id
+        trait_id = self.get_trait_id(trait)
         try:
             response = self.ols_rest_client.get_term(trait_id)
         except Exception as e:
@@ -213,8 +217,9 @@ class UpdateEFO:
 
 
     def get_parents(self,trait):
+        trait_id = self.get_trait_id(trait)
         try:
-            response = self.ols_rest_client.get_ancestors(trait.id)
+            response = self.ols_rest_client.get_ancestors(trait_id)
         except Exception as e:
             print(f"ERROR: Can't retrieve parents for the trait '{trait.name}'! {e}")
             response = None

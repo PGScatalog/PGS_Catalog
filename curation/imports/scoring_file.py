@@ -17,7 +17,7 @@ class ScoringFileUpdate():
 
     value_separator = '|'
     weight_type_label = 'weight_type'
-    extensions = ('txt', 'tsv', 'xlsx')
+    extensions = ('txt', 'tsv', 'xlsx', 'txt.gz')
 
     def __init__(self, score, study_path, new_scoring_dir, score_file_schema, score_file_format_version):
         self.score = score
@@ -74,6 +74,9 @@ class ScoringFileUpdate():
                 # Chunk reading not possible with spreadsheets. If too big, it might be preferable to convert them
                 # to text files.
                 yield pd.read_excel(file_path, dtype='str')
+            case ('txt.gz'):
+                for chunk in pd.read_table(file_path, compression='gzip', comment='#', dtype='str', engine='python', chunksize=chunk_size):
+                    yield chunk
             case _:
                 raise ValueError(f'Unsupported file format: {file_format}')
 
