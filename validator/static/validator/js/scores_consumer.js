@@ -4,7 +4,7 @@ const validate_scores = await fetch(new URL('../python/bin/validation_scores.py'
 const dependencies = {
     // pyodide 0.28.2 built-in packages include pydantic 2.10.6, which is the version used by pgscatalog.core 1.0.1
     pyodide_packages: ["micropip","pydantic","pydantic-core","lzma"],
-    pip_packages: ['openpyxl','xopen==2.0.2','pgscatalog.core==1.0.1','/static/validator/python/wheels/pgscatalog_validate-0.3-py3-none-any.whl'],
+    pip_packages: ['openpyxl','xopen==2.0.2','pgscatalog.core==1.0.1','/static/validator/python/wheels/pgscatalog_validate-0.3.1-py3-none-any.whl'],
     static_files: [],
 }
 // Init worker
