@@ -8,7 +8,11 @@ const dependencies = {
     static_files: [],
 }
 // Init worker
-pyworker.initWorker(dependencies);
+pyworker.initWorker(dependencies).catch((e) => {
+    appendAlertToElement("error","An error occurred while initializing the validator.",'danger');
+    document.getElementById("fsaForm").style.display = "none";
+    document.getElementById("webkitForm").style.display = "none";
+});
 
 let dirHandle;
 let validateFileHandle;

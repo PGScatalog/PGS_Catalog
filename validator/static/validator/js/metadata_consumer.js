@@ -10,7 +10,9 @@ const dependencies = {
     }],
 }
 // Init worker
-pyworker.initWorker(dependencies);
+pyworker.initWorker(dependencies).catch((e) => {
+    showSystemError("An error occurred while initializing the validator. Please contact the PGS-Catalog support if the problem persists.");
+});
 
 let dirHandle;
 

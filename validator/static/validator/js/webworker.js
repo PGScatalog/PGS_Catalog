@@ -35,9 +35,15 @@ self.onmessage = async (event) => {
     const { id, type, python, ...context } = event.data;
 
     if(type === "init"){
-        await init(context['dependencies']);
-        self.postMessage({status: 'success', id});
-        return;
+        try {
+            await init(context['dependencies']);
+            self.postMessage({status: 'success', id});
+            return;
+        } catch (error) {
+            console.error(error);
+            self.postMessage({error: error.message, id});
+            return;
+        }
     }
     // Make sure loading is done
     if(!self.is_initialized){
