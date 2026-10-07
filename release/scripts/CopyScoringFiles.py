@@ -16,12 +16,13 @@ class CopyScoringFiles:
         'skipped': []
     }
 
-    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir, md5_sql_filepath, username):
+    def __init__(self, new_ftp_scores_dir, staged_scores_dir, scoring_files_dir, md5_sql_filepath, username, custom_list_scores):
         self.new_ftp_scores_dir = new_ftp_scores_dir
         self.new_scoringfiles_dir = staged_scores_dir
         self.scoring_files_dir = scoring_files_dir
         self.md5_sql_filepath = md5_sql_filepath
         self.username = username
+        self.custom_list_scores = custom_list_scores
 
         if not os.path.exists(new_ftp_scores_dir):
             print(f'Error: The path to the data directory can\'t be found ({new_ftp_scores_dir}).')
@@ -83,9 +84,13 @@ class CopyScoringFiles:
 
 
     def get_list_of_scores(self):
-        """ Extract the list of scores to be published, for the text file. """
-        scores_file = open(self.new_ftp_scores_dir+'/'+self.scores_list_file, 'r')
-        self.score_ids_list = [ line.strip(' \t\n') for line in scores_file.readlines() ]
+        """ Extract the list of scores to be published, from the text file. """
+        if self.custom_list_scores:
+            scores_list_file_path = self.custom_list_scores
+        else:
+            scores_list_file_path = self.new_ftp_scores_dir+'/'+self.scores_list_file
+        scores_file = open(scores_list_file_path, 'r')
+        self.score_ids_list = [line.strip(' \t\n') for line in scores_file.readlines()]
         scores_file.close()
 
 
