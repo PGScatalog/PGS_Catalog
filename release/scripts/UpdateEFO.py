@@ -20,7 +20,7 @@ class UpdateEFO:
     categories_info = {
         'Biological process': { colour_key: '#BEBADA', parent_key: 'biological process', efo_key: ['GO_0008150'] },
         'Body measurement': { colour_key: '#66CCFF', parent_key: 'body weights and measures', efo_key: ['EFO_0004324'] },
-        'Cancer': { colour_key: '#BC80BD', parent_key: 'neoplasm', efo_key: ['EFO_0000616','MONDO:0005070'] },
+        'Cancer': { colour_key: '#BC80BD', parent_key: 'neoplasm', efo_key: ['EFO_0000616','MONDO_0005070'] },
         'Cardiovascular disease': { colour_key: '#B33232', parent_key: 'cardiovascular disease', efo_key: ['MONDO_0004995', 'HP_0001626'] },
         'Cardiovascular measurement': { colour_key: '#80B1D3', parent_key: 'cardiovascular measurement', efo_key: ['EFO_0004298'] },
         'Digestive system disorder': { colour_key: '#B7704C', parent_key: 'digestive system disease', efo_key: ['MONDO_0004335'] },
