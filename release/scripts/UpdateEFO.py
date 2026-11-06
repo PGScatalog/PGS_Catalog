@@ -354,15 +354,11 @@ class UpdateEFO:
             print(f'No Trait category found for the trait "{trait_label}" ({trait_id}).')
             return
 
-        # Other trait
-        if len(ols_trait_list) > 1 and 'EFO_0000001' in ols_trait_list:
-            ols_trait_list.remove('EFO_0000001')
-        # Other disease
-        if len(ols_trait_list) > 1 and 'EFO_0000408' in ols_trait_list:
-            ols_trait_list.remove('EFO_0000408')
-        # Other measurement
-        if len(ols_trait_list) > 1 and 'EFO_0001444' in ols_trait_list:
-            ols_trait_list.remove('EFO_0001444')
+        # Removing "Other" traits
+        for other_category_name in ['Other trait', 'Other disease', 'Other measurement']:
+            for other_trait_id in self.categories_info[other_category_name][self.efo_key]:
+                if len(ols_trait_list) > 1 and other_trait_id in ols_trait_list:
+                    ols_trait_list.remove(other_trait_id)
 
         for ols_trait_id in ols_trait_list:
             ols_categories.add(self.categories[ols_trait_id])
