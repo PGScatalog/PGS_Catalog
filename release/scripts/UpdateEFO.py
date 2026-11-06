@@ -34,7 +34,7 @@ class UpdateEFO:
         'Other disease': { colour_key: '#FF3399', parent_key: 'disease', efo_key: ['MONDO_0000001'] },
         'Other measurement': { colour_key: '#006699', parent_key: 'measurement', efo_key: ['EFO_0001444'] },
         'Other trait': { colour_key: '#FB8072', parent_key: 'experimental factor', efo_key: ['EFO_0000001'] },
-        'Response to drug': { colour_key: '#FCCDE5', parent_key: 'response to drug', efo_key: ['GO_0009410'] },
+        'Response to drug': { colour_key: '#FCCDE5', parent_key: 'response to drug', efo_key: ['GO_0050896'] },
         'Sex-specific PGS': { colour_key: '#00adb5', parent_key: 'sex_specific_pgs', efo_key: ['PATO_0000383','PATO_0000384'] } #,'PATO_0001894','PATO_0000047'}
     }
 
