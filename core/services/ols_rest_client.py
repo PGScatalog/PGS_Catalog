@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from pgs_web import constants
 import logging
 
@@ -9,19 +11,61 @@ logger = logging.getLogger(__name__)
 
 
 class OLSRestClient:
-    """A client to fetch data from the Ontology Lookup Service REST API."""
+    """A client to fetch data from the Ontology Lookup Service REST API.
 
-    def __init__(self):
+    Use it as a context manager to reuse connections (and retry failed requests):
+        with OLSRestClient() as client:
+            client.get_term(...)
+    Used without `with`, each call is a plain requests.get().
+    """
+
+    DEFAULT_TIMEOUT = 10  # seconds
+
+    def __init__(self, retries=5, backoff_factor=1, timeout=DEFAULT_TIMEOUT):
         self.cached_terms = {}
         self.cached_ancestors = {}
+        self.retries = retries
+        self.backoff_factor = backoff_factor
+        self.timeout = timeout
+        self.session = None  # only set while inside a `with` block
+
+    def _build_session(self):
+        retry = Retry(
+            total=self.retries,
+            backoff_factor=self.backoff_factor,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["GET"],
+            raise_on_status=False,  # let raise_for_status() report the final failure
+        )
+        session = requests.Session()
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
+        session.headers.update({"Accept": "application/json"})
+        return session
+
+    def __enter__(self):
+        self.session = self._build_session()
+        return self
+
+    def __exit__(self, *exc):
+        if self.session is not None:
+            self.session.close()
+            self.session = None
+
+    def _get(self, url):
+        """Single entry point for HTTP calls: uses the session if active, else requests.get()."""
+        getter = self.session.get if self.session else requests.get
+        response = getter(url, timeout=self.timeout)
+        response.raise_for_status()
+        return response
 
     def get_term(self, term_id):
         """Get an OLSTerm object for the given term ID. It checks if the response is correctly formatted and contains
         the expected keys. If not, it raises an Exception with the unexpected response."""
         if term_id not in self.cached_terms:
             try:
-                response = requests.get(ols_root_url + '/terms?obo_id=' + term_id)
-                response.raise_for_status()
+                response = self._get(ols_root_url + '/terms?obo_id=' + term_id)
                 if '_embedded' not in response.json() and 'terms' not in response.json()['_embedded']:
                     raise ValueError(f"Unexpected response for term {term_id}: {response.json()}")
                 data = response.json()['_embedded']['terms']
@@ -42,9 +86,8 @@ class OLSRestClient:
     def get_ancestors(self, term_id):
         """Get the ancestors of a term given its ID."""
         if term_id not in self.cached_ancestors:
-            response = requests.get(f'{ols_root_url}/ancestors?id={term_id}')
             try:
-                response.raise_for_status()
+                response = self._get(f'{ols_root_url}/ancestors?id={term_id}')
             except requests.exceptions.RequestException as e:
                 logger.error(f"Error fetching ancestors for term {term_id}: {e}")
                 raise e

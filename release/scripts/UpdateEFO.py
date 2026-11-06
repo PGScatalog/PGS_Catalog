@@ -34,7 +34,7 @@ class UpdateEFO:
         'Other disease': { colour_key: '#FF3399', parent_key: 'disease', efo_key: ['MONDO_0000001'] },
         'Other measurement': { colour_key: '#006699', parent_key: 'measurement', efo_key: ['EFO_0001444'] },
         'Other trait': { colour_key: '#FB8072', parent_key: 'experimental factor', efo_key: ['EFO_0000001'] },
-        'Response to drug': { colour_key: '#FCCDE5', parent_key: 'response to drug', efo_key: ['GO_0009410'] },
+        'Response to drug': { colour_key: '#FCCDE5', parent_key: 'response to drug', efo_key: ['GO_0050896'] },
         'Sex-specific PGS': { colour_key: '#00adb5', parent_key: 'sex_specific_pgs', efo_key: ['PATO_0000383','PATO_0000384'] } #,'PATO_0001894','PATO_0000047'}
     }
 
@@ -67,7 +67,7 @@ class UpdateEFO:
     }
 
 
-    def __init__(self):
+    def __init__(self, ols_rest_client: OLSRestClient = None):
         self.ontology_data = {}
         self.efo_traits_with_category = set()
         self.efo_categories_by_cat = {}
@@ -79,7 +79,7 @@ class UpdateEFO:
         self.trait_categories = set()
         self.warnings = []
         self.build_efo_category_labels_dict()
-        self.ols_rest_client = OLSRestClient()
+        self.ols_rest_client = ols_rest_client if ols_rest_client else OLSRestClient()
 
 
     def build_efo_category_labels_dict(self):
@@ -354,15 +354,11 @@ class UpdateEFO:
             print(f'No Trait category found for the trait "{trait_label}" ({trait_id}).')
             return
 
-        # Other trait
-        if len(ols_trait_list) > 1 and 'EFO_0000001' in ols_trait_list:
-            ols_trait_list.remove('EFO_0000001')
-        # Other disease
-        if len(ols_trait_list) > 1 and 'EFO_0000408' in ols_trait_list:
-            ols_trait_list.remove('EFO_0000408')
-        # Other measurement
-        if len(ols_trait_list) > 1 and 'EFO_0001444' in ols_trait_list:
-            ols_trait_list.remove('EFO_0001444')
+        # Removing "Other" traits
+        for other_category_name in ['Other trait', 'Other disease', 'Other measurement']:
+            for other_trait_id in self.categories_info[other_category_name][self.efo_key]:
+                if len(ols_trait_list) > 1 and other_trait_id in ols_trait_list:
+                    ols_trait_list.remove(other_trait_id)
 
         for ols_trait_id in ols_trait_list:
             ols_categories.add(self.categories[ols_trait_id])
@@ -492,5 +488,6 @@ class UpdateEFO:
 def run():
     ''' Update the EFO entries and add/update the Trait categories (from GWAS Catalog).'''
 
-    efo_update = UpdateEFO()
-    efo_update.launch_efo_updates()
+    with OLSRestClient(backoff_factor=2) as ols_rest_client:
+        efo_update = UpdateEFO(ols_rest_client=ols_rest_client)
+        efo_update.launch_efo_updates()
