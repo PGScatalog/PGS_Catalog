@@ -1,4 +1,4 @@
-from elasticsearch_dsl import analysis, analyzer, tokenizer
+from elasticsearch.dsl import analysis, analyzer, tokenizer
 
 
 def id_analyzer():
