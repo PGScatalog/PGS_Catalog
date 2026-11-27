@@ -1,4 +1,4 @@
-from elasticsearch_dsl import Q
+from elasticsearch.dsl import Q
 from search.documents.efo_trait import EFOTraitDocument
 from search.documents.publication import PublicationDocument
 from search.documents.score import ScoreDocument

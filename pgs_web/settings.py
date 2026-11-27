@@ -3,6 +3,11 @@ Django settings for pgs_web project.
 """
 
 import os
+from pathlib import Path
+from typing import Any
+
+from django.core.exceptions import ImproperlyConfigured
+
 from pgs_web.constants import USEFUL_URLS
 from pgs_web.external_urls import STYLES_URLS
 from urllib.parse import urlparse
@@ -425,11 +430,22 @@ CORS_ALLOW_ALL_ORIGINS = True
 #  Elasticsearch Settings  #
 #--------------------------#
 # Elasticsearch configuration
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': os.environ['ELASTICSEARCH_URL_ROOT']
-    }
-}
+es_url = os.environ['ELASTICSEARCH_URL_ROOT']
+es_config: dict[str, Any] = {'hosts': es_url}
+es_user = os.environ.get('ELASTICSEARCH_USER', None)
+es_password = os.environ.get('ELASTICSEARCH_PASSWORD', None)
+if es_user and es_password:
+    es_config['basic_auth'] = (es_user, es_password)
+
+if es_url.startswith('https://'):
+    ca_path = Path(BASE_DIR) / 'elasticsearch-ca.pem'
+    if not ca_path.is_file():
+        raise ImproperlyConfigured(
+            f'Elasticsearch CA certificate not found at {ca_path}. '
+            'Make sure elasticsearch-ca.pem is part of the deployment. '
+        )
+    es_config['ca_certs'] = str(ca_path)
+ELASTICSEARCH_DSL = {'default': es_config}
 
 # Name of the Elasticsearch index
 ELASTICSEARCH_INDEX_NAMES = {

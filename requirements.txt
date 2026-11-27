@@ -10,9 +10,9 @@ psycopg[binary]==3.3.2
 djangorestframework==3.18.2
 django-cors-headers==3.13.0
 #### Python & Django Elasticsearch libraries
-elasticsearch==7.17.9
-elasticsearch-dsl==7.4.1
-django-elasticsearch-dsl==7.3
+elasticsearch==8.19.3
+elasticsearch-dsl==8.18
+django-elasticsearch-dsl==8.2
 #### Others
 requests==2.33.0
 #### Cloud file storage
