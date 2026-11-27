@@ -3,6 +3,7 @@
 /static/
 app.yaml
 pgs-catalog-cred.json
+elasticsearch-ca.pem
 .idea
 .vscode
 *.min.js
